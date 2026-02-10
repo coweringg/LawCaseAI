@@ -281,19 +281,22 @@ export default function CaseDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-law-charcoal-50 flex items-center justify-center">
+        <div className="spinner w-12 h-12"></div>
       </div>
     )
   }
 
   if (!case_) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
+      <div className="min-h-screen bg-law-charcoal-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-secondary-900 mb-4">Case not found</h1>
+          <div className="w-16 h-16 bg-law-charcoal-100 rounded-law-lg flex items-center justify-center mx-auto mb-6">
+            <FileText className="w-8 h-8 text-law-charcoal-400" />
+          </div>
+          <h1 className="heading-3 text-law-charcoal-900 mb-4">Case not found</h1>
           <Link href="/dashboard">
-            <Button>Back to Dashboard</Button>
+            <Button className="btn-primary">Back to Dashboard</Button>
           </Link>
         </div>
       </div>
@@ -301,24 +304,24 @@ export default function CaseDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-law-charcoal-50">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm min-h-screen">
+        <div className="sidebar w-64">
           <div className="p-6">
-            <Link href="/dashboard" className="flex items-center space-x-2 mb-8">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-white" />
+            <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
+              <div className="w-10 h-10 bg-law-blue-600 rounded-law flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <FileText className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
+              <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
             </Link>
             
             <nav className="space-y-2">
-              <Link href="/dashboard" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900">
+              <Link href="/dashboard" className="sidebar-item sidebar-item-inactive">
                 <FileText className="w-5 h-5 mr-3" />
                 Cases
               </Link>
-              <Link href="/dashboard/settings" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900">
+              <Link href="/dashboard/settings" className="sidebar-item sidebar-item-inactive">
                 <Settings className="w-5 h-5 mr-3" />
                 Settings
               </Link>
@@ -329,98 +332,102 @@ export default function CaseDetail() {
         {/* Main Content */}
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-white shadow-sm border-b border-secondary-100">
-            <div className="px-6 py-4">
+          <header className="bg-white shadow-law border-b border-law-charcoal-200">
+            <div className="px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Link href="/dashboard">
-                    <Button variant="ghost" size="sm">
+                    <Button className="btn-secondary" size="sm">
                       <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back
+                      Back to Cases
                     </Button>
                   </Link>
                   <div>
-                    <h1 className="text-2xl font-bold text-secondary-900">{case_.name}</h1>
-                    <p className="text-secondary-600">Client: {case_.client}</p>
+                    <h1 className="heading-3 text-law-charcoal-900">{case_.name}</h1>
+                    <p className="text-law-charcoal-600 mt-1">Client: {case_.client}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                    case_.status === 'active' ? 'bg-success-100 text-success-800' :
-                    case_.status === 'closed' ? 'bg-secondary-100 text-secondary-800' :
-                    'bg-warning-100 text-warning-800'
+                <div className="flex items-center space-x-3">
+                  <span className={`badge ${
+                    case_.status === 'active' ? 'badge-success' :
+                    case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
+                    'badge-warning'
                   }`}>
-                    {case_.status}
+                    {case_.status.charAt(0).toUpperCase() + case_.status.slice(1)}
                   </span>
                 </div>
               </div>
             </div>
           </header>
 
-          <main className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <main className="p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Files Section */}
               <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
+                <div className="card-premium">
+                  <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
-                      <CardTitle>Case Files</CardTitle>
-                      <Button onClick={() => setShowUploadModal(true)}>
+                      <CardTitle className="heading-4">Case Documents</CardTitle>
+                      <Button onClick={() => setShowUploadModal(true)} className="btn-primary">
                         <Upload className="w-4 h-4 mr-2" />
-                        Upload File
+                        Upload Document
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
                     {/* Search */}
-                    <div className="mb-4">
+                    <div className="mb-6">
                       <Input
-                        placeholder="Search files..."
+                        placeholder="Search documents..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        leftIcon={<Search className="w-5 h-5 text-secondary-400" />}
+                        leftIcon={<Search className="w-5 h-5 text-law-charcoal-400" />}
+                        className="input-field"
                       />
                     </div>
 
                     {/* Files List */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {filteredFiles.length === 0 ? (
-                        <div className="text-center py-8 text-secondary-500">
-                          <FileText className="w-12 h-12 mx-auto mb-4 text-secondary-300" />
-                          <p>No files uploaded yet</p>
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 bg-law-charcoal-100 rounded-law-lg flex items-center justify-center mx-auto mb-6">
+                            <FileText className="w-8 h-8 text-law-charcoal-400" />
+                          </div>
+                          <h3 className="heading-4 text-law-charcoal-900 mb-3">No documents uploaded</h3>
+                          <p className="text-law-charcoal-600 mb-6">Upload your first document to get started</p>
                           <Button
-                            variant="outline"
-                            className="mt-4"
+                            className="btn-outline"
                             onClick={() => setShowUploadModal(true)}
                           >
-                            Upload first file
+                            Upload First Document
                           </Button>
                         </div>
                       ) : (
                         filteredFiles.map((file) => (
-                          <div key={file.id} className="flex items-center justify-between p-3 border border-secondary-200 rounded-lg hover:bg-secondary-50">
-                            <div className="flex items-center space-x-3">
-                              <FileText className="w-5 h-5 text-secondary-400" />
+                          <div key={file.id} className="flex items-center justify-between p-4 border border-law-charcoal-200 rounded-law-lg hover:bg-law-charcoal-50 transition-colors duration-200">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-10 h-10 bg-law-blue-100 rounded-law flex items-center justify-center">
+                                <FileText className="w-5 h-5 text-law-blue-600" />
+                              </div>
                               <div>
-                                <p className="font-medium text-secondary-900">{file.name}</p>
-                                <p className="text-sm text-secondary-500">
+                                <p className="font-medium text-law-charcoal-900">{file.name}</p>
+                                <p className="text-sm text-law-charcoal-500">
                                   {formatFileSize(file.size)} • {formatDate(file.uploadedAt)}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Button
-                                variant="ghost"
+                                className="btn-outline"
                                 size="sm"
                                 onClick={() => handleFileDownload(file)}
                               >
                                 <Download className="w-4 h-4" />
                               </Button>
                               <Button
-                                variant="ghost"
+                                className="text-error-600 hover:text-error-800 hover:bg-error-50"
                                 size="sm"
                                 onClick={() => handleFileDelete(file.id)}
-                                className="text-error-600 hover:text-error-800"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -430,56 +437,59 @@ export default function CaseDetail() {
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               </div>
 
               {/* AI Chat Section */}
               <div className="lg:col-span-1">
-                <Card className="h-[600px] flex flex-col">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <MessageCircle className="w-5 h-5 mr-2" />
-                      AI Assistant
+                <div className="card-premium h-[650px] flex flex-col">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center heading-4">
+                      <MessageCircle className="w-5 h-5 mr-2 text-law-blue-600" />
+                      AI Legal Assistant
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col">
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto mb-6 space-y-4 scrollbar-hide">
                       {messages.length === 0 ? (
-                        <div className="text-center py-8">
-                          <Bot className="w-12 h-12 mx-auto mb-4 text-secondary-300" />
-                          <p className="text-secondary-500">Ask me anything about this case</p>
+                        <div className="text-center py-12">
+                          <div className="w-12 h-12 bg-law-blue-100 rounded-law-lg flex items-center justify-center mx-auto mb-4">
+                            <Bot className="w-6 h-6 text-law-blue-600" />
+                          </div>
+                          <h4 className="heading-4 text-law-charcoal-900 mb-2">AI Legal Assistant</h4>
+                          <p className="text-law-charcoal-600">Ask me anything about this case</p>
                         </div>
                       ) : (
                         messages.map((message) => (
                           <div
                             key={message.id}
-                            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
                           >
                             <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
-                              <div className={`flex items-start space-x-2 ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                  message.sender === 'user' ? 'bg-primary-600' : 'bg-secondary-200'
+                              <div className={`flex items-start space-x-3 ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  message.sender === 'user' ? 'bg-law-blue-600' : 'bg-law-charcoal-200'
                                 }`}>
                                   {message.sender === 'user' ? (
                                     <User className="w-4 h-4 text-white" />
                                   ) : (
-                                    <Bot className="w-4 h-4 text-secondary-600" />
+                                    <Bot className="w-4 h-4 text-law-charcoal-600" />
                                   )}
                                 </div>
-                                <div className={`px-3 py-2 rounded-lg ${
+                                <div className={`px-4 py-3 rounded-law-lg ${
                                   message.sender === 'user' 
-                                    ? 'bg-primary-600 text-white' 
-                                    : 'bg-secondary-100 text-secondary-900'
+                                    ? 'bg-law-blue-600 text-white' 
+                                    : 'bg-law-charcoal-100 text-law-charcoal-900'
                                 }`}>
                                   {message.isTyping ? (
                                     <div className="flex space-x-1">
-                                      <div className="w-2 h-2 bg-secondary-400 rounded-full animate-bounce"></div>
-                                      <div className="w-2 h-2 bg-secondary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                      <div className="w-2 h-2 bg-secondary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                      <div className="w-2 h-2 bg-law-charcoal-400 rounded-full animate-bounce"></div>
+                                      <div className="w-2 h-2 bg-law-charcoal-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                      <div className="w-2 h-2 bg-law-charcoal-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                     </div>
                                   ) : (
-                                    <p className="text-sm">{message.content}</p>
+                                    <p className="text-sm leading-relaxed">{message.content}</p>
                                   )}
                                 </div>
                               </div>
@@ -491,22 +501,23 @@ export default function CaseDetail() {
                     </div>
 
                     {/* Message Input */}
-                    <form onSubmit={handleSendMessage} className="flex space-x-2">
+                    <form onSubmit={handleSendMessage} className="flex space-x-3">
                       <div className="flex-1 relative">
                         <Input
                           placeholder="Ask about this case..."
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           disabled={isSending}
-                          leftIcon={<Paperclip className="w-5 h-5 text-secondary-400" />}
+                          leftIcon={<Paperclip className="w-5 h-5 text-law-charcoal-400" />}
+                          className="input-field"
                         />
                       </div>
-                      <Button type="submit" disabled={isSending || !newMessage.trim()}>
+                      <Button type="submit" className="btn-primary" disabled={isSending || !newMessage.trim()}>
                         <Send className="w-4 h-4" />
                       </Button>
                     </form>
                   </CardContent>
-                </Card>
+                </div>
               </div>
             </div>
           </main>
@@ -517,42 +528,45 @@ export default function CaseDetail() {
       <Modal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        title="Upload File"
+        title="Upload Legal Document"
       >
         <form onSubmit={handleFileUpload}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-2">
-                Select File
+          <div className="space-y-6">
+            <div className="form-group">
+              <label className="form-label">
+                Select Document
               </label>
               <input
                 ref={fileInputRef}
                 type="file"
                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="input-field"
                 accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
               />
               {selectedFile && (
-                <p className="mt-2 text-sm text-secondary-600">
-                  Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-                </p>
+                <div className="mt-3 p-3 bg-law-blue-50 rounded-law border border-law-blue-200">
+                  <p className="text-sm text-law-blue-800">
+                    <strong>Selected:</strong> {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                  </p>
+                </div>
               )}
             </div>
           </div>
-          <div className="mt-6 flex justify-end space-x-3">
+          <div className="mt-8 flex justify-end space-x-4">
             <Button
               type="button"
-              variant="outline"
+              className="btn-secondary"
               onClick={() => setShowUploadModal(false)}
             >
               Cancel
             </Button>
             <Button
               type="submit"
+              className="btn-primary"
               disabled={!selectedFile || isUploading}
               loading={isUploading}
             >
-              {isUploading ? 'Uploading...' : 'Upload'}
+              {isUploading ? 'Uploading...' : 'Upload Document'}
             </Button>
           </div>
         </form>

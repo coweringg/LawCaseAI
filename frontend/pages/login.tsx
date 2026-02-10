@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Shield, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Alert } from '@/components/ui/Alert'
@@ -59,7 +59,7 @@ export default function Login() {
       const result = await login(formData.email, formData.password)
       
       if (result.success) {
-        toast.success('Login successful!')
+        toast.success('Welcome back to LawCaseAI!')
       } else {
         toast.error(result.message)
       }
@@ -71,44 +71,54 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-law-charcoal-50 via-white to-law-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 animate-fade-in-up">
         <div className="text-center">
-          <Link href="/" className="flex items-center justify-center space-x-2 mb-6">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <Link href="/" className="flex items-center justify-center space-x-4 mb-8 group">
+            <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-law-charcoal-900">LawCaseAI</span>
+              <span className="text-xs text-law-charcoal-500 font-medium tracking-wider uppercase">Legal Case Management</span>
             </div>
-            <span className="text-2xl font-bold text-secondary-900">LawCaseAI</span>
           </Link>
-          <h2 className="text-3xl font-bold text-secondary-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-sm text-secondary-600">
-            Or{' '}
-            <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              create a new account
+          
+          <div className="inline-flex items-center px-4 py-2 bg-law-blue-100 text-law-blue-800 rounded-law text-sm font-medium mb-6">
+            <Shield className="w-4 h-4 mr-2" />
+            Secure Legal Platform
+          </div>
+          
+          <h1 className="heading-2 mb-4">
+            Welcome Back
+          </h1>
+          <p className="text-lg text-law-charcoal-600 mb-8">
+            Sign in to access your secure case management platform
+          </p>
+          <p className="text-law-charcoal-500">
+            New to LawCaseAI?{' '}
+            <Link href="/register" className="font-medium text-law-blue-600 hover:text-law-blue-700 transition-colors">
+              Start your free trial
             </Link>
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="card-elevated">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              label="Email address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="john@example.com"
-              leftIcon={<Mail className="w-5 h-5 text-secondary-400" />}
-              required
-            />
+            <div className="form-group">
+              <Input
+                label="Email Address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                placeholder="john@lawfirm.com"
+                leftIcon={<Mail className="w-5 h-5 text-law-charcoal-400" />}
+                required
+              />
+            </div>
 
-            <div>
+            <div className="form-group">
               <Input
                 label="Password"
                 name="password"
@@ -117,13 +127,13 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 error={errors.password}
-                placeholder="Enter your password"
-                leftIcon={<Lock className="w-5 h-5 text-secondary-400" />}
+                placeholder="Enter your secure password"
+                leftIcon={<Lock className="w-5 h-5 text-law-charcoal-400" />}
                 rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-secondary-400 hover:text-secondary-600 focus:outline-none"
+                    className="text-law-charcoal-400 hover:text-law-charcoal-600 focus:outline-none transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -142,42 +152,42 @@ export default function Login() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                  className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-secondary-700">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-law-charcoal-700">
                   Remember me
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
-                  Forgot your password?
+                <Link href="/forgot-password" className="font-medium text-law-blue-600 hover:text-law-blue-700 transition-colors">
+                  Forgot password?
                 </Link>
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full"
+              className="btn-primary w-full py-3"
               loading={isLoading}
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-secondary-300" />
+                <div className="w-full border-t border-law-charcoal-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-secondary-500">Or continue with</span>
+                <span className="px-4 bg-white text-law-charcoal-500">Or continue with</span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button variant="outline" className="w-full">
+              <Button className="btn-secondary">
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -187,7 +197,7 @@ export default function Login() {
                 Google
               </Button>
 
-              <Button variant="outline" className="w-full">
+              <Button className="btn-secondary">
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
@@ -197,9 +207,21 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-secondary-600">
-          Protected by bank-level encryption and security.
-        </p>
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-6 text-sm text-law-charcoal-500">
+            <div className="flex items-center">
+              <Shield className="w-4 h-4 mr-1" />
+              SOC 2 Compliant
+            </div>
+            <div className="flex items-center">
+              <Lock className="w-4 h-4 mr-1" />
+              End-to-End Encrypted
+            </div>
+          </div>
+          <p className="text-law-charcoal-400 text-sm">
+            Protected by bank-level encryption and industry-leading security standards.
+          </p>
+        </div>
       </div>
     </div>
   )

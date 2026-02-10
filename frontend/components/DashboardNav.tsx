@@ -18,22 +18,20 @@ export function DashboardNav({ currentPage = 'cases' }: DashboardNavProps) {
   }
 
   return (
-    <div className="w-64 bg-white shadow-sm min-h-screen">
+    <div className="sidebar w-64">
       <div className="p-6">
-        <Link href="/dashboard" className="flex items-center space-x-2 mb-8">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <FileText className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
+        <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
+          <img src="/logo.png" alt="LawCaseAI" className="w-8 h-8 object-contain" />
+          <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
         </Link>
         
         <nav className="space-y-2">
           <Link 
             href="/dashboard" 
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+            className={`sidebar-item ${
               currentPage === 'cases' 
-                ? 'bg-primary-50 text-primary-700' 
-                : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
+                ? 'sidebar-item-active' 
+                : 'sidebar-item-inactive'
             }`}
           >
             <FileText className="w-5 h-5 mr-3" />
@@ -41,10 +39,10 @@ export function DashboardNav({ currentPage = 'cases' }: DashboardNavProps) {
           </Link>
           <Link 
             href="/dashboard/settings" 
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+            className={`sidebar-item ${
               currentPage === 'settings' 
-                ? 'bg-primary-50 text-primary-700' 
-                : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
+                ? 'sidebar-item-active' 
+                : 'sidebar-item-inactive'
             }`}
           >
             <SettingsIcon className="w-5 h-5 mr-3" />
@@ -53,21 +51,20 @@ export function DashboardNav({ currentPage = 'cases' }: DashboardNavProps) {
         </nav>
       </div>
       
-      <div className="absolute bottom-0 w-64 p-6 border-t border-secondary-100">
+      <div className="absolute bottom-0 w-64 p-6 border-t border-law-charcoal-200">
         <div className="flex items-center mb-4">
-          <div className="w-10 h-10 bg-secondary-200 rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-secondary-600" />
+          <div className="w-10 h-10 bg-law-charcoal-200 rounded-full flex items-center justify-center">
+            <User className="w-5 h-5 text-law-charcoal-600" />
           </div>
           <div className="ml-3">
-            <p className="text-sm font-medium text-secondary-900">{user?.name}</p>
-            <p className="text-xs text-secondary-500">{user?.email}</p>
+            <p className="text-sm font-medium text-law-charcoal-900">{user?.name}</p>
+            <p className="text-xs text-law-charcoal-500">{user?.email}</p>
           </div>
         </div>
         <Button
-          variant="ghost"
+          className="btn-secondary w-full justify-start"
           size="sm"
           onClick={handleLogout}
-          className="w-full justify-start"
         >
           <LogOut className="w-4 h-4 mr-2" />
           Logout

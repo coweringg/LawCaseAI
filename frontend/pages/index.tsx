@@ -1,44 +1,15 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Shield, Brain, FileText, Users, CheckCircle } from 'lucide-react'
+import { ArrowRight, CheckCircle, FileText, Users, Shield, TrendingUp, Brain } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Layout } from '@/components/Layout'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
-      <header className="bg-white shadow-sm border-b border-secondary-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
-              </div>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/pricing" className="text-secondary-600 hover:text-secondary-900 transition-colors">
-                Pricing
-              </Link>
-              <Link href="/about" className="text-secondary-600 hover:text-secondary-900 transition-colors">
-                About
-              </Link>
-            </nav>
-            <div className="flex space-x-4">
-              <Link href="/login">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/register">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main>
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
+        <main>
         <section className="py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-6">
@@ -84,9 +55,9 @@ export default function Home() {
                   <CardTitle>AI-Powered Insights</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
+                  <p className="text-secondary-600">
                     Get intelligent case analysis, document summaries, and legal research assistance powered by advanced AI.
-                  </CardDescription>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -98,9 +69,9 @@ export default function Home() {
                   <CardTitle>Bank-Level Security</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
+                  <p className="text-secondary-600">
                     Your data is protected with enterprise-grade encryption, secure cloud storage, and compliance with legal industry standards.
-                  </CardDescription>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -112,9 +83,9 @@ export default function Home() {
                   <CardTitle>Client Collaboration</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
+                  <p className="text-secondary-600">
                     Share documents securely, communicate with clients, and manage case progress all in one centralized platform.
-                  </CardDescription>
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -188,7 +159,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-secondary-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <main className="bg-secondary-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -231,7 +202,8 @@ export default function Home() {
             <p>&copy; 2024 LawCaseAI. All rights reserved.</p>
           </div>
         </div>
-      </footer>
-    </div>
+      </main>
+      </div>
+    </Layout>
   )
 }

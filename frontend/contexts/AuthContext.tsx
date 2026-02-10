@@ -29,7 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const publicRoutes = ['/', '/login', '/register', '/pricing', '/about', '/privacy', '/terms']
-const restrictedRoutes = ['/pricing', '/about', '/register']
+const restrictedRoutes = ['/pricing', '/about', '/register', '/login']
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)

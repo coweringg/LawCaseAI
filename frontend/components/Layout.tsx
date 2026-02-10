@@ -86,10 +86,8 @@ export function Layout({ children }: LayoutProps) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center">
-                <Link href="/dashboard" className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
+                <Link href="/dashboard" className="flex items-center space-x-4">
+                  <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
                   <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
                 </Link>
               </div>
@@ -153,10 +151,8 @@ export function Layout({ children }: LayoutProps) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center">
-                <Link href="/" className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
+                <Link href="/" className="flex items-center space-x-4">
+                  <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
                   <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
                 </Link>
               </div>

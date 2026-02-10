@@ -1,0 +1,237 @@
+import React from 'react'
+import Link from 'next/link'
+import { ArrowRight, Shield, Brain, FileText, Users, CheckCircle } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
+      <header className="bg-white shadow-sm border-b border-secondary-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
+              </div>
+            </div>
+            <nav className="hidden md:flex space-x-8">
+              <Link href="/pricing" className="text-secondary-600 hover:text-secondary-900 transition-colors">
+                Pricing
+              </Link>
+              <Link href="/about" className="text-secondary-600 hover:text-secondary-900 transition-colors">
+                About
+              </Link>
+            </nav>
+            <div className="flex space-x-4">
+              <Link href="/login">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link href="/register">
+                <Button>Get Started</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-6">
+              AI-Powered Legal Case
+              <span className="text-primary-600"> Management</span>
+            </h1>
+            <p className="text-xl text-secondary-600 mb-8 max-w-3xl mx-auto">
+              Streamline your legal practice with intelligent case management, AI-powered insights, and secure document handling.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/register">
+                <Button size="lg" className="text-lg px-8 py-3">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+                  View Pricing
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
+                Why Choose LawCaseAI?
+              </h2>
+              <p className="text-xl text-secondary-600 max-w-3xl mx-auto">
+                Modern legal technology designed to enhance your practice efficiency and client service.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-6 h-6 text-primary-600" />
+                  </div>
+                  <CardTitle>AI-Powered Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Get intelligent case analysis, document summaries, and legal research assistance powered by advanced AI.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-success-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-6 h-6 text-success-600" />
+                  </div>
+                  <CardTitle>Bank-Level Security</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Your data is protected with enterprise-grade encryption, secure cloud storage, and compliance with legal industry standards.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-warning-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-6 h-6 text-warning-600" />
+                  </div>
+                  <CardTitle>Client Collaboration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Share documents securely, communicate with clients, and manage case progress all in one centralized platform.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-secondary-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
+                Everything You Need to Manage Your Practice
+              </h2>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h3 className="text-2xl font-bold text-secondary-900 mb-6">
+                  Comprehensive Case Management
+                </h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-success-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-secondary-700">Organize cases with custom tags and categories</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-success-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-secondary-700">Track deadlines and important dates</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-success-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-secondary-700">Secure document storage and sharing</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-success-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-secondary-700">AI-powered legal research assistance</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-success-500 mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-secondary-700">Time tracking and billing integration</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="space-y-4">
+                  <div className="h-4 bg-secondary-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-secondary-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-primary-200 rounded w-2/3"></div>
+                  <div className="h-4 bg-secondary-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-success-200 rounded w-1/3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-primary-600">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Transform Your Legal Practice?
+            </h2>
+            <p className="text-xl text-primary-100 mb-8">
+              Join thousands of lawyers who are already using LawCaseAI to streamline their workflow.
+            </p>
+            <Link href="/register">
+              <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+                Start Your Free Trial
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-secondary-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">LawCaseAI</span>
+              </div>
+              <p className="text-secondary-400">
+                The future of legal case management is here.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-secondary-400">
+                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-secondary-400">
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-secondary-400">
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/compliance" className="hover:text-white transition-colors">Compliance</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-secondary-800 mt-8 pt-8 text-center text-secondary-400">
+            <p>&copy; 2024 LawCaseAI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

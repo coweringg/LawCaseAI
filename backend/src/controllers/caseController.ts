@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { User } from '../models'
+import { Types } from 'mongoose'
 import CaseModel from '../models/Case'
 import { IApiResponse, ICaseUpdate, IAuthRequest, CaseStatus } from '../types'
 
@@ -48,7 +48,7 @@ export const getCases = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: 'Cases retrieved successfully',
       data: {
-        cases: cases.map((case_: { _id: any; name: string; client: string; description: string; status: string; fileCount: number; createdAt: Date; updatedAt: Date }) => ({
+        cases: cases.map((case_: { _id: Types.ObjectId; name: string; client: string; description: string; status: string; fileCount: number; createdAt: Date; updatedAt: Date }) => ({
           id: case_._id,
           name: case_.name,
           client: case_.client,

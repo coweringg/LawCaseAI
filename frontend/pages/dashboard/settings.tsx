@@ -85,6 +85,12 @@ export default function Settings() {
       return
     }
 
+    // Check if name is being changed
+    if (user && profileForm.name !== user.name) {
+      // For now, we'll let the backend handle this validation
+      // In a real app with more users, you might want to check this on the frontend too
+    }
+
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
@@ -99,6 +105,12 @@ export default function Settings() {
       if (response.ok) {
         const data = await response.json()
         updateUser(data.data)
+        // Update the form with the new data from the server
+        setProfileForm({
+          name: data.data.name,
+          email: data.data.email,
+          lawFirm: data.data.lawFirm
+        })
         setMessage({ type: 'success', text: 'Profile updated successfully' })
         toast.success('Profile updated successfully')
       } else {
@@ -128,6 +140,12 @@ export default function Settings() {
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setMessage({ type: 'error', text: 'Passwords do not match' })
+      return
+    }
+
+    // Check if new password is the same as current password
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setMessage({ type: 'error', text: 'New password must be different from your current password' })
       return
     }
 

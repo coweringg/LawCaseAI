@@ -38,11 +38,32 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = (req as any).user
-    const { name, lawFirm } = req.body
+    const { name, email, lawFirm } = req.body
+
+    // Check if email is being changed and if it's already taken
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ 
+        email: email.toLowerCase(), 
+        _id: { $ne: user._id } 
+      })
+      
+      if (existingUser) {
+        res.status(400).json({
+          success: false,
+          message: 'Email address is already in use'
+        } as IApiResponse)
+        return
+      }
+    }
+
+    const updateData: any = { name, lawFirm }
+    if (email) {
+      updateData.email = email.toLowerCase()
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
-      { name, lawFirm },
+      updateData,
       { new: true, runValidators: true }
     )
 

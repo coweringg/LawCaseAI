@@ -1,21 +1,26 @@
 import { Router } from 'express'
+import { authenticate } from '../middleware/auth'
+import { 
+  getProfile, 
+  updateProfile, 
+  changePassword, 
+  updateNotifications, 
+  getBillingInfo 
+} from '../controllers/userController'
+
 const router = Router()
 
-// Placeholder routes - will be implemented
-router.get('/profile', (req, res) => {
-  res.json({ success: false, message: 'Get profile endpoint - coming soon' })
-})
+// All user routes require authentication
+router.use(authenticate)
 
-router.put('/profile', (req, res) => {
-  res.json({ success: false, message: 'Update profile endpoint - coming soon' })
-})
+router.get('/profile', getProfile)
 
-router.put('/password', (req, res) => {
-  res.json({ success: false, message: 'Change password endpoint - coming soon' })
-})
+router.put('/profile', updateProfile)
 
-router.put('/notifications', (req, res) => {
-  res.json({ success: false, message: 'Update notifications endpoint - coming soon' })
-})
+router.put('/password', changePassword)
+
+router.put('/notifications', updateNotifications)
+
+router.get('/billing', getBillingInfo)
 
 export default router

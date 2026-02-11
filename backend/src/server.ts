@@ -4,9 +4,34 @@ import helmet from 'helmet'
 import compression from 'compression'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
+import mongoose from 'mongoose'
+import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3'
+import axios from 'axios'
 import { connectDatabase } from './config/database'
 import config from './config'
 import { IApiResponse } from './types'
+
+// Load environment variables
+import 'dotenv/config'
+
+// Local error type definitions
+interface MongooseValidationFieldError {
+  path: string
+  message: string
+}
+
+interface MongooseValidationError extends Error {
+  name: 'ValidationError'
+  errors: Record<string, MongooseValidationFieldError>
+}
+
+interface MulterError extends Error {
+  code: 'LIMIT_FILE_SIZE' | 'LIMIT_FILE_COUNT'
+}
+
+interface CustomError extends Error {
+  statusCode?: number
+}
 
 // Import routes
 import authRoutes from './routes/auth'
@@ -93,12 +118,13 @@ app.use('*', (req: express.Request, res: express.Response) => {
 })
 
 // Global error handler
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction): void => {
   console.error('Global error handler:', error)
 
   // Mongoose validation error
-  if (error.name === 'ValidationError') {
-    const errors = Object.values(error.errors).map((err: any) => ({
+  if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+    const validationError = error as MongooseValidationError
+    const errors = Object.values(validationError.errors).map((err: MongooseValidationFieldError) => ({
       field: err.path,
       message: err.message
     }))
@@ -106,13 +132,13 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
     res.status(400).json({
       success: false,
       message: 'Validation failed',
-      error: errors as any
+      error: errors
     } as IApiResponse)
     return
   }
 
   // JWT error
-  if (error.name === 'JsonWebTokenError') {
+  if (error && typeof error === 'object' && 'name' in error && error.name === 'JsonWebTokenError') {
     res.status(401).json({
       success: false,
       message: 'Invalid token'
@@ -121,28 +147,118 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
   }
 
   // Multer error
-  if (error.code === 'LIMIT_FILE_SIZE') {
-    res.status(400).json({
-      success: false,
-      message: 'File too large. Maximum size is 10MB'
-    } as IApiResponse)
-    return
-  }
+  if (error && typeof error === 'object' && 'code' in error) {
+    const multerError = error as MulterError
+    if (multerError.code === 'LIMIT_FILE_SIZE') {
+      res.status(400).json({
+        success: false,
+        message: 'File too large. Maximum size is 10MB'
+      } as IApiResponse)
+      return
+    }
 
-  if (error.code === 'LIMIT_FILE_COUNT') {
-    res.status(400).json({
-      success: false,
-      message: 'Too many files'
-    } as IApiResponse)
-    return
+    if (multerError.code === 'LIMIT_FILE_COUNT') {
+      res.status(400).json({
+        success: false,
+        message: 'Too many files'
+      } as IApiResponse)
+      return
+    }
   }
 
   // Default error
-  res.status(error.statusCode || 500).json({
+  const customError = error as CustomError
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+  const statusCode = customError.statusCode || 500
+  
+  res.status(statusCode).json({
     success: false,
-    message: error.message || 'Internal server error'
+    message: errorMessage
   } as IApiResponse)
 })
+
+// Connection verification functions
+const checkMongoDBConnection = async (): Promise<{ connected: boolean; message: string }> => {
+  try {
+    if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017/lawcaseai') {
+      await mongoose.connect(process.env.MONGODB_URI)
+      await mongoose.connection.close()
+      return { connected: true, message: 'MongoDB Atlas connected' }
+    } else {
+      return { connected: false, message: 'MongoDB Atlas not configured (using local database)' }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { connected: false, message: `MongoDB Atlas connection failed: ${errorMessage}` }
+  }
+}
+
+const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; message: string }> => {
+  try {
+    if (process.env.CLOUDFLARE_R2_ACCESS_KEY_ID && 
+        process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY && 
+        process.env.CLOUDFLARE_R2_ENDPOINT) {
+      
+      const s3Client = new S3Client({
+        region: 'auto',
+        endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+        },
+      })
+
+      // Try to list buckets to verify connection
+      await s3Client.send(new ListBucketsCommand({}))
+      return { connected: true, message: 'Cloudflare R2 connected' }
+    } else {
+      return { connected: false, message: 'Cloudflare R2 not configured' }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { connected: false, message: `Cloudflare R2 connection failed: ${errorMessage}` }
+  }
+}
+
+const checkFreeLLMConnection = async (): Promise<{ connected: boolean; message: string }> => {
+  try {
+    if (process.env.FREELLm_API_KEY && process.env.FREELLm_BASE_URL) {
+      const response = await axios.get(`${process.env.FREELLm_BASE_URL}/models`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.FREELLm_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000
+      })
+      
+      if (response.status === 200) {
+        return { connected: true, message: 'FreeLLM API connected' }
+      } else {
+        return { connected: false, message: `FreeLLM API returned status: ${response.status}` }
+      }
+    } else {
+      return { connected: false, message: 'FreeLLM API not configured' }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { connected: false, message: `FreeLLM API connection failed: ${errorMessage}` }
+  }
+}
+
+const checkSMTPConnection = async (): Promise<{ connected: boolean; message: string }> => {
+  try {
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      // For now, just check if configuration exists
+      // In a real implementation, you could test SMTP connection
+      return { connected: true, message: 'SMTP configured' }
+    } else {
+      return { connected: false, message: 'SMTP not configured' }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { connected: false, message: `SMTP configuration error: ${errorMessage}` }
+  }
+}
 
 // Start server
 const PORT = config.port
@@ -151,10 +267,27 @@ const startServer = async () => {
   try {
     await connectDatabase()
     
-    app.listen(PORT, () => {
+    app.listen(PORT, async () => {
       console.log(`🚀 LawCaseAI Server running on port ${PORT}`)
       console.log(`📝 Environment: ${config.nodeEnv}`)
       console.log(`🌐 CORS Origin: ${config.cors.origin}`)
+      
+      console.log('\n🔍 Checking service connections...')
+      
+      // Check all connections
+      const mongoStatus = await checkMongoDBConnection()
+      const r2Status = await checkCloudflareR2Connection()
+      const llmStatus = await checkFreeLLMConnection()
+      const smtpStatus = await checkSMTPConnection()
+      
+      // Display connection status
+      console.log('\n📡 Service Connection Status:')
+      console.log(`🗄️  MongoDB Atlas: ${mongoStatus.connected ? '✅' : '❌'} ${mongoStatus.message}`)
+      console.log(`☁️  Cloudflare R2: ${r2Status.connected ? '✅' : '❌'} ${r2Status.message}`)
+      console.log(`🤖 FreeLLM API: ${llmStatus.connected ? '✅' : '❌'} ${llmStatus.message}`)
+      console.log(`📧 SMTP Email: ${smtpStatus.connected ? '✅' : '❌'} ${smtpStatus.message}`)
+      
+      console.log('\n✨ Server ready to accept connections!')
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)
@@ -163,7 +296,7 @@ const startServer = async () => {
 }
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason)
 })
 

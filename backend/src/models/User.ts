@@ -82,7 +82,6 @@ const userSchema = new Schema<IUser>({
 })
 
 // Indexes
-userSchema.index({ email: 1 })
 userSchema.index({ role: 1 })
 userSchema.index({ status: 1 })
 userSchema.index({ plan: 1 })
@@ -116,15 +115,18 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
 
 userSchema.methods.generateAuthToken = function(): string {
   const payload = {
-    userId: this._id,
+    userId: this._id.toString(),
     email: this.email,
     role: this.role,
     plan: this.plan
   }
   
-  return jwt.sign(payload, config.jwt.secret, {
+  const secret = config.jwt.secret
+  const options = {
     expiresIn: config.jwt.expiresIn
-  })
+  } as any
+  
+  return jwt.sign(payload, secret, options)
 }
 
 // Static methods

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema, Document } from 'mongoose'
 import { ICaseFile } from '../types'
 
 const caseFileSchema = new Schema<ICaseFile>({
@@ -55,10 +55,9 @@ const caseFileSchema = new Schema<ICaseFile>({
 caseFileSchema.index({ caseId: 1 })
 caseFileSchema.index({ userId: 1 })
 caseFileSchema.index({ uploadedAt: -1 })
-caseFileSchema.index({ key: 1 })
 
 // Pre-remove middleware to update case file count
-caseFileSchema.pre('remove', async function(next) {
+caseFileSchema.pre('deleteOne', { document: true, query: false }, async function(this: ICaseFile & Document, next: (err?: Error) => void) {
   try {
     const Case = mongoose.model('Case')
     await Case.findByIdAndUpdate(this.caseId, { $inc: { fileCount: -1 } })
@@ -82,7 +81,7 @@ caseFileSchema.statics.countByCase = function(caseId: string) {
 }
 
 // Virtuals
-caseFileSchema.virtual('sizeFormatted').get(function() {
+caseFileSchema.virtual('sizeFormatted').get(function(this: ICaseFile & Document) {
   const bytes = this.size
   if (bytes === 0) return '0 Bytes'
   
@@ -93,11 +92,11 @@ caseFileSchema.virtual('sizeFormatted').get(function() {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 })
 
-caseFileSchema.virtual('isImage').get(function() {
+caseFileSchema.virtual('isImage').get(function(this: ICaseFile & Document) {
   return this.type.startsWith('image/')
 })
 
-caseFileSchema.virtual('isDocument').get(function() {
+caseFileSchema.virtual('isDocument').get(function(this: ICaseFile & Document) {
   return this.type.includes('application/') || this.type === 'text/plain'
 })
 

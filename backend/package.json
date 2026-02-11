@@ -5,9 +5,9 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon src/server.ts",
     "dev:simple": "nodemon src/server-simple.ts",
-    "dev:full": "nodemon src/server.ts",
+    "dev:js": "nodemon src/server.js",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint src/**/*.ts",

@@ -6,6 +6,12 @@ const morgan = require('morgan')
 const rateLimit = require('express-rate-limit')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const mongoose = require('mongoose')
+const { S3Client, ListBucketsCommand } = require('@aws-sdk/client-s3')
+const axios = require('axios')
+
+// Load environment variables
+require('dotenv').config()
 
 const app = express()
 
@@ -880,16 +886,112 @@ app.use((error, req, res, next) => {
   })
 })
 
-// Start server
-const PORT = 5000
+// Connection verification functions
+const checkMongoDBConnection = async () => {
+  try {
+    if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017/lawcaseai') {
+      await mongoose.connect(process.env.MONGODB_URI)
+      await mongoose.connection.close()
+      return { connected: true, message: 'MongoDB Atlas connected' }
+    } else {
+      return { connected: false, message: 'MongoDB Atlas not configured (using mock database)' }
+    }
+  } catch (error) {
+    return { connected: false, message: `MongoDB Atlas connection failed: ${error.message}` }
+  }
+}
 
-app.listen(PORT, () => {
+const checkCloudflareR2Connection = async () => {
+  try {
+    if (process.env.CLOUDFLARE_R2_ACCESS_KEY_ID && 
+        process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY && 
+        process.env.CLOUDFLARE_R2_ENDPOINT) {
+      
+      const s3Client = new S3Client({
+        region: 'auto',
+        endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+        },
+      })
+
+      // Try to list buckets to verify connection
+      await s3Client.send(new ListBucketsCommand({}))
+      return { connected: true, message: 'Cloudflare R2 connected' }
+    } else {
+      return { connected: false, message: 'Cloudflare R2 not configured' }
+    }
+  } catch (error) {
+    return { connected: false, message: `Cloudflare R2 connection failed: ${error.message}` }
+  }
+}
+
+const checkFreeLLMConnection = async () => {
+  try {
+    if (process.env.FREELLm_API_KEY && process.env.FREELLm_BASE_URL) {
+      const response = await axios.get(`${process.env.FREELLm_BASE_URL}/models`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.FREELLm_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000
+      })
+      
+      if (response.status === 200) {
+        return { connected: true, message: 'FreeLLM API connected' }
+      } else {
+        return { connected: false, message: `FreeLLM API returned status: ${response.status}` }
+      }
+    } else {
+      return { connected: false, message: 'FreeLLM API not configured' }
+    }
+  } catch (error) {
+    return { connected: false, message: `FreeLLM API connection failed: ${error.message}` }
+  }
+}
+
+const checkSMTPConnection = async () => {
+  try {
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      // For now, just check if configuration exists
+      // In a real implementation, you could test SMTP connection
+      return { connected: true, message: 'SMTP configured' }
+    } else {
+      return { connected: false, message: 'SMTP not configured' }
+    }
+  } catch (error) {
+    return { connected: false, message: `SMTP configuration error: ${error.message}` }
+  }
+}
+
+// Start server
+const PORT = process.env.PORT || 5000
+
+app.listen(PORT, async () => {
   console.log(`🚀 LawCaseAI Server running on port ${PORT}`)
-  console.log(`📝 Environment: development`)
-  console.log(`🌐 CORS Origin: http://localhost:3000`)
+  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`🌐 CORS Origin: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`)
   console.log(`📊 Mock database initialized`)
   console.log(`👥 Users: ${users.length}`)
   console.log(`📁 Cases: ${cases.length}`)
+  
+  console.log('\n🔍 Checking service connections...')
+  
+  // Check all connections
+  const mongoStatus = await checkMongoDBConnection()
+  const r2Status = await checkCloudflareR2Connection()
+  const llmStatus = await checkFreeLLMConnection()
+  const smtpStatus = await checkSMTPConnection()
+  
+  // Display connection status
+  console.log('\n📡 Service Connection Status:')
+  console.log(`🗄️  MongoDB Atlas: ${mongoStatus.connected ? '✅' : '❌'} ${mongoStatus.message}`)
+  console.log(`☁️  Cloudflare R2: ${r2Status.connected ? '✅' : '❌'} ${r2Status.message}`)
+  console.log(`🤖 FreeLLM API: ${llmStatus.connected ? '✅' : '❌'} ${llmStatus.message}`)
+  console.log(`📧 SMTP Email: ${smtpStatus.connected ? '✅' : '❌'} ${smtpStatus.message}`)
+  
+  console.log('\n✨ Server ready to accept connections!')
 })
 
 module.exports = app

@@ -116,7 +116,7 @@ export default function About() {
                 Our Mission
               </h2>
               <p className="mt-6 text-lg text-secondary-600 leading-relaxed">
-                At LawCaseAI, we're revolutionizing legal practice management through artificial intelligence. 
+                At LawCaseAI, we&apos;re revolutionizing legal practice management through artificial intelligence. 
                 Our mission is to empower lawyers with tools that automate routine tasks, 
                 provide intelligent insights, and ultimately deliver better outcomes for clients. 
                 We believe technology should augment legal expertise, not replace it.

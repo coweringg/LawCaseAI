@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { 
   FileText, 
@@ -43,13 +43,7 @@ export default function Dashboard() {
   })
   const [isCreating, setIsCreating] = useState(false)
 
-  useEffect(() => {
-    if (token) {
-      fetchCases()
-    }
-  }, [token])
-
-  const fetchCases = async () => {
+  const fetchCases = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases`, {
         headers: {
@@ -68,7 +62,13 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [token])
+
+  useEffect(() => {
+    if (token) {
+      fetchCases()
+    }
+  }, [token, fetchCases])
 
   const handleCreateCase = async (e: React.FormEvent) => {
     e.preventDefault()

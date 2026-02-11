@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Eye, EyeOff, Mail, Lock, Shield, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -75,7 +77,7 @@ export default function Login() {
       <div className="max-w-md w-full space-y-8 animate-fade-in-up">
         <div className="text-center">
           <Link href="/" className="flex items-center justify-center space-x-4 mb-8 group">
-            <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
+            <Image src="/logo.png" alt="LawCaseAI" width={40} height={40} className="object-contain drop-shadow-md" />
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-law-charcoal-900">LawCaseAI</span>
               <span className="text-xs text-law-charcoal-500 font-medium tracking-wider uppercase">Legal Case Management</span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import {
@@ -72,19 +72,7 @@ export default function CaseDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (id) {
-      fetchCase()
-      fetchFiles()
-      fetchMessages()
-    }
-  }, [id])
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  const fetchCase = async () => {
+  const fetchCase = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`/api/cases/${id}`, {
@@ -102,9 +90,9 @@ export default function CaseDetail() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [id])
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`/api/cases/${id}/files`, {
@@ -120,9 +108,9 @@ export default function CaseDetail() {
     } catch (error) {
       console.error('Failed to fetch files:', error)
     }
-  }
+  }, [id])
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`/api/cases/${id}/chat`, {
@@ -138,7 +126,19 @@ export default function CaseDetail() {
     } catch (error) {
       console.error('Failed to fetch messages:', error)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    if (id) {
+      fetchCase()
+      fetchFiles()
+      fetchMessages()
+    }
+  }, [id, fetchCase, fetchFiles, fetchMessages])
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleFileUpload = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   User,
   Mail,
@@ -248,7 +250,7 @@ export default function Settings() {
         <div className="sidebar w-64">
           <div className="p-6">
             <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
-              <img src="/logo.png" alt="LawCaseAI" className="w-8 h-8 object-contain" />
+              <Image src="/logo.png" alt="LawCaseAI" width={32} height={32} className="object-contain" />
               <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
             </Link>
             

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { FileText, User, LogOut, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -87,7 +89,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Link href="/dashboard" className="flex items-center space-x-4">
-                  <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
+                  <Image src="/logo.png" alt="LawCaseAI" width={40} height={40} className="object-contain drop-shadow-md" />
                   <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
                 </Link>
               </div>
@@ -152,7 +154,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Link href="/" className="flex items-center space-x-4">
-                  <img src="/logo.png" alt="LawCaseAI" className="w-10 h-10 object-contain drop-shadow-md" />
+                  <Image src="/logo.png" alt="LawCaseAI" width={40} height={40} className="object-contain drop-shadow-md" />
                   <span className="text-xl font-bold text-secondary-900">LawCaseAI</span>
                 </Link>
               </div>

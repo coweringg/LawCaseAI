@@ -129,8 +129,8 @@ userSchema.methods.generateAuthToken = function(): string {
   
   const secret = config.jwt.secret
   const options = {
-    expiresIn: config.jwt.expiresIn
-  } as any
+    expiresIn: config.jwt.expiresIn as string
+  }
   
   return jwt.sign(payload, secret, options)
 }

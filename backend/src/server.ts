@@ -119,6 +119,8 @@ app.use('*', (req: express.Request, res: express.Response) => {
 
 // Global error handler
 app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction): void => {
+  // Express requires _next parameter for error middleware signature
+  void _next;
   console.error('Global error handler:', error)
 
   // Mongoose validation error

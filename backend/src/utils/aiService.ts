@@ -24,8 +24,7 @@ export class AIService {
       const startTime = Date.now()
       
       const systemPrompt = this.buildSystemPrompt(caseContext)
-      const fullPrompt = `${systemPrompt}\n\nUser: ${prompt}`
-
+      
       const response = await axios.post(
         `${this.baseURL}/chat/completions`,
         {

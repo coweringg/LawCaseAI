@@ -4,6 +4,12 @@ import jwt from 'jsonwebtoken'
 import config from '../config'
 import { IUser, UserRole, UserPlan, UserStatus } from '../types'
 
+// Interface for static methods
+export interface IUserModel extends mongoose.Model<IUser> {
+  findByEmail(email: string): Promise<IUser | null>
+  updateLastLogin(userId: string): Promise<IUser | null>
+}
+
 const userSchema = new Schema<IUser>({
   name: {
     type: String,
@@ -151,6 +157,6 @@ userSchema.virtual('remainingCases').get(function() {
   return Math.max(0, this.planLimit - this.currentCases)
 })
 
-const User = mongoose.model<IUser>('User', userSchema)
+const User = mongoose.model<IUser, IUserModel>('User', userSchema)
 
 export default User

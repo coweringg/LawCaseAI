@@ -1,18 +1,26 @@
 import { Request, Response } from 'express'
 import { User } from '../models'
 import CaseModel from '../models/Case'
-import { IApiResponse, ICaseUpdate } from '../types'
+import { IApiResponse, ICaseUpdate, IAuthRequest, CaseStatus } from '../types'
 
 export const getCases = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
+    
     const { status, search, page = 1, limit = 10 } = req.query
 
     // Build query
-    const query: any = { userId: user._id }
+    const query: { userId: string; status?: CaseStatus; $text?: { $search: string } } = { userId: user._id.toString() }
     
     if (status) {
-      query.status = status
+      query.status = status as CaseStatus
     }
 
     if (search) {
@@ -25,17 +33,22 @@ export const getCases = async (req: Request, res: Response): Promise<void> => {
     // Get cases
     const cases = await CaseModel.find(query)
       .sort({ createdAt: -1 })
-      .limit(Number(limit))
       .skip(skip)
+      .limit(Number(limit))
 
-    // Get total count
     const total = await CaseModel.countDocuments(query)
+
+    // Check if user can create more cases
+    let canCreateMore = true
+    if (user.currentCases >= user.planLimit) {
+      canCreateMore = false
+    }
 
     res.status(200).json({
       success: true,
       message: 'Cases retrieved successfully',
       data: {
-        cases: cases.map(case_ => ({
+        cases: cases.map((case_: { _id: any; name: string; client: string; description: string; status: string; fileCount: number; createdAt: Date; updatedAt: Date }) => ({
           id: case_._id,
           name: case_.name,
           client: case_.client,
@@ -46,24 +59,39 @@ export const getCases = async (req: Request, res: Response): Promise<void> => {
           updatedAt: case_.updatedAt
         })),
         pagination: {
-          page: Number(page),
-          limit: Number(limit),
+          current: Number(page),
+          pageSize: Number(limit),
           total,
           pages: Math.ceil(total / Number(limit))
+        },
+        limits: {
+          current: user.currentCases,
+          limit: user.planLimit,
+          plan: user.plan,
+          canCreateMore
         }
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve cases'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to retrieve cases'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const createCase = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
+    
     const { name, client, description } = req.body
 
     // Check plan limit
@@ -80,7 +108,7 @@ export const createCase = async (req: Request, res: Response): Promise<void> => 
       return
     }
 
-    // Create case
+    // Create CaseModel
     const case_ = new CaseModel({
       name,
       client,
@@ -92,12 +120,12 @@ export const createCase = async (req: Request, res: Response): Promise<void> => 
 
     await case_.save()
 
-    // Update user's case count
+    // Update user's CaseModel count
     await User.findByIdAndUpdate(user._id, { $inc: { currentCases: 1 } })
 
     res.status(201).json({
       success: true,
-      message: 'Case created successfully',
+      message: 'CaseModel created successfully',
       data: {
         id: case_._id,
         name: case_.name,
@@ -109,32 +137,41 @@ export const createCase = async (req: Request, res: Response): Promise<void> => 
         updatedAt: case_.updatedAt
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create CaseModel'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to create case'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const getCase = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
+    
     const { id } = req.params
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
+    const case_ = await CaseModel.findOne({ _id: id, userId: user._id })
 
     if (!case_) {
       res.status(404).json({
         success: false,
-        message: 'Case not found'
+        message: 'CaseModel not found'
       } as IApiResponse)
       return
     }
 
     res.status(200).json({
       success: true,
-      message: 'Case retrieved successfully',
+      message: 'CaseModel retrieved successfully',
       data: {
         id: case_._id,
         name: case_.name,
@@ -146,31 +183,40 @@ export const getCase = async (req: Request, res: Response): Promise<void> => {
         updatedAt: case_.updatedAt
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve CaseModel'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to retrieve case'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const updateCase = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
+    
     const { id } = req.params
     const updates: ICaseUpdate = req.body
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
+    const case_ = await CaseModel.findOne({ _id: id, userId: user._id })
 
     if (!case_) {
       res.status(404).json({
         success: false,
-        message: 'Case not found'
+        message: 'CaseModel not found'
       } as IApiResponse)
       return
     }
 
-    // Update case
+    // Update CaseModel
     const updatedCase = await CaseModel.findByIdAndUpdate(
       id,
       updates,
@@ -179,7 +225,7 @@ export const updateCase = async (req: Request, res: Response): Promise<void> => 
 
     res.status(200).json({
       success: true,
-      message: 'Case updated successfully',
+      message: 'CaseModel updated successfully',
       data: {
         id: updatedCase!._id,
         name: updatedCase!.name,
@@ -191,47 +237,64 @@ export const updateCase = async (req: Request, res: Response): Promise<void> => 
         updatedAt: updatedCase!.updatedAt
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update CaseModel'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to update case'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const deleteCase = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
+    
     const { id } = req.params
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
+    const case_ = await CaseModel.findOne({ _id: id, userId: user._id })
 
     if (!case_) {
       res.status(404).json({
         success: false,
-        message: 'Case not found'
+        message: 'CaseModel not found'
       } as IApiResponse)
       return
     }
 
-    // Delete case (this will trigger the pre-remove middleware to update user's case count)
+    // Delete CaseModel (this will trigger the pre-remove middleware to update user's CaseModel count)
     await CaseModel.findByIdAndDelete(id)
 
     res.status(200).json({
       success: true,
-      message: 'Case deleted successfully'
+      message: 'CaseModel deleted successfully'
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete CaseModel'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to delete case'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const getCaseStats = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as IAuthRequest).user
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      } as IApiResponse)
+      return
+    }
 
     const stats = await CaseModel.aggregate([
       { $match: { userId: user._id } },
@@ -250,13 +313,14 @@ export const getCaseStats = async (req: Request, res: Response): Promise<void> =
 
     res.status(200).json({
       success: true,
-      message: 'Case stats retrieved successfully',
+      message: 'CaseModel stats retrieved successfully',
       data: result
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve CaseModel stats'
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to retrieve case stats'
+      message: errorMessage
     } as IApiResponse)
   }
 }

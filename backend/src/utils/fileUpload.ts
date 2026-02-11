@@ -40,7 +40,7 @@ export const uploadToR2 = async (file: Express.Multer.File, key: string): Promis
   }
 
   try {
-    const result = await s3.upload(params).promise()
+    await s3.upload(params).promise()
     return `${config.r2.publicUrl}/${key}`
   } catch (error) {
     throw new Error(`Failed to upload file to R2: ${error}`)

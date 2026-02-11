@@ -32,7 +32,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const token = user.generateAuthToken()
 
     // Update last login
-    await User.updateLastLogin(user._id)
+    await User.updateLastLogin(user._id.toString())
 
     res.status(201).json({
       success: true,
@@ -52,10 +52,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         token
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Registration failed'
     res.status(500).json({
       success: false,
-      message: error.message || 'Registration failed'
+      message: errorMessage
     } as IApiResponse)
   }
 }
@@ -97,7 +98,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = user.generateAuthToken()
 
     // Update last login
-    await User.updateLastLogin(user._id)
+    await User.updateLastLogin(user._id.toString())
 
     res.status(200).json({
       success: true,
@@ -117,17 +118,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         token
       }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Login failed'
     res.status(500).json({
       success: false,
-      message: error.message || 'Login failed'
+      message: errorMessage
     } as IApiResponse)
   }
 }
 
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const user = (req as { user?: unknown }).user as { generateAuthToken: () => string }
 
     // Generate new token
     const token = user.generateAuthToken()
@@ -137,10 +139,11 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       message: 'Token refreshed successfully',
       data: { token }
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Token refresh failed'
     res.status(500).json({
       success: false,
-      message: error.message || 'Token refresh failed'
+      message: errorMessage
     } as IApiResponse)
   }
 }
@@ -153,10 +156,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: 'Logout successful'
     } as IApiResponse)
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Logout failed'
     res.status(500).json({
       success: false,
-      message: error.message || 'Logout failed'
+      message: errorMessage
     } as IApiResponse)
   }
 }

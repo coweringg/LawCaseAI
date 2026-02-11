@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { Types } from 'mongoose'
 import CaseModel from '../models/Case'
+import User from '../models/User'
 import { IApiResponse, ICaseUpdate, IAuthRequest, CaseStatus } from '../types'
 
 export const getCases = async (req: Request, res: Response): Promise<void> => {

@@ -6,11 +6,14 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
   const errors = validationResult(req)
   
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map((error: { type: string; path?: string; msg: string; value: unknown }) => ({
-      field: error.type === 'field' ? error.path || 'unknown' : 'unknown',
-      message: error.msg,
-      value: error.value
-    }))
+    const formattedErrors = errors.array().map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (error: any) => ({
+        field: error.type === 'field' ? (error.path || 'unknown') : 'unknown',
+        message: error.msg || 'Validation error',
+        value: error.value
+      })
+    )
     
     res.status(400).json({
       success: false,

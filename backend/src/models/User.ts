@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import config from '../config'
 import { IUser, UserRole, UserPlan, UserStatus } from '../types'
 
@@ -120,7 +120,12 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
 }
 
 userSchema.methods.generateAuthToken = function(): string {
-  const payload = {
+  const payload: {
+    userId: string;
+    email: string;
+    role: UserRole;
+    plan: UserPlan;
+  } = {
     userId: this._id.toString(),
     email: this.email,
     role: this.role,
@@ -128,8 +133,8 @@ userSchema.methods.generateAuthToken = function(): string {
   }
   
   const secret = config.jwt.secret
-  const options = {
-    expiresIn: config.jwt.expiresIn as string
+  const options: SignOptions = {
+    expiresIn: config.jwt.expiresIn as '7d' // Type assertion con un valor válido conocido
   }
   
   return jwt.sign(payload, secret, options)

@@ -113,12 +113,21 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password, lawFirm } = req.body
 
-    // Check if user already exists
+    // Check if user already exists by email
     const existingUser = users.find(u => u.email === email)
     if (existingUser) {
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
+      })
+    }
+
+    // Check if name is already taken
+    const existingName = users.find(u => u.name === name)
+    if (existingName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is already in use by another user'
       })
     }
 
@@ -251,10 +260,35 @@ app.get('/api/user/profile', authenticate, (req, res) => {
 
 app.put('/api/user/profile', authenticate, (req, res) => {
   const user = req.user
-  const { name, lawFirm } = req.body
+  const { name, email, lawFirm } = req.body
+
+  // Check if name is being changed and if it's already taken
+  if (name && name !== user.name) {
+    const existingUser = users.find(u => u.name === name && u.id !== user.id)
+    
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is already in use by another user'
+      })
+    }
+  }
+
+  // Check if email is being changed and if it's already taken
+  if (email && email !== user.email) {
+    const existingUser = users.find(u => u.email === email.toLowerCase() && u.id !== user.id)
+    
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is already in use'
+      })
+    }
+  }
 
   // Update user
   user.name = name || user.name
+  user.email = email ? email.toLowerCase() : user.email
   user.lawFirm = lawFirm || user.lawFirm
 
   res.status(200).json({
@@ -296,6 +330,15 @@ app.put('/api/user/password', authenticate, async (req, res) => {
       })
     }
 
+    // Check if new password is the same as current password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password)
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be different from your current password'
+      })
+    }
+
     const hashedNewPassword = await bcrypt.hash(newPassword, 12)
     user.password = hashedNewPassword
 
@@ -304,9 +347,10 @@ app.put('/api/user/password', authenticate, async (req, res) => {
       message: 'Password updated successfully'
     })
   } catch (error) {
+    console.error('Password update error:', error)
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to update password'
+      message: 'Failed to update password'
     })
   }
 })

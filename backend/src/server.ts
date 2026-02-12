@@ -182,18 +182,27 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
 // Connection verification functions
 const checkMongoDBConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
-    if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017/lawcaseai') {
-      await mongoose.connect(process.env.MONGODB_URI)
-      await mongoose.connection.close()
+    if (mongoose.connection.readyState === 1) {
       return { connected: true, message: 'MongoDB Atlas connected' }
-    } else {
-      return { connected: false, message: 'MongoDB Atlas not configured (using local database)' }
+    }
+
+    if (mongoose.connection.readyState === 2) {
+      return { connected: false, message: 'MongoDB Atlas connecting...' }
+    }
+
+    return {
+      connected: false,
+      message: 'MongoDB Atlas not connected'
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    return { connected: false, message: `MongoDB Atlas connection failed: ${errorMessage}` }
+    return {
+      connected: false,
+      message: `MongoDB Atlas status check failed: ${errorMessage}`
+    }
   }
 }
+
 
 const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; message: string }> => {
   try {

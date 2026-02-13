@@ -30,7 +30,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href="/register">
                   <Button className="btn-primary text-lg px-8 py-4">
-                    Start 14-Day Free Trial
+                    Purchase Product
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -208,7 +208,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href="/register">
                   <Button className="bg-white text-law-blue-600 hover:bg-law-charcoal-50 px-8 py-4 text-lg font-medium shadow-law-lg hover:shadow-law-xl transition-all duration-300">
-                    Start Your 14-Day Free Trial
+                    Purchase Product
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>

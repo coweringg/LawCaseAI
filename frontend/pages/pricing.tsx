@@ -68,7 +68,7 @@ export default function Pricing() {
               <span className="text-primary-600"> Pricing</span>
             </h1>
             <p className="text-xl text-secondary-600 mb-8 max-w-3xl mx-auto">
-              Choose the perfect plan for your law practice. Start with a free trial, upgrade anytime.
+              Choose the perfect plan for your law practice. Upgrade anytime.
             </p>
           </div>
         </section>
@@ -117,7 +117,7 @@ export default function Pricing() {
                         className={`w-full ${plan.popular ? 'bg-primary-600 hover:bg-primary-700' : 'bg-secondary-600 hover:bg-secondary-700'} text-white`}
                         size="lg"
                       >
-                        {plan.name === 'Basic' ? 'Start Free Trial' : 'Get Started'}
+                        {plan.name === 'Basic' ? 'Get Started' : 'Get Started'}
                         <ArrowRight className="ml-2 w-5 h-5" />
                       </Button>
                     </Link>
@@ -148,10 +148,10 @@ export default function Pricing() {
               
               <div>
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  Is there a free trial?
+                  How do I get started?
                 </h3>
                 <p className="text-secondary-600">
-                  Yes, all new users get a 14-day free trial with full access to Professional plan features.
+                  Sign up for a plan and start using the platform immediately with full access to features.
                 </p>
               </div>
               
@@ -186,7 +186,7 @@ export default function Pricing() {
             </p>
             <Link href="/register">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-                Start Your Free Trial
+                Get Started
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>

@@ -23,7 +23,7 @@ export default function About() {
               <div className="mt-10 flex justify-center">
                 <Link href="/register">
                   <Button size="lg">
-                    Get Started Free
+                    Purchase Product
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -152,7 +152,7 @@ export default function About() {
             <div className="mt-8 flex justify-center space-x-4">
               <Link href="/register">
                 <Button size="lg" variant="secondary">
-                  Start Free Trial
+                  Get Started
                 </Button>
               </Link>
               <Link href="/pricing">

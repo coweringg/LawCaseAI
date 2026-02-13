@@ -22,7 +22,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/register">
                   <Button size="lg" className="text-lg px-8 py-3">
-                    Start Free Trial
+                    Purchase Product
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -151,7 +151,7 @@ export default function Home() {
               </p>
               <Link href="/register">
                 <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-                  Start Your Free Trial
+                  Purchase Product
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>

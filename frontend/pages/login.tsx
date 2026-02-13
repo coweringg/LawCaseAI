@@ -98,7 +98,7 @@ export default function Login() {
           <p className="text-law-charcoal-500">
             New to LawCaseAI?{' '}
             <Link href="/register" className="font-medium text-law-blue-600 hover:text-law-blue-700 transition-colors">
-              Start your free trial
+              Sign up
             </Link>
           </p>
         </div>

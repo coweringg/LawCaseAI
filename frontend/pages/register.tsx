@@ -132,7 +132,7 @@ export default function Register() {
             Create your account
           </h2>
           <p className="mt-2 text-sm text-secondary-600">
-            Start your 14-day free trial. No credit card required.
+            Create your account to get started.
           </p>
         </div>
 

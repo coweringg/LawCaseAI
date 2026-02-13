@@ -24,7 +24,6 @@ export default function Upgrade() {
         'Basic document storage (1GB)',
         'Email support',
         'Standard security features',
-        'Mobile app access'
       ],
       caseLimit: 5,
       popular: false

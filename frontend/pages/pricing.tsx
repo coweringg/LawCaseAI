@@ -13,10 +13,9 @@ export default function Pricing() {
       interval: 'month',
       features: [
         'Up to 5 active cases',
-        'Basic document storage (1GB)',
+        'Basic document storage (500MB)',
         'Email support',
         'Standard analytics',
-        'Mobile app access'
       ],
       caseLimit: 5,
       popular: false
@@ -27,10 +26,9 @@ export default function Pricing() {
       interval: 'month',
       features: [
         'Up to 25 active cases',
-        'Advanced document storage (10GB)',
+        'Advanced document storage (1GB)',
         'Priority email support',
         'Advanced analytics & insights',
-        'Mobile app access',
         'AI-powered case analysis',
         'Custom workflows'
       ],
@@ -46,12 +44,8 @@ export default function Pricing() {
         'Unlimited document storage',
         '24/7 phone & email support',
         'Advanced analytics & insights',
-        'Mobile app access',
         'AI-powered case analysis',
         'Custom workflows',
-        'API access',
-        'White-label options',
-        'Dedicated account manager'
       ],
       caseLimit: 100,
       popular: false

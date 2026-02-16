@@ -54,6 +54,7 @@ export interface ICase extends Document {
   description: string
   status: CaseStatus
   userId: Types.ObjectId
+  practiceArea?: string
   createdAt: Date
   updatedAt: Date
   fileCount: number

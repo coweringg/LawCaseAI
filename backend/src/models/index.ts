@@ -5,9 +5,9 @@ import ChatMessageModel from './ChatMessage'
 
 export {
   User,
-  CaseModel,
-  CaseFileModel,
-  ChatMessageModel
+  CaseModel as Case,
+  CaseFileModel as CaseFile,
+  ChatMessageModel as ChatMessage
 }
 
 export default {

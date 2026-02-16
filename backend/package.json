@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon -r tsconfig-paths/register src/server.ts",
     "dev:simple": "nodemon src/server-simple.ts",
     "dev:js": "nodemon src/server.js",
     "build": "tsc",
@@ -59,6 +59,7 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.55.0"
   },

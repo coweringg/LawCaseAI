@@ -1,21 +1,14 @@
 import { Router } from 'express'
+import { uploadFile, getCaseFiles } from '../controllers/fileController'
+import { authenticate } from '../middleware/auth'
+import { uploadSingle } from '../utils/fileUpload'
+
 const router = Router()
 
-// Placeholder routes - will be implemented
-router.post('/upload', (req, res) => {
-  res.json({ success: false, message: 'Upload file endpoint - coming soon' })
-})
+router.post('/upload', authenticate as any, uploadSingle, uploadFile as any)
+router.get('/case/:caseId', authenticate as any, getCaseFiles as any)
 
-router.get('/case/:caseId', (req, res) => {
-  res.json({ success: false, message: 'Get case files endpoint - coming soon' })
-})
-
-router.get('/:id', (req, res) => {
-  res.json({ success: false, message: 'Get file endpoint - coming soon' })
-})
-
-router.delete('/:id', (req, res) => {
-  res.json({ success: false, message: 'Delete file endpoint - coming soon' })
-})
+// router.get('/:id', authenticate as any, getFile as any)
+// router.delete('/:id', authenticate as any, deleteFile as any)
 
 export default router

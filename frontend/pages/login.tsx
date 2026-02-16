@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Eye, EyeOff, Mail, Lock, Shield, FileText } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Alert } from '@/components/ui/Alert'
-import { validateEmail, validatePassword } from '@/utils/helpers'
+import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
 import toast from 'react-hot-toast'
+import AuthLayout from '@/components/layouts/AuthLayout'
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -16,52 +11,25 @@ export default function Login() {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required'
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
-
     setIsLoading(true)
 
     try {
       const result = await login(formData.email, formData.password)
-      
+
       if (result.success) {
         toast.success('Welcome back to LawCaseAI!')
+        router.push('/dashboard')
       } else {
         toast.error(result.message)
       }
@@ -73,129 +41,111 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-law-charcoal-50 via-white to-law-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 animate-fade-in-up">
-        <div className="text-center">
-          <Link href="/" className="flex items-center justify-center space-x-4 mb-8 group">
-            <Image src="/logo.png" alt="LawCaseAI" width={40} height={40} className="object-contain drop-shadow-md" priority />
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-law-charcoal-900">LawCaseAI</span>
-              <span className="text-xs text-law-charcoal-500 font-medium tracking-wider uppercase">Legal Case Management</span>
-            </div>
-          </Link>
-          
-          <div className="inline-flex items-center px-4 py-2 bg-law-blue-100 text-law-blue-800 rounded-law text-sm font-medium mb-6">
-            <Shield className="w-4 h-4 mr-2" />
-            Secure Legal Platform
+    <AuthLayout>
+      {/* Tab Switcher */}
+      <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 p-1 rounded-lg flex mb-8">
+        <button className="flex-1 py-2 text-sm font-semibold rounded text-primary dark:text-white bg-blue-50 dark:bg-primary/20 shadow-sm transition-all">
+          Sign In
+        </button>
+        <Link href="/register" className="flex-1">
+          <button className="w-full py-2 text-sm font-semibold rounded text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+            Create Account
+          </button>
+        </Link>
+      </div>
+
+      {/* Heading */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">Enter your credentials to access your workspace.</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Email Field */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="email">Work Email</label>
+          <div className="relative">
+            <input
+              className="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="name@firm.com"
+              required
+              type="email"
+            />
+            <span className="material-icons-round absolute right-3 top-3 text-slate-400 text-xl pointer-events-none">mail</span>
           </div>
-          
-          <h1 className="heading-2 mb-4">
-            Welcome Back
-          </h1>
-          <p className="text-lg text-law-charcoal-600 mb-8">
-            Sign in to access your secure case management platform
-          </p>
-          <p className="text-law-charcoal-500">
-            New to LawCaseAI?{' '}
-            <Link href="/register" className="font-medium text-law-blue-600 hover:text-law-blue-700 transition-colors">
-              Sign up
-            </Link>
-          </p>
         </div>
 
-        <div className="card-elevated">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="form-group">
-              <Input
-                label="Email Address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={errors.email}
-                placeholder="john@lawfirm.com"
-                leftIcon={<Mail className="w-5 h-5 text-law-charcoal-400" />}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <Input
-                label="Password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                value={formData.password}
-                onChange={handleChange}
-                error={errors.password}
-                placeholder="Enter your secure password"
-                leftIcon={<Lock className="w-5 h-5 text-law-charcoal-400" />}
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-law-charcoal-400 hover:text-law-charcoal-600 focus:outline-none transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                }
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-law-charcoal-700">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-law-blue-600 hover:text-law-blue-700 transition-colors">
-                  Forgot password?
-                </Link>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="btn-primary w-full py-3"
-              loading={isLoading}
-              disabled={isLoading}
+        {/* Password Field */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">Password</label>
+            <Link href="/forgot-password" className="text-xs font-semibold text-primary hover:text-primary-hover">Forgot password?</Link>
+          </div>
+          <div className="relative">
+            <input
+              className="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+              type={showPassword ? 'text' : 'password'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-
+              <span className="material-icons-round text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center space-x-6 text-sm text-law-charcoal-500">
-            <div className="flex items-center">
-              <Shield className="w-4 h-4 mr-1" />
-              SOC 2 Compliant
-            </div>
-            <div className="flex items-center">
-              <Lock className="w-4 h-4 mr-1" />
-              End-to-End Encrypted
-            </div>
-          </div>
-          <p className="text-law-charcoal-400 text-sm">
-            Protected by bank-level encryption and industry-leading security standards.
-          </p>
+        {/* Submit Button */}
+        <button
+          className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Signing in...
+            </span>
+          ) : 'Log In to Workspace'}
+        </button>
+      </form>
+
+      {/* Divider */}
+      <div className="relative my-8">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-background-light dark:bg-background-dark text-slate-400">Or continue with</span>
         </div>
       </div>
-    </div>
+
+      {/* Social Login */}
+      <div className="grid grid-cols-2 gap-4">
+        <button className="flex items-center justify-center px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm bg-white dark:bg-surface-dark text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <img className="h-5 w-5 mr-2" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo" />
+          Google
+        </button>
+        <button className="flex items-center justify-center px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm bg-white dark:bg-surface-dark text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <img className="h-5 w-5 mr-2" src="https://www.svgrepo.com/show/448239/microsoft.svg" alt="Microsoft logo" />
+          Microsoft
+        </button>
+      </div>
+    </AuthLayout>
   )
 }

@@ -1,14 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Eye, EyeOff, Mail, Lock, User, Building } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Alert } from '@/components/ui/Alert'
-import { validateEmail, validatePassword } from '@/utils/helpers'
+import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
 import toast from 'react-hot-toast'
+import AuthLayout from '@/components/layouts/AuthLayout'
+import { validateEmail, validatePassword } from '@/utils/helpers'
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -19,70 +15,26 @@ export default function Register() {
     confirmPassword: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState('basic')
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const { register } = useAuth()
-
-  const plans = [
-    {
-      id: 'basic',
-      name: 'Basic',
-      price: '$49',
-      features: ['Up to 5 active cases', 'Basic document storage (1GB)', 'Email support']
-    },
-    {
-      id: 'professional',
-      name: 'Professional',
-      price: '$149',
-      features: ['Up to 25 active cases', 'Enhanced storage (10GB)', 'Priority support', 'AI features']
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: '$399',
-      features: ['Unlimited cases', 'Unlimited storage', '24/7 support', 'Custom features']
-    }
-  ]
+  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Full name is required'
-    }
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required'
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email'
-    }
-
-    if (!formData.lawFirm.trim()) {
-      newErrors.lawFirm = 'Law firm name is required'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters'
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
-    }
+    if (!formData.name.trim()) newErrors.name = 'Full name is required'
+    if (!formData.email) newErrors.email = 'Email is required'
+    else if (!validateEmail(formData.email)) newErrors.email = 'Invalid email address'
+    if (!formData.lawFirm.trim()) newErrors.lawFirm = 'Law firm name is required'
+    if (!formData.password) newErrors.password = 'Password is required'
+    else if (!validatePassword(formData.password)) newErrors.password = 'At least 8 characters'
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -90,10 +42,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     setIsLoading(true)
 
@@ -104,9 +53,10 @@ export default function Register() {
         lawFirm: formData.lawFirm,
         password: formData.password
       })
-      
+
       if (result.success) {
-        toast.success('Registration successful! Welcome to LawCaseAI!')
+        toast.success('Account created successfully!')
+        router.push('/dashboard')
       } else {
         toast.error(result.message)
       }
@@ -118,160 +68,141 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <Link href="/" className="flex items-center justify-center space-x-4 mb-6 group">
-            <Image src="/logo.png" alt="LawCaseAI" width={40} height={40} className="object-contain drop-shadow-md" />
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-law-charcoal-900">LawCaseAI</span>
-              <span className="text-xs text-law-charcoal-500 font-medium tracking-wider uppercase">Legal Case Management</span>
-            </div>
-          </Link>
-          <h2 className="text-3xl font-bold text-secondary-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-sm text-secondary-600">
-            Create your account to get started.
-          </p>
-        </div>
+    <AuthLayout>
+      {/* Tab Switcher */}
+      <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 p-1 rounded-lg flex mb-8">
+        <Link href="/login" className="flex-1">
+          <button className="w-full py-2 text-sm font-semibold rounded text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+            Sign In
+          </button>
+        </Link>
+        <button className="flex-1 py-2 text-sm font-semibold rounded text-primary dark:text-white bg-blue-50 dark:bg-primary/20 shadow-sm transition-all">
+          Create Account
+        </button>
+      </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              label="Full name"
+      {/* Heading */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Setup Your Firm</h2>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">Create your professional account to get started.</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Full Name */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="name">Full Name</label>
+          <div className="relative">
+            <input
+              className={`block w-full px-4 py-3 rounded-lg border ${errors.name ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none`}
+              id="name"
               name="name"
-              type="text"
-              autoComplete="name"
               value={formData.name}
               onChange={handleChange}
-              error={errors.name}
-              placeholder="John Smith"
-              leftIcon={<User className="w-5 h-5 text-secondary-400" />}
-              required
-            />
-
-            <Input
-              label="Email address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="john@example.com"
-              leftIcon={<Mail className="w-5 h-5 text-secondary-400" />}
-              required
-            />
-
-            <Input
-              label="Law firm name"
-              name="lawFirm"
+              placeholder="e.g. Jonathan Davis"
               type="text"
-              autoComplete="organization"
-              value={formData.lawFirm}
-              onChange={handleChange}
-              error={errors.lawFirm}
-              placeholder="Smith & Associates"
-              leftIcon={<Building className="w-5 h-5 text-secondary-400" />}
-              required
             />
-
-            <Input
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="Create a strong password"
-              leftIcon={<Lock className="w-5 h-5 text-secondary-400" />}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-secondary-400 hover:text-secondary-600 focus:outline-none"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              }
-              required
-            />
-
-            <Input
-              label="Confirm password"
-              name="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              placeholder="Confirm your password"
-              leftIcon={<Lock className="w-5 h-5 text-secondary-400" />}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="text-secondary-400 hover:text-secondary-600 focus:outline-none"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              }
-              required
-            />
-
-            <div className="flex items-center">
-              <input
-                id="agree-terms"
-                name="agree-terms"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
-                required
-              />
-              <label htmlFor="agree-terms" className="ml-2 block text-sm text-secondary-700">
-                I agree to the{' '}
-                <Link href="/terms" className="text-primary-600 hover:text-primary-500">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link href="/privacy" className="text-primary-600 hover:text-primary-500">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              loading={isLoading}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </Button>
-          </form>
-
+            <span className="material-icons-round absolute right-3 top-3 text-slate-400 text-xl pointer-events-none">person</span>
+          </div>
+          {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
         </div>
 
-        <p className="text-center text-sm text-secondary-600">
-          Already have an account?{' '}
-          <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
-            Sign in
-          </Link>
-        </p>
+        {/* Email */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="email">Work Email</label>
+          <div className="relative">
+            <input
+              className={`block w-full px-4 py-3 rounded-lg border ${errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none`}
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="name@firm.com"
+              type="email"
+            />
+            <span className="material-icons-round absolute right-3 top-3 text-slate-400 text-xl pointer-events-none">mail</span>
+          </div>
+          {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+        </div>
 
-        <p className="text-center text-sm text-secondary-600">
-          Protected by bank-level encryption and security.
-        </p>
-      </div>
-    </div>
+        {/* Law Firm */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="lawFirm">Law Firm / Organization</label>
+          <div className="relative">
+            <input
+              className={`block w-full px-4 py-3 rounded-lg border ${errors.lawFirm ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none`}
+              id="lawFirm"
+              name="lawFirm"
+              value={formData.lawFirm}
+              onChange={handleChange}
+              placeholder="e.g. Davis & Partners"
+              type="text"
+            />
+            <span className="material-icons-round absolute right-3 top-3 text-slate-400 text-xl pointer-events-none">business</span>
+          </div>
+          {errors.lawFirm && <p className="text-xs text-red-500">{errors.lawFirm}</p>}
+        </div>
+
+        {/* Password */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">Password</label>
+          <div className="relative">
+            <input
+              className={`block w-full px-4 py-3 rounded-lg border ${errors.password ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none`}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Create a password"
+              type={showPassword ? 'text' : 'password'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <span className="material-icons-round text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
+            </button>
+          </div>
+          {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+        </div>
+
+        {/* Confirm Password */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="confirmPassword">Confirm Password</label>
+          <div className="relative">
+            <input
+              className={`block w-full px-4 py-3 rounded-lg border ${errors.confirmPassword ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-surface-dark text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-all outline-none`}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm password"
+              type="password"
+            />
+          </div>
+          {errors.confirmPassword && <p className="text-xs text-red-500">{errors.confirmPassword}</p>}
+        </div>
+
+        {/* Checkbox */}
+        <div className="flex items-start gap-2 pt-2">
+          <div className="flex items-center h-5">
+            <input id="terms" type="checkbox" required className="w-4 h-4 text-primary bg-slate-100 border-slate-300 rounded focus:ring-primary focus:ring-2" />
+          </div>
+          <label htmlFor="terms" className="text-xs text-slate-500 dark:text-slate-400">
+            I agree to the <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Creating Account...' : 'Get Started'}
+        </button>
+      </form>
+    </AuthLayout>
   )
 }

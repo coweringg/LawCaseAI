@@ -40,6 +40,8 @@ import caseRoutes from './routes/case'
 import fileRoutes from './routes/file'
 import chatRoutes from './routes/chat'
 import adminRoutes from './routes/admin'
+import paymentRoutes from './routes/payment'
+import aiRoutes from './routes/ai'
 
 const app = express()
 
@@ -103,11 +105,13 @@ app.get('/health', (req: express.Request, res: express.Response) => {
 
 // API routes
 app.use('/api/auth', authRoutes)
-app.use('/api/user', userRoutes)
 app.use('/api/cases', caseRoutes)
+app.use('/api/payments', paymentRoutes)
 app.use('/api/files', fileRoutes)
+app.use('/api/ai', aiRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/payments', paymentRoutes)
 
 // 404 handler
 app.use('*', (req: express.Request, res: express.Response) => {
@@ -130,7 +134,7 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
       field: err.path,
       message: err.message
     }))
-    
+
     res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -172,7 +176,7 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
   const customError = error as CustomError
   const errorMessage = error instanceof Error ? error.message : 'Unknown error'
   const statusCode = customError.statusCode || 500
-  
+
   res.status(statusCode).json({
     success: false,
     message: errorMessage
@@ -206,10 +210,10 @@ const checkMongoDBConnection = async (): Promise<{ connected: boolean; message: 
 
 const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
-    if (process.env.CLOUDFLARE_R2_ACCESS_KEY_ID && 
-        process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY && 
-        process.env.CLOUDFLARE_R2_ENDPOINT) {
-      
+    if (process.env.CLOUDFLARE_R2_ACCESS_KEY_ID &&
+      process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY &&
+      process.env.CLOUDFLARE_R2_ENDPOINT) {
+
       const s3Client = new S3Client({
         region: 'auto',
         endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
@@ -241,7 +245,7 @@ const checkFreeLLMConnection = async (): Promise<{ connected: boolean; message: 
         },
         timeout: 5000
       })
-      
+
       if (response.status === 200) {
         return { connected: true, message: 'FreeLLM API connected' }
       } else {
@@ -277,27 +281,27 @@ const PORT = config.port
 const startServer = async () => {
   try {
     await connectDatabase()
-    
+
     app.listen(PORT, async () => {
       console.log(`🚀 LawCaseAI Server running on port ${PORT}`)
       console.log(`📝 Environment: ${config.nodeEnv}`)
       console.log(`🌐 CORS Origin: ${config.cors.origin}`)
-      
+
       console.log('\n🔍 Checking service connections...')
-      
+
       // Check all connections
       const mongoStatus = await checkMongoDBConnection()
       const r2Status = await checkCloudflareR2Connection()
       const llmStatus = await checkFreeLLMConnection()
       const smtpStatus = await checkSMTPConnection()
-      
+
       // Display connection status
       console.log('\n📡 Service Connection Status:')
       console.log(`🗄️  MongoDB Atlas: ${mongoStatus.connected ? '✅' : '❌'} ${mongoStatus.message}`)
       console.log(`☁️  Cloudflare R2: ${r2Status.connected ? '✅' : '❌'} ${r2Status.message}`)
       console.log(`🤖 FreeLLM API: ${llmStatus.connected ? '✅' : '❌'} ${llmStatus.message}`)
       console.log(`📧 SMTP Email: ${smtpStatus.connected ? '✅' : '❌'} ${smtpStatus.message}`)
-      
+
       console.log('\n✨ Server ready to accept connections!')
     })
   } catch (error) {

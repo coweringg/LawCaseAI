@@ -59,6 +59,7 @@ module.exports = {
         },
         // Semantic colors with premium feel
         primary: {
+          DEFAULT: '#0a44b8', // Stitch Primary
           50: '#f0f4f8',
           100: '#e0e7f1',
           200: '#c7d2e4',
@@ -71,6 +72,7 @@ module.exports = {
           900: '#0d1929',
         },
         secondary: {
+          DEFAULT: '#6c757d',
           50: '#f8f9fa',
           100: '#e9ecef',
           200: '#dee2e6',
@@ -83,6 +85,7 @@ module.exports = {
           900: '#0d1117',
         },
         success: {
+          DEFAULT: '#16a34a',
           50: '#f0fdf4',
           100: '#dcfce7',
           200: '#bbf7d0',
@@ -95,6 +98,7 @@ module.exports = {
           900: '#052e16',
         },
         warning: {
+          DEFAULT: '#d97706',
           50: '#fffdf0',
           100: '#fefce8',
           200: '#fef3c7',
@@ -117,7 +121,13 @@ module.exports = {
           700: '#991b1b',
           800: '#7f1d1d',
           900: '#450a0a',
-        }
+        },
+        // Stitch Specific Overrides
+        'background-light': '#f5f6f8',
+        'background-dark': '#101622',
+        'surface-light': '#ffffff',
+        'surface-dark': '#151b2d',
+        'primary-hover': '#083a9e',
       },
       fontFamily: {
         sans: ['IBM Plex Sans', 'Inter', 'system-ui', 'sans-serif'],

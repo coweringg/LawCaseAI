@@ -3,7 +3,23 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Folder } from 'lucide-react';
+import { Loader2, Folder, Briefcase, Shield, Scale, Plus } from 'lucide-react';
+
+const getAreaIcon = (area: string) => {
+    const a = area?.toLowerCase() || '';
+    if (a.includes('criminal')) return <Shield className="w-5 h-5" />;
+    if (a.includes('civil') || a.includes('litigation')) return <Scale className="w-5 h-5" />;
+    if (a.includes('corp') || a.includes('business')) return <Briefcase className="w-5 h-5" />;
+    return <Folder className="w-5 h-5" />;
+};
+
+const getAreaColor = (area: string) => {
+    const a = area?.toLowerCase() || '';
+    if (a.includes('criminal')) return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400';
+    if (a.includes('civil') || a.includes('litigation')) return 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400';
+    if (a.includes('corp') || a.includes('business')) return 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400';
+    return 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400';
+};
 
 export default function MyCases() {
     const { token } = useAuth();
@@ -56,42 +72,73 @@ export default function MyCases() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {cases.map(c => (
-                                <Link href={`/cases/${c._id}`} key={c._id} className="group">
-                                    <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:border-primary/50 hover:shadow-md transition-all h-full flex flex-col">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 group-hover:text-primary transition-colors text-slate-500">
-                                                <Folder className="w-5 h-5" />
-                                            </div>
-                                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${c.status === 'active' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                                c.status === 'closed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                                    'bg-slate-50 text-slate-700 border-slate-100'
-                                                }`}>
-                                                {(c.status || 'active').toUpperCase()}
-                                            </span>
-                                        </div>
+                            {cases.map(c => {
+                                const progress = Math.min((c.fileCount || 0) * 20, 100);
+                                const areaColor = getAreaColor(c.practiceArea);
 
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors">{c.name}</h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-4">{c.practiceArea || 'Legal Case'}</p>
+                                return (
+                                    <Link href={`/cases/${c._id}`} key={c._id} className="group">
+                                        <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col relative overflow-hidden">
+                                            {/* Subtle Gradient background */}
+                                            <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 rounded-full opacity-10 ${areaColor.split(' ')[0]}`}></div>
 
-                                        <div className="mt-auto">
-                                            <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                                                <span className="material-icons-round text-sm text-slate-400">event</span>
-                                                <span>Created {new Date(c.createdAt).toLocaleDateString()}</span>
+                                            <div className="flex justify-between items-start mb-5 relative z-10">
+                                                <div className={`p-3 rounded-xl transition-colors ${areaColor}`}>
+                                                    {getAreaIcon(c.practiceArea)}
+                                                </div>
+                                                <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest uppercase ${c.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' :
+                                                        c.status === 'closed' ? 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
+                                                            'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+                                                    }`}>
+                                                    {c.status || 'ACTIVE'}
+                                                </span>
                                             </div>
-                                            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                                <div className="bg-primary h-full rounded-full transition-all" style={{ width: `40%` }}></div>
+
+                                            <div className="relative z-10 flex-1">
+                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors truncate">{c.name}</h3>
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{c.client || 'Direct Client'}</span>
+                                                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                    <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest">{c.practiceArea || 'General Legal'}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-6 relative z-10">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Case Readiness</span>
+                                                    <span className="text-[10px] font-bold text-slate-900 dark:text-white">{progress}%</span>
+                                                </div>
+                                                <div className="w-full bg-slate-100 dark:bg-slate-700/50 h-2 rounded-full overflow-hidden mb-4">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
+                                                        style={{ width: `${progress}%` }}
+                                                    ></div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between text-[10px] font-bold">
+                                                    <div className="flex items-center gap-1.5 text-slate-500">
+                                                        <span className="material-icons-round text-sm">description</span>
+                                                        <span>{c.fileCount || 0} Docs</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-slate-400">
+                                                        <span className="material-icons-round text-sm">schedule</span>
+                                                        <span>{new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </Link>
-                            ))}
+                                    </Link>
+                                );
+                            })}
 
                             {/* New Case Placeholder */}
                             <Link href="/cases/new" className="group">
-                                <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:border-primary/50 hover:bg-primary/5 transition-all h-full flex flex-col items-center justify-center min-h-[200px] cursor-pointer text-slate-400 group-hover:text-primary">
-                                    <span className="material-icons-round text-3xl mb-2">add_circle_outline</span>
-                                    <span className="text-sm font-bold">Create New Case</span>
+                                <div className="bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:border-primary/50 hover:bg-white dark:hover:bg-surface-dark hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col items-center justify-center min-h-[250px] cursor-pointer text-slate-400 group-hover:text-primary">
+                                    <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-inner">
+                                        <Plus className="w-8 h-8" />
+                                    </div>
+                                    <span className="text-base font-bold">New Case Project</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60">Begin AI indexing</span>
                                 </div>
                             </Link>
                         </div>

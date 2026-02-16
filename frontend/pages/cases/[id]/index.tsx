@@ -128,18 +128,26 @@ export default function CaseWorkspace() {
                     {/* Case Specific Header */}
                     <header className="h-14 flex-none border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark flex items-center justify-between px-6 shadow-sm z-10">
                         <div className="flex items-center gap-6">
-                            <div className="relative group">
-                                <button className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                                    <span className="text-slate-500 dark:text-slate-400">Active Case:</span>
-                                    <span className="text-slate-900 dark:text-white font-bold">{caseData?.name || 'Loading case...'}</span>
-                                    <span className="material-icons-round text-lg text-slate-400">expand_more</span>
-                                </button>
+                            <div className="flex items-center gap-3">
+                                <Link href="/cases" className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all">
+                                    <span className="material-icons-round text-lg">arrow_back</span>
+                                </Link>
+                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{caseData?.client || 'Direct Client'}</span>
+                                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                        <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest leading-none">{caseData?.practiceArea || 'General Legal'}</span>
+                                    </div>
+                                    <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[300px]">{caseData?.name || 'Loading case...'}</h2>
+                                </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded uppercase tracking-wider">{caseData?.practiceArea || 'General Legal'}</span>
-                            <span className="h-4 w-px bg-slate-200 dark:bg-slate-700"></span>
-                            <span className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded border ${caseData?.status === 'active' ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30' : 'text-slate-600 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'}`}>
+                            <span className={`flex items-center gap-1 text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest ${caseData?.status === 'active'
+                                    ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/40'
+                                    : 'text-slate-600 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
+                                }`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${caseData?.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
                                 {(caseData?.status || 'Active').toUpperCase()}
                             </span>

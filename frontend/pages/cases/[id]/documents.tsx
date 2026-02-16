@@ -100,24 +100,21 @@ export default function CaseDocuments() {
                     {/* Header */}
                     <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark flex items-center justify-between px-6 z-20">
                         <div className="flex items-center gap-4">
-                            <Link href={`/cases/${id}`} className="hover:opacity-75 transition-opacity">
-                                <div className="bg-primary p-1.5 rounded-lg flex items-center justify-center">
-                                    <span className="material-icons-round text-white">gavel</span>
-                                </div>
+                            <Link href={`/cases/${id}`} className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all">
+                                <span className="material-icons-round text-lg">arrow_back</span>
                             </Link>
-                            <h1 className="text-xl font-bold tracking-tight text-primary hidden md:block">LawCaseAI</h1>
-                            <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
-                            <div className="flex items-center gap-2">
-                                <Link href={`/cases/${id}`} className="text-sm font-medium text-slate-500 hover:text-primary transition-colors">Case:</Link>
-                                <span className="text-sm font-semibold text-slate-900 dark:text-white">Case ID: {id}</span>
+                            <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-1">Document Manager</span>
+                                <h1 className="text-sm font-bold text-primary dark:text-blue-400 truncate max-w-[300px]">Case ID: {id}</h1>
                             </div>
                         </div>
 
                         {/* Search */}
-                        <div className="flex-1 max-w-2xl px-8 hidden md:block">
+                        <div className="flex-1 max-w-xl px-8 hidden md:block">
                             <div className="relative group">
-                                <span className="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                                <input className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-11 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search case documents..." type="text" />
+                                <span className="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-lg">search</span>
+                                <input className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-900 transition-all outline-none dark:text-white" placeholder="Search case documents..." type="text" />
                             </div>
                         </div>
                     </header>
@@ -219,20 +216,27 @@ export default function CaseDocuments() {
                                                 <tr
                                                     key={file._id}
                                                     onClick={() => handleFileClick(file)}
-                                                    className={`group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${selectedFile?._id === file._id ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                                                    className={`group hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-all cursor-pointer ${selectedFile?._id === file._id ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
                                                 >
-                                                    <td className="py-4 px-4"><input className="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox" checked={selectedDocs.includes(file._id)} onChange={() => toggleSelect(file._id)} /></td>
-                                                    <td className="py-4 px-4">
+                                                    <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50" onClick={(e) => e.stopPropagation()}>
+                                                        <input className="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-700" type="checkbox" checked={selectedDocs.includes(file._id)} onChange={() => toggleSelect(file._id)} />
+                                                    </td>
+                                                    <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50">
                                                         <div className="flex items-center gap-3">
-                                                            {file.type.includes('pdf') && <span className="material-icons-round text-red-500">picture_as_pdf</span>}
-                                                            {file.type.includes('word') && <span className="material-icons-round text-blue-500">description</span>}
-                                                            {file.type.includes('image') && <span className="material-icons-round text-amber-500">image</span>}
-                                                            <span className="text-sm font-semibold text-slate-900 dark:text-white hover:text-primary cursor-pointer">{file.name}</span>
+                                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${file.type.includes('pdf') ? 'bg-rose-50 text-rose-500 dark:bg-rose-900/20' :
+                                                                    file.type.includes('word') ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/20' :
+                                                                        'bg-amber-50 text-amber-500 dark:bg-amber-900/20'
+                                                                }`}>
+                                                                <span className="material-icons-round text-lg">
+                                                                    {file.type.includes('pdf') ? 'picture_as_pdf' : file.type.includes('word') ? 'description' : 'image'}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{file.name}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="py-4 px-4 text-sm text-slate-500 uppercase">{file.type.split('/').pop()}</td>
-                                                    <td className="py-4 px-4 text-sm text-slate-500">{formatSize(file.size)}</td>
-                                                    <td className="py-4 px-4 text-sm text-slate-500 text-right font-medium">{new Date(file.createdAt).toLocaleDateString()}</td>
+                                                    <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{file.type.split('/').pop()}</td>
+                                                    <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50 text-[10px] font-bold text-slate-500">{formatSize(file.size)}</td>
+                                                    <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50 text-[10px] font-bold text-slate-400 text-right uppercase tracking-wider">{new Date(file.createdAt).toLocaleDateString()}</td>
                                                 </tr>
                                             ))}
                                             {files.length === 0 && (

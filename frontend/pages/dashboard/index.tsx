@@ -7,24 +7,19 @@ import { Loader2, Briefcase, Clock, AlertCircle, Gavel } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, token } = useAuth();
-  const [stats, setStats] = useState({ total: 0, active: 0, closed: 0, archived: 0 });
-  const [recentCases, setRecentCases] = useState<any[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases/stats`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/dashboard/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const statsData = await statsRes.json();
-        if (statsData.success) setStats(statsData.data);
-
-        const casesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases?limit=3`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const casesData = await casesRes.json();
-        if (casesData.success) setRecentCases(casesData.data.slice(0, 3));
+        const data = await response.json();
+        if (data.success) {
+          setDashboardData(data.data);
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -46,10 +41,16 @@ export default function Dashboard() {
                 <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
                   <span className="material-icons-round">auto_awesome</span>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">+2.4h today</span>
+                {dashboardData?.hoursSaved?.today > 0 && (
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
+                    +{dashboardData.hoursSaved.today}h today
+                  </span>
+                )}
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Hours Saved by AI</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">42.8 <span className="text-lg font-medium text-slate-400">hrs</span></h3>
+              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                {dashboardData?.hoursSaved?.total || '0.0'} <span className="text-lg font-medium text-slate-400">hrs</span>
+              </h3>
             </div>
 
             <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
@@ -57,13 +58,20 @@ export default function Dashboard() {
                 <div className="p-3 bg-primary/5 text-primary rounded-xl">
                   <Briefcase size={20} />
                 </div>
-                <span className="text-[10px] font-bold text-slate-400 border border-slate-100 dark:border-slate-600 px-2 py-1 rounded-full">{stats.active} / {user?.planLimit || 5} Active</span>
+                <span className="text-[10px] font-bold text-slate-400 border border-slate-100 dark:border-slate-600 px-2 py-1 rounded-full">
+                  {dashboardData?.cases?.active || 0} / {dashboardData?.cases?.limit || 5} Active
+                </span>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Active Cases</p>
               <div className="flex items-end gap-2 mt-1">
-                <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white">{Math.round((stats.active / (user?.planLimit || 5)) * 100)}%</h3>
+                <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                  {dashboardData?.cases?.usagePercentage || 0}%
+                </h3>
                 <div className="mb-2 w-24 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full transition-all duration-1000" style={{ width: `${(stats.active / (user?.planLimit || 5)) * 100}%` }}></div>
+                  <div
+                    className="bg-primary h-full transition-all duration-1000"
+                    style={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -73,10 +81,14 @@ export default function Dashboard() {
                 <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
                   <AlertCircle size={20} />
                 </div>
-                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-100">Syncing...</span>
+                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-100">
+                  {isLoading ? 'Syncing...' : 'Live'}
+                </span>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Total Documents</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">124</h3>
+              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                {dashboardData?.documents?.total || 0}
+              </h3>
             </div>
 
             <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
@@ -84,10 +96,14 @@ export default function Dashboard() {
                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
                   <Gavel size={20} />
                 </div>
-                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full border border-indigo-100">Updated</span>
+                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full border border-indigo-100">
+                  {dashboardData?.cases?.closed > 0 ? 'Updated' : 'Active'}
+                </span>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Closed Cases</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{stats.closed.toString().padStart(2, '0')}</h3>
+              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                {(dashboardData?.cases?.closed || 0).toString().padStart(2, '0')}
+              </h3>
             </div>
           </div>
 
@@ -112,7 +128,7 @@ export default function Dashboard() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                        {recentCases.map(c => (
+                        {dashboardData?.recentCases?.map((c: any) => (
                           <tr key={c._id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => window.location.href = `/cases/${c._id}`}>
                             <td className="px-6 py-5">
                               <div className="flex items-center gap-3">
@@ -133,13 +149,13 @@ export default function Dashboard() {
                             <td className="px-6 py-5">
                               <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
                                 <span className="material-icons-round text-primary text-sm">auto_fix_high</span>
-                                Ready for analysis
+                                {c.fileCount > 0 ? 'Ready for analysis' : 'Upload files for AI'}
                               </div>
                             </td>
                             <td className="px-6 py-5 text-right text-[11px] text-slate-400 font-bold uppercase">{new Date(c.updatedAt).toLocaleDateString()}</td>
                           </tr>
                         ))}
-                        {recentCases.length === 0 && (
+                        {(!dashboardData?.recentCases || dashboardData.recentCases.length === 0) && (
                           <tr>
                             <td colSpan={4} className="px-6 py-12 text-center text-slate-400 text-sm">No recent activity. Create your first case to get started.</td>
                           </tr>
@@ -158,9 +174,21 @@ export default function Dashboard() {
                   Critical Deadlines
                 </h3>
                 <div className="space-y-4">
-                  <div className="p-4 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
-                    <p className="text-xs text-slate-400 font-medium">No upcoming deadlines found in your current cases.</p>
-                  </div>
+                  {dashboardData?.upcomingDeadlines?.length > 0 ? (
+                    dashboardData.upcomingDeadlines.map((deadline: any, idx: number) => (
+                      <div key={idx} className="p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">{deadline.title}</p>
+                          <p className="text-[10px] text-slate-500">{deadline.date}</p>
+                        </div>
+                        <span className="text-[10px] font-bold text-red-600 uppercase">Urgent</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+                      <p className="text-xs text-slate-400 font-medium">No upcoming deadlines found in your current cases.</p>
+                    </div>
+                  )}
                 </div>
                 <Link href="/calendar" className="block w-full text-center mt-6 py-2.5 border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold rounded-xl hover:border-primary hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
                   View Full Calendar
@@ -177,10 +205,12 @@ export default function Dashboard() {
                   </div>
                   <div className="space-y-3">
                     <p className="text-xs text-blue-100 leading-relaxed font-medium">
-                      Your AI assistant is ready to help you analyze documents and find precedents as soon as you upload files.
+                      {dashboardData?.documents?.total > 0
+                        ? `You have ${dashboardData.documents.total} documents ready for AI analysis. Start auditing your cases now.`
+                        : "Your AI assistant is ready to help you analyze documents and find precedents as soon as you upload files."}
                     </p>
                     <div className="pt-2">
-                      <button className="w-full py-2 bg-white text-primary text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors shadow-lg">
+                      <button className="w-full py-2 bg-white text-primary text-xs font-bold rounded-lg hover:bg-slate-100 transition-all duration-300 hover:scale-[1.02] shadow-lg">
                         Get Quick Audit
                       </button>
                     </div>

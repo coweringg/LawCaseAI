@@ -40,6 +40,9 @@ export interface IUser extends Document {
   caseUpdates: boolean
   aiResponses: boolean
   marketingEmails: boolean
+  hoursSavedByAI: number
+  hoursSavedToday: number
+  lastHoursSavedReset: Date
   createdAt: Date
   updatedAt: Date
   lastLogin: Date

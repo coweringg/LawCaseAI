@@ -77,6 +77,20 @@ const userSchema = new Schema<IUser>({
     type: Boolean,
     default: false
   },
+  hoursSavedByAI: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  hoursSavedToday: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  lastHoursSavedReset: {
+    type: Date,
+    default: Date.now
+  },
   lastLogin: {
     type: Date,
     default: Date.now
@@ -94,9 +108,9 @@ userSchema.index({ plan: 1 })
 userSchema.index({ createdAt: -1 })
 
 // Pre-save middleware to hash password
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
-  
+
   try {
     const salt = await bcrypt.genSalt(12)
     this.password = await bcrypt.hash(this.password, salt)
@@ -107,7 +121,7 @@ userSchema.pre('save', async function(next) {
 })
 
 // Pre-save middleware to set plan limit based on plan
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
   if (this.isModified('plan')) {
     this.planLimit = config.planLimits[this.plan as UserPlan]
   }
@@ -115,11 +129,11 @@ userSchema.pre('save', function(next) {
 })
 
 // Instance methods
-userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password)
 }
 
-userSchema.methods.generateAuthToken = function(): string {
+userSchema.methods.generateAuthToken = function (): string {
   const payload: {
     userId: string;
     email: string;
@@ -131,34 +145,34 @@ userSchema.methods.generateAuthToken = function(): string {
     role: this.role,
     plan: this.plan
   }
-  
+
   const secret = config.jwt.secret
   const options: SignOptions = {
     expiresIn: config.jwt.expiresIn as '7d' // Type assertion con un valor válido conocido
   }
-  
+
   return jwt.sign(payload, secret, options)
 }
 
 // Static methods
-userSchema.statics.findByEmail = function(email: string) {
+userSchema.statics.findByEmail = function (email: string) {
   return this.findOne({ email }).select('+password')
 }
 
-userSchema.statics.updateLastLogin = function(userId: string) {
+userSchema.statics.updateLastLogin = function (userId: string) {
   return this.findByIdAndUpdate(userId, { lastLogin: new Date() })
 }
 
 // Virtuals
-userSchema.virtual('isAtPlanLimit').get(function() {
+userSchema.virtual('isAtPlanLimit').get(function () {
   return this.currentCases >= this.planLimit
 })
 
-userSchema.virtual('planUsagePercentage').get(function() {
+userSchema.virtual('planUsagePercentage').get(function () {
   return Math.round((this.currentCases / this.planLimit) * 100)
 })
 
-userSchema.virtual('remainingCases').get(function() {
+userSchema.virtual('remainingCases').get(function () {
   return Math.max(0, this.planLimit - this.currentCases)
 })
 

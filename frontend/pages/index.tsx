@@ -196,7 +196,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link href="/register">
-              <button className="px-8 py-4 bg-white text-primary font-bold rounded-lg shadow-lg hover:bg-slate-50 transition-colors text-lg">
+              <button className="px-8 py-4 bg-white text-primary font-bold rounded-lg shadow-lg hover:bg-slate-50 transition-all duration-300 text-lg hover:scale-105 hover:shadow-2xl hover:shadow-white/50">
                 Get LawCaseAI
               </button>
             </Link>

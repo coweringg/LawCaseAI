@@ -266,10 +266,10 @@ export default function Pricing() {
             <h2 className="text-3xl font-bold mb-4">Ready to modernize your practice?</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">Join over 500+ forward-thinking law firms using LawCaseAI to save hours every week.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="#pricing" className="bg-white text-primary font-bold py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors shadow-lg">
+              <Link href="#pricing" className="bg-white text-primary font-bold py-3 px-8 rounded-lg hover:bg-blue-50 transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-white/50">
                 Select a Plan
               </Link>
-              <button className="bg-primary border border-white/30 text-white font-semibold py-3 px-8 rounded-lg hover:bg-primary/80 transition-colors">
+              <button className="bg-transparent border-2 border-white/30 text-white font-bold py-3 px-8 rounded-lg hover:bg-white/10 transition-colors">
                 Schedule Demo
               </button>
             </div>

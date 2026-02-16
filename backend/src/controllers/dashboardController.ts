@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { Case, User, CaseFile } from '../models'
+import { Case, User, CaseFile, Event } from '../models'
 import { IApiResponse, IAuthRequest } from '../types'
 
 export const getDashboardStats = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -72,6 +72,19 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             .limit(3)
             .lean()
 
+        // Get upcoming deadlines (next 7 days, sorted by proximity)
+        const upcomingDeadlines = await Event.find({
+            userId,
+            start: { $gte: now },
+            $or: [
+                { type: 'deadline' },
+                { priority: { $in: ['high', 'critical'] } }
+            ]
+        })
+            .sort({ start: 1 })
+            .limit(5)
+            .lean()
+
         // Build response
         const dashboardData = {
             hoursSaved: {
@@ -91,7 +104,13 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
                 total: totalDocuments
             },
             recentCases: recentCases,
-            upcomingDeadlines: [] // Placeholder for future deadline feature
+            upcomingDeadlines: upcomingDeadlines.map(d => ({
+                id: d._id,
+                title: d.title,
+                date: d.start,
+                priority: d.priority,
+                type: d.type
+            }))
         }
 
         res.status(200).json({

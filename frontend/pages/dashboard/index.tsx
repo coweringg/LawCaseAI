@@ -3,7 +3,8 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Loader2, Briefcase, Clock, AlertCircle, Gavel } from 'lucide-react';
+import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -176,12 +177,28 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   {dashboardData?.upcomingDeadlines?.length > 0 ? (
                     dashboardData.upcomingDeadlines.map((deadline: any, idx: number) => (
-                      <div key={idx} className="p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">{deadline.title}</p>
-                          <p className="text-[10px] text-slate-500">{deadline.date}</p>
+                      <div key={idx} className="p-3 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl flex items-center justify-between group hover:shadow-md transition-all cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-1 h-8 rounded-full ${deadline.priority === 'critical' ? 'bg-red-500' : 'bg-amber-500'}`}></div>
+                          <div>
+                            <p className="text-[12px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{deadline.title}</p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                              <Clock size={10} />
+                              {(() => {
+                                try {
+                                  const d = new Date(deadline.date);
+                                  return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM d, h:mm a');
+                                } catch {
+                                  return 'Invalid Date';
+                                }
+                              })()}
+                            </p>
+                          </div>
                         </div>
-                        <span className="text-[10px] font-bold text-red-600 uppercase">Urgent</span>
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border ${deadline.priority === 'critical' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+                          }`}>
+                          {deadline.priority}
+                        </span>
                       </div>
                     ))
                   ) : (

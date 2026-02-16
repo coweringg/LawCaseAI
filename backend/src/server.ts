@@ -43,6 +43,7 @@ import adminRoutes from './routes/admin'
 import paymentRoutes from './routes/payment'
 import aiRoutes from './routes/ai'
 import dashboardRoutes from './routes/dashboard'
+import eventRoutes from './routes/event'
 
 const app = express()
 
@@ -113,6 +114,7 @@ app.use('/api/ai', aiRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/events', eventRoutes)
 app.use('/api/payments', paymentRoutes)
 
 // 404 handler

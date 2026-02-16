@@ -18,6 +18,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [searchResults, setSearchResults] = useState<{ cases: any[], files: any[] }>({ cases: [], files: [] });
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         const fetchUsageStats = async () => {
@@ -184,9 +190,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <main className="flex-1 flex flex-col h-full overflow-hidden">
                     {/* Header */}
                     <header className="h-20 bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-8 flex-shrink-0 z-10">
-                        <div>
-                            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Good morning, Counsel</h2>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-primary/5 dark:bg-primary/10 px-4 py-2 rounded-2xl border border-primary/10 flex items-center gap-3">
+                                <div className="text-right">
+                                    <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none">
+                                        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    </h2>
+                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1">
+                                        {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                    </p>
+                                </div>
+                                <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <span className="material-icons-round">schedule</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-black text-slate-900 dark:text-white leading-tight">Counsel Status</h2>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter">On-Duty • Active Session</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-6">
                             <div className="relative group hidden lg:block">

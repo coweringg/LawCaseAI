@@ -19,10 +19,31 @@ export enum CaseStatus {
   ARCHIVED = 'archived'
 }
 
+export enum EventType {
+  DEADLINE = 'deadline',
+  HEARING = 'hearing',
+  MEETING = 'meeting',
+  REVIEW = 'review',
+  CONSULTATION = 'consultation',
+  OTHER = 'other'
+}
+
+export enum EventPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
 export enum UserStatus {
   ACTIVE = 'active',
   DISABLED = 'disabled',
   SUSPENDED = 'suspended'
+}
+
+export enum EventStatus {
+  ACTIVE = 'active',
+  CLOSED = 'closed'
 }
 
 export interface IUser extends Document {
@@ -88,6 +109,23 @@ export interface IChatMessage extends Document {
     tokens?: number
     responseTime?: number
   }
+}
+
+export interface IEvent extends Document {
+  _id: Types.ObjectId
+  title: string
+  description?: string
+  start: Date
+  end?: Date
+  type: EventType
+  priority: EventPriority
+  caseId?: Types.ObjectId
+  userId: Types.ObjectId
+  location?: string
+  isAllDay: boolean
+  status: EventStatus
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface IAdminStats {

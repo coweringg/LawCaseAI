@@ -5,11 +5,26 @@ import { IApiResponse, IAuthRequest } from '../types'
 export const getEvents = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user?._id
-        const { start, end, caseId } = req.query
+        const { start, end, caseId, search } = req.query
+
+        // 1. Auto-close past events (Lazy Update)
+        const now = new Date()
+        await Event.updateMany(
+            {
+                userId,
+                status: 'active',
+                start: { $lt: now }
+            },
+            { $set: { status: 'closed' } }
+        )
 
         const query: any = { userId }
         if (caseId) query.caseId = caseId
-        if (start && end) {
+
+        // If searching, we search globally (ignoring date bounds)
+        if (search) {
+            query.title = { $regex: search, $options: 'i' }
+        } else if (start && end) {
             query.start = { $gte: new Date(start as string), $lte: new Date(end as string) }
         }
 

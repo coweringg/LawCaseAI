@@ -43,31 +43,45 @@ export default function Calendar() {
     const [selectedEvent, setSelectedEvent] = useState<any>(undefined);
     const [view, setView] = useState<'Day' | 'Week' | 'Month' | 'List'>('Month');
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
     const [cases, setCases] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-    const fetchEvents = useCallback(async () => {
-        setIsLoading(true);
+    const fetchEvents = useCallback(async (query?: string) => {
+        if (!query) setIsLoading(true);
+        else setIsSearching(true);
+
         try {
-            const start = startOfMonth(currentDate);
-            const end = endOfMonth(currentDate);
+            const params: any = {};
+            if (query) {
+                params.search = query;
+            } else {
+                params.start = startOfMonth(currentDate).toISOString();
+                params.end = endOfMonth(currentDate).toISOString();
+            }
+
             const response = await axios.get(`${API_URL}/api/events`, {
                 headers: { Authorization: `Bearer ${token}` },
-                params: {
-                    start: start.toISOString(),
-                    end: end.toISOString()
-                }
+                params
             });
+
             if (response.data.success) {
-                setEvents(response.data.data);
+                if (query) {
+                    setSearchResults(response.data.data);
+                } else {
+                    setEvents(response.data.data);
+                }
             }
         } catch (error) {
             console.error('Error fetching events:', error);
-            toast.error('Failed to load events');
+            if (!query) toast.error('Failed to load events');
         } finally {
             setIsLoading(false);
+            setIsSearching(false);
         }
     }, [currentDate, token, API_URL]);
 
@@ -90,6 +104,17 @@ export default function Calendar() {
             fetchCases();
         }
     }, [fetchEvents, fetchCases, token]);
+
+    useEffect(() => {
+        if (isSearchModalOpen && searchQuery.trim().length > 0) {
+            const timer = setTimeout(() => {
+                fetchEvents(searchQuery);
+            }, 300);
+            return () => clearTimeout(timer);
+        } else if (isSearchModalOpen) {
+            setSearchResults([]);
+        }
+    }, [searchQuery, isSearchModalOpen, fetchEvents]);
 
     const handleSaveEvent = async (eventData: any) => {
         try {
@@ -275,16 +300,16 @@ export default function Calendar() {
                                     <button onClick={goToToday} className="px-4 py-1.5 text-[11px] font-black hover:text-primary transition-colors text-slate-600 dark:text-slate-300">TODAY</button>
                                     <button onClick={nextDate} className="p-2 hover:text-primary transition-colors"><ChevronRight size={18} /></button>
                                 </div>
-                                <div className="relative group">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={16} />
-                                    <input
-                                        type="text"
-                                        placeholder="Search events..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-white/5 border border-transparent focus:border-primary/30 rounded-xl text-sm outline-none transition-all w-48 focus:w-64"
-                                    />
-                                </div>
+                                <button
+                                    onClick={() => {
+                                        setIsSearchModalOpen(true);
+                                        setSearchQuery('');
+                                    }}
+                                    className="flex items-center gap-2.5 px-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
+                                >
+                                    <Search size={16} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[11px] font-black uppercase tracking-widest hidden sm:inline">Search...</span>
+                                </button>
                             </div>
                         </div>
 
@@ -470,9 +495,125 @@ export default function Calendar() {
                         event={selectedEvent}
                         cases={cases}
                     />
-                </div>
-            </DashboardLayout>
-        </ProtectedRoute>
+
+                    {/* Centralized Global Search Modal */}
+                    {isSearchModalOpen && (
+                        <div className="fixed inset-0 z-[100000] flex items-start justify-center pt-[15vh] px-4">
+                            <div
+                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+                                onClick={() => setIsSearchModalOpen(false)}
+                            />
+
+                            <div className="relative w-full max-w-2xl bg-white dark:bg-[#0f172a] rounded-[32px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border-2 border-slate-200 dark:border-white/20 overflow-hidden animate-in zoom-in-95 duration-200">
+                                {/* Search Header */}
+                                <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50">
+                                    <div className="p-3 bg-primary/20 text-primary rounded-2xl">
+                                        <Search size={24} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            placeholder="What are you looking for today?"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full bg-transparent border-none outline-none text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                                        />
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Universal Legal Repository Search</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsSearchModalOpen(false)}
+                                        className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl text-slate-400 transition-all font-black text-xs"
+                                    >
+                                        ESC
+                                    </button>
+                                </div>
+
+                                {/* Search Results */}
+                                <div className="max-h-[60vh] overflow-y-auto p-4 space-y-2 !bg-white dark:!bg-[#0f172a]">
+                                    {isSearching ? (
+                                        <div className="py-20 text-center">
+                                            <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
+                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Scanning Repository...</p>
+                                        </div>
+                                    ) : searchQuery.trim() === '' ? (
+                                        <div className="py-20 text-center opacity-40">
+                                            <Search size={64} className="mx-auto mb-4 text-slate-300" />
+                                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Type to begin discovery</p>
+                                        </div>
+                                    ) : searchResults.length > 0 ? (
+                                        <div className="grid gap-2">
+                                            {searchResults.map((event, i) => (
+                                                <div
+                                                    key={i}
+                                                    onClick={() => {
+                                                        const eDate = new Date(event.start);
+                                                        setIsSearchModalOpen(false);
+                                                        setSearchQuery('');
+
+                                                        setTimeout(() => {
+                                                            setView('Month');
+                                                            setCurrentDate(eDate);
+                                                            handleOpenModal(undefined, event);
+                                                            toast.success(`Opening ${format(eDate, 'MMM d')}`, {
+                                                                icon: '⚖️',
+                                                                style: { borderRadius: '16px', background: '#0f172a', color: '#fff' }
+                                                            });
+                                                        }, 100);
+                                                    }}
+                                                    className="p-5 rounded-[24px] hover:bg-slate-50 dark:hover:bg-white/[0.05] cursor-pointer transition-all border border-transparent hover:border-slate-100 dark:hover:border-white/10 group active:scale-[0.98] flex justify-between items-center"
+                                                >
+                                                    <div className="flex-1 min-w-0 pr-4">
+                                                        <h5 className="text-[16px] font-black text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors mb-1">{event.title}</h5>
+                                                        <div className="flex items-center gap-4 text-slate-400">
+                                                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight">
+                                                                <CalendarIcon size={12} />
+                                                                {format(new Date(event.start), 'MMM d, yyyy')}
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight">
+                                                                <Clock size={12} />
+                                                                {format(new Date(event.start), 'h:mm a')}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        <div className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${event.status === 'closed'
+                                                            ? 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800/50 dark:text-slate-500 dark:border-white/5'
+                                                            : 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                                                            }`}>
+                                                            {event.status === 'closed' ? 'Closed' : 'Open'}
+                                                        </div>
+                                                        <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${event.priority === 'critical' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' :
+                                                            event.priority === 'high' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' :
+                                                                'bg-primary text-white shadow-lg shadow-primary/20'
+                                                            }`}>
+                                                            {event.priority}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-20 text-center">
+                                            <AlertCircle size={48} className="text-slate-200 dark:text-slate-800 mx-auto mb-4" />
+                                            <h5 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">No matches in repository</h5>
+                                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">Modify your query or check filters</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="p-4 bg-slate-50 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/5 text-center">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                                        Antigravity High-Performance Search System
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div >
+            </DashboardLayout >
+        </ProtectedRoute >
     );
 }
 

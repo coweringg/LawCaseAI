@@ -33,8 +33,22 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             return
         }
 
+        const eventData = { ...req.body };
+        if (eventData.caseId === '') {
+            delete eventData.caseId;
+        }
+
+        const eventDate = new Date(eventData.start);
+        if (eventDate < new Date()) {
+            res.status(400).json({
+                success: false,
+                message: 'Legal events and deadlines cannot be scheduled in the past.'
+            } as IApiResponse);
+            return;
+        }
+
         const event = await Event.create({
-            ...req.body,
+            ...eventData,
             userId
         })
 
@@ -54,9 +68,23 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         const { id } = req.params
         const userId = req.user?._id
 
+        const eventData = { ...req.body };
+        if (eventData.caseId === '') {
+            delete eventData.caseId;
+        }
+
+        const eventDate = new Date(eventData.start);
+        if (eventDate < new Date()) {
+            res.status(400).json({
+                success: false,
+                message: 'Legal events and deadlines cannot be scheduled in the past.'
+            } as IApiResponse);
+            return;
+        }
+
         const updatedEvent = await Event.findOneAndUpdate(
             { _id: id, userId },
-            { $set: req.body },
+            { $set: eventData },
             { new: true }
         )
 

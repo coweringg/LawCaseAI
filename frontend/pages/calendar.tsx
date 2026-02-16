@@ -105,12 +105,13 @@ export default function Calendar() {
             }
 
             if (response.data.success) {
-                toast.success(selectedEvent ? 'Event updated' : 'Event created');
+                toast.success(selectedEvent ? 'Legal event updated successfully' : 'Legal event created successfully');
                 fetchEvents();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving event:', error);
-            toast.error('Error saving event');
+            const errorMessage = error.response?.data?.message || 'A technical error occurred while saving the legal event.';
+            toast.error(errorMessage);
             throw error;
         }
     };
@@ -404,8 +405,8 @@ export default function Calendar() {
                                                         handleOpenModal(currentDate);
                                                     }}
                                                     className={`mt-6 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg ${!isSameDay(currentDate, new Date()) && currentDate < new Date()
-                                                            ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                                                            : 'bg-primary text-white hover:scale-105 shadow-primary/20'
+                                                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                                                        : 'bg-primary text-white hover:scale-105 shadow-primary/20'
                                                         }`}
                                                 >
                                                     Schedule Now

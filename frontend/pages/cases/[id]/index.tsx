@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Folder, Download, Search, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import ConfirmModal from '@/components/modals/ConfirmModal';
 
 export default function CaseWorkspace() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function CaseWorkspace() {
     const [isSending, setIsSending] = useState(false);
     const [caseSummary, setCaseSummary] = useState<string | null>(null);
     const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchCaseData = async () => {
@@ -37,7 +39,13 @@ export default function CaseWorkspace() {
                 const cData = await caseRes.json();
                 const fData = await filesRes.json();
 
-                if (cData.success) setCaseData(cData.data);
+                if (cData.success) {
+                    setCaseData(cData.data);
+                    // If case already has a summary in the DB, use it
+                    if (cData.data.summary) {
+                        setCaseSummary(cData.data.summary);
+                    }
+                }
                 if (fData.success) setFiles(fData.data);
             } catch (error) {
                 console.error('Error fetching case workspace data:', error);
@@ -109,6 +117,31 @@ export default function CaseWorkspace() {
         }
     };
 
+    const handleCloseCase = async () => {
+        if (!id || !token) return;
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: 'closed' })
+            });
+            const data = await response.json();
+            if (data.success) {
+                setCaseData(data.data);
+                toast.success('Case closed successfully');
+                setTimeout(() => {
+                    router.push('/cases');
+                }, 1500);
+            }
+        } catch (error) {
+            toast.error('Failed to close case');
+        }
+    };
+
     if (isLoading) {
         return (
             <ProtectedRoute>
@@ -144,9 +177,18 @@ export default function CaseWorkspace() {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
+                            {caseData?.status === 'active' && (
+                                <button
+                                    onClick={() => setIsConfirmModalOpen(true)}
+                                    className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2"
+                                >
+                                    <span className="material-icons-round text-sm">lock</span>
+                                    Close Case
+                                </button>
+                            )}
                             <span className={`flex items-center gap-1 text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest ${caseData?.status === 'active'
-                                    ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/40'
-                                    : 'text-slate-600 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
+                                ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/40'
+                                : 'text-slate-600 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
                                 }`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${caseData?.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
                                 {(caseData?.status || 'Active').toUpperCase()}
@@ -175,9 +217,11 @@ export default function CaseWorkspace() {
                                     </div>
                                     <div className="ml-6 border-l border-slate-200 dark:border-slate-700 pl-2 mt-1 space-y-1">
                                         {files.map(f => (
-                                            <button key={f._id} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded group/file text-left">
-                                                <span className={`material-icons-round text-base ${f.type.includes('pdf') ? 'text-red-500' : 'text-blue-500'}`}>description</span>
-                                                <span className="truncate flex-1">{f.name}</span>
+                                            <button key={f._id} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded group/file text-left transition-all">
+                                                <div className={`w-6 h-6 rounded flex items-center justify-center ${f.type.includes('pdf') ? 'bg-rose-50 text-rose-500 dark:bg-rose-900/20' : 'bg-blue-50 text-blue-500 dark:bg-blue-900/20'}`}>
+                                                    <span className="material-icons-round text-base">{f.type.includes('pdf') ? 'picture_as_pdf' : 'description'}</span>
+                                                </div>
+                                                <span className="truncate flex-1 font-medium">{f.name}</span>
                                             </button>
                                         ))}
                                         {files.length === 0 && (
@@ -242,12 +286,12 @@ export default function CaseWorkspace() {
                                                         <span className="material-icons-round text-white text-sm">smart_toy</span>
                                                     </div>
                                                 )}
-                                                <div className={`max-w-2xl rounded-2xl px-6 py-4 shadow-sm text-sm leading-relaxed ${msg.role === 'user'
+                                                <div className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm text-[13px] leading-relaxed ${msg.role === 'user'
                                                     ? 'bg-primary text-white rounded-tr-sm'
-                                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-tl-sm'
+                                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-tl-sm'
                                                     }`}>
-                                                    <p>{msg.content}</p>
-                                                    <div className={`mt-2 text-[10px] opacity-70 ${msg.role === 'user' ? 'text-blue-100 text-right' : 'text-slate-500'}`}>
+                                                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                                                    <div className={`mt-2 text-[9px] font-bold uppercase tracking-wider opacity-60 ${msg.role === 'user' ? 'text-blue-100 text-right' : 'text-slate-500'}`}>
                                                         {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </div>
@@ -399,6 +443,17 @@ export default function CaseWorkspace() {
                             </div>
                         </aside>
                     </div>
+
+                    <ConfirmModal
+                        isOpen={isConfirmModalOpen}
+                        onClose={() => setIsConfirmModalOpen(false)}
+                        onConfirm={handleCloseCase}
+                        title="Close Case"
+                        message={`Are you sure you want to close "${caseData?.name}"? This will mark the case as inactive and move it to the closed section.`}
+                        confirmLabel="Close Case"
+                        cancelLabel="Keep Open"
+                        isDestructive={true}
+                    />
                 </div>
             </DashboardLayout>
         </ProtectedRoute>

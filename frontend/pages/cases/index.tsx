@@ -25,6 +25,7 @@ export default function MyCases() {
     const { token } = useAuth();
     const [cases, setCases] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
 
     useEffect(() => {
         const fetchCases = async () => {
@@ -50,20 +51,45 @@ export default function MyCases() {
         }
     }, [token]);
 
+    const filteredCases = cases.filter(c => {
+        if (statusFilter === 'all') return true;
+        return (c.status || 'active').toLowerCase() === statusFilter;
+    }).sort((a, b) => {
+        const statusA = (a.status || 'active').toLowerCase();
+        const statusB = (b.status || 'active').toLowerCase();
+        if (statusA === 'active' && statusB !== 'active') return -1;
+        if (statusA !== 'active' && statusB === 'active') return 1;
+        return 0;
+    });
+
     return (
         <ProtectedRoute>
             <DashboardLayout>
                 <div className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Cases</h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Manage and track your active legal cases.</p>
+                            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">My Cases</h1>
+                            <p className="text-slate-500 dark:text-slate-400 font-medium">Manage and analyze your legal cases with AI.</p>
                         </div>
-                        <Link href="/cases/new">
-                            <button className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all flex items-center gap-2">
-                                <span className="material-icons-round">add</span> New Case
-                            </button>
-                        </Link>
+
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                            {[
+                                { id: 'all', label: 'All' },
+                                { id: 'active', label: 'Active' },
+                                { id: 'closed', label: 'Closed' }
+                            ].map((f) => (
+                                <button
+                                    key={f.id}
+                                    onClick={() => setStatusFilter(f.id as any)}
+                                    className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${statusFilter === f.id
+                                        ? 'bg-white dark:bg-surface-dark text-primary shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                        }`}
+                                >
+                                    {f.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {isLoading ? (
@@ -72,7 +98,7 @@ export default function MyCases() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {cases.map(c => {
+                            {filteredCases.map(c => {
                                 const progress = Math.min((c.fileCount || 0) * 20, 100);
                                 const areaColor = getAreaColor(c.practiceArea);
 
@@ -87,8 +113,8 @@ export default function MyCases() {
                                                     {getAreaIcon(c.practiceArea)}
                                                 </div>
                                                 <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest uppercase ${c.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' :
-                                                        c.status === 'closed' ? 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
-                                                            'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+                                                    c.status === 'closed' ? 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
+                                                        'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
                                                     }`}>
                                                     {c.status || 'ACTIVE'}
                                                 </span>

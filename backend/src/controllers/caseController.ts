@@ -116,3 +116,97 @@ export const getCaseStats = async (req: IAuthRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: 'Failed to fetch stats' } as IApiResponse)
   }
 }
+
+export const getCaseById = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    const caseData = await Case.findOne({ _id: id, userId })
+
+    if (!caseData) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    res.status(200).json({
+      success: true,
+      data: caseData
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch case'
+    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+  }
+}
+
+export const updateCase = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const userId = req.user?._id
+    const updates = req.body
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    const updatedCase = await Case.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: updates },
+      { new: true }
+    )
+
+    if (!updatedCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Case updated successfully',
+      data: updatedCase
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update case'
+    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+  }
+}
+
+export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
+
+    if (!deletedCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    // Decrement user's current case count
+    const user = await User.findById(userId)
+    if (user && user.currentCases > 0) {
+      user.currentCases -= 1
+      await user.save()
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Case deleted successfully'
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete case'
+    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+  }
+}

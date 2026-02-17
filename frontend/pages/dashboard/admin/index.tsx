@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     const userData = localStorage.getItem('user')
-    
+
     if (!token || !userData) {
       router.push('/login')
       return
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
           'Authorization': `Bearer ${token}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
           'Authorization': `Bearer ${token}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setStats(data)
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        setUsers(prev => prev.map(user => 
+        setUsers(prev => prev.map(user =>
           user.id === userId ? { ...user, status } : user
         ))
       }
@@ -154,7 +154,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        setUsers(prev => prev.map(user => 
+        setUsers(prev => prev.map(user =>
           user.id === userId ? { ...user, plan, planLimit: getPlanLimit(plan) } : user
         ))
         setShowPlanModal(false)
@@ -220,11 +220,10 @@ export default function AdminDashboard() {
       key: 'status' as keyof AdminUser,
       title: 'Status',
       render: (value: string) => (
-        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-          value === 'active' ? 'bg-success-100 text-success-800' :
-          value === 'disabled' ? 'bg-error-100 text-error-800' :
-          'bg-warning-100 text-warning-800'
-        }`}>
+        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${value === 'active' ? 'bg-success-100 text-success-800' :
+            value === 'disabled' ? 'bg-error-100 text-error-800' :
+              'bg-warning-100 text-warning-800'
+          }`}>
           {value === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
           {value === 'disabled' && <XCircle className="w-3 h-3 mr-1" />}
           {value === 'suspended' && <AlertCircle className="w-3 h-3 mr-1" />}
@@ -286,7 +285,7 @@ export default function AdminDashboard() {
               </div>
               <span className="text-xl font-bold text-secondary-900">LawCaseAI Admin</span>
             </Link>
-            
+
             <nav className="space-y-2">
               <Link href="/dashboard/admin" className="flex items-center px-3 py-2 text-sm font-medium rounded-lg bg-primary-50 text-primary-700">
                 <Users className="w-5 h-5 mr-3" />
@@ -298,7 +297,7 @@ export default function AdminDashboard() {
               </Link>
             </nav>
           </div>
-          
+
           <div className="absolute bottom-0 w-64 p-6 border-t border-secondary-100">
             <div className="flex items-center mb-4">
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">

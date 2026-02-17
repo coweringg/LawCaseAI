@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
         // Verificar si los componentes UI existen
         const components = ['Button', 'Card', 'Alert', 'Input', 'Modal', 'Table']
         const missingComponents = []
-        
+
         for (const component of components) {
           try {
             await import(`@/components/ui/${component}`)
@@ -38,7 +38,7 @@ export function Layout({ children }: LayoutProps) {
             missingComponents.push(component)
           }
         }
-        
+
         if (missingComponents.length > 0) {
           console.warn(`Missing components: ${missingComponents.join(', ')}`)
           // Mostrar mensaje amigable
@@ -58,7 +58,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
             `
             document.body.appendChild(message)
-            
+
             // Recargar automáticamente después de 3 segundos
             setTimeout(() => {
               location.reload()

@@ -45,7 +45,7 @@ export default function Home() {
                   Modern legal technology designed to enhance your practice efficiency and client service.
                 </p>
               </div>
-              
+
               <div className="grid md:grid-cols-3 gap-8">
                 <Card className="text-center">
                   <CardHeader>
@@ -99,7 +99,7 @@ export default function Home() {
                   Everything You Need to Manage Your Practice
                 </h2>
               </div>
-              
+
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div>
                   <h3 className="text-2xl font-bold text-secondary-900 mb-6">

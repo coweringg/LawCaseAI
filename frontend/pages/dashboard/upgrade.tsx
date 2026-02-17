@@ -120,7 +120,7 @@ export default function Upgrade() {
       <div className="min-h-screen bg-secondary-50">
         <div className="flex">
           <DashboardNav currentPage="upgrade" />
-          
+
           <div className="flex-1">
             <header className="bg-white shadow-sm border-b border-secondary-100">
               <div className="px-6 py-4">
@@ -167,7 +167,7 @@ export default function Upgrade() {
                   </div>
                   <div className="mt-4">
                     <div className="w-full bg-secondary-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary-600 h-2 rounded-full"
                         style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
                       ></div>
@@ -182,8 +182,8 @@ export default function Upgrade() {
               {/* Available Plans */}
               <div className="grid md:grid-cols-3 gap-8 mb-8">
                 {plans.filter(plan => plan.id !== user.plan).map((plan) => (
-                  <Card 
-                    key={plan.id} 
+                  <Card
+                    key={plan.id}
                     className={`relative ${plan.popular ? 'border-primary-500 shadow-xl scale-105' : ''}`}
                   >
                     {plan.popular && (
@@ -193,7 +193,7 @@ export default function Upgrade() {
                         </span>
                       </div>
                     )}
-                    
+
                     <CardHeader className="text-center">
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
                       <div className="mt-4">
@@ -204,7 +204,7 @@ export default function Upgrade() {
                         {plan.caseLimit === 100 ? 'Unlimited' : plan.caseLimit} active cases
                       </CardDescription>
                     </CardHeader>
-                    
+
                     <CardContent>
                       <ul className="space-y-3 mb-8">
                         {plan.features.map((feature, featureIndex) => (
@@ -214,8 +214,8 @@ export default function Upgrade() {
                           </li>
                         ))}
                       </ul>
-                      
-                      <Button 
+
+                      <Button
                         className={`w-full ${plan.popular ? 'bg-primary-600 hover:bg-primary-700' : ''}`}
                         variant={plan.popular ? 'primary' : 'outline'}
                         onClick={() => handleUpgrade(plan.id)}

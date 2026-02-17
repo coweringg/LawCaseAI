@@ -51,8 +51,8 @@ export default function Settings() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`w-full group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
-                                                ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-white'
-                                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'
+                                            ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-white'
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'
                                             }`}
                                     >
                                         <span className={`material-icons-round mr-3 text-[20px] ${activeTab === tab.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'

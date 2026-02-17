@@ -80,7 +80,7 @@ export default function CaseDetail() {
           'Authorization': `Bearer ${token}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setCase(data)
@@ -100,7 +100,7 @@ export default function CaseDetail() {
           'Authorization': `Bearer ${token}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setFiles(data)
@@ -118,7 +118,7 @@ export default function CaseDetail() {
           'Authorization': `Bearer ${token}`
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setMessages(data)
@@ -315,7 +315,7 @@ export default function CaseDetail() {
               </div>
               <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
             </Link>
-            
+
             <nav className="space-y-2">
               <Link href="/dashboard" className="sidebar-item sidebar-item-inactive">
                 <FileText className="w-5 h-5 mr-3" />
@@ -348,11 +348,10 @@ export default function CaseDetail() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className={`badge ${
-                    case_.status === 'active' ? 'badge-success' :
-                    case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
-                    'badge-warning'
-                  }`}>
+                  <span className={`badge ${case_.status === 'active' ? 'badge-success' :
+                      case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
+                        'badge-warning'
+                    }`}>
                     {case_.status.charAt(0).toUpperCase() + case_.status.slice(1)}
                   </span>
                 </div>
@@ -468,20 +467,18 @@ export default function CaseDetail() {
                           >
                             <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                               <div className={`flex items-start space-x-3 ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  message.sender === 'user' ? 'bg-law-blue-600' : 'bg-law-charcoal-200'
-                                }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user' ? 'bg-law-blue-600' : 'bg-law-charcoal-200'
+                                  }`}>
                                   {message.sender === 'user' ? (
                                     <User className="w-4 h-4 text-white" />
                                   ) : (
                                     <Bot className="w-4 h-4 text-law-charcoal-600" />
                                   )}
                                 </div>
-                                <div className={`px-4 py-3 rounded-law-lg ${
-                                  message.sender === 'user' 
-                                    ? 'bg-law-blue-600 text-white' 
+                                <div className={`px-4 py-3 rounded-law-lg ${message.sender === 'user'
+                                    ? 'bg-law-blue-600 text-white'
                                     : 'bg-law-charcoal-100 text-law-charcoal-900'
-                                }`}>
+                                  }`}>
                                   {message.isTyping ? (
                                     <div className="flex space-x-1">
                                       <div className="w-2 h-2 bg-law-charcoal-400 rounded-full animate-bounce"></div>

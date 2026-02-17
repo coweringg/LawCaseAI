@@ -141,10 +141,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <span className={`material-icons-round ${isActive('/calendar') ? 'text-primary dark:text-white' : 'text-slate-400 group-hover:text-primary'}`}>calendar_today</span>
                                 <span>Calendar</span>
                             </Link>
-                            <Link href="/billing" className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group ${isActive('/billing') ? 'bg-slate-100 dark:bg-slate-700 text-primary dark:text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-white'}`}>
-                                <span className={`material-icons-round ${isActive('/billing') ? 'text-primary dark:text-white' : 'text-slate-400 group-hover:text-primary'}`}>payments</span>
-                                <span>Billing</span>
-                            </Link>
                             <hr className="my-4 border-slate-100 dark:border-slate-700" />
                             <Link href="/settings" className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group ${isActive('/settings') ? 'bg-slate-100 dark:bg-slate-700 text-primary dark:text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-white'}`}>
                                 <span className={`material-icons-round ${isActive('/settings') ? 'text-primary dark:text-white' : 'text-slate-400 group-hover:text-primary'}`}>settings</span>

@@ -105,6 +105,32 @@ export default function Calendar() {
         }
     }, [fetchEvents, fetchCases, token]);
 
+    // Real-time event status updater
+    useEffect(() => {
+        const updateEventStatuses = () => {
+            setEvents(prevEvents => 
+                prevEvents.map(event => {
+                    const eventTime = new Date(event.start);
+                    const now = new Date();
+                    
+                    // If event is today and time has passed, update status to 'closed'
+                    if (event.status !== 'closed' && 
+                        isSameDay(eventTime, now) && 
+                        eventTime < now) {
+                        return { ...event, status: 'closed' };
+                    }
+                    return event;
+                })
+            );
+        };
+
+        // Update immediately and then every minute
+        updateEventStatuses();
+        const interval = setInterval(updateEventStatuses, 60000); // Check every minute
+
+        return () => clearInterval(interval);
+    }, []);
+
     useEffect(() => {
         if (isSearchModalOpen && searchQuery.trim().length > 0) {
             const timer = setTimeout(() => {

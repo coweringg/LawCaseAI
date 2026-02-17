@@ -188,7 +188,11 @@ export default function EventModal({
                                 <input
                                     required
                                     type="date"
-                                    min={new Date().toISOString().split('T')[0]}
+                                    min={(() => {
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        return today.toISOString().split('T')[0];
+                                    })()}
                                     value={formData.start}
                                     onChange={(e) => setFormData({ ...formData, start: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-primary/50 rounded-xl outline-none transition-all text-slate-900 dark:text-white font-bold [color-scheme:light] dark:[color-scheme:dark]"

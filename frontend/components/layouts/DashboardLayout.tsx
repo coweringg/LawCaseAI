@@ -194,7 +194,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <div className="bg-primary/5 dark:bg-primary/10 px-4 py-2 rounded-2xl border border-primary/10 flex items-center gap-3">
                                 <div className="text-right">
                                     <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none">
-                                        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                     </h2>
                                     <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1">
                                         {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}

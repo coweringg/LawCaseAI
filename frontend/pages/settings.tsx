@@ -10,7 +10,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { BillingInfo, Purchase } from '@/types';
 
 export default function Settings() {
-    const { user, updateProfile, changePassword } = useAuth();
+    const { user, updateProfile, changePassword, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -312,6 +312,23 @@ export default function Settings() {
                                             </button>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="mt-6 flex items-center gap-3 px-2 py-2 border-t border-white/5 pt-6 relative z-10">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
+                                        {user?.name?.charAt(0) || 'U'}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-white truncate">{user?.name || 'User'}</p>
+                                        <p className="text-[10px] text-slate-500 truncate uppercase tracking-widest font-bold">{user?.role || 'Senior Counsel'}</p>
+                                    </div>
+                                    <button
+                                        onClick={logout}
+                                        className="text-slate-500 hover:text-red-500 transition-colors"
+                                        title="Log Out"
+                                    >
+                                        <span className="material-icons-round text-xl">logout</span>
+                                    </button>
                                 </div>
                             </div>
                         </aside>

@@ -41,10 +41,10 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                 <div className="relative z-10 px-12 py-12 h-full flex flex-col justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
                             <span className="material-icons-round text-xl">gavel</span>
                         </div>
-                        <span className="text-white font-bold text-2xl tracking-tight font-display">LawCaseAI</span>
+                        <span className="text-white font-bold text-2xl tracking-tight font-display group-hover:text-primary transition-colors duration-300">LawCaseAI</span>
                     </Link>
 
                     {/* Main Branding Text */}

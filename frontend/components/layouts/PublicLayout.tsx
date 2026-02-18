@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface PublicLayoutProps {
@@ -7,17 +7,38 @@ interface PublicLayoutProps {
 
 export default function PublicLayout({ children }: PublicLayoutProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showTopBtn, setShowTopBtn] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowTopBtn(true);
+            } else {
+                setShowTopBtn(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const goToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col">
+        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col relative">
             {/* Navigation */}
             <nav className="fixed w-full z-50 top-0 start-0 border-b border-primary/10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-4 py-3">
-                    <Link href="/" className="flex items-center gap-2 rtl:space-x-reverse">
-                        <div className="bg-primary text-white p-1.5 rounded-lg">
+                    <Link href="/" className="flex items-center gap-2 rtl:space-x-reverse group">
+                        <div className="bg-primary text-white p-1.5 rounded-lg group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary/20">
                             <span className="material-icons-round text-xl">gavel</span>
                         </div>
-                        <span className="self-center text-xl font-bold whitespace-nowrap text-primary dark:text-white tracking-tight">LawCaseAI</span>
+                        <span className="self-center text-xl font-bold whitespace-nowrap text-primary dark:text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
                     </Link>
                     <div className="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
                         <Link href="/login">
@@ -52,16 +73,27 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 {children}
             </main>
 
+            {/* Scroll To Top Button */}
+            <button
+                onClick={goToTop}
+                className={`fixed bottom-8 right-8 z-40 p-3 rounded-full bg-primary text-white shadow-2xl shadow-primary/40 transition-all duration-300 hover:-translate-y-1 hover:bg-primary-hover ${
+                    showTopBtn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+                }`}
+                aria-label="Scroll to top"
+            >
+                <span className="material-icons-round text-xl">arrow_upward</span>
+            </button>
+
             {/* Footer */}
             <footer className="bg-background-dark text-slate-400 py-12 border-t border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
                         <div className="col-span-2 lg:col-span-2">
-                            <Link href="/" className="flex items-center gap-2 mb-4">
-                                <div className="bg-primary text-white p-1.5 rounded-lg">
+                            <Link href="/" className="flex items-center gap-2 mb-4 group">
+                                <div className="bg-primary text-white p-1.5 rounded-lg group-hover:scale-110 transition-transform">
                                     <span className="material-icons-round text-xl">gavel</span>
                                 </div>
-                                <span className="text-xl font-bold text-white tracking-tight">LawCaseAI</span>
+                                <span className="text-xl font-bold text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
                             </Link>
                             <p className="mb-6 text-sm max-w-xs">
                                 Premium AI-powered case management platform tailored for the complexities of the US legal system.

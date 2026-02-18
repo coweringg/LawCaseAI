@@ -118,7 +118,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (!mounted) return null;
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display min-h-screen flex flex-col overflow-hidden relative">
+        <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display h-screen flex flex-col overflow-hidden relative">
             {/* Background Animated Blobs for Dashboard */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                 <motion.div
@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             {/* Global Usage Warning */}
             {showWarning && (
-                <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 py-2 px-4 flex items-center justify-between z-50">
+                <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 py-2 px-4 flex items-center justify-between z-50 flex-shrink-0">
                     <div className="flex items-center justify-center gap-3 flex-1">
                         <span className="material-icons text-amber-600 dark:text-amber-500 text-lg">warning</span>
                         <p className="text-amber-900 dark:text-amber-200 text-xs font-medium">
@@ -163,9 +163,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
             )}
 
-            <div className="flex flex-1 overflow-hidden relative z-10">
+            <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar */}
-                <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 flex flex-col justify-between hidden md:flex relative overflow-hidden">
+                <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 flex flex-col hidden md:flex h-full relative overflow-hidden">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between">
                         <div>
@@ -201,7 +201,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 ))}
                             </nav>
                         </div>
-                        <div className="p-4 space-y-6 relative z-10">
+                        <div className="p-4 space-y-4 relative z-10 flex-shrink-0">
                             <div className="glass border-white/10 rounded-2xl p-4 shadow-xl">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan Usage</span>
@@ -225,22 +225,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     </motion.button>
                                 </Link>
                             </div>
-                            <div className="flex items-center gap-3 px-2 py-2 border-t border-white/5 pt-6">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
-                                    {user?.name?.charAt(0) || 'U'}
+                            {router.pathname !== '/settings' && (
+                                <div className="flex items-center gap-3 px-2 py-2 border-t border-white/5 pt-6">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
+                                        {user?.name?.charAt(0) || 'U'}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-white truncate">{user?.name || 'User'}</p>
+                                        <p className="text-[10px] text-slate-500 truncate uppercase tracking-widest font-bold">{user?.role || 'Senior Counsel'}</p>
+                                    </div>
+                                    <button
+                                        onClick={logout}
+                                        className="text-slate-500 hover:text-red-500 transition-colors"
+                                        title="Log Out"
+                                    >
+                                        <span className="material-icons-round text-xl">logout</span>
+                                    </button>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-white truncate">{user?.name || 'User'}</p>
-                                    <p className="text-[10px] text-slate-500 truncate uppercase tracking-widest font-bold">{user?.role || 'Senior Counsel'}</p>
-                                </div>
-                                <button
-                                    onClick={logout}
-                                    className="text-slate-500 hover:text-red-500 transition-colors"
-                                    title="Log Out"
-                                >
-                                    <span className="material-icons-round text-xl">logout</span>
-                                </button>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </aside>

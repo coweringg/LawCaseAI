@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import TypewriterText from '@/components/TypewriterText';
 import { Check, Star, Shield, Gavel, Zap, Users } from 'lucide-react';
 
 export default function Home() {
@@ -83,9 +84,18 @@ export default function Home() {
                 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-8 leading-[1.1] font-display"
               >
                 The Standard for <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">
-                  AI-Driven Legal Practice
-                </span>
+                <TypewriterText
+                  phrases={[
+                    'AI-Driven Legal Practice',
+                    'Intelligent Case Management',
+                    'Smart Document Analysis',
+                    'Automated Legal Research',
+                  ]}
+                  typingSpeed={70}
+                  deletingSpeed={35}
+                  pauseDuration={2500}
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400"
+                />
               </motion.h1>
 
               <motion.p

@@ -271,7 +271,7 @@ export default function Home() {
             ].map((t, i) => (
               <div key={i} className="p-8 glass rounded-2xl border border-slate-100 dark:border-white/5 italic text-slate-600 dark:text-slate-400 flex flex-col justify-between">
                 <p className="mb-6 relative">
-                  <span className="absolute -top-4 -left-2 text-6xl text-primary/10 not-italic">"</span>
+                  <span className="absolute -top-4 -left-2 text-6xl text-primary/10 not-italic"></span>
                   {t.text}
                 </p>
                 <div>

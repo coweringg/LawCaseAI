@@ -1,12 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
 }
+
+const TimeDisplay = () => {
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="bg-primary/10 px-4 py-2 rounded-2xl border border-primary/20 flex items-center gap-3 shadow-lg shadow-primary/5">
+            <div className="text-right">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none">
+                    {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                </h2>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1">
+                    {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                <span className="material-icons-round">schedule</span>
+            </div>
+        </div>
+    );
+};
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
@@ -24,12 +50,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [searchResults, setSearchResults] = useState<{ cases: any[], files: any[] }>({ cases: [], files: [] });
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-    const [currentTime, setCurrentTime] = useState(new Date());
-
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     useEffect(() => {
         const fetchUsageStats = async () => {
@@ -41,12 +61,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     setIsBannerVisible(false);
                 }
 
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/dashboard/stats`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    setDashboardData(data.data);
+                const response = await api.get('/dashboard/stats');
+                if (response.data.success) {
+                    setDashboardData(response.data.data);
                 }
             } catch (error) {
                 console.error('Error fetching usage stats:', error);
@@ -63,12 +80,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 setIsSearching(true);
                 setShowSearchDropdown(true);
                 try {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/dashboard/search?q=${encodeURIComponent(searchQuery)}`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        setSearchResults(data.data);
+                    const response = await api.get(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
+                    if (response.data.success) {
+                        setSearchResults(response.data.data);
                     }
                 } catch (error) {
                     console.error('Search error:', error);
@@ -233,19 +247,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {/* Header */}
                     <header className="h-20 glass border-b border-white/5 flex items-center justify-between px-8 flex-shrink-0 z-20">
                         <div className="flex items-center gap-4">
-                            <div className="bg-primary/10 px-4 py-2 rounded-2xl border border-primary/20 flex items-center gap-3 shadow-lg shadow-primary/5">
-                                <div className="text-right">
-                                    <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none">
-                                        {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                                    </h2>
-                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1">
-                                        {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                                    </p>
-                                </div>
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                                    <span className="material-icons-round">schedule</span>
-                                </div>
-                            </div>
+                            <TimeDisplay />
                             <div>
                                 <h2 className="text-lg font-black text-white leading-tight font-display">Counsel Status</h2>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">On-Duty • Active Session</p>
@@ -288,7 +290,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                 <div className="px-4 py-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 mb-1">Cases</div>
                                                                 {searchResults.cases.map(c => (
                                                                     <Link href={`/cases/${c.id}`} key={c.id}>
-                                                                        <div className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3">
+                                                                        <div
+                                                                            className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 cursor-pointer"
+                                                                            role="link"
+                                                                            tabIndex={0}
+                                                                            aria-label={`Open case ${c.title}`}
+                                                                        >
                                                                             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
                                                                                 <span className="material-icons-round text-primary text-sm">folder</span>
                                                                             </div>
@@ -307,7 +314,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                 <div className="px-4 py-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 mb-1">Files</div>
                                                                 {searchResults.files.map(f => (
                                                                     <Link href={`/cases/${f.caseId}`} key={f.id}>
-                                                                        <div className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3">
+                                                                        <div
+                                                                            className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 cursor-pointer"
+                                                                            role="link"
+                                                                            tabIndex={0}
+                                                                            aria-label={`Open file ${f.title}`}
+                                                                        >
                                                                             <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
                                                                                 <span className="material-icons-round text-emerald-600 text-sm">description</span>
                                                                             </div>

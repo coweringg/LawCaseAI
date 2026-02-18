@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar as CalendarIcon, Clock, Type, AlertCircle, MapPin, Loader2, ChevronDown, ListFilter, ShieldAlert, Briefcase, CheckCircle2, Trash2 } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
+import api from '@/utils/api';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -81,13 +82,9 @@ export default function EventModal({
 
         setIsSaving(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/events/${event._id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.success) {
+            const response = await api.delete(`/events/${event._id}`);
+            const data = response.data;
+            if (response.status === 200) {
                 onClose();
                 window.location.reload();
             }

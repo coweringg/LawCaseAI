@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import api from '@/utils/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Folder, Briefcase, Shield, Scale, Plus, Sparkles } from 'lucide-react';
@@ -36,14 +37,9 @@ export default function MyCases() {
     useEffect(() => {
         const fetchCases = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    setCases(data.data);
+                const response = await api.get('/cases');
+                if (response.data.success) {
+                    setCases(response.data.data);
                 }
             } catch (error) {
                 console.error('Error fetching cases:', error);

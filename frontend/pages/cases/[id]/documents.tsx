@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import api from '@/utils/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import FileGrid from '@/components/FileGrid';
 import FileAISummary from '@/components/FileAISummary';
@@ -25,12 +26,9 @@ export default function CaseDocuments() {
         if (!id || !token) return;
         setIsLoading(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/files/case/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.success) {
-                setFiles(data.data);
+            const response = await api.get(`/files/case/${id}`);
+            if (response.data.success) {
+                setFiles(response.data.data);
             }
         } catch (error) {
             console.error('Error fetching files:', error);
@@ -53,12 +51,10 @@ export default function CaseDocuments() {
         formData.append('caseId', id as string);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/files/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
+            const response = await api.post('/files/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 toast.success('File uploaded successfully');
                 fetchFiles();
@@ -224,8 +220,8 @@ export default function CaseDocuments() {
                                                     <td className="py-4 px-4 border-b border-slate-50 dark:border-slate-800/50">
                                                         <div className="flex items-center gap-3">
                                                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${file.type.includes('pdf') ? 'bg-rose-50 text-rose-500 dark:bg-rose-900/20' :
-                                                                    file.type.includes('word') ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/20' :
-                                                                        'bg-amber-50 text-amber-500 dark:bg-amber-900/20'
+                                                                file.type.includes('word') ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/20' :
+                                                                    'bg-amber-50 text-amber-500 dark:bg-amber-900/20'
                                                                 }`}>
                                                                 <span className="material-icons-round text-lg">
                                                                     {file.type.includes('pdf') ? 'picture_as_pdf' : file.type.includes('word') ? 'description' : 'image'}

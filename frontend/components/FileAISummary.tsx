@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import api from '@/utils/api';
 
 interface FileAISummaryProps {
     file: any;
@@ -20,12 +21,9 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
             setIsAnalyzing(true);
             setAnalysis(null);
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/ai/analyze/${file._id}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.success) {
+                const response = await api.post(`/ai/analyze/${file._id}`);
+                const data = response.data;
+                if (response.status === 200 || response.status === 201) {
                     setAnalysis(data.data);
                 } else {
                     toast.error(data.message || 'Analysis failed');

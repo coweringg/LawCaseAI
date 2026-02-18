@@ -34,6 +34,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Update last login
     await User.updateLastLogin(user._id.toString())
 
+    // Set HttpOnly cookie
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -100,6 +108,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // Update last login
     await User.updateLastLogin(user._id.toString())
 
+    // Set HttpOnly cookie
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -152,6 +168,9 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
     // In a real implementation, you might want to blacklist the token
     // For now, we'll just return success
+    // Clear HttpOnly cookie
+    res.clearCookie('auth_token')
+
     res.status(200).json({
       success: true,
       message: 'Logout successful'

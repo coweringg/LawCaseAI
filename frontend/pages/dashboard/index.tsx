@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar, Sparkles } from 'lucide-react';
@@ -8,6 +10,7 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Dashboard() {
+  const router = useRouter();
   const { user, token } = useAuth();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,12 +23,9 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/dashboard/stats`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setDashboardData(data.data);
+        const response = await api.get('/dashboard/stats');
+        if (response.data.success) {
+          setDashboardData(response.data.data);
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -160,7 +160,15 @@ export default function Dashboard() {
                       </thead>
                       <tbody className="divide-y divide-white/5">
                         {dashboardData?.recentCases?.map((c: any) => (
-                          <tr key={c._id} className="group hover:bg-white/5 transition-colors cursor-pointer" onClick={() => window.location.href = `/cases/${c._id}`}>
+                          <tr
+                            key={c._id}
+                            className="group hover:bg-white/5 transition-colors cursor-pointer"
+                            onClick={() => router.push(`/cases/${c._id}`)}
+                            onKeyDown={(e) => e.key === 'Enter' && router.push(`/cases/${c._id}`)}
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`View case ${c.name}`}
+                          >
                             <td className="px-6 py-5">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20 uppercase">
@@ -207,7 +215,15 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   {dashboardData?.upcomingDeadlines?.length > 0 ? (
                     dashboardData.upcomingDeadlines.map((deadline: any, idx: number) => (
-                      <div key={idx} className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between group hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer">
+                      <div
+                        key={idx}
+                        className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between group hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer"
+                        onClick={() => router.push('/calendar')}
+                        onKeyDown={(e) => e.key === 'Enter' && router.push('/calendar')}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`View deadline: ${deadline.title}`}
+                      >
                         <div className="flex items-center gap-3">
                           <div className={`w-1 h-8 rounded-full ${deadline.priority === 'critical' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'}`}></div>
                           <div>

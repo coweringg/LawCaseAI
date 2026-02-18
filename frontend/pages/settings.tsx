@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
+import api from '@/utils/api';
 import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
@@ -79,15 +80,9 @@ export default function Settings() {
     const fetchBillingInfo = async () => {
         setIsLoadingBilling(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/billing`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setBillingInfo(data.data);
+            const response = await api.get('/user/billing');
+            if (response.status === 200) {
+                setBillingInfo(response.data.data);
             }
         } catch (error) {
             console.error('Failed to fetch billing info:', error);
@@ -99,13 +94,9 @@ export default function Settings() {
     const fetchPurchaseHistory = async () => {
         setIsLoadingHistory(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/payments/history`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setPurchaseHistory(data.data || []);
+            const response = await api.get('/payments/history');
+            if (response.status === 200) {
+                setPurchaseHistory(response.data.data || []);
             }
         } catch (error) {
             console.error('Failed to fetch purchase history', error);
@@ -118,17 +109,9 @@ export default function Settings() {
         e.preventDefault();
         setIsSubmittingSupport(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/support`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(supportData)
-            });
-            const data = await response.json();
-            if (response.ok) {
+            const response = await api.post('/user/support', supportData);
+            const data = response.data;
+            if (response.status === 201 || response.status === 200) {
                 toast.success(data.message || 'Support request submitted!');
                 setIsSupportModalOpen(false);
                 setSupportData({ type: 'error', subject: '', description: '' });
@@ -150,17 +133,9 @@ export default function Settings() {
 
         setIsUpgrading(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/payments/confirm`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ planId: 'professional' })
-            });
-            const data = await response.json();
-            if (response.ok) {
+            const response = await api.post('/payments/confirm', { planId: 'professional' });
+            const data = response.data;
+            if (response.status === 200) {
                 toast.success('Plan upgraded successfully!');
                 fetchBillingInfo();
                 fetchPurchaseHistory();
@@ -178,17 +153,9 @@ export default function Settings() {
         e.preventDefault();
         setIsUpdatingPayment(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/payment-methods`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(paymentFormData)
-            });
-            const data = await response.json();
-            if (response.ok) {
+            const response = await api.post('/user/payment-methods', paymentFormData);
+            const data = response.data;
+            if (response.status === 200 || response.status === 201) {
                 toast.success('Payment method added!');
                 setIsPaymentModalOpen(false);
                 fetchBillingInfo();
@@ -206,15 +173,9 @@ export default function Settings() {
         if (!confirm('Are you sure you want to remove this card?')) return;
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/payment-methods/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-            if (response.ok) {
+            const response = await api.delete(`/user/payment-methods/${id}`);
+            const data = response.data;
+            if (response.status === 200) {
                 toast.success('Card removed');
                 fetchBillingInfo();
             } else {
@@ -227,15 +188,9 @@ export default function Settings() {
 
     const handleSetDefaultCard = async (id: string) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/payment-methods/${id}/default`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
-            if (response.ok) {
+            const response = await api.patch(`/user/payment-methods/${id}/default`);
+            const data = response.data;
+            if (response.status === 200) {
                 toast.success('Default card updated');
                 fetchBillingInfo();
             } else {

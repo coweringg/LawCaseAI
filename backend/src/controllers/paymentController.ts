@@ -4,7 +4,7 @@ import { IApiResponse, UserPlan } from '../types'
 
 export const getTransactionHistory = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userId = (req as any).user?.userId
+        const userId = (req as any).user?._id
 
         if (!userId) {
             res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
@@ -53,7 +53,7 @@ export const getTransactionHistory = async (req: Request, res: Response): Promis
 export const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
     try {
         const { planId } = req.body
-        const userId = (req as any).user?.userId
+        const userId = (req as any).user?._id
 
         if (!userId) {
             res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
@@ -79,7 +79,7 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
 export const confirmPayment = async (req: Request, res: Response): Promise<void> => {
     try {
         const { planId } = req.body
-        const userId = (req as any).user?.userId
+        const userId = (req as any).user?._id
 
         if (!userId) {
             res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)

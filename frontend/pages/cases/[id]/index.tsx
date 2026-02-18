@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import api from '@/utils/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Folder, Download, Search, Info } from 'lucide-react';
@@ -28,16 +29,12 @@ export default function CaseWorkspace() {
             if (!id || !token) return;
             try {
                 const [caseRes, filesRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases/${id}`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }),
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/files/case/${id}`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    })
+                    api.get(`/cases/${id}`),
+                    api.get(`/files/case/${id}`)
                 ]);
 
-                const cData = await caseRes.json();
-                const fData = await filesRes.json();
+                const cData = caseRes.data;
+                const fData = filesRes.data;
 
                 if (cData.success) {
                     setCaseData(cData.data);
@@ -67,19 +64,12 @@ export default function CaseWorkspace() {
         setIsSending(true);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/ai/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    message: userInput,
-                    caseId: id
-                })
+            const response = await api.post('/ai/chat', {
+                message: userInput,
+                caseId: id
             });
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 const aiMessage = {
                     role: 'ai',
@@ -102,10 +92,8 @@ export default function CaseWorkspace() {
         if (!id || !token) return;
         setIsLoadingSummary(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/ai/summary/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
+            const response = await api.get(`/ai/summary/${id}`);
+            const data = response.data;
             if (data.success) {
                 setCaseSummary(data.data.summary);
                 toast.success('Summary updated');
@@ -121,15 +109,8 @@ export default function CaseWorkspace() {
         if (!id || !token) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/cases/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status: 'closed' })
-            });
-            const data = await response.json();
+            const response = await api.put(`/cases/${id}`, { status: 'closed' });
+            const data = response.data;
             if (data.success) {
                 setCaseData(data.data);
                 toast.success('Case closed successfully');

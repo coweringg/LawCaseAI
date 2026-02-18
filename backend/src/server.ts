@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
+import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3'
 import axios from 'axios'
@@ -58,6 +59,8 @@ app.use(helmet({
     },
   },
 }))
+
+app.use(cookieParser())
 
 // CORS configuration
 app.use(cors({

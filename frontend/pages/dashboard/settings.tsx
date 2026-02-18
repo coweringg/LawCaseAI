@@ -25,6 +25,7 @@ import { Alert } from '@/components/ui/Alert'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { validateEmail, validatePassword } from '@/utils/helpers'
 import { useAuth } from '@/contexts/AuthContext'
+import api from '@/utils/api'
 import toast from 'react-hot-toast'
 
 interface User {
@@ -94,18 +95,10 @@ export default function Settings() {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(profileForm)
-      })
+      const response = await api.put('/user/profile', profileForm)
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200) {
+        const data = response.data
         updateUser(data.data)
         // Update the form with the new data from the server
         setProfileForm({
@@ -116,7 +109,7 @@ export default function Settings() {
         setMessage({ type: 'success', text: 'Profile updated successfully' })
         toast.success('Profile updated successfully')
       } else {
-        const error = await response.json()
+        const error = response.data
         setMessage({ type: 'error', text: error.message || 'Failed to update profile' })
         toast.error(error.message || 'Failed to update profile')
       }
@@ -152,20 +145,12 @@ export default function Settings() {
     }
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword
-        })
+      const response = await api.put('/user/password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
       })
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage({ type: 'success', text: 'Password updated successfully' })
         toast.success('Password updated successfully')
         setPasswordForm({
@@ -174,7 +159,7 @@ export default function Settings() {
           confirmPassword: ''
         })
       } else {
-        const error = await response.json()
+        const error = response.data
         setMessage({ type: 'error', text: error.message || 'Failed to update password' })
         toast.error(error.message || 'Failed to update password')
       }
@@ -189,21 +174,13 @@ export default function Settings() {
     setMessage({ type: '', text: '' })
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/notifications`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(notifications)
-      })
+      const response = await api.put('/user/notifications', notifications)
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage({ type: 'success', text: 'Notification preferences updated' })
         toast.success('Notification preferences updated')
       } else {
-        const error = await response.json()
+        const error = response.data
         setMessage({ type: 'error', text: error.message || 'Failed to update notifications' })
         toast.error(error.message || 'Failed to update notifications')
       }

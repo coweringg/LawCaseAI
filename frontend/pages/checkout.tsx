@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '@/utils/api';
 import toast from 'react-hot-toast';
 
 export default function Checkout() {
@@ -24,16 +25,8 @@ export default function Checkout() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/payments/confirm`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ planId: selectedPlan })
-            });
-
-            const data = await response.json();
+            const response = await api.post('/payments/confirm', { planId: selectedPlan });
+            const data = response.data;
 
             if (data.success) {
                 toast.success('Subscription activated!');

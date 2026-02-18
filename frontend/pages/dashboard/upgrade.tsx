@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { DashboardNav } from '@/components/DashboardNav'
 import { useAuth } from '@/contexts/AuthContext'
+import api from '@/utils/api'
 import toast from 'react-hot-toast'
 
 export default function Upgrade() {
@@ -74,18 +75,10 @@ export default function Upgrade() {
       await new Promise(resolve => setTimeout(resolve, 2000))
 
       // Update user plan via API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/upgrade`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ plan: planId })
-      })
+      const response = await api.post('/user/upgrade', { plan: planId })
+      const data = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
+      if (response.status === 200) {
         updateUser(data.data)
         toast.success(`Successfully upgraded to ${planId.charAt(0).toUpperCase() + planId.slice(1)} plan!`)
         setSelectedPlan('')

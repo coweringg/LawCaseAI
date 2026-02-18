@@ -21,6 +21,7 @@ import {
   AlertCircle,
   Settings
 } from 'lucide-react'
+import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -74,15 +75,10 @@ export default function CaseDetail() {
 
   const fetchCase = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.get(`/cases/${id}`)
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200) {
+        const data = response.data
         setCase(data)
       }
     } catch (error) {
@@ -94,15 +90,10 @@ export default function CaseDetail() {
 
   const fetchFiles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/files`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.get(`/cases/${id}/files`)
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200) {
+        const data = response.data
         setFiles(data)
       }
     } catch (error) {
@@ -112,15 +103,10 @@ export default function CaseDetail() {
 
   const fetchMessages = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/chat`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.get(`/cases/${id}/chat`)
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200) {
+        const data = response.data
         setMessages(data)
       }
     } catch (error) {
@@ -146,21 +132,18 @@ export default function CaseDetail() {
 
     setIsUploading(true)
     try {
-      const token = localStorage.getItem('token')
       const formData = new FormData()
       formData.append('file', selectedFile)
       formData.append('caseId', id as string)
 
-      const response = await fetch('/api/files/upload', {
-        method: 'POST',
+      const response = await api.post('/files/upload', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+          'Content-Type': 'multipart/form-data'
+        }
       })
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data
         setFiles(prev => [...prev, data])
         setShowUploadModal(false)
         setSelectedFile(null)
@@ -198,18 +181,10 @@ export default function CaseDetail() {
     setMessages(prev => [...prev, typingMessage])
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: userMessage.content })
-      })
+      const response = await api.post(`/cases/${id}/chat`, { message: userMessage.content })
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data
         // Remove typing indicator and add AI response
         setMessages(prev => {
           const filtered = prev.filter(msg => msg.id !== 'typing')
@@ -234,15 +209,9 @@ export default function CaseDetail() {
     if (!confirm('Are you sure you want to delete this file?')) return
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/files/${fileId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.delete(`/files/${fileId}`)
 
-      if (response.ok) {
+      if (response.status === 200) {
         setFiles(prev => prev.filter(file => file.id !== fileId))
       }
     } catch (error) {
@@ -252,15 +221,12 @@ export default function CaseDetail() {
 
   const handleFileDownload = async (file: CaseFile) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(file.url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await api.get(file.url, {
+        responseType: 'blob'
       })
 
-      if (response.ok) {
-        const blob = await response.blob()
+      if (response.status === 200) {
+        const blob = response.data
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -349,8 +315,8 @@ export default function CaseDetail() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`badge ${case_.status === 'active' ? 'badge-success' :
-                      case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
-                        'badge-warning'
+                    case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
+                      'badge-warning'
                     }`}>
                     {case_.status.charAt(0).toUpperCase() + case_.status.slice(1)}
                   </span>
@@ -476,8 +442,8 @@ export default function CaseDetail() {
                                   )}
                                 </div>
                                 <div className={`px-4 py-3 rounded-law-lg ${message.sender === 'user'
-                                    ? 'bg-law-blue-600 text-white'
-                                    : 'bg-law-charcoal-100 text-law-charcoal-900'
+                                  ? 'bg-law-blue-600 text-white'
+                                  : 'bg-law-charcoal-100 text-law-charcoal-900'
                                   }`}>
                                   {message.isTyping ? (
                                     <div className="flex space-x-1">

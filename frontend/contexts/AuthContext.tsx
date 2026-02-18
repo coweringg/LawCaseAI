@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/router'
+import api from '@/utils/api'
 
 interface User {
   id: string
@@ -50,8 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const parsedUser = JSON.parse(storedUser)
           setToken(storedToken)
           setUser(parsedUser)
-          // Refresh profile from server to ensure we have latest data
-          fetchProfile()
+          // Profile will be refreshed by fetchProfile in the next block
         } catch (error) {
           console.error('Error parsing stored user:', error)
           localStorage.removeItem('token')
@@ -66,8 +66,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isLoading) {
+      // Refresh profile only if we have a token
+      const storedToken = localStorage.getItem('token')
+      if (token || storedToken) {
+        fetchProfile()
+      }
+    }
+  }, [isLoading])
+
+  useEffect(() => {
+    if (!isLoading) {
       const currentPath = router.pathname
-      const authenticated = !!user && !!token
+      const authenticated = !!user || !!token // user might be null but token in cookies
 
       if (authenticated && restrictedRoutes.includes(currentPath)) {
         router.push('/dashboard')
@@ -83,131 +93,80 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await api.post('/auth/login', { email, password })
+      const { data, message } = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setToken(data.data.token)
-        setUser(data.data.user)
-        localStorage.setItem('token', data.data.token)
-        localStorage.setItem('user', JSON.stringify(data.data.user))
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Login failed' }
-      }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      setToken(data.token)
+      setUser(data.user)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      return { success: true, message: message || 'Login successful' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Login failed' }
     }
   }
 
   const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
+      const response = await api.post('/auth/register', userData)
+      const { data, message } = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setToken(data.data.token)
-        setUser(data.data.user)
-        localStorage.setItem('token', data.data.token)
-        localStorage.setItem('user', JSON.stringify(data.data.user))
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Registration failed' }
-      }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      setToken(data.token)
+      setUser(data.user)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      return { success: true, message: message || 'Registration successful' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Registration failed' }
     }
   }
 
   const fetchProfile = async (): Promise<void> => {
-    const storedToken = localStorage.getItem('token') || token
-    if (!storedToken) return
+    const storedToken = localStorage.getItem('token')
+    if (!token && !storedToken) return
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${storedToken}`
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.data)
-        localStorage.setItem('user', JSON.stringify(data.data))
+      const response = await api.get('/user/profile')
+      if (response.data.success) {
+        setUser(response.data.data)
+        localStorage.setItem('user', JSON.stringify(response.data.data))
       }
     } catch (error) {
+      // Silently fail if just checking session, or log if debugging
       console.error('Failed to fetch profile:', error)
     }
   }
 
   const logout = () => {
-    setUser(null)
-    setToken(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    router.push('/login')
+    api.post('/auth/logout').finally(() => {
+      setUser(null)
+      setToken(null)
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      router.push('/login')
+    })
   }
 
   const updateProfile = async (userData: { name: string; lawFirm: string; email: string }): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(userData),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setUser(data.data)
-        localStorage.setItem('user', JSON.stringify(data.data))
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Failed to update profile' }
+      const response = await api.put('/user/profile', userData)
+      if (response.data.success) {
+        setUser(response.data.data)
+        localStorage.setItem('user', JSON.stringify(response.data.data))
+        return { success: true, message: response.data.message }
       }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      return { success: false, message: response.data.message || 'Failed to update profile' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Network error' }
     }
   }
 
   const changePassword = async (passwordData: any): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(passwordData),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Failed to change password' }
-      }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      const response = await api.put('/user/password', passwordData)
+      return { success: true, message: response.data.message }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Failed to change password' }
     }
   }
 
@@ -219,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const isAuthenticated = !!user && !!token
+  const isAuthenticated = !!user || !!token
 
   return (
     <AuthContext.Provider value={{

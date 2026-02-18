@@ -51,14 +51,15 @@ const eventSchema = new Schema<IEvent>({
         type: String,
         enum: Object.values(EventStatus),
         default: EventStatus.ACTIVE
-    } as any
+    }
 }, {
     timestamps: true
 })
 
 // Indexes
 eventSchema.index({ userId: 1 })
-eventSchema.index({ start: 1 })
+eventSchema.index({ userId: 1, start: 1 })
+eventSchema.index({ userId: 1, status: 1, start: 1 })
 eventSchema.index({ caseId: 1 })
 
 const EventModel = mongoose.model<IEvent>('Event', eventSchema)

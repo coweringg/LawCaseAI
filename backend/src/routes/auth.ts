@@ -1,15 +1,59 @@
 import { Router } from 'express'
+import { body } from 'express-validator'
+import rateLimit from 'express-rate-limit'
 import {
   register,
   login,
   refreshToken,
   logout
 } from '../controllers/authController'
+import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-router.post('/register', register)
-router.post('/login', login)
+// Stricter rate limiting for auth endpoints (brute-force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window
+  message: {
+    success: false,
+    message: 'Too many authentication attempts. Please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+// Registration validation
+router.post('/register', authLimiter, [
+  body('name')
+    .trim()
+    .notEmpty().withMessage('Name is required')
+    .isLength({ max: 100 }).withMessage('Name cannot exceed 100 characters'),
+  body('email')
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/\d/).withMessage('Password must contain at least one number'),
+  body('lawFirm')
+    .trim()
+    .notEmpty().withMessage('Law firm name is required')
+    .isLength({ max: 200 }).withMessage('Law firm name cannot exceed 200 characters'),
+  handleValidationErrors
+], register)
+
+// Login validation
+router.post('/login', authLimiter, [
+  body('email')
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  body('password')
+    .notEmpty().withMessage('Password is required'),
+  handleValidationErrors
+], login)
+
 router.post('/refresh', refreshToken)
 router.post('/logout', logout)
 

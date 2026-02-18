@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3'
 import axios from 'axios'
+import mongoSanitize from 'express-mongo-sanitize'
 import { connectDatabase } from './config/database'
 import config from './config'
 import { IApiResponse } from './types'
@@ -91,6 +92,9 @@ app.use(compression())
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+// NoSQL injection protection
+app.use(mongoSanitize())
+
 // Logging
 if (config.nodeEnv === 'development') {
   app.use(morgan('dev'))
@@ -119,7 +123,6 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/user', userRoutes)
-app.use('/api/payments', paymentRoutes)
 
 // 404 handler
 app.use('*', (req: express.Request, res: express.Response) => {

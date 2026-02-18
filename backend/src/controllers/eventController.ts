@@ -1,42 +1,45 @@
 import { Response } from 'express'
 import { Event } from '../models'
-import { IApiResponse, IAuthRequest } from '../types'
+import { IApiResponse, IAuthRequest, EventType, EventPriority } from '../types'
+
+// Escape special regex characters to prevent ReDoS
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
 
 export const getEvents = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user?._id
         const { start, end, caseId, search } = req.query
 
-        // 1. Auto-close past events (Lazy Update)
-        const now = new Date()
-        await Event.updateMany(
-            {
-                userId,
-                status: 'active',
-                start: { $lt: now }
-            },
-            { $set: { status: 'closed' } }
-        )
-
-        const query: any = { userId }
+        const query: Record<string, unknown> = { userId }
         if (caseId) query.caseId = caseId
 
         // If searching, we search globally (ignoring date bounds)
-        if (search) {
-            query.title = { $regex: search, $options: 'i' }
+        if (search && typeof search === 'string' && search.trim().length > 0) {
+            query.title = { $regex: escapeRegex(search.trim()), $options: 'i' }
         } else if (start && end) {
             query.start = { $gte: new Date(start as string), $lte: new Date(end as string) }
         }
 
         const events = await Event.find(query).sort({ start: 1 }).lean()
 
+        // Mark past events as closed in the response (without mutating DB on every GET)
+        const now = new Date()
+        const eventsWithStatus = events.map(event => ({
+            ...event,
+            status: (event.status === 'active' && new Date(event.start as Date) < now)
+                ? 'closed'
+                : event.status
+        }))
+
         res.status(200).json({
             success: true,
-            data: events
+            data: eventsWithStatus
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch events'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[EventController] getEvents error:', error)
+        res.status(500).json({ success: false, message: 'Failed to fetch events' } as IApiResponse)
     }
 }
 
@@ -48,24 +51,39 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             return
         }
 
-        const eventData = { ...req.body };
-        if (eventData.caseId === '') {
-            delete eventData.caseId;
+        // Whitelist allowed fields to prevent NoSQL injection
+        const { title, description, start, end, type, priority, caseId, location, isAllDay } = req.body
+
+        // Validate required fields
+        if (!title || !start) {
+            res.status(400).json({ success: false, message: 'Title and start date are required' } as IApiResponse)
+            return
         }
 
-        const eventDate = new Date(eventData.start);
+        const eventDate = new Date(start)
         if (eventDate < new Date()) {
             res.status(400).json({
                 success: false,
                 message: 'Legal events and deadlines cannot be scheduled in the past.'
-            } as IApiResponse);
-            return;
+            } as IApiResponse)
+            return
         }
 
-        const event = await Event.create({
-            ...eventData,
+        // Build safe event data from whitelisted fields
+        const safeEventData: Record<string, unknown> = {
+            title,
+            start: eventDate,
             userId
-        })
+        }
+        if (description !== undefined) safeEventData.description = description
+        if (end !== undefined) safeEventData.end = new Date(end)
+        if (type && Object.values(EventType).includes(type)) safeEventData.type = type
+        if (priority && Object.values(EventPriority).includes(priority)) safeEventData.priority = priority
+        if (caseId && caseId !== '') safeEventData.caseId = caseId
+        if (location !== undefined) safeEventData.location = location
+        if (isAllDay !== undefined) safeEventData.isAllDay = Boolean(isAllDay)
+
+        const event = await Event.create(safeEventData)
 
         res.status(201).json({
             success: true,
@@ -73,8 +91,8 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             data: event
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to create event'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[EventController] createEvent error:', error)
+        res.status(500).json({ success: false, message: 'Failed to create event' } as IApiResponse)
     }
 }
 
@@ -83,24 +101,45 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         const { id } = req.params
         const userId = req.user?._id
 
-        const eventData = { ...req.body };
-        if (eventData.caseId === '') {
-            delete eventData.caseId;
-        }
+        // Whitelist allowed fields to prevent NoSQL injection
+        const { title, description, start, end, type, priority, caseId, location, isAllDay } = req.body
 
-        const eventDate = new Date(eventData.start);
-        if (eventDate < new Date()) {
-            res.status(400).json({
-                success: false,
-                message: 'Legal events and deadlines cannot be scheduled in the past.'
-            } as IApiResponse);
-            return;
+        const allowedUpdates: Record<string, unknown> = {}
+        if (title !== undefined) allowedUpdates.title = title
+        if (description !== undefined) allowedUpdates.description = description
+        if (start !== undefined) {
+            const eventDate = new Date(start)
+            if (eventDate < new Date()) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Legal events and deadlines cannot be scheduled in the past.'
+                } as IApiResponse)
+                return
+            }
+            allowedUpdates.start = eventDate
+        }
+        if (end !== undefined) allowedUpdates.end = new Date(end)
+        if (type !== undefined && Object.values(EventType).includes(type)) allowedUpdates.type = type
+        if (priority !== undefined && Object.values(EventPriority).includes(priority)) allowedUpdates.priority = priority
+        if (caseId !== undefined) {
+            if (caseId === '') {
+                allowedUpdates.caseId = undefined
+            } else {
+                allowedUpdates.caseId = caseId
+            }
+        }
+        if (location !== undefined) allowedUpdates.location = location
+        if (isAllDay !== undefined) allowedUpdates.isAllDay = Boolean(isAllDay)
+
+        if (Object.keys(allowedUpdates).length === 0) {
+            res.status(400).json({ success: false, message: 'No valid fields to update' } as IApiResponse)
+            return
         }
 
         const updatedEvent = await Event.findOneAndUpdate(
             { _id: id, userId },
-            { $set: eventData },
-            { new: true }
+            { $set: allowedUpdates },
+            { new: true, runValidators: true }
         )
 
         if (!updatedEvent) {
@@ -114,8 +153,8 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
             data: updatedEvent
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to update event'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[EventController] updateEvent error:', error)
+        res.status(500).json({ success: false, message: 'Failed to update event' } as IApiResponse)
     }
 }
 
@@ -136,7 +175,7 @@ export const deleteEvent = async (req: IAuthRequest, res: Response): Promise<voi
             message: 'Event deleted successfully'
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to delete event'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[EventController] deleteEvent error:', error)
+        res.status(500).json({ success: false, message: 'Failed to delete event' } as IApiResponse)
     }
 }

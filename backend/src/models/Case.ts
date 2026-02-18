@@ -47,8 +47,8 @@ const caseSchema = new Schema<ICase>({
 
 // Indexes
 caseSchema.index({ userId: 1 })
-caseSchema.index({ status: 1 })
-caseSchema.index({ createdAt: -1 })
+caseSchema.index({ userId: 1, status: 1 })
+caseSchema.index({ userId: 1, createdAt: -1 })
 caseSchema.index({ name: 'text', client: 'text', description: 'text' })
 
 // Pre-remove middleware to update user's case count

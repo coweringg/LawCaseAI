@@ -1,10 +1,10 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { User } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest } from '../types'
 
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -35,17 +35,17 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve profile'
+    console.error('[UserController] getProfile error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to retrieve profile'
     } as IApiResponse)
   }
 }
 
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -109,17 +109,17 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update profile'
+    console.error('[UserController] updateProfile error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to update profile'
     } as IApiResponse)
   }
 }
 
-export const changePassword = async (req: Request, res: Response): Promise<void> => {
+export const changePassword = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -159,17 +159,17 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
       message: 'Password changed successfully'
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to change password'
+    console.error('[UserController] changePassword error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to change password'
     } as IApiResponse)
   }
 }
 
-export const updateNotifications = async (req: Request, res: Response): Promise<void> => {
+export const updateNotifications = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -210,17 +210,17 @@ export const updateNotifications = async (req: Request, res: Response): Promise<
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update notification preferences'
+    console.error('[UserController] updateNotifications error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to update notification preferences'
     } as IApiResponse)
   }
 }
 
-export const getBillingInfo = async (req: Request, res: Response): Promise<void> => {
+export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -236,16 +236,8 @@ export const getBillingInfo = async (req: Request, res: Response): Promise<void>
       remainingCases: Math.max(0, user.planLimit - user.currentCases),
       planUsagePercentage: Math.round((user.currentCases / user.planLimit) * 100),
       isAtPlanLimit: user.currentCases >= user.planLimit,
-      paymentMethods: user.paymentMethods.length > 0 ? user.paymentMethods : [
-        {
-          id: 'pm_1',
-          brand: 'Visa',
-          last4: '4242',
-          expiryMonth: 12,
-          expiryYear: 2025
-        }
-      ],
-      defaultPaymentMethodId: user.defaultPaymentMethodId || (user.paymentMethods.length > 0 ? user.paymentMethods[0].id : 'pm_1')
+      paymentMethods: user.paymentMethods || [],
+      defaultPaymentMethodId: user.defaultPaymentMethodId || (user.paymentMethods.length > 0 ? user.paymentMethods[0].id : null)
     }
 
     res.status(200).json({
@@ -254,17 +246,17 @@ export const getBillingInfo = async (req: Request, res: Response): Promise<void>
       data: billingInfo
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve billing info'
+    console.error('[UserController] getBillingInfo error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to retrieve billing info'
     } as IApiResponse)
   }
 }
 
-export const submitSupportRequest = async (req: Request, res: Response): Promise<void> => {
+export const submitSupportRequest = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({
         success: false,
@@ -283,29 +275,25 @@ export const submitSupportRequest = async (req: Request, res: Response): Promise
       return
     }
 
-    // In a real application, this would send an email or create a ticket in a support system
-    // For now, we'll log it and return success
-    console.log(`[SUPPORT REQUEST] From: ${user.email} (${user.name})`)
-    console.log(`Type: ${type}`)
-    console.log(`Subject: ${subject}`)
-    console.log(`Description: ${description}`)
+    // TODO: Integrate with a real support system (email, Zendesk, etc.)
+    console.info(`[SUPPORT] User: ${user.email}, Type: ${type}, Subject: ${subject}`)
 
     res.status(200).json({
       success: true,
       message: 'Support request submitted successfully. Our team will contact you soon.'
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to submit support request'
+    console.error('[UserController] submitSupportRequest error:', error)
     res.status(500).json({
       success: false,
-      message: errorMessage
+      message: 'Failed to submit support request'
     } as IApiResponse)
   }
 }
 
-export const addPaymentMethod = async (req: Request, res: Response): Promise<void> => {
+export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
       return
@@ -340,14 +328,14 @@ export const addPaymentMethod = async (req: Request, res: Response): Promise<voi
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to add payment method'
-    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+    console.error('[UserController] addPaymentMethod error:', error)
+    res.status(500).json({ success: false, message: 'Failed to add payment method' } as IApiResponse)
   }
 }
 
-export const removePaymentMethod = async (req: Request, res: Response): Promise<void> => {
+export const removePaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
       return
@@ -373,14 +361,14 @@ export const removePaymentMethod = async (req: Request, res: Response): Promise<
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to remove payment method'
-    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+    console.error('[UserController] removePaymentMethod error:', error)
+    res.status(500).json({ success: false, message: 'Failed to remove payment method' } as IApiResponse)
   }
 }
 
-export const setDefaultPaymentMethod = async (req: Request, res: Response): Promise<void> => {
+export const setDefaultPaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as IAuthRequest).user
+    const user = req.user
     if (!user) {
       res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
       return
@@ -405,7 +393,7 @@ export const setDefaultPaymentMethod = async (req: Request, res: Response): Prom
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to set default payment method'
-    res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+    console.error('[UserController] setDefaultPaymentMethod error:', error)
+    res.status(500).json({ success: false, message: 'Failed to set default payment method' } as IApiResponse)
   }
 }

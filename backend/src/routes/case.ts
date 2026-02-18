@@ -4,11 +4,14 @@ import { authenticate } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/', authenticate as any, getCases as any)
-router.post('/', authenticate as any, createCase as any)
-router.get('/stats', authenticate as any, getCaseStats as any)
-router.get('/:id', authenticate as any, getCaseById as any)
-router.put('/:id', authenticate as any, updateCase as any)
-router.delete('/:id', authenticate as any, deleteCase as any)
+// All case routes require authentication (proper typing)
+router.use(authenticate)
+
+router.get('/', getCases)
+router.post('/', createCase)
+router.get('/stats', getCaseStats)
+router.get('/:id', getCaseById)
+router.put('/:id', updateCase)
+router.delete('/:id', deleteCase)
 
 export default router

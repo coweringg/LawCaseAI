@@ -2,6 +2,11 @@ import { Response } from 'express'
 import { Case, User, CaseFile, Event } from '../models'
 import { IApiResponse, IAuthRequest } from '../types'
 
+// Escape special regex characters to prevent ReDoS
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export const getDashboardStats = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user?._id
@@ -28,24 +33,32 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             await user.save()
         }
 
-        // Get case stats
-        const caseStats = await Case.aggregate([
-            { $match: { userId } },
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 }
-                }
-            }
+        // Parallelized queries for better performance
+        const [caseStats, documentCountResult, recentCases, upcomingDeadlines] = await Promise.all([
+            // Get case stats
+            Case.aggregate([
+                { $match: { userId } },
+                { $group: { _id: '$status', count: { $sum: 1 } } }
+            ]),
+            // Get total document count
+            Case.aggregate([
+                { $match: { userId } },
+                { $group: { _id: null, totalDocuments: { $sum: '$fileCount' } } }
+            ]),
+            // Get recent cases (last 3)
+            Case.find({ userId }).sort({ updatedAt: -1 }).limit(3).lean(),
+            // Get upcoming deadlines (sorted by proximity)
+            Event.find({
+                userId,
+                start: { $gte: now },
+                $or: [
+                    { type: 'deadline' },
+                    { priority: { $in: ['high', 'critical'] } }
+                ]
+            }).sort({ start: 1 }).limit(5).lean()
         ])
 
-        const formattedCaseStats = {
-            total: 0,
-            active: 0,
-            closed: 0,
-            archived: 0
-        }
-
+        const formattedCaseStats = { total: 0, active: 0, closed: 0, archived: 0 }
         caseStats.forEach((stat: { _id: string; count: number }) => {
             formattedCaseStats.total += stat.count
             if (stat._id === 'active') formattedCaseStats.active = stat.count
@@ -53,37 +66,7 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             if (stat._id === 'archived') formattedCaseStats.archived = stat.count
         })
 
-        // Get total document count
-        const documentCountResult = await Case.aggregate([
-            { $match: { userId } },
-            {
-                $group: {
-                    _id: null,
-                    totalDocuments: { $sum: '$fileCount' }
-                }
-            }
-        ])
-
         const totalDocuments = documentCountResult.length > 0 ? documentCountResult[0].totalDocuments : 0
-
-        // Get recent cases (last 3)
-        const recentCases = await Case.find({ userId })
-            .sort({ updatedAt: -1 })
-            .limit(3)
-            .lean()
-
-        // Get upcoming deadlines (next 7 days, sorted by proximity)
-        const upcomingDeadlines = await Event.find({
-            userId,
-            start: { $gte: now },
-            $or: [
-                { type: 'deadline' },
-                { priority: { $in: ['high', 'critical'] } }
-            ]
-        })
-            .sort({ start: 1 })
-            .limit(5)
-            .lean()
 
         // Build response
         const dashboardData = {
@@ -118,8 +101,8 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             data: dashboardData
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch dashboard stats'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[DashboardController] getDashboardStats error:', error)
+        res.status(500).json({ success: false, message: 'Failed to fetch dashboard stats' } as IApiResponse)
     }
 }
 
@@ -141,29 +124,33 @@ export const searchGlobal = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
-        const query = q.trim()
+        // Escape regex special characters to prevent ReDoS
+        const safeQuery = escapeRegex(q.trim())
 
-        // Search Cases (Name, Client, Description)
-        const cases = await Case.find({
-            userId,
-            $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { client: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } }
-            ]
-        })
-            .limit(5)
-            .select('name client status updatedAt')
-            .lean()
+        // Parallelized search queries
+        const [cases, files] = await Promise.all([
+            // Search Cases (Name, Client, Description)
+            Case.find({
+                userId,
+                $or: [
+                    { name: { $regex: safeQuery, $options: 'i' } },
+                    { client: { $regex: safeQuery, $options: 'i' } },
+                    { description: { $regex: safeQuery, $options: 'i' } }
+                ]
+            })
+                .limit(5)
+                .select('name client status updatedAt')
+                .lean(),
 
-        // Search CaseFiles (OriginalName)
-        const files = await CaseFile.find({
-            userId,
-            originalName: { $regex: query, $options: 'i' }
-        })
-            .limit(5)
-            .select('name originalName type size caseId uploadedAt')
-            .lean()
+            // Search CaseFiles (OriginalName)
+            CaseFile.find({
+                userId,
+                originalName: { $regex: safeQuery, $options: 'i' }
+            })
+                .limit(5)
+                .select('name originalName type size caseId uploadedAt')
+                .lean()
+        ])
 
         res.status(200).json({
             success: true,
@@ -187,7 +174,7 @@ export const searchGlobal = async (req: IAuthRequest, res: Response): Promise<vo
             }
         } as IApiResponse)
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Search failed'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+        console.error('[DashboardController] searchGlobal error:', error)
+        res.status(500).json({ success: false, message: 'Search failed' } as IApiResponse)
     }
 }

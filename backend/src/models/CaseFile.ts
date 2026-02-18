@@ -52,7 +52,7 @@ const caseFileSchema = new Schema<ICaseFile>({
 })
 
 // Indexes
-caseFileSchema.index({ caseId: 1 })
+caseFileSchema.index({ caseId: 1, userId: 1 })
 caseFileSchema.index({ userId: 1 })
 caseFileSchema.index({ uploadedAt: -1 })
 

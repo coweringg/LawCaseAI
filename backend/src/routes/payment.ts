@@ -4,8 +4,11 @@ import { authenticate } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/history', authenticate as any, getTransactionHistory)
-router.post('/checkout', authenticate as any, createCheckoutSession)
-router.post('/confirm', authenticate as any, confirmPayment)
+// All payment routes require authentication (proper typing)
+router.use(authenticate)
+
+router.get('/history', getTransactionHistory)
+router.post('/checkout', createCheckoutSession)
+router.post('/confirm', confirmPayment)
 
 export default router

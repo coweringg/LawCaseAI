@@ -116,8 +116,8 @@ export default function EventModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={event ? 'Edit Legal Event' : 'Schedule Legal Event'}>
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} aria-hidden="true"></div>
 
             <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 relative z-10 border border-slate-200 dark:border-white/10">
                 <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/[0.02]">
@@ -134,7 +134,7 @@ export default function EventModal({
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl transition-all text-slate-400">
+                    <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl transition-all text-slate-400" aria-label="Close modal">
                         <X size={20} />
                     </button>
                 </div>
@@ -331,7 +331,7 @@ export default function EventModal({
                                 type="button"
                                 onClick={() => setShowDeleteConfirm(true)}
                                 className="p-3 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all group"
-                                title="Delete Event"
+                                aria-label="Delete Event"
                             >
                                 <Trash2 size={20} className="group-active:scale-95 transition-transform" />
                             </button>

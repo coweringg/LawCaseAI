@@ -7,6 +7,7 @@ import api from '@/utils/api';
 import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { BillingInfo, Purchase } from '@/types';
 
 export default function Settings() {
     const { user, updateProfile, changePassword } = useAuth();
@@ -33,7 +34,7 @@ export default function Settings() {
     });
 
     // Billing state
-    const [billingInfo, setBillingInfo] = useState<any>(null);
+    const [billingInfo, setBillingInfo] = useState<BillingInfo | null>(null);
     const [isLoadingBilling, setIsLoadingBilling] = useState(false);
 
     // Support Modal state
@@ -55,7 +56,7 @@ export default function Settings() {
     });
 
     // Purchase History state
-    const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
+    const [purchaseHistory, setPurchaseHistory] = useState<Purchase[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
     // Helper to format date
@@ -594,7 +595,7 @@ export default function Settings() {
                                                     <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
                                                     <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-8 relative z-10">Vault Keys</h3>
                                                     <div className="space-y-6 flex-1 relative z-10">
-                                                        {billingInfo?.paymentMethods?.map((pm: any) => (
+                                                        {billingInfo?.paymentMethods?.map((pm) => (
                                                             <motion.div
                                                                 layout
                                                                 key={pm.id}

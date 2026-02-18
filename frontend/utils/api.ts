@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000').replace('localhost', '127.0.0.1');
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -10,7 +10,7 @@ const api = axios.create({
     withCredentials: true, // Required for HttpOnly Cookies
 });
 
-// Request interceptor to add the token from localStorage (temporary until full cookie migration)
+// Request interceptor to attach auth token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');

@@ -33,11 +33,10 @@ import {
 } from 'lucide-react';
 import { subDays } from 'date-fns';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '@/utils/api';
 import EventModal from '@/components/modals/EventModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 export default function Calendar() {
@@ -61,8 +60,6 @@ export default function Calendar() {
         setMounted(true);
     }, []);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
     const fetchEvents = useCallback(async (query?: string) => {
         if (!query) setIsLoading(true);
         else setIsSearching(true);
@@ -76,8 +73,7 @@ export default function Calendar() {
                 params.end = endOfMonth(currentDate).toISOString();
             }
 
-            const response = await axios.get(`${API_URL}/api/events`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await api.get('/events', {
                 params
             });
 
@@ -95,20 +91,18 @@ export default function Calendar() {
             setIsLoading(false);
             setIsSearching(false);
         }
-    }, [currentDate, token]);
+    }, [currentDate]);
 
     const fetchCases = useCallback(async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/cases`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.get('/cases');
             if (response.data.success) {
                 setCases(response.data.data);
             }
         } catch (error) {
             console.error('Error fetching cases:', error);
         }
-    }, [token]);
+    }, []);
 
     useEffect(() => {
         const now = Date.now();
@@ -120,30 +114,7 @@ export default function Calendar() {
     }, [fetchEvents, fetchCases, token]);
 
     // Real-time event status updater
-    useEffect(() => {
-        const updateEventStatuses = () => {
-            setEvents(prevEvents =>
-                prevEvents.map(event => {
-                    const eventTime = new Date(event.start);
-                    const now = new Date();
 
-                    // If event is today and time has passed, update status to 'closed'
-                    if (event.status !== 'closed' &&
-                        isSameDay(eventTime, now) &&
-                        eventTime < now) {
-                        return { ...event, status: 'closed' };
-                    }
-                    return event;
-                })
-            );
-        };
-
-        // Update immediately and then every minute
-        updateEventStatuses();
-        const interval = setInterval(updateEventStatuses, 60000); // Check every minute
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         if (isSearchModalOpen && searchQuery.trim().length > 0) {
@@ -160,13 +131,9 @@ export default function Calendar() {
         try {
             let response;
             if (selectedEvent) {
-                response = await axios.put(`${API_URL}/api/events/${selectedEvent._id}`, eventData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                response = await api.put(`/events/${selectedEvent._id}`, eventData);
             } else {
-                response = await axios.post(`${API_URL}/api/events`, eventData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                response = await api.post('/events', eventData);
             }
 
             if (response.data.success) {
@@ -680,7 +647,7 @@ export default function Calendar() {
                                     {/* Footer */}
                                     <div className="p-5 bg-white/5 border-t border-white/10 text-center">
                                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
-                                            ANTIGRAVITY NEURAL DISCOVERY CORE
+                                            LAW CASE AI INTELLIGENCE
                                         </p>
                                     </div>
                                 </motion.div>

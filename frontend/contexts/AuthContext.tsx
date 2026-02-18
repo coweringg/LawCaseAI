@@ -1,20 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 import api from '@/utils/api'
-
-interface User {
-  id: string
-  name: string
-  email: string
-  lawFirm: string
-  role: string
-  plan: 'basic' | 'professional' | 'enterprise'
-  planLimit: number
-  currentCases: number
-  status: string
-  createdAt: string
-  lastLogin: string
-}
+import { User } from '@/types'
 
 interface AuthContextType {
   user: User | null
@@ -41,22 +28,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    const initAuth = () => {
-      const storedToken = localStorage.getItem('token')
-      const storedUser = localStorage.getItem('user')
+  const fetchProfile = async (): Promise<void> => {
+    try {
+      const response = await api.get('/user/profile')
+      if (response.data.success) {
+        setUser(response.data.data)
+      }
+    } catch (error: any) {
+      // Silently fail — user is not authenticated
+      if (error?.response?.status !== 401) {
+        console.warn('Profile fetch failed:', error?.message)
+      }
+      setUser(null)
+    }
+  }
 
-      if (storedToken && storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser)
-          setToken(storedToken)
-          setUser(parsedUser)
-          // Profile will be refreshed by fetchProfile in the next block
-        } catch (error) {
-          console.error('Error parsing stored user:', error)
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-        }
+  useEffect(() => {
+    const initAuth = async () => {
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        setToken(storedToken)
+        await fetchProfile()
       }
       setIsLoading(false)
     }
@@ -66,18 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isLoading) {
-      // Refresh profile only if we have a token
-      const storedToken = localStorage.getItem('token')
-      if (token || storedToken) {
-        fetchProfile()
-      }
-    }
-  }, [isLoading])
-
-  useEffect(() => {
-    if (!isLoading) {
       const currentPath = router.pathname
-      const authenticated = !!user || !!token // user might be null but token in cookies
+      // Check auth state based on user presence
+      const authenticated = !!user
 
       if (authenticated && restrictedRoutes.includes(currentPath)) {
         router.push('/dashboard')
@@ -89,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
     }
-  }, [router.pathname, user, token, isLoading])
+  }, [router.pathname, user, isLoading])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
@@ -121,22 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const fetchProfile = async (): Promise<void> => {
-    const storedToken = localStorage.getItem('token')
-    if (!token && !storedToken) return
-
-    try {
-      const response = await api.get('/user/profile')
-      if (response.data.success) {
-        setUser(response.data.data)
-        localStorage.setItem('user', JSON.stringify(response.data.data))
-      }
-    } catch (error) {
-      // Silently fail if just checking session, or log if debugging
-      console.error('Failed to fetch profile:', error)
-    }
-  }
-
   const logout = () => {
     api.post('/auth/logout').finally(() => {
       setUser(null)
@@ -152,7 +119,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.put('/user/profile', userData)
       if (response.data.success) {
         setUser(response.data.data)
-        localStorage.setItem('user', JSON.stringify(response.data.data))
         return { success: true, message: response.data.message }
       }
       return { success: false, message: response.data.message || 'Failed to update profile' }
@@ -173,17 +139,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData }
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+      setUser(updatedUser as User)
     }
   }
 
-  const isAuthenticated = !!user || !!token
+  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider value={{
       user,
-      token,
+      token, // Kept for interface compatibility but null
       isLoading,
       login,
       register,

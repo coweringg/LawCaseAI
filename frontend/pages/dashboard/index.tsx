@@ -8,11 +8,12 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DashboardStats } from '@/types';
 
 export default function Dashboard() {
   const router = useRouter();
   const { user, token } = useAuth();
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -70,9 +71,9 @@ export default function Dashboard() {
                 <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
                   <span className="material-icons-round">auto_awesome</span>
                 </div>
-                {dashboardData?.hoursSaved?.today > 0 && (
+                {(dashboardData?.hoursSaved?.today || 0) > 0 && (
                   <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full border border-primary/20">
-                    +{dashboardData.hoursSaved.today}h today
+                    +{dashboardData!.hoursSaved.today}h today
                   </span>
                 )}
               </div>
@@ -128,7 +129,7 @@ export default function Dashboard() {
                   <Gavel size={20} />
                 </div>
                 <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-full border border-indigo-500/20">
-                  {dashboardData?.cases?.closed > 0 ? 'Updated' : 'Active'}
+                  {(dashboardData?.cases?.closed || 0) > 0 ? 'Updated' : 'Active'}
                 </span>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Closed Cases</p>
@@ -213,8 +214,8 @@ export default function Dashboard() {
                   Critical Deadlines
                 </h3>
                 <div className="space-y-4">
-                  {dashboardData?.upcomingDeadlines?.length > 0 ? (
-                    dashboardData.upcomingDeadlines.map((deadline: any, idx: number) => (
+                  {(dashboardData?.upcomingDeadlines && dashboardData.upcomingDeadlines.length > 0) ? (
+                    dashboardData.upcomingDeadlines.map((deadline, idx) => (
                       <div
                         key={idx}
                         className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between group hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer"
@@ -269,8 +270,8 @@ export default function Dashboard() {
                   </div>
                   <div className="space-y-4">
                     <p className="text-[12px] text-blue-50 leading-relaxed font-medium">
-                      {dashboardData?.documents?.total > 0
-                        ? `Intelligence unit has indexed ${dashboardData.documents.total} documents. Semantic analysis is available for audit.`
+                      {(dashboardData?.documents?.total || 0) > 0
+                        ? `Intelligence unit has indexed ${dashboardData!.documents.total} documents. Semantic analysis is available for audit.`
                         : "Ready for ingestion. Upload case files to synchronize with the AI core and generate immediate insights."}
                     </p>
                     <div className="pt-2">

@@ -40,7 +40,9 @@ export const validateEmail = (email: string): boolean => {
 }
 
 export const validatePassword = (password: string): boolean => {
-  return password.length >= 8
+  // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  return passwordRegex.test(password)
 }
 
 export const getInitials = (name: string): string => {

@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DashboardStats } from '@/types';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
 }
 
-const TimeDisplay = () => {
+const TimeDisplay = memo(() => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -32,12 +33,14 @@ const TimeDisplay = () => {
             </div>
         </div>
     );
-};
+});
+
+TimeDisplay.displayName = 'TimeDisplay';
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
     const { user, token, logout } = useAuth();
-    const [dashboardData, setDashboardData] = useState<any>(null);
+    const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
     const [mounted, setMounted] = useState(false);
 
@@ -47,7 +50,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<{ cases: any[], files: any[] }>({ cases: [], files: [] });
+    const [searchResults, setSearchResults] = useState<{ cases: Array<{ id: string; title: string; subtitle: string; status: string }>; files: Array<{ id: string; caseId: string; title: string; subtitle: string }> }>({ cases: [], files: [] });
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 

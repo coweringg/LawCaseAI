@@ -14,6 +14,8 @@ import {
     isSameMonth,
     isSameDay,
     addDays,
+    isBefore,
+    startOfDay,
     parseISO
 } from 'date-fns';
 import {
@@ -33,6 +35,10 @@ import { subDays } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import EventModal from '@/components/modals/EventModal';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 export default function Calendar() {
     const { token } = useAuth();
@@ -48,6 +54,12 @@ export default function Calendar() {
     const [isSearching, setIsSearching] = useState(false);
     const [cases, setCases] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [mounted, setMounted] = useState(false);
+    const lastFetch = React.useRef<number>(0);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -83,7 +95,7 @@ export default function Calendar() {
             setIsLoading(false);
             setIsSearching(false);
         }
-    }, [currentDate, token, API_URL]);
+    }, [currentDate, token]);
 
     const fetchCases = useCallback(async () => {
         try {
@@ -96,10 +108,12 @@ export default function Calendar() {
         } catch (error) {
             console.error('Error fetching cases:', error);
         }
-    }, [token, API_URL]);
+    }, [token]);
 
     useEffect(() => {
-        if (token) {
+        const now = Date.now();
+        if (token && now - lastFetch.current > 1000) {
+            lastFetch.current = now;
             fetchEvents();
             fetchCases();
         }
@@ -173,7 +187,7 @@ export default function Calendar() {
         setIsModalOpen(true);
     };
 
-    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const days = DAYS;
 
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
@@ -213,69 +227,82 @@ export default function Calendar() {
         }
     };
 
+    if (!mounted) return null;
+
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="flex bg-white dark:bg-surface-dark h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden rounded-tl-xl border-l border-slate-200 dark:border-slate-800">
+                <div className="flex bg-transparent h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative z-10">
                     {/* Sidebar */}
-                    <aside className="w-72 bg-white dark:bg-white/5 border-r border-slate-200 dark:border-white/10 flex flex-col overflow-y-auto hidden md:flex">
-                        <div className="p-4">
-                            <button
+                    <aside className="w-80 glass-dark border-r border-white/5 flex flex-col overflow-y-auto hidden md:flex relative">
+                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+                        <div className="relative z-10 p-6">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => handleOpenModal(new Date())}
-                                className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95"
+                                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-black text-xs uppercase tracking-widest py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20"
                             >
                                 <Plus size={18} />
-                                New Legal Event
-                            </button>
+                                New Legal Entry
+                            </motion.button>
                         </div>
 
                         {/* Mini Calendar */}
-                        <div className="p-4 border-b border-slate-100 dark:border-white/5">
-                            <div className="flex items-center justify-between mb-4">
-                                <span className="font-bold text-sm text-slate-900 dark:text-white">{format(currentDate, 'MMMM yyyy')}</span>
-                                <div className="flex gap-1">
-                                    <button onClick={prevDate} className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md transition-colors"><ChevronLeft size={16} /></button>
-                                    <button onClick={nextDate} className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md transition-colors"><ChevronRight size={16} /></button>
+                        <div className="p-6 border-b border-white/5 relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <span className="font-black text-xs uppercase tracking-widest text-white">{format(currentDate, 'MMMM yyyy')}</span>
+                                <div className="flex gap-2">
+                                    <button onClick={prevDate} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"><ChevronLeft size={16} /></button>
+                                    <button onClick={nextDate} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"><ChevronRight size={16} /></button>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-7 gap-1 text-[10px] text-center font-bold text-slate-400 mb-2">
-                                {days.map(d => <div key={d}>{d[0]}</div>)}
+                            <div className="grid grid-cols-7 gap-1 text-[9px] text-center font-black text-slate-500 mb-4 tracking-tighter">
+                                {days.map(d => <div key={d}>{d}</div>)}
                             </div>
                             <div className="grid grid-cols-7 gap-1 text-[11px] text-center">
-                                {calendarDays.slice(0, 35).map((date, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setCurrentDate(date)}
-                                        className={`p-1 font-medium rounded cursor-pointer transition-all ${isSameDay(date, new Date())
-                                            ? 'bg-primary text-white font-bold shadow-sm'
-                                            : !isSameMonth(date, monthStart)
-                                                ? 'text-slate-300 dark:text-slate-600'
-                                                : 'hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
-                                            } ${isSameDay(date, currentDate) && !isSameDay(date, new Date()) ? 'ring-2 ring-primary/30 bg-primary/10' : ''}`}
-                                    >
-                                        {format(date, 'd')}
-                                    </div>
-                                ))}
+                                {calendarDays.slice(0, 35).map((date, idx) => {
+                                    const isPastMini = isBefore(date, startOfDay(new Date()));
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => setCurrentDate(date)}
+                                            className={`p-1.5 font-bold rounded-lg cursor-pointer transition-all ${isSameDay(date, new Date())
+                                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                                : isPastMini
+                                                    ? 'text-slate-600/50 hover:bg-white/5 hover:text-white'
+                                                    : !isSameMonth(date, monthStart)
+                                                        ? 'text-slate-700'
+                                                        : 'hover:bg-white/5 text-slate-400 hover:text-white'
+                                                } ${isSameDay(date, currentDate) && !isSameDay(date, new Date()) ? 'ring-1 ring-primary/50 bg-primary/10 text-white' : ''}`}
+                                        >
+                                            {format(date, 'd')}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         {/* Upcoming Deadlines */}
-                        <div className="p-4 flex-1">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Critical Alerts</h3>
-                                <div className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
+                        <div className="p-6 flex-1 relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Master Timeline</h3>
+                                <div className="flex h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
                             </div>
-                            <div className="space-y-3">
-                                {events.filter(e => e.priority === 'critical' || e.priority === 'high').slice(0, 4).map((event, idx) => (
-                                    <div
+                            <div className="space-y-4">
+                                {events.filter(e => e.priority === 'critical' || e.priority === 'high').slice(0, 5).map((event, idx) => (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.1 }}
                                         key={idx}
                                         onClick={() => handleOpenModal(undefined, event)}
-                                        className="flex gap-3 items-start p-3 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-slate-200 dark:hover:border-white/10 shadow-sm hover:shadow-md"
+                                        className="flex gap-4 items-start p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer group shadow-xl"
                                     >
-                                        <div className={`w-1 h-8 rounded-full ${event.priority === 'critical' ? 'bg-red-500' : 'bg-amber-500'}`}></div>
-                                        <div>
-                                            <p className="text-[12px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors line-clamp-1">{event.title}</p>
-                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                        <div className={`w-1 h-8 rounded-full ${event.priority === 'critical' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'}`}></div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[11px] font-black text-white group-hover:text-primary transition-colors line-clamp-1 truncate">{event.title}</p>
+                                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-1.5">
                                                 <Clock size={10} />
                                                 {(() => {
                                                     try {
@@ -287,12 +314,12 @@ export default function Calendar() {
                                                 })()}
                                             </p>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                                 {events.filter(e => e.priority === 'critical' || e.priority === 'high').length === 0 && (
-                                    <div className="text-center py-8 opacity-50">
-                                        <CalendarIcon size={32} className="mx-auto mb-2 text-slate-300" />
-                                        <p className="text-[10px] font-medium text-slate-400">No critical deadlines</p>
+                                    <div className="text-center py-12 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                        <CalendarIcon size={32} className="mx-auto mb-3 text-slate-700" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Timeline Clear</p>
                                     </div>
                                 )}
                             </div>
@@ -300,20 +327,20 @@ export default function Calendar() {
                     </aside>
 
                     {/* Main Calendar Area */}
-                    <main className="flex-1 overflow-hidden flex flex-col bg-slate-50 dark:bg-background-dark/50 backdrop-blur-3xl">
+                    <main className="flex-1 overflow-hidden flex flex-col bg-transparent backdrop-blur-3xl">
                         {/* Calendar Header */}
-                        <div className="p-5 flex flex-wrap items-center justify-between border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md">
-                            <div className="flex items-center gap-6">
+                        <div className="p-6 flex flex-wrap items-center justify-between border-b border-white/5 bg-white/5 backdrop-blur-xl">
+                            <div className="flex items-center gap-8">
                                 <div className="flex flex-col">
-                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{format(currentDate, 'MMMM yyyy')}</h2>
-                                    <p className="text-[10px] font-bold text-primary active:text-primary-hover cursor-pointer uppercase tracking-widest">{format(currentDate, 'yyyy')}</p>
+                                    <h2 className="text-3xl font-black text-white tracking-tight font-display">{format(currentDate, 'MMMM yyyy')}</h2>
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1">Selective Repository Insight</p>
                                 </div>
-                                <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-xl p-1 shadow-inner">
+                                <div className="flex items-center glass p-1 rounded-2xl border border-white/10 shadow-2xl">
                                     {(['Day', 'Week', 'Month', 'List'] as const).map(v => (
                                         <button
                                             key={v}
                                             onClick={() => setView(v)}
-                                            className={`px-4 py-1.5 text-[11px] font-black rounded-lg transition-all ${view === v ? 'bg-white dark:bg-white/10 shadow-sm text-primary' : 'hover:bg-white/50 dark:hover:bg-white/5 text-slate-400'}`}
+                                            className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${view === v ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                         >
                                             {v}
                                         </button>
@@ -321,21 +348,23 @@ export default function Calendar() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4 mt-2 sm:mt-0">
-                                <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-xl p-1 shadow-inner">
-                                    <button onClick={prevDate} className="p-2 hover:text-primary transition-colors"><ChevronLeft size={18} /></button>
-                                    <button onClick={goToToday} className="px-4 py-1.5 text-[11px] font-black hover:text-primary transition-colors text-slate-600 dark:text-slate-300">TODAY</button>
-                                    <button onClick={nextDate} className="p-2 hover:text-primary transition-colors"><ChevronRight size={18} /></button>
+                                <div className="flex items-center glass p-1 rounded-2xl border border-white/10">
+                                    <button onClick={prevDate} className="p-2.5 text-slate-500 hover:text-white transition-colors"><ChevronLeft size={18} /></button>
+                                    <button onClick={goToToday} className="px-6 py-2 text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors text-slate-400 border-x border-white/5">TODAY</button>
+                                    <button onClick={nextDate} className="p-2.5 text-slate-500 hover:text-white transition-colors"><ChevronRight size={18} /></button>
                                 </div>
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                     onClick={() => {
                                         setIsSearchModalOpen(true);
                                         setSearchQuery('');
                                     }}
-                                    className="flex items-center gap-2.5 px-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
+                                    className="flex items-center gap-3 px-5 py-3 glass border border-white/10 rounded-2xl text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-2xl group"
                                 >
                                     <Search size={16} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[11px] font-black uppercase tracking-widest hidden sm:inline">Search...</span>
-                                </button>
+                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Discovery</span>
+                                </motion.button>
                             </div>
                         </div>
 
@@ -367,43 +396,51 @@ export default function Calendar() {
                                         {eachDayOfInterval({
                                             start: startOfWeek(currentDate),
                                             end: endOfWeek(currentDate)
-                                        }).map((date, idx) => (
-                                            <div key={idx} className="p-4 text-center">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{format(date, 'eee')}</p>
-                                                <p className={`text-lg font-black mt-1 ${isSameDay(date, new Date()) ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{format(date, 'd')}</p>
-                                            </div>
-                                        ))}
+                                        }).map((date, idx) => {
+                                            const isPastHeader = isBefore(date, startOfDay(new Date()));
+                                            return (
+                                                <div key={idx} className={`p-4 text-center ${isPastHeader ? 'opacity-40' : ''}`}>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{format(date, 'eee')}</p>
+                                                    <p className={`text-lg font-black mt-1 ${isSameDay(date, new Date()) ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{format(date, 'd')}</p>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <div className="grid grid-cols-7 flex-1 divide-x divide-slate-100 dark:divide-white/5">
                                         {eachDayOfInterval({
                                             start: startOfWeek(currentDate),
                                             end: endOfWeek(currentDate)
-                                        }).map((date, idx) => (
-                                            <div key={idx} className="p-4 space-y-3 bg-white dark:bg-surface-dark/40 min-h-[400px]">
-                                                {filteredEvents.filter(e => isSameDay(new Date(e.start), date)).map((event, i) => (
-                                                    <div
-                                                        key={i}
-                                                        onClick={() => handleOpenModal(undefined, event)}
-                                                        className={`p-3 rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${getPriorityColor(event.priority, event.status)}`}
-                                                    >
-                                                        <p className="text-[10px] font-black mb-1 opacity-80 uppercase">{format(new Date(event.start), 'HH:mm')}</p>
-                                                        <p className="text-xs font-bold leading-tight">{event.title}</p>
-                                                    </div>
-                                                ))}
-                                                {(!isSameDay(date, new Date()) && date < new Date()) ? (
-                                                    <div className="flex-1 flex items-center justify-center opacity-20 select-none">
-                                                        <Clock size={24} className="text-slate-300" />
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleOpenModal(date)}
-                                                        className="w-full py-3 border-2 border-dashed border-slate-100 dark:border-white/5 rounded-xl text-slate-300 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center"
-                                                    >
-                                                        <Plus size={16} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
+                                        }).map((date, idx) => {
+                                            const isDayPast = isBefore(date, startOfDay(new Date()));
+                                            const isDayToday = isSameDay(date, new Date());
+
+                                            return (
+                                                <div key={idx} className={`p-4 space-y-3 min-h-[400px] transition-colors ${isDayPast ? 'bg-black/20 opacity-60' : 'bg-white dark:bg-surface-dark/40'}`}>
+                                                    {filteredEvents.filter(e => isSameDay(new Date(e.start), date)).map((event, i) => (
+                                                        <div
+                                                            key={i}
+                                                            onClick={() => handleOpenModal(undefined, event)}
+                                                            className={`p-3 rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${getPriorityColor(event.priority, event.status)} ${isDayPast ? 'grayscale-[0.5]' : ''}`}
+                                                        >
+                                                            <p className="text-[10px] font-black mb-1 opacity-80 uppercase">{format(new Date(event.start), 'HH:mm')}</p>
+                                                            <p className="text-xs font-bold leading-tight">{event.title}</p>
+                                                        </div>
+                                                    ))}
+                                                    {isDayPast ? (
+                                                        <div className="flex-1 flex items-center justify-center opacity-10 select-none">
+                                                            <Clock size={24} className="text-slate-300" />
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleOpenModal(date)}
+                                                            className="w-full py-3 border-2 border-dashed border-slate-100 dark:border-white/5 rounded-xl text-slate-300 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -523,120 +560,133 @@ export default function Calendar() {
                     />
 
                     {/* Centralized Global Search Modal */}
-                    {isSearchModalOpen && (
-                        <div className="fixed inset-0 z-[100000] flex items-start justify-center pt-[15vh] px-4">
-                            <div
-                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-                                onClick={() => setIsSearchModalOpen(false)}
-                            />
+                    <AnimatePresence>
+                        {isSearchModalOpen && (
+                            <div className="fixed inset-0 z-[100000] flex items-start justify-center pt-[15vh] px-4">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-opacity"
+                                    onClick={() => setIsSearchModalOpen(false)}
+                                />
 
-                            <div className="relative w-full max-w-2xl bg-white dark:bg-[#0f172a] rounded-[32px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border-2 border-slate-200 dark:border-white/20 overflow-hidden animate-in zoom-in-95 duration-200">
-                                {/* Search Header */}
-                                <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50">
-                                    <div className="p-3 bg-primary/20 text-primary rounded-2xl">
-                                        <Search size={24} />
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 30, scale: 0.95 }}
+                                    className="relative w-full max-w-2xl glass-dark rounded-[32px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
+                                >
+                                    {/* Search Header */}
+                                    <div className="p-8 border-b border-white/10 flex items-center gap-6 bg-white/5">
+                                        <div className="p-4 bg-primary/20 text-primary rounded-2xl shadow-inner">
+                                            <Search size={28} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                placeholder="Initialize query..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full bg-transparent border-none outline-none text-2xl font-black text-white font-display placeholder:text-slate-700"
+                                            />
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-2">Intelligence Core Discovery Interface</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsSearchModalOpen(false)}
+                                            className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all font-black text-[10px] tracking-widest"
+                                        >
+                                            ESC
+                                        </button>
                                     </div>
-                                    <div className="flex-1">
-                                        <input
-                                            autoFocus
-                                            type="text"
-                                            placeholder="What are you looking for today?"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
-                                        />
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Universal Legal Repository Search</p>
+
+                                    {/* Search Results */}
+                                    <div className="max-h-[60vh] overflow-y-auto p-6 space-y-3 bg-transparent">
+                                        {isSearching ? (
+                                            <div className="py-24 text-center">
+                                                <Loader2 size={48} className="animate-spin text-primary mx-auto mb-6" />
+                                                <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Synchronizing data units...</p>
+                                            </div>
+                                        ) : searchQuery.trim() === '' ? (
+                                            <div className="py-24 text-center opacity-30">
+                                                <Search size={64} className="mx-auto mb-6 text-slate-700" />
+                                                <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.3em]">Query input required for discovery</p>
+                                            </div>
+                                        ) : searchResults.length > 0 ? (
+                                            <div className="grid gap-3">
+                                                {searchResults.map((event, i) => (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: i * 0.05 }}
+                                                        key={i}
+                                                        onClick={() => {
+                                                            const eDate = new Date(event.start);
+                                                            setIsSearchModalOpen(false);
+                                                            setSearchQuery('');
+
+                                                            setTimeout(() => {
+                                                                setView('Month');
+                                                                setCurrentDate(eDate);
+                                                                handleOpenModal(undefined, event);
+                                                                toast.success(`Opening ${format(eDate, 'MMM d')}`, {
+                                                                    icon: '⚖️',
+                                                                    style: { borderRadius: '16px', background: '#0f172a', color: '#fff' }
+                                                                });
+                                                            }, 100);
+                                                        }}
+                                                        className="p-6 rounded-[28px] glass border border-white/5 hover:border-primary/50 cursor-pointer transition-all group active:scale-[0.98] flex justify-between items-center shadow-2xl"
+                                                    >
+                                                        <div className="flex-1 min-w-0 pr-6">
+                                                            <h5 className="text-[18px] font-black text-white truncate group-hover:text-primary transition-colors mb-2 font-display">{event.title}</h5>
+                                                            <div className="flex items-center gap-6 text-slate-500">
+                                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                                                    <CalendarIcon size={14} className="text-primary" />
+                                                                    {format(new Date(event.start), 'MMM d, yyyy')}
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                                                    <Clock size={14} className="text-primary" />
+                                                                    {format(new Date(event.start), 'h:mm a')}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 shrink-0">
+                                                            <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${event.status === 'closed'
+                                                                ? 'bg-white/5 text-slate-500 border-white/10'
+                                                                : 'bg-primary/10 text-primary border-primary/20'
+                                                                }`}>
+                                                                {event.status === 'closed' ? 'Archived' : 'Active'}
+                                                            </div>
+                                                            <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${event.priority === 'critical' ? 'bg-red-500 text-white shadow-red-500/20' :
+                                                                event.priority === 'high' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+                                                                    'bg-primary text-white shadow-primary/20'
+                                                                }`}>
+                                                                {event.priority}
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="py-24 text-center">
+                                                <AlertCircle size={48} className="text-slate-800 mx-auto mb-6" />
+                                                <h5 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Null result set</h5>
+                                                <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Repository scan completed with no matches</p>
+                                            </div>
+                                        )}
                                     </div>
-                                    <button
-                                        onClick={() => setIsSearchModalOpen(false)}
-                                        className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl text-slate-400 transition-all font-black text-xs"
-                                    >
-                                        ESC
-                                    </button>
-                                </div>
 
-                                {/* Search Results */}
-                                <div className="max-h-[60vh] overflow-y-auto p-4 space-y-2 !bg-white dark:!bg-[#0f172a]">
-                                    {isSearching ? (
-                                        <div className="py-20 text-center">
-                                            <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
-                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Scanning Repository...</p>
-                                        </div>
-                                    ) : searchQuery.trim() === '' ? (
-                                        <div className="py-20 text-center opacity-40">
-                                            <Search size={64} className="mx-auto mb-4 text-slate-300" />
-                                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Type to begin discovery</p>
-                                        </div>
-                                    ) : searchResults.length > 0 ? (
-                                        <div className="grid gap-2">
-                                            {searchResults.map((event, i) => (
-                                                <div
-                                                    key={i}
-                                                    onClick={() => {
-                                                        const eDate = new Date(event.start);
-                                                        setIsSearchModalOpen(false);
-                                                        setSearchQuery('');
-
-                                                        setTimeout(() => {
-                                                            setView('Month');
-                                                            setCurrentDate(eDate);
-                                                            handleOpenModal(undefined, event);
-                                                            toast.success(`Opening ${format(eDate, 'MMM d')}`, {
-                                                                icon: '⚖️',
-                                                                style: { borderRadius: '16px', background: '#0f172a', color: '#fff' }
-                                                            });
-                                                        }, 100);
-                                                    }}
-                                                    className="p-5 rounded-[24px] hover:bg-slate-50 dark:hover:bg-white/[0.05] cursor-pointer transition-all border border-transparent hover:border-slate-100 dark:hover:border-white/10 group active:scale-[0.98] flex justify-between items-center"
-                                                >
-                                                    <div className="flex-1 min-w-0 pr-4">
-                                                        <h5 className="text-[16px] font-black text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors mb-1">{event.title}</h5>
-                                                        <div className="flex items-center gap-4 text-slate-400">
-                                                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight">
-                                                                <CalendarIcon size={12} />
-                                                                {format(new Date(event.start), 'MMM d, yyyy')}
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight">
-                                                                <Clock size={12} />
-                                                                {format(new Date(event.start), 'h:mm a')}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 shrink-0">
-                                                        <div className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${event.status === 'closed'
-                                                            ? 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800/50 dark:text-slate-500 dark:border-white/5'
-                                                            : 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
-                                                            }`}>
-                                                            {event.status === 'closed' ? 'Closed' : 'Open'}
-                                                        </div>
-                                                        <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${event.priority === 'critical' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' :
-                                                            event.priority === 'high' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' :
-                                                                'bg-primary text-white shadow-lg shadow-primary/20'
-                                                            }`}>
-                                                            {event.priority}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="py-20 text-center">
-                                            <AlertCircle size={48} className="text-slate-200 dark:text-slate-800 mx-auto mb-4" />
-                                            <h5 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">No matches in repository</h5>
-                                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">Modify your query or check filters</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Footer */}
-                                <div className="p-4 bg-slate-50 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/5 text-center">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                                        Antigravity High-Performance Search System
-                                    </p>
-                                </div>
+                                    {/* Footer */}
+                                    <div className="p-5 bg-white/5 border-t border-white/10 text-center">
+                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
+                                            ANTIGRAVITY NEURAL DISCOVERY CORE
+                                        </p>
+                                    </div>
+                                </motion.div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </AnimatePresence>
                 </div >
             </DashboardLayout >
         </ProtectedRoute >
@@ -654,37 +704,52 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor 
         }
     });
 
+    const isToday = isSameDay(date, new Date());
+    const isCurrentMonth = isSameMonth(date, monthStart);
+    const isPast = isBefore(date, startOfDay(new Date()));
+
     return (
-        <div className={`bg-white dark:bg-surface-dark/40 min-h-[140px] p-3 relative group transition-all hover:z-10 hover:shadow-2xl hover:bg-slate-50 dark:hover:bg-white/5
-            ${!isSameMonth(date, monthStart) ? 'bg-slate-50/50 dark:bg-black/20 opacity-40' : ''}`}>
+        <div className={`min-h-[140px] p-4 relative group transition-all hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-r border-b border-white/5 
+            ${!isCurrentMonth ? 'bg-black/40 opacity-20' :
+                isPast ? 'bg-black/20 grayscale-[0.5] opacity-60' : 'bg-white/5 hover:bg-white/10'}`}>
             <div className="flex justify-between items-start">
-                <span className={`text-sm font-black transition-all ${isSameDay(date, new Date())
-                    ? 'bg-primary text-white w-7 h-7 flex items-center justify-center rounded-xl shadow-lg ring-4 ring-primary/20'
-                    : isSameMonth(date, monthStart) ? 'text-slate-600 dark:text-slate-200' : 'text-slate-300 dark:text-slate-600'
+                <span className={`text-sm font-black transition-all ${isToday
+                    ? 'bg-primary text-white w-8 h-8 flex items-center justify-center rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] ring-2 ring-primary/20'
+                    : isPast ? 'text-slate-600' : isCurrentMonth ? 'text-slate-400 group-hover:text-white' : 'text-slate-700'
                     }`}>
                     {format(date, 'd')}
                 </span>
                 {dayEvents.length > 0 && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onOpenModal(undefined, dayEvents[0]); }}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg transition-all text-slate-400"
+                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded-xl transition-all text-slate-500 hover:text-white"
                     >
                         <MoreVertical size={14} />
                     </button>
                 )}
             </div>
-            <div className={`mt-4 space-y-1.5 ${isSameDay(date, new Date()) ? '' : date < new Date() ? 'opacity-80' : ''}`}>
+            <div className={`mt-4 space-y-2 ${isToday ? '' : date < new Date() ? 'opacity-40' : ''}`}>
                 {dayEvents.map((event: any, i: number) => (
-                    <div key={i} onClick={() => onOpenModal(undefined, event)} className={`text-[11px] px-2.5 py-1.5 rounded-lg font-bold border-l-4 truncate cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm ${getPriorityColor(event.priority, event.status)}`}>
+                    <motion.div
+                        initial={{ opacity: 0, x: -5 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        key={i}
+                        onClick={() => onOpenModal(undefined, event)}
+                        className={`text-[10px] px-3 py-2 rounded-xl font-black border-l-[3px] truncate cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95 shadow-lg uppercase tracking-tighter ${getPriorityColor(event.priority, event.status)}`}
+                    >
                         <div className="flex items-center gap-1.5">
-                            {(event.priority === 'critical' && event.status !== 'closed') && <AlertCircle size={10} className="animate-pulse" />}
+                            {(event.priority === 'critical' && event.status !== 'closed') && <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />}
                             <span className="truncate">{event.title}</span>
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
-            {(!isSameDay(date, new Date()) && date < new Date()) ? null : (
-                <button onClick={() => onOpenModal(date)} className="absolute bottom-2 right-2 p-1.5 bg-primary text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 shadow-lg">
+            {(!isToday && date < new Date()) ? null : (
+                <button
+                    onClick={() => onOpenModal(date)}
+                    className="absolute bottom-3 right-3 p-2 bg-primary text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 shadow-xl shadow-primary/20"
+                >
                     <Plus size={14} />
                 </button>
             )}

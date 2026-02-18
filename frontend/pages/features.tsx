@@ -298,9 +298,9 @@ function ChronologyDemo() {
                 <div className="absolute left-10 top-0 bottom-0 w-px bg-white/10"></div>
                 <div className="space-y-24 relative">
                     {[
-                        { date: "Oct 12, 2023", event: "Incident Report Filed", role: "Primary Event" },
-                        { date: "Nov 05, 2023", event: "Initial Demand Letter Sent", role: "Legal Action" },
-                        { date: "Jan 18, 2024", event: "Deposition of Witness A", role: "Discovery" }
+                        { date: "Oct 12, 2025", event: "Incident Report Filed", role: "Primary Event" },
+                        { date: "Nov 05, 2025", event: "Initial Demand Letter Sent", role: "Legal Action" },
+                        { date: "Jan 18, 2026", event: "Deposition of Witness A", role: "Discovery" }
                     ].map((item, i) => (
                         <motion.div
                             key={i}

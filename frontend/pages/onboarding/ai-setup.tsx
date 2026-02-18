@@ -146,7 +146,7 @@ export default function AISetup() {
             {/* Footer */}
             <footer className="w-full py-6 px-8 border-t border-[#0d59f2]/5 bg-white/50 dark:bg-[#101622]/50 backdrop-blur-sm">
                 <div className="flex justify-between items-center">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">© 2024 LawCaseAI Systems Inc. All rights reserved.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">© 2026 LawCaseAI Systems Inc. All rights reserved.</p>
                     <div className="flex gap-6">
                         <a href="#" className="text-xs font-semibold text-slate-500 hover:text-[#0d59f2] transition-colors">Privacy Policy</a>
                         <a href="#" className="text-xs font-semibold text-slate-500 hover:text-[#0d59f2] transition-colors">Security Protocol</a>

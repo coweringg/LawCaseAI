@@ -205,12 +205,17 @@ export default function Register() {
         </div>
 
         {/* Checkbox */}
-        <div className="flex items-start gap-3 py-2">
+        <div className="group flex items-start gap-3 py-4 px-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
           <div className="flex items-center h-5">
-            <input id="terms" type="checkbox" required className="w-5 h-5 text-primary bg-slate-100 border-slate-300 rounded-lg focus:ring-primary focus:ring-2" />
+            <input
+              id="terms"
+              type="checkbox"
+              required
+              className="w-5 h-5 text-primary bg-white dark:bg-slate-900 border-slate-300 dark:border-white/10 rounded-lg focus:ring-primary/20 focus:ring-2 transition-all cursor-pointer"
+            />
           </div>
-          <label htmlFor="terms" className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-            I agree to the <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+          <label htmlFor="terms" className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal cursor-pointer select-none">
+            I have read and agree to the <Link href="/terms" className="text-primary font-bold hover:underline">Terms of Service</Link> and the <Link href="/privacy" className="text-primary font-bold hover:underline">Privacy Policy</Link> of LawCaseAI.
           </label>
         </div>
 

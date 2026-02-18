@@ -111,7 +111,7 @@ export default function Onboarding() {
                 </main>
 
                 <footer className="py-8 text-center text-slate-400 dark:text-slate-600 text-sm">
-                    <p>© 2024 LawCaseAI. All rights reserved. 256-bit AES Encryption Active.</p>
+                    <p>© 2026 LawCaseAI. All rights reserved. 256-bit AES Encryption Active.</p>
                 </footer>
             </div>
         </ProtectedRoute>

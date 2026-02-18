@@ -3,7 +3,8 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Folder, Briefcase, Shield, Scale, Plus } from 'lucide-react';
+import { Loader2, Folder, Briefcase, Shield, Scale, Plus, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const getAreaIcon = (area: string) => {
     const a = area?.toLowerCase() || '';
@@ -26,6 +27,11 @@ export default function MyCases() {
     const [cases, setCases] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         const fetchCases = async () => {
@@ -62,17 +68,39 @@ export default function MyCases() {
         return 0;
     });
 
+    if (!mounted) return null;
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.05
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20, scale: 0.95 },
+        visible: { opacity: 1, y: 0, scale: 1 }
+    };
+
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="flex flex-col gap-6">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="flex flex-col gap-6 relative z-10"
+                >
+                    <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                         <div>
-                            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">My Cases</h1>
-                            <p className="text-slate-500 dark:text-slate-400 font-medium">Manage and analyze your legal cases with AI.</p>
+                            <h1 className="text-4xl font-black text-white tracking-tight font-display mb-2">My Cases</h1>
+                            <p className="text-slate-500 font-bold uppercase text-[11px] tracking-widest">Repository index • AI Synchronized</p>
                         </div>
 
-                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-1 glass p-1 rounded-xl border border-white/10">
                             {[
                                 { id: 'all', label: 'All' },
                                 { id: 'active', label: 'Active' },
@@ -81,16 +109,16 @@ export default function MyCases() {
                                 <button
                                     key={f.id}
                                     onClick={() => setStatusFilter(f.id as any)}
-                                    className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${statusFilter === f.id
-                                        ? 'bg-white dark:bg-surface-dark text-primary shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === f.id
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                        : 'text-slate-500 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
                                     {f.label}
                                 </button>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
 
                     {isLoading ? (
                         <div className="flex justify-center items-center py-20">
@@ -104,72 +132,86 @@ export default function MyCases() {
 
                                 return (
                                     <Link href={`/cases/${c._id}`} key={c._id} className="group">
-                                        <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col relative overflow-hidden">
+                                        <motion.div
+                                            variants={itemVariants}
+                                            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                                            className="glass border border-white/10 rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 h-full flex flex-col relative overflow-hidden shadow-xl"
+                                        >
                                             {/* Subtle Gradient background */}
-                                            <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 rounded-full opacity-10 ${areaColor.split(' ')[0]}`}></div>
+                                            <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 rounded-full opacity-[0.05] ${areaColor.split(' ')[0]}`}></div>
+                                            <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 pointer-events-none"></div>
 
-                                            <div className="flex justify-between items-start mb-5 relative z-10">
-                                                <div className={`p-3 rounded-xl transition-colors ${areaColor}`}>
+                                            <div className="flex justify-between items-start mb-6 relative z-10">
+                                                <div className={`p-3 rounded-xl shadow-lg ${areaColor}`}>
                                                     {getAreaIcon(c.practiceArea)}
                                                 </div>
-                                                <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest uppercase ${c.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' :
-                                                    c.status === 'closed' ? 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
-                                                        'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+                                                <span className={`text-[9px] font-black px-3 py-1 rounded-full border tracking-tighter uppercase ${c.status === 'active' ? 'bg-primary/10 text-primary border-primary/20' :
+                                                    c.status === 'closed' ? 'bg-slate-500/10 text-slate-400 border-white/10' :
+                                                        'bg-amber-500/10 text-amber-500 border-amber-500/20'
                                                     }`}>
                                                     {c.status || 'ACTIVE'}
                                                 </span>
                                             </div>
 
                                             <div className="relative z-10 flex-1">
-                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors truncate">{c.name}</h3>
+                                                <h3 className="text-lg font-black text-white mb-2 group-hover:text-primary transition-colors truncate font-display">{c.name}</h3>
                                                 <div className="flex items-center gap-2 mb-4">
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{c.client || 'Direct Client'}</span>
-                                                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{c.client || 'Direct Client'}</span>
+                                                    <span className="w-1 h-1 bg-white/10 rounded-full"></span>
                                                     <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest">{c.practiceArea || 'General Legal'}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 relative z-10">
+                                            <div className="mt-8 relative z-10">
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Case Readiness</span>
-                                                    <span className="text-[10px] font-bold text-slate-900 dark:text-white">{progress}%</span>
+                                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Case Readiness</span>
+                                                    <span className="text-[10px] font-black text-white">{progress}%</span>
                                                 </div>
-                                                <div className="w-full bg-slate-100 dark:bg-slate-700/50 h-2 rounded-full overflow-hidden mb-4">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${progress === 100 ? 'bg-emerald-500' : 'bg-primary'}`}
-                                                        style={{ width: `${progress}%` }}
-                                                    ></div>
+                                                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-5">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${progress}%` }}
+                                                        transition={{ duration: 1.5, delay: 0.2 }}
+                                                        className={`h-full rounded-full ${progress === 100 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-primary to-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.3)]'}`}
+                                                    ></motion.div>
                                                 </div>
 
-                                                <div className="flex items-center justify-between text-[10px] font-bold">
-                                                    <div className="flex items-center gap-1.5 text-slate-500">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-tighter">
                                                         <span className="material-icons-round text-sm">description</span>
-                                                        <span>{c.fileCount || 0} Docs</span>
+                                                        <span>{c.fileCount || 0} Records</span>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-slate-400">
-                                                        <span className="material-icons-round text-sm">schedule</span>
+                                                    <div className="flex items-center gap-1.5 text-slate-600 text-[10px] font-bold uppercase tracking-tighter">
+                                                        <span className="material-icons-round text-sm">event_note</span>
                                                         <span>{new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     </Link>
                                 );
                             })}
 
                             {/* New Case Placeholder */}
                             <Link href="/cases/new" className="group">
-                                <div className="bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:border-primary/50 hover:bg-white dark:hover:bg-surface-dark hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col items-center justify-center min-h-[250px] cursor-pointer text-slate-400 group-hover:text-primary">
-                                    <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-inner">
-                                        <Plus className="w-8 h-8" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                                    className="glass-dark border-2 border-dashed border-white/10 rounded-2xl p-6 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 h-full flex flex-col items-center justify-center min-h-[300px] cursor-pointer group-hover:shadow-2xl relative overflow-hidden"
+                                >
+                                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-125 rotate-45 z-0 pointer-events-none"></div>
+                                    <div className="relative z-10 flex flex-col items-center">
+                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white group-hover:rotate-12 transition-all duration-500 shadow-xl border border-white/5">
+                                            <Plus className="w-8 h-8" />
+                                        </div>
+                                        <span className="text-lg font-black text-white font-display">Initialize New Project</span>
+                                        <span className="text-[10px] font-extrabold uppercase tracking-widest mt-2 text-primary opacity-80">Link Intelligence Core</span>
                                     </div>
-                                    <span className="text-base font-bold">New Case Project</span>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60">Begin AI indexing</span>
-                                </div>
+                                </motion.div>
                             </Link>
                         </div>
                     )}
-                </div>
+                </motion.div>
             </DashboardLayout>
         </ProtectedRoute>
     );

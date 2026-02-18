@@ -152,27 +152,6 @@ export default function Login() {
         </button>
       </form>
 
-      {/* Divider */}
-      <div className="relative my-10">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200 dark:border-white/5"></div>
-        </div>
-        <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-[0.2em]">
-          <span className="px-4 bg-[#f8fafc] dark:bg-[#0f172a] text-slate-400">Secure SSO</span>
-        </div>
-      </div>
-
-      {/* Social Login */}
-      <div className="grid grid-cols-2 gap-4">
-        <button className="flex items-center justify-center h-12 border border-slate-200 dark:border-white/5 rounded-xl bg-white dark:bg-slate-900/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-          <img className="h-5 w-5 mr-3" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
-          Google
-        </button>
-        <button className="flex items-center justify-center h-12 border border-slate-200 dark:border-white/5 rounded-xl bg-white dark:bg-slate-900/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-          <img className="h-5 w-5 mr-3" src="https://www.svgrepo.com/show/448239/microsoft.svg" alt="Microsoft" />
-          MSFT
-        </button>
-      </div>
     </AuthLayout>
   )
 }

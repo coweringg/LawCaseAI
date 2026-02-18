@@ -5,19 +5,19 @@ dotenv.config()
 export const config = {
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
-  
+
   // Database
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/lawcaseai',
     testUri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/lawcaseai_test'
   },
-  
+
   // JWT
   jwt: {
     secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   },
-  
+
   // Cloudflare R2
   r2: {
     accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
@@ -26,13 +26,13 @@ export const config = {
     endpoint: process.env.CLOUDFLARE_R2_ENDPOINT || '',
     publicUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL || ''
   },
-  
+
   // FreeLLM API
   freellm: {
     apiKey: process.env.FREELLm_API_KEY || '',
     baseUrl: process.env.FREELLm_BASE_URL || 'https://api.freellm.ai/v1'
   },
-  
+
   // Email
   email: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -40,19 +40,19 @@ export const config = {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || ''
   },
-  
+
   // Rate Limiting
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-    maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100')
+    maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000') // Increased for development
   },
-  
+
   // CORS
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true
   },
-  
+
   // File Upload
   upload: {
     maxFileSize: 10 * 1024 * 1024, // 10MB
@@ -66,7 +66,7 @@ export const config = {
       'image/jpg'
     ]
   },
-  
+
   // Plan Limits
   planLimits: {
     basic: 5,

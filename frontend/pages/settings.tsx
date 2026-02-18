@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
 
 export default function Settings() {
     const { user, updateProfile, changePassword } = useAuth();
@@ -285,62 +287,74 @@ export default function Settings() {
         { id: 'integrations', label: 'Integrations', icon: 'integration_instructions' },
     ];
 
+    const [mounted, setMounted] = useState(false);
+    React.useEffect(() => { setMounted(true); }, []);
+
+    if (!mounted) return null;
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+    };
+
     return (
         <ProtectedRoute>
-            <div className="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col">
-                {/* Navbar / Top Header */}
-                <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-16">
-                            <Link href="/dashboard" className="flex items-center gap-3">
-                                <div className="bg-primary/10 p-1.5 rounded-lg">
-                                    <span className="material-icons-round text-primary text-2xl">gavel</span>
-                                </div>
-                                <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">LawCase<span className="text-primary">AI</span></span>
-                            </Link>
-                            <div className="flex items-center gap-4">
-                                <Link href="/dashboard" className="inline-flex justify-center items-center px-4 py-2 border border-slate-200 dark:border-slate-700 text-sm font-semibold rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md gap-2.5 group">
-                                    <span className="material-icons-round text-[20px] text-slate-500 group-hover:text-primary transition-colors">dashboard</span>
-                                    Back to Dashboard
-                                </Link>
-                            </div>
+            <DashboardLayout>
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="max-w-7xl mx-auto space-y-12 relative z-10"
+                >
+                    <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div>
+                            <h1 className="text-4xl font-black text-white tracking-tight font-display mb-2">System Configuration</h1>
+                            <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em]">Neural Interface • Security Protocols • Billing Units</p>
                         </div>
-                    </div>
-                </header>
+                    </motion.div>
 
-                <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="flex flex-col lg:flex-row gap-12">
                         {/* Sidebar Navigation */}
                         <aside className="w-full lg:w-72 flex-shrink-0">
-                            <nav className="space-y-1">
-                                {tabs.map(tab => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
-                                            ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-white'
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'
-                                            }`}
-                                    >
-                                        <span className={`material-icons-round mr-3 text-[20px] ${activeTab === tab.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'
-                                            }`}>{tab.icon}</span>
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </nav>
-
-                            <div className="mt-8 p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <div className="flex items-start gap-3">
-                                    <span className="material-icons-round text-primary mt-0.5">headset_mic</span>
-                                    <div>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">Need help?</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Contact our priority support team for billing inquiries.</p>
+                            <div className="glass-dark border border-white/10 rounded-[32px] p-4 sticky top-6 overflow-hidden">
+                                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                                <nav className="space-y-1 relative z-10">
+                                    {tabs.map(tab => (
                                         <button
-                                            onClick={() => setIsSupportModalOpen(true)}
-                                            className="text-xs font-semibold text-primary hover:text-primary-hover mt-2 inline-block text-left"
+                                            key={tab.id}
+                                            onClick={() => setActiveTab(tab.id)}
+                                            className={`w-full group flex items-center px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all ${activeTab === tab.id
+                                                ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]'
+                                                : 'text-slate-500 hover:text-white hover:bg-white/5'
+                                                }`}
                                         >
-                                            Contact Support →
+                                            <span className={`material-icons-round mr-4 text-xl ${activeTab === tab.id ? 'text-white' : 'text-slate-600 group-hover:text-primary'
+                                                }`}>{tab.icon}</span>
+                                            {tab.label}
                                         </button>
+                                    ))}
+                                </nav>
+
+                                <div className="mt-8 p-6 glass border border-white/10 rounded-2xl relative z-10">
+                                    <div className="flex items-start gap-4">
+                                        <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                                            <SettingsIcon size={16} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black text-white uppercase tracking-wider">Priority Auth</p>
+                                            <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase leading-relaxed">Direct uplink to security specialists.</p>
+                                            <button
+                                                onClick={() => setIsSupportModalOpen(true)}
+                                                className="text-[10px] font-black text-primary hover:text-white transition-colors mt-3 uppercase tracking-widest"
+                                            >
+                                                Initialize Support →
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -349,174 +363,187 @@ export default function Settings() {
                         {/* Main Content Area */}
                         <div className="flex-1 space-y-6">
                             {activeTab === 'profile' && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div>
-                                        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Profile Settings</h1>
-                                        <p className="text-slate-500 dark:text-slate-400 text-base mt-2">Manage your personal information and law firm profile.</p>
-                                    </div>
-
-                                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                                        <form onSubmit={handleProfileSubmit} className="p-8 space-y-8">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <div className="space-y-3">
-                                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 uppercase tracking-wider">
-                                                        <User className="w-4 h-4 text-primary" />
-                                                        Full Name
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={profileData.name}
-                                                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
-                                                        placeholder="John Doe"
-                                                        required
-                                                    />
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="space-y-8"
+                                >
+                                    <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
+                                        <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                                        <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                                            <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
+                                                <User className="text-primary" size={20} />
+                                                Identity Profile
+                                            </h2>
+                                        </div>
+                                        <form onSubmit={handleProfileSubmit} className="p-10 space-y-10 relative z-10">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Legal Name</label>
+                                                    <div className="relative group">
+                                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                        <input
+                                                            type="text"
+                                                            value={profileData.name}
+                                                            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                                            className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                                            placeholder="John Doe"
+                                                            required
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="space-y-3">
-                                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 uppercase tracking-wider">
-                                                        <Mail className="w-4 h-4 text-primary" />
-                                                        Email Address
-                                                    </label>
-                                                    <input
-                                                        type="email"
-                                                        value={profileData.email}
-                                                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
-                                                        placeholder="john@example.com"
-                                                        required
-                                                    />
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Secure Email</label>
+                                                    <div className="relative group">
+                                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                        <input
+                                                            type="email"
+                                                            value={profileData.email}
+                                                            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                                            className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                                            placeholder="john@example.com"
+                                                            required
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="space-y-3 md:col-span-2">
-                                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 uppercase tracking-wider">
-                                                        <Building className="w-4 h-4 text-primary" />
-                                                        Law Firm Name
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={profileData.lawFirm}
-                                                        onChange={(e) => setProfileData({ ...profileData, lawFirm: e.target.value })}
-                                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
-                                                        placeholder="Doe & Associates"
-                                                    />
+                                                <div className="space-y-4 md:col-span-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Organization / Law Firm</label>
+                                                    <div className="relative group">
+                                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                        <input
+                                                            type="text"
+                                                            value={profileData.lawFirm}
+                                                            onChange={(e) => setProfileData({ ...profileData, lawFirm: e.target.value })}
+                                                            className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                                            placeholder="Doe & Associates"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                                                <button
+                                            <div className="pt-8 flex justify-end">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
                                                     type="submit"
                                                     disabled={isSubmitting}
-                                                    className="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-base font-bold rounded-xl text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-lg shadow-primary/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed gap-2.5 h-12"
+                                                    className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
                                                 >
-                                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                                    Update Profile
-                                                </button>
+                                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={18} />}
+                                                    Commit Changes
+                                                </motion.button>
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+                                </motion.div>
                             )}
 
                             {activeTab === 'security' && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div>
-                                        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Security & Privacy</h1>
-                                        <p className="text-slate-500 dark:text-slate-400 text-base mt-2">Manage your password and secure your LawCaseAI account.</p>
-                                    </div>
-
-                                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                                        <div className="p-8 border-b border-slate-100 dark:border-slate-800">
-                                            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                <Shield className="w-6 h-6 text-primary" />
-                                                Password Modification
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="space-y-8"
+                                >
+                                    <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
+                                        <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                                        <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                                            <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
+                                                <Shield className="text-primary" size={20} />
+                                                Security Protocols
                                             </h2>
                                         </div>
-                                        <form onSubmit={handlePasswordSubmit} className="p-8 space-y-8">
-                                            <div className="space-y-3">
-                                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Current Password</label>
-                                                <div className="relative">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                        <Lock className="w-5 h-5 text-slate-400" />
+                                        <form onSubmit={handlePasswordSubmit} className="p-10 space-y-8 relative z-10">
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Current Password</label>
+                                                <div className="relative group">
+                                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500/20 to-primary/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                    <span className="absolute left-6 top-1/2 -translate-y-1/2">
+                                                        <Lock className="w-5 h-5 text-slate-600" />
                                                     </span>
                                                     <input
                                                         type={showPasswords.current ? 'text' : 'password'}
                                                         value={passwordData.currentPassword}
                                                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                                        className="w-full pl-12 pr-12 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
+                                                        className="relative w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-red-500/50 transition-all text-white font-bold"
                                                         placeholder="••••••••"
                                                         required
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
-                                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                                        className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                                                     >
-                                                        {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                        {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
                                                     </button>
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <div className="space-y-3">
-                                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">New Password</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                            <Lock className="w-5 h-5 text-slate-400" />
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">New Neural Key</label>
+                                                    <div className="relative group">
+                                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                        <span className="absolute left-6 top-1/2 -translate-y-1/2">
+                                                            <Lock className="w-5 h-5 text-slate-600" />
                                                         </span>
                                                         <input
                                                             type={showPasswords.new ? 'text' : 'password'}
                                                             value={passwordData.newPassword}
                                                             onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                            className="w-full pl-12 pr-12 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
+                                                            className="relative w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                                             placeholder="••••••••"
                                                             required
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
-                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                                            className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                                                         >
-                                                            {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                            {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <div className="space-y-3">
-                                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Confirm New Password</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                            <Lock className="w-5 h-5 text-slate-400" />
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Confirm New Key</label>
+                                                    <div className="relative group">
+                                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                                        <span className="absolute left-6 top-1/2 -translate-y-1/2">
+                                                            <Lock className="w-5 h-5 text-slate-600" />
                                                         </span>
                                                         <input
                                                             type={showPasswords.confirm ? 'text' : 'password'}
                                                             value={passwordData.confirmPassword}
                                                             onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                                            className="w-full pl-12 pr-12 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white text-base"
+                                                            className="relative w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                                             placeholder="••••••••"
                                                             required
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
-                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                                            className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                                                         >
-                                                            {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                            {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                                                <button
+                                            <div className="pt-8 flex justify-end">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
                                                     type="submit"
                                                     disabled={isSubmitting}
-                                                    className="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-base font-bold rounded-xl text-white bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-slate-200 shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed gap-2.5 h-12"
+                                                    className="inline-flex items-center justify-center px-10 py-4 bg-white text-black text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-white/10 hover:shadow-white/20 transition-all disabled:opacity-50 gap-3"
                                                 >
-                                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
+                                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock size={18} />}
                                                     Update Security
-                                                </button>
+                                                </motion.button>
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+                                </motion.div>
                             )}
 
                             {activeTab === 'billing' && (
@@ -526,193 +553,202 @@ export default function Settings() {
                                         <p className="text-slate-500 dark:text-slate-400 text-base mt-2">Manage your current plan, view invoices, and update payment methods.</p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {/* Current Plan Card */}
-                                        <div className="md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative">
-                                            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
-                                            <div className="p-6">
-                                                <div className="flex justify-between items-start mb-6">
-                                                    <div>
-                                                        <div className="flex items-center gap-3 mb-1">
-                                                            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                                                                {billingInfo?.plan?.charAt(0).toUpperCase() + billingInfo?.plan?.slice(1) || 'Loading...'} Plan
-                                                            </h2>
-                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
-                                                                Active
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-slate-500 dark:text-slate-400 text-sm">
-                                                            {billingInfo?.plan === 'basic' ? 'Basic plan for individual lawyers.' : 'Advanced plan for growing law firms.'}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                            {billingInfo?.plan === 'basic' ? '$0' : '$149'}
-                                                            <span className="text-sm text-slate-500 font-medium">/mo</span>
-                                                        </p>
-                                                        <p className="text-xs text-slate-400 mt-1">Billed monthly</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
-                                                    <div>
-                                                        <div className="flex justify-between items-end mb-2">
-                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Case Analysis Limit</span>
-                                                            <span className="text-xs font-semibold text-primary">
-                                                                {billingInfo?.currentCases || 0} / {billingInfo?.planLimit || 0} Used
-                                                            </span>
-                                                        </div>
-                                                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                                                            <div
-                                                                className="bg-primary h-2.5 rounded-full transition-all duration-500"
-                                                                style={{ width: `${billingInfo?.planUsagePercentage || 0}%` }}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex justify-between items-end mb-2">
-                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Remaining Cases</span>
-                                                            <span className="text-xs font-semibold text-slate-500">
-                                                                {billingInfo?.remainingCases || 0} Cases left
-                                                            </span>
-                                                        </div>
-                                                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                                                            <div
-                                                                className="bg-slate-400 dark:bg-slate-600 h-2.5 rounded-full transition-all duration-500"
-                                                                style={{ width: `${100 - (billingInfo?.planUsagePercentage || 0)}%` }}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-wrap gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-                                                    <button
-                                                        onClick={handleUpgradePlan}
-                                                        disabled={isUpgrading || billingInfo?.plan === 'professional'}
-                                                        className="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-sm transition-colors h-10 px-8 disabled:opacity-70"
-                                                    >
-                                                        {isUpgrading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                                        {billingInfo?.plan === 'professional' ? 'Current Plan' : 'Upgrade Plan'}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="md:col-span-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col h-full">
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Payment Methods</h3>
-                                            <div className="space-y-4 flex-1">
-                                                {billingInfo?.paymentMethods?.map((pm: any) => (
-                                                    <div key={pm.id} className={`flex items-center gap-4 p-3 border rounded-lg transition-all ${billingInfo.defaultPaymentMethodId === pm.id ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50'}`}>
-                                                        <div className="bg-white dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600 h-10 w-14 flex items-center justify-center text-[10px] font-bold text-blue-900 italic leading-none">
-                                                            {pm.brand?.toUpperCase()}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="text-sm font-bold text-slate-800 dark:text-white truncate">•••• {pm.last4}</p>
-                                                                {billingInfo.defaultPaymentMethodId === pm.id && (
-                                                                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">DEFAULT</span>
-                                                                )}
+                                    {activeTab === 'billing' && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="space-y-10"
+                                        >
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                {/* Current Plan Card */}
+                                                <div className="md:col-span-2 glass-dark border border-white/10 rounded-[32px] overflow-hidden relative group">
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+                                                    <div className="p-10 relative z-10">
+                                                        <div className="flex justify-between items-start mb-10">
+                                                            <div>
+                                                                <div className="flex items-center gap-4 mb-2">
+                                                                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
+                                                                        {billingInfo?.plan || 'Loading...'} System
+                                                                    </h2>
+                                                                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/30">
+                                                                        Active
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-slate-500 font-bold text-xs uppercase tracking-wider">
+                                                                    {billingInfo?.plan === 'basic' ? 'Standard Legal Processing' : 'Advanced Neural Jurisprudence'}
+                                                                </p>
                                                             </div>
-                                                            <p className="text-xs text-slate-500">Exp {pm.expiryMonth}/{pm.expiryYear}</p>
+                                                            <div className="text-right">
+                                                                <p className="text-4xl font-black text-white tracking-tighter">
+                                                                    ${billingInfo?.plan === 'basic' ? '0' : '149'}
+                                                                    <span className="text-sm text-slate-500 font-bold">/mo</span>
+                                                                </p>
+                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">SaaS Protocol</p>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1">
-                                                            {billingInfo.defaultPaymentMethodId !== pm.id && (
-                                                                <button
-                                                                    onClick={() => handleSetDefaultCard(pm.id)}
-                                                                    className="p-1.5 text-slate-400 hover:text-primary transition-colors"
-                                                                    title="Set as default"
-                                                                >
-                                                                    <span className="material-icons-round text-lg">star_border</span>
-                                                                </button>
-                                                            )}
-                                                            <button
-                                                                onClick={() => handleRemoveCard(pm.id)}
-                                                                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
-                                                                title="Remove card"
+
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-10">
+                                                            <div className="space-y-4">
+                                                                <div className="flex justify-between items-end">
+                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Efficiency Load</span>
+                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                                                        {billingInfo?.currentCases || 0} / {billingInfo?.planLimit || 0}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                                                                    <motion.div
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${billingInfo?.planUsagePercentage || 0}%` }}
+                                                                        className="bg-primary h-full rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-4">
+                                                                <div className="flex justify-between items-end">
+                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Surplus</span>
+                                                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                                                                        {billingInfo?.remainingCases || 0} Units
+                                                                    </span>
+                                                                </div>
+                                                                <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                                                                    <motion.div
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${100 - (billingInfo?.planUsagePercentage || 0)}%` }}
+                                                                        className="bg-slate-600 h-full rounded-full"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="pt-10 border-t border-white/5">
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.02 }}
+                                                                whileTap={{ scale: 0.98 }}
+                                                                onClick={handleUpgradePlan}
+                                                                disabled={isUpgrading || billingInfo?.plan === 'professional'}
+                                                                className="px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50"
                                                             >
-                                                                <span className="material-icons-round text-lg">delete_outline</span>
-                                                            </button>
+                                                                {isUpgrading && <Loader2 className="w-4 h-4 animate-spin mr-3 inline" />}
+                                                                {billingInfo?.plan === 'professional' ? 'Max Tier Active' : 'Enhance Protocol'}
+                                                            </motion.button>
                                                         </div>
                                                     </div>
-                                                ))}
-                                                {(!billingInfo?.paymentMethods || billingInfo.paymentMethods.length === 0) && (
-                                                    <div className="p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                                                        <span className="material-icons-round text-slate-300 dark:text-slate-700 text-4xl mb-2">credit_card_off</span>
-                                                        <p className="text-sm text-slate-500">No payment methods</p>
+                                                </div>
+
+                                                <div className="glass-dark border border-white/10 rounded-[32px] p-8 flex flex-col h-full relative overflow-hidden">
+                                                    <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                                                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-8 relative z-10">Vault Keys</h3>
+                                                    <div className="space-y-6 flex-1 relative z-10">
+                                                        {billingInfo?.paymentMethods?.map((pm: any) => (
+                                                            <motion.div
+                                                                layout
+                                                                key={pm.id}
+                                                                className={`flex items-center gap-4 p-5 rounded-2xl border transition-all ${billingInfo.defaultPaymentMethodId === pm.id ? 'border-primary/50 bg-primary/5 shadow-lg shadow-primary/10' : 'border-white/5 bg-black/40'}`}
+                                                            >
+                                                                <div className="bg-white/10 p-3 rounded-xl border border-white/10 h-10 w-14 flex items-center justify-center">
+                                                                    <CreditCard size={20} className="text-slate-400" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className="text-xs font-black text-white tracking-widest truncate">•••• {pm.last4}</p>
+                                                                        {billingInfo.defaultPaymentMethodId === pm.id && (
+                                                                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_rgba(37,99,235,1)]" />
+                                                                        )}
+                                                                    </div>
+                                                                    <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">Exp {pm.expiryMonth}/{pm.expiryYear}</p>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    {billingInfo.defaultPaymentMethodId !== pm.id && (
+                                                                        <button
+                                                                            onClick={() => handleSetDefaultCard(pm.id)}
+                                                                            className="p-2 text-slate-600 hover:text-primary transition-colors"
+                                                                        >
+                                                                            <Sparkles size={16} />
+                                                                        </button>
+                                                                    )}
+                                                                    <button
+                                                                        onClick={() => handleRemoveCard(pm.id)}
+                                                                        className="p-2 text-slate-600 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <span className="material-icons-round text-lg">delete_outline</span>
+                                                                    </button>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
                                                     </div>
-                                                )}
+                                                    <div className="mt-8 pt-8 border-t border-white/5 relative z-10">
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                            onClick={() => {
+                                                                setPaymentFormData({ brand: 'Visa', last4: '', expiryMonth: 12, expiryYear: 2025 });
+                                                                setIsPaymentModalOpen(true);
+                                                            }}
+                                                            className="w-full flex items-center justify-center px-6 py-4 bg-white/5 border border-white/5 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all gap-3"
+                                                        >
+                                                            <CreditCard size={18} />
+                                                            Initialize New Key
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-                                                <button
-                                                    onClick={() => {
-                                                        setPaymentFormData({
-                                                            brand: 'Visa',
-                                                            last4: '',
-                                                            expiryMonth: 12,
-                                                            expiryYear: 2025
-                                                        });
-                                                        setIsPaymentModalOpen(true);
-                                                    }}
-                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors gap-2"
-                                                >
-                                                    <span className="material-icons-round text-lg">add_card</span>
-                                                    Add New Card
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        </motion.div>
+                                    )}
 
                                     {/* Purchase History Section */}
-                                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                                <span className="material-icons-round text-primary">history</span>
-                                                Purchase History
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="glass-dark border border-white/10 rounded-[32px] overflow-hidden"
+                                    >
+                                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                            <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                                <Layers className="text-primary" size={20} />
+                                                Archived Transactions
                                             </h3>
                                         </div>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left">
                                                 <thead>
-                                                    <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
-                                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Plan</th>
-                                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Amount</th>
-                                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
-                                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Invoice</th>
+                                                    <tr className="bg-black/20 border-b border-white/5">
+                                                        <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Timestamp</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Protocol</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Quantum</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">State</th>
+                                                        <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] text-right">Data</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                <tbody className="divide-y divide-white/5">
                                                     {isLoadingHistory ? (
                                                         <tr>
-                                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                                                                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                                                                Loading history...
+                                                            <td colSpan={5} className="px-8 py-20 text-center">
+                                                                <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary opacity-50" />
                                                             </td>
                                                         </tr>
                                                     ) : purchaseHistory.length > 0 ? (
                                                         purchaseHistory.map((item) => (
-                                                            <tr key={item._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                                                <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                            <tr key={item._id} className="hover:bg-white/[0.02] transition-colors group">
+                                                                <td className="px-8 py-6 text-xs font-bold text-slate-400">
                                                                     {formatDate(item.date)}
                                                                 </td>
-                                                                <td className="px-6 py-4">
-                                                                    <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">
+                                                                <td className="px-8 py-6">
+                                                                    <span className="text-xs font-black text-white uppercase tracking-widest">
                                                                         {item.plan}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-6 py-4">
-                                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                                                                <td className="px-8 py-6">
+                                                                    <span className="text-xs font-black text-primary">
                                                                         ${item.amount}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-6 py-4">
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                                                <td className="px-8 py-6">
+                                                                    <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-500/20">
                                                                         {item.status}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right">
-                                                                    <a href={item.invoiceUrl} className="text-primary hover:text-primary-hover text-sm font-bold flex items-center justify-end gap-1">
-                                                                        <span className="material-icons-round text-sm">download</span>
+                                                                <td className="px-8 py-6 text-right">
+                                                                    <a href={item.invoiceUrl} className="inline-flex items-center gap-2 text-slate-500 hover:text-white text-xs font-black uppercase tracking-widest transition-colors">
+                                                                        <Share2 size={12} />
                                                                         PDF
                                                                     </a>
                                                                 </td>
@@ -720,15 +756,15 @@ export default function Settings() {
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                                                                No purchases found.
+                                                            <td colSpan={5} className="px-8 py-20 text-center text-slate-600 font-bold uppercase text-[10px] tracking-widest">
+                                                                No neural data points found.
                                                             </td>
                                                         </tr>
                                                     )}
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 </div>
                             )}
 
@@ -767,185 +803,192 @@ export default function Settings() {
                             )}
                         </div>
                     </div>
-                </main>
-
-                {/* Support Modal */}
+                </motion.div>
+            </DashboardLayout>
+            <AnimatePresence>
                 {isSupportModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-                        <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform animate-scale-in">
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span className="material-icons-round text-primary">headset_mic</span>
-                                    Contact Support
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsSupportModalOpen(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 30, scale: 0.95 }}
+                            className="relative w-full max-w-xl glass-dark rounded-[40px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                            <div className="p-8 border-b border-white/10 flex justify-between items-center relative z-10">
+                                <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <Sparkles className="text-primary" />
+                                    Initialize Support
                                 </h3>
-                                <button
-                                    onClick={() => setIsSupportModalOpen(false)}
-                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                                >
+                                <button onClick={() => setIsSupportModalOpen(false)} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
                                     <span className="material-icons-round">close</span>
                                 </button>
                             </div>
-                            <form onSubmit={handleSupportSubmit} className="p-6 space-y-6">
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => setSupportData({ ...supportData, type: 'error' })}
-                                            className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${supportData.type === 'error' ? 'border-red-500 bg-red-50/50 dark:bg-red-900/20' : 'border-slate-100 dark:border-slate-800'}`}
-                                        >
-                                            <span className={`material-icons-round ${supportData.type === 'error' ? 'text-red-500' : 'text-slate-400'}`}>report_problem</span>
-                                            <span className="text-sm font-bold">Report Error</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSupportData({ ...supportData, type: 'implementation' })}
-                                            className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${supportData.type === 'implementation' ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800'}`}
-                                        >
-                                            <span className={`material-icons-round ${supportData.type === 'implementation' ? 'text-primary' : 'text-slate-400'}`}>rocket_launch</span>
-                                            <span className="text-sm font-bold">New Implementation</span>
-                                        </button>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Subject</label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={supportData.subject}
-                                            onChange={(e) => setSupportData({ ...supportData, subject: e.target.value })}
-                                            placeholder={supportData.type === 'error' ? "Describe the issue briefly..." : "What feature would you like to see?"}
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Description</label>
-                                        <textarea
-                                            required
-                                            rows={4}
-                                            value={supportData.description}
-                                            onChange={(e) => setSupportData({ ...supportData, description: e.target.value })}
-                                            placeholder="Please provide as much detail as possible..."
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all resize-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3">
+                            <form onSubmit={handleSupportSubmit} className="p-10 space-y-8 relative z-10">
+                                <div className="grid grid-cols-2 gap-6">
                                     <button
                                         type="button"
-                                        onClick={() => setIsSupportModalOpen(false)}
-                                        className="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                        onClick={() => setSupportData({ ...supportData, type: 'error' })}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'error' ? 'border-red-500/50 bg-red-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                     >
-                                        Cancel
+                                        <span className={`material-icons-round text-2xl ${supportData.type === 'error' ? 'text-red-500' : 'text-slate-600'}`}>report_problem</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">System Error</span>
                                     </button>
                                     <button
+                                        type="button"
+                                        onClick={() => setSupportData({ ...supportData, type: 'implementation' })}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'implementation' ? 'border-primary/50 bg-primary/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
+                                    >
+                                        <span className={`material-icons-round text-2xl ${supportData.type === 'implementation' ? 'text-primary' : 'text-slate-600'}`}>rocket_launch</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Feature Uplink</span>
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject Header</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={supportData.subject}
+                                        onChange={(e) => setSupportData({ ...supportData, subject: e.target.value })}
+                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                        placeholder="Transmission summary..."
+                                    />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Detailed Log</label>
+                                    <textarea
+                                        required
+                                        rows={4}
+                                        value={supportData.description}
+                                        onChange={(e) => setSupportData({ ...supportData, description: e.target.value })}
+                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold resize-none"
+                                        placeholder="Provide technical specifics..."
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-5 pt-4">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                         type="submit"
                                         disabled={isSubmittingSupport}
-                                        className="px-8 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-70 flex items-center gap-2"
+                                        className="px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-3"
                                     >
-                                        {isSubmittingSupport ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="material-icons-round text-sm">send</span>}
-                                        Submit Request
-                                    </button>
+                                        {isSubmittingSupport ? <Loader2 size={18} className="animate-spin" /> : <span className="material-icons-round text-base">send</span>}
+                                        Broadcast Stream
+                                    </motion.button>
                                 </div>
                             </form>
-                        </div>
+                        </motion.div>
                     </div>
                 )}
+            </AnimatePresence>
 
-                {/* Payment Modal */}
+            <AnimatePresence>
                 {isPaymentModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-                        <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform animate-scale-in">
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span className="material-icons-round text-primary">credit_card</span>
-                                    Add Payment Method
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsPaymentModalOpen(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 30, scale: 0.95 }}
+                            className="relative w-full max-w-xl glass-dark rounded-[40px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                            <div className="p-8 border-b border-white/10 flex justify-between items-center relative z-10">
+                                <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <CreditCard className="text-primary" />
+                                    Initialize Key
                                 </h3>
-                                <button
-                                    onClick={() => setIsPaymentModalOpen(false)}
-                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                                >
+                                <button onClick={() => setIsPaymentModalOpen(false)} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
                                     <span className="material-icons-round">close</span>
                                 </button>
                             </div>
-                            <form onSubmit={handleAddPaymentMethod} className="p-6 space-y-6">
+                            <form onSubmit={handleAddPaymentMethod} className="p-10 space-y-8 relative z-10">
                                 <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Card Brand</label>
-                                        <select
-                                            value={paymentFormData.brand}
-                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, brand: e.target.value })}
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all"
-                                        >
-                                            <option value="Visa">Visa</option>
-                                            <option value="Mastercard">Mastercard</option>
-                                            <option value="American Express">American Express</option>
-                                        </select>
-                                    </div>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Card Protocol</label>
+                                    <select
+                                        value={paymentFormData.brand}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, brand: e.target.value })}
+                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold appearance-none"
+                                    >
+                                        <option value="Visa">Visa Protocol</option>
+                                        <option value="Mastercard">Mastercard Protocol</option>
+                                        <option value="American Express">Amex Protocol</option>
+                                    </select>
+                                </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Last 4 Digits</label>
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Final 4 Identifiers</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        maxLength={4}
+                                        value={paymentFormData.last4}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, last4: e.target.value.replace(/\D/g, '') })}
+                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                        placeholder="4242"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Expiry Index (M)</label>
                                         <input
-                                            type="text"
+                                            type="number"
                                             required
-                                            maxLength={4}
-                                            value={paymentFormData.last4}
-                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, last4: e.target.value.replace(/\D/g, '') })}
-                                            placeholder="4242"
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all"
+                                            min={1}
+                                            max={12}
+                                            value={paymentFormData.expiryMonth}
+                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryMonth: parseInt(e.target.value) })}
+                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                         />
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Exp Month</label>
-                                            <input
-                                                type="number"
-                                                required
-                                                min={1}
-                                                max={12}
-                                                value={paymentFormData.expiryMonth}
-                                                onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryMonth: parseInt(e.target.value) })}
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Exp Year</label>
-                                            <input
-                                                type="number"
-                                                required
-                                                min={new Date().getFullYear()}
-                                                value={paymentFormData.expiryYear}
-                                                onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryYear: parseInt(e.target.value) })}
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-primary/10 transition-all"
-                                            />
-                                        </div>
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Expiry Index (Y)</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min={new Date().getFullYear()}
+                                            value={paymentFormData.expiryYear}
+                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryYear: parseInt(e.target.value) })}
+                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                        />
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsPaymentModalOpen(false)}
-                                        className="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
+                                <div className="flex justify-end gap-5 pt-4">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                         type="submit"
                                         disabled={isUpdatingPayment}
-                                        className="px-8 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-70 flex items-center gap-2"
+                                        className="px-10 py-4 bg-white text-black text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-white/10 transition-all disabled:opacity-50 flex items-center gap-3"
                                     >
-                                        {isUpdatingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="material-icons-round text-sm">add</span>}
-                                        Add Card
-                                    </button>
+                                        {isUpdatingPayment ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                                        Commit Key
+                                    </motion.button>
                                 </div>
                             </form>
-                        </div>
+                        </motion.div>
                     </div>
                 )}
-            </div>
+            </AnimatePresence>
         </ProtectedRoute>
     );
 }

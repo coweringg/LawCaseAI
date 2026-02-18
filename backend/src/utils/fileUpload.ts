@@ -1,16 +1,17 @@
-import AWS from 'aws-sdk'
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import multer from 'multer'
 import { Request } from 'express'
 import { config } from '@/config'
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '@/types'
 
 // Configure AWS S3 (Cloudflare R2 compatible)
-const s3 = new AWS.S3({
-  accessKeyId: config.r2.accessKeyId,
-  secretAccessKey: config.r2.secretAccessKey,
-  endpoint: config.r2.endpoint,
+const s3Client = new S3Client({
   region: 'auto',
-  signatureVersion: 'v4'
+  endpoint: config.r2.endpoint,
+  credentials: {
+    accessKeyId: config.r2.accessKeyId,
+    secretAccessKey: config.r2.secretAccessKey,
+  },
 })
 
 // Configure multer for file uploads
@@ -40,7 +41,7 @@ export const uploadToR2 = async (file: Express.Multer.File, key: string): Promis
   }
 
   try {
-    await s3.upload(params).promise()
+    await s3Client.send(new PutObjectCommand(params))
     return `${config.r2.publicUrl}/${key}`
   } catch (error) {
     throw new Error(`Failed to upload file to R2: ${error}`)
@@ -54,7 +55,7 @@ export const deleteFromR2 = async (key: string): Promise<void> => {
   }
 
   try {
-    await s3.deleteObject(params).promise()
+    await s3Client.send(new DeleteObjectCommand(params))
   } catch (error) {
     throw new Error(`Failed to delete file from R2: ${error}`)
   }

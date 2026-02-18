@@ -46,6 +46,14 @@ export enum EventStatus {
   CLOSED = 'closed'
 }
 
+export interface IPaymentMethod {
+  id: string
+  brand: string
+  last4: string
+  expiryMonth: number
+  expiryYear: number
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId
   name: string
@@ -67,6 +75,8 @@ export interface IUser extends Document {
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
+  paymentMethods: IPaymentMethod[]
+  defaultPaymentMethodId?: string
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
 }

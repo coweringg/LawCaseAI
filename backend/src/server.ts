@@ -115,6 +115,7 @@ app.use('/api/chat', chatRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventRoutes)
+app.use('/api/user', userRoutes)
 app.use('/api/payments', paymentRoutes)
 
 // 404 handler

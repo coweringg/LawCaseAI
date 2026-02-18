@@ -4,10 +4,14 @@
 
 @layer base {
   body {
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased;
   }
   
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  }
+
   /* Custom scrollbar for better aesthetics */
   ::-webkit-scrollbar {
       width: 8px;
@@ -22,6 +26,22 @@
   .dark ::-webkit-scrollbar-thumb {
       background-color: #334155;
   }
+}
+
+.crystallography-pattern {
+  background-image: 
+    linear-gradient(30deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
+    linear-gradient(150deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
+    linear-gradient(30deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
+    linear-gradient(150deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
+    linear-gradient(60deg, #0a44b877 25%, transparent 25.5%, transparent 75%, #0a44b877 75%, #0a44b877),
+    linear-gradient(60deg, #0a44b877 25%, transparent 25.5%, transparent 75%, #0a44b877 75%, #0a44b877);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
+.glass {
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/50;
 }
 
 @layer components {

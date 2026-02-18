@@ -130,7 +130,8 @@ module.exports = {
         'primary-hover': '#083a9e',
       },
       fontFamily: {
-        sans: ['IBM Plex Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
         serif: ['IBM Plex Serif', 'Georgia', 'serif'],
         mono: ['IBM Plex Mono', 'Monaco', 'monospace'],
       },

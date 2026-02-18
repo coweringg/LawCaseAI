@@ -94,6 +94,16 @@ const userSchema = new Schema<IUser>({
   lastLogin: {
     type: Date,
     default: Date.now
+  },
+  paymentMethods: [{
+    id: { type: String, required: true },
+    brand: { type: String, required: true },
+    last4: { type: String, required: true },
+    expiryMonth: { type: Number, required: true },
+    expiryYear: { type: Number, required: true }
+  }],
+  defaultPaymentMethodId: {
+    type: String
   }
 }, {
   timestamps: true,

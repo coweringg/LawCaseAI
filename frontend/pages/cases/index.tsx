@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import api from '@/utils/api';
@@ -83,6 +84,9 @@ export default function MyCases() {
 
     return (
         <ProtectedRoute>
+            <Head>
+                <title>LawCaseAI - My Cases</title>
+            </Head>
             <DashboardLayout>
                 <motion.div
                     initial="hidden"

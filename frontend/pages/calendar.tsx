@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Head from 'next/head';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
@@ -198,6 +199,9 @@ export default function Calendar() {
 
     return (
         <ProtectedRoute>
+            <Head>
+                <title>LawCaseAI - Calendar</title>
+            </Head>
             <DashboardLayout>
                 <div className="flex bg-transparent h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative z-10">
                     {/* Sidebar */}

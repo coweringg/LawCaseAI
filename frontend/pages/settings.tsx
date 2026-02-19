@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
@@ -260,6 +261,9 @@ export default function Settings() {
 
     return (
         <ProtectedRoute>
+            <Head>
+                <title>LawCaseAI - Settings</title>
+            </Head>
             <DashboardLayout>
                 <motion.div
                     initial="hidden"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
@@ -57,6 +58,9 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
+      <Head>
+        <title>LawCaseAI - Dashboard</title>
+      </Head>
       <DashboardLayout>
         <motion.div
           initial="hidden"

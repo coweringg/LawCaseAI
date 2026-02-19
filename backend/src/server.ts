@@ -89,7 +89,10 @@ app.use('/api', limiter)
 app.use(compression())
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ 
+  limit: '10mb',
+  type: ['application/json', 'text/plain'] // Allows parsing even if the client sends text/plain
+}))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // NoSQL injection protection

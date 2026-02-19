@@ -40,13 +40,13 @@ export function Table<T extends Record<string, any>>({
 
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <table className="min-w-full divide-y divide-secondary-200">
-        <thead className="bg-secondary-50">
-          <tr>
+      <table className="min-w-full divide-y divide-white/5">
+        <thead>
+          <tr className="border-b border-white/5">
             {columns.map((column) => (
               <th
                 key={String(column.key)}
-                className={`px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider ${
+                className={`px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ${
                   column.className || ''
                 }`}
               >
@@ -55,13 +55,13 @@ export function Table<T extends Record<string, any>>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-secondary-200">
+        <tbody className="divide-y divide-white/5">
           {data.map((item, index) => (
-            <tr key={index} className="hover:bg-secondary-50">
+            <tr key={index} className="hover:bg-white/[0.02] transition-colors group">
               {columns.map((column) => (
                 <td
                   key={String(column.key)}
-                  className={`px-6 py-4 whitespace-nowrap text-sm text-secondary-900 ${
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-slate-300 group-hover:text-white transition-colors ${
                     column.className || ''
                   }`}
                 >

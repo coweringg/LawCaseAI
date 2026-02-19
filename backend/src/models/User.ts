@@ -92,8 +92,14 @@ const userSchema = new Schema<IUser>({
     default: Date.now
   },
   lastLogin: {
-    type: Date,
-    default: Date.now
+    type: Date
+  },
+  lastActivity: {
+    type: Date
+  },
+  tokenVersion: {
+    type: Number,
+    default: 0
   },
   paymentMethods: [{
     id: { type: String, required: true },
@@ -149,11 +155,13 @@ userSchema.methods.generateAuthToken = function (): string {
     email: string;
     role: UserRole;
     plan: UserPlan;
+    version: number;
   } = {
     userId: this._id.toString(),
     email: this.email,
     role: this.role,
-    plan: this.plan
+    plan: this.plan,
+    version: this.tokenVersion || 0
   }
 
   const secret = config.jwt.secret

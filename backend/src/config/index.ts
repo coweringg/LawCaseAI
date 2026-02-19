@@ -27,6 +27,7 @@ export const config = {
     secret: jwtSecret || "dev-only-secret-do-not-use-in-production",
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
+  adminCreationKey: process.env.ADMIN_CREATION_KEY || "Uwu-Admin-Secret-2026",
 
   // Cloudflare R2
   r2: {

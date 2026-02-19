@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { User, Transaction } from '../models'
 import { IApiResponse, IAuthRequest, UserPlan } from '../types'
+import { logAction } from '../utils/auditLogger'
 // Plan pricing lookup
 const PLAN_PRICES: Record<string, number> = {
   [UserPlan.BASIC]: 0,
@@ -88,8 +89,23 @@ export const confirmPayment = async (req: IAuthRequest, res: Response): Promise<
             return
         }
 
+        const beforePlan = user.plan
         user.plan = planId as UserPlan
         await user.save() // Triggers pre('save') → updates planLimit correctly
+
+        // Log the action
+        await logAction({
+            adminId: user._id,
+            adminName: user.name,
+            targetId: user._id,
+            targetName: user.name,
+            targetType: 'user',
+            category: 'platform',
+            action: 'PLAN_CHANGE',
+            before: { plan: beforePlan, email: user.email },
+            after: { plan: user.plan, email: user.email },
+            description: `User ${user.email} upgraded plan to ${planId}`
+        })
 
         // Record the transaction
         await Transaction.create({

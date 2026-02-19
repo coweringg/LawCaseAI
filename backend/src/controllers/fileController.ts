@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { Case, CaseFile } from '../models'
 import { IApiResponse, IAuthRequest } from '../types'
 import { uploadToR2, generateFileKey } from '../utils/fileUpload'
+import { logAction } from '../utils/auditLogger'
 
 export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
@@ -40,6 +41,19 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         // Update case file count
         lawyerCase.fileCount += 1
         await lawyerCase.save()
+
+        // Log the action
+        await logAction({
+            adminId: userId,
+            adminName: lawyerCase.name, // We use the case name or user name but mostly name for logs
+            targetId: newCaseFile._id,
+            targetName: newCaseFile.name,
+            targetType: 'case', // Files are associated with cases
+            category: 'platform',
+            action: 'FILE_UPLOADED',
+            after: { fileName: file.originalname, caseName: lawyerCase.name },
+            description: `User uploaded file "${file.originalname}" to case "${lawyerCase.name}"`
+        })
 
         res.status(201).json({
             success: true,

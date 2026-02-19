@@ -38,7 +38,8 @@ export enum EventPriority {
 export enum UserStatus {
   ACTIVE = 'active',
   DISABLED = 'disabled',
-  SUSPENDED = 'suspended'
+  SUSPENDED = 'suspended',
+  DELETED = 'deleted'
 }
 
 export enum EventStatus {
@@ -75,6 +76,8 @@ export interface IUser extends Document {
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
+  lastActivity: Date
+  tokenVersion: number
   paymentMethods: IPaymentMethod[]
   defaultPaymentMethodId?: string
   comparePassword(candidatePassword: string): Promise<boolean>
@@ -91,6 +94,7 @@ export interface ICase extends Document {
   practiceArea?: string
   createdAt: Date
   updatedAt: Date
+  closedAt?: Date
   fileCount: number
 }
 
@@ -156,6 +160,7 @@ export interface IJWTPayload {
   email: string
   role: string
   plan: string
+  version: number
 }
 
 export interface IApiResponse<T = unknown> {

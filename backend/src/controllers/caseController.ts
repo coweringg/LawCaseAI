@@ -1,6 +1,9 @@
 import { Response } from 'express'
+
+
 import { Case, User } from '../models'
 import { IApiResponse, CaseStatus, IAuthRequest } from '../types'
+import { logAction } from '../utils/auditLogger'
 
 export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
@@ -40,6 +43,19 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
 
     // Atomic increment of user's current case count
     await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: newCase._id,
+      targetName: newCase.name,
+      targetType: 'case',
+      category: 'platform',
+      action: 'CASE_CREATED',
+      after: { name: newCase.name, client: newCase.client, status: newCase.status },
+      description: `User ${user.email} created a new case: ${newCase.name}`
+    })
 
     res.status(201).json({
       success: true,
@@ -172,15 +188,35 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
+    const currentCase = await Case.findOne({ _id: id, userId })
+    if (!currentCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+      return
+    }
+
     // Whitelist allowed fields to prevent NoSQL injection
     const { name, client, description, status, practiceArea } = req.body
     const allowedUpdates: Record<string, unknown> = {}
+    
+    const beforeState: any = { status: currentCase.status, email: user.email }
+    
     if (name !== undefined) allowedUpdates.name = name
     if (client !== undefined) allowedUpdates.client = client
     if (description !== undefined) allowedUpdates.description = description
     if (practiceArea !== undefined) allowedUpdates.practiceArea = practiceArea
     if (status !== undefined && Object.values(CaseStatus).includes(status)) {
       allowedUpdates.status = status
+      if (status === CaseStatus.CLOSED) {
+        allowedUpdates.closedAt = new Date()
+      } else if (status === CaseStatus.ACTIVE) {
+        allowedUpdates.closedAt = null
+      }
     }
 
     if (Object.keys(allowedUpdates).length === 0) {
@@ -197,6 +233,33 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
     if (!updatedCase) {
       res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
+    }
+
+    // Log the action if status changed
+    if (status && status !== currentCase.status) {
+      const isClosing = status === CaseStatus.CLOSED
+      const isArchiving = status === CaseStatus.ARCHIVED
+      
+      let actionType: any = 'CASE_STATUS_CHANGE'
+      if (isClosing) actionType = 'CASE_CLOSED'
+      if (isArchiving) actionType = 'CASE_STATUS_CHANGE' // Can add CASE_ARCHIVED later if needed
+      
+      const description = isClosing 
+        ? `User ${user.email} closed case: "${updatedCase.name}"`
+        : `User ${user.email} changed case "${updatedCase.name}" status from ${currentCase.status} to ${updatedCase.status}`
+
+      await logAction({
+        adminId: user._id,
+        adminName: user.name,
+        targetId: updatedCase._id,
+        targetName: updatedCase.name,
+        targetType: 'case',
+        category: 'platform',
+        action: actionType,
+        before: beforeState,
+        after: { status: updatedCase.status, email: user.email },
+        description
+      })
     }
 
     res.status(200).json({
@@ -220,6 +283,12 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+      return
+    }
+
     const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
 
     if (!deletedCase) {
@@ -232,6 +301,19 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       { _id: userId, currentCases: { $gt: 0 } },
       { $inc: { currentCases: -1 } }
     )
+
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: deletedCase._id,
+      targetName: deletedCase.name,
+      targetType: 'case',
+      category: 'platform',
+      action: 'CASE_DELETED',
+      before: { email: user.email, name: deletedCase.name },
+      description: `User ${user.email} deleted case: ${deletedCase.name}`
+    })
 
     res.status(200).json({
       success: true,

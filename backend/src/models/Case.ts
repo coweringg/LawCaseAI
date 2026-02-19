@@ -38,6 +38,9 @@ const caseSchema = new Schema<ICase>({
     type: String,
     trim: true,
     maxlength: [100, 'Practice area cannot exceed 100 characters']
+  },
+  closedAt: {
+    type: Date
   }
 }, {
   timestamps: true,

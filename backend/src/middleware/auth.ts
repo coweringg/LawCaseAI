@@ -39,6 +39,20 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
       return
     }
 
+    // Check token version (for remote logout)
+    if (decoded.version !== undefined && decoded.version !== user.tokenVersion) {
+      res.status(401).json({
+        success: false,
+        message: 'Session invalidated. Please log in again.'
+      })
+      return
+    }
+
+    // Update last activity (heartbeat) - Don't await to keep it fast
+    User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err => 
+      console.error('[AUTH] Failed to update lastActivity:', err)
+    )
+
     req.user = user
     next()
   } catch (error) {

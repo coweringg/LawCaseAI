@@ -3,11 +3,13 @@ import { body } from 'express-validator'
 import rateLimit from 'express-rate-limit'
 import {
   register,
+  registerAdmin,
   login,
   refreshToken,
   logout
 } from '../controllers/authController'
-import { handleValidationErrors } from '../middleware/validation'
+import { authenticate } from '../middleware/auth'
+import { handleValidationErrors, validateRequest } from '../middleware/validation'
 
 const router = Router()
 
@@ -44,6 +46,16 @@ router.post('/register', authLimiter, [
   handleValidationErrors
 ], register)
 
+// Secure Admin Registration (Requires X-Admin-Key header)
+router.post('/register-admin', [
+  validateRequest,
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please provide a valid email address').normalizeEmail(),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  body('lawFirm').trim().notEmpty().withMessage('Law firm name is required'),
+  handleValidationErrors
+], registerAdmin)
+
 // Login validation
 router.post('/login', authLimiter, [
   body('email')
@@ -54,7 +66,7 @@ router.post('/login', authLimiter, [
   handleValidationErrors
 ], login)
 
-router.post('/refresh', refreshToken)
-router.post('/logout', logout)
+router.post('/refresh', authenticate, refreshToken)
+router.post('/logout', authenticate, logout)
 
 export default router

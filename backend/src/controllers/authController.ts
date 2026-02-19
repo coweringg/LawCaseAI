@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import { User } from '../models'
-import { IApiResponse, IUserRegistration, IUserLogin } from '../types'
+import { IApiResponse, IUserRegistration, IUserLogin, UserRole } from '../types'
+import config from '../config'
+import { logAction } from '../utils/auditLogger'
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -31,8 +33,18 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Generate token
     const token = user.generateAuthToken()
 
-    // Update last login
-    await User.updateLastLogin(user._id.toString())
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: 'platform',
+      action: 'CREATE',
+      after: { email: user.email, name: user.name, role: user.role, plan: user.plan },
+      description: `New user registration: ${user.email}`
+    })
 
     // Set HttpOnly cookie
     res.cookie('auth_token', token, {
@@ -85,9 +97,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Check if user is active
     if (user.status !== 'active') {
+      let message = 'Account is not active'
+      
+      if (user.status === 'disabled') {
+        message = 'Your account has been disabled. Please contact support for more information.'
+      } else if (user.status === 'deleted') {
+        message = 'Your account has been deleted. Please contact support for more information.'
+      }
+
       res.status(401).json({
         success: false,
-        message: 'Account is not active'
+        message
       } as IApiResponse)
       return
     }
@@ -105,8 +125,23 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // Generate token
     const token = user.generateAuthToken()
 
-    // Update last login
-    await User.updateLastLogin(user._id.toString())
+    // Update login timestamps
+    user.lastLogin = new Date()
+    user.lastActivity = new Date()
+    await user.save()
+
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: user.role === 'admin' ? 'admin' : 'platform',
+      action: 'LOGIN',
+      after: { lastLogin: new Date(), email: user.email },
+      description: user.role === 'admin' ? `Admin login: ${user.email}` : `User login: ${user.email}`
+    })
 
     // Set HttpOnly cookie
     res.cookie('auth_token', token, {
@@ -166,8 +201,12 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 
 export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
-    // In a real implementation, you might want to blacklist the token
-    // For now, we'll just return success
+    const user = (req as any).user
+    if (user) {
+      // Clear activity status immediately on logout
+      await User.findByIdAndUpdate(user._id, { $unset: { lastActivity: 1 } })
+    }
+
     // Clear HttpOnly cookie
     res.clearCookie('auth_token')
 
@@ -177,6 +216,77 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     } as IApiResponse)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Logout failed'
+    res.status(500).json({
+      success: false,
+      message: errorMessage
+    } as IApiResponse)
+  }
+}
+
+export const registerAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const adminKey = req.header('X-Admin-Key')
+
+    if (!adminKey || adminKey !== config.adminCreationKey) {
+      res.status(403).json({
+        success: false,
+        message: 'Access denied. Invalid administrative key.'
+      } as IApiResponse)
+      return
+    }
+
+    const { name, email, password, lawFirm }: IUserRegistration = req.body
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      res.status(400).json({
+        success: false,
+        message: 'User with this email already exists'
+      } as IApiResponse)
+      return
+    }
+
+    // Create new admin user
+    const user = new User({
+      name,
+      email,
+      password,
+      lawFirm,
+      role: UserRole.ADMIN,
+      plan: 'enterprise' // Admins get enterprise plan by default
+    })
+
+    await user.save()
+
+    // Log the action (as admin creation)
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: 'admin',
+      action: 'CREATE',
+      after: { email: user.email, name: user.name, role: user.role },
+      description: `New admin user created via secure key: ${user.email}`
+    })
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin user created successfully',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          lawFirm: user.lawFirm,
+          role: user.role
+        }
+      }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Admin creation failed'
     res.status(500).json({
       success: false,
       message: errorMessage

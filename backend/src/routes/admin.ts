@@ -1,21 +1,38 @@
 import { Router } from 'express'
+import { 
+  getStats, 
+  getUsers, 
+  updateUser, 
+  deleteUser, 
+  updateUserStatus, 
+  updateUserPlan,
+  getAuditLogs,
+  getUserHistory,
+  deleteAuditLog,
+  clearAuditLogs,
+  logoutUser
+} from '../controllers/adminController'
+import { authenticate, authorize } from '../middleware/auth'
+import { UserRole } from '../types'
+
 const router = Router()
 
-// Placeholder routes - will be implemented
-router.get('/stats', (req, res) => {
-  res.json({ success: false, message: 'Get admin stats endpoint - coming soon' })
-})
+// Protect all admin routes
+router.use(authenticate)
+router.use(authorize(UserRole.ADMIN))
 
-router.get('/users', (req, res) => {
-  res.json({ success: false, message: 'Get users endpoint - coming soon' })
-})
+router.get('/stats', getStats)
+router.get('/audit-logs', getAuditLogs)
+router.get('/users', getUsers)
+router.get('/users/:id/history', getUserHistory)
+router.put('/users/:id', updateUser)
+router.delete('/users/:id', deleteUser)
+router.put('/users/:id/status', updateUserStatus)
+router.put('/users/:id/plan', updateUserPlan)
+router.post('/users/:id/logout', logoutUser)
 
-router.put('/users/:id/status', (req, res) => {
-  res.json({ success: false, message: 'Update user status endpoint - coming soon' })
-})
-
-router.put('/users/:id/plan', (req, res) => {
-  res.json({ success: false, message: 'Update user plan endpoint - coming soon' })
-})
+// Audit Log Management
+router.delete('/audit-logs/:id', deleteAuditLog)
+router.delete('/audit-logs', clearAuditLogs)
 
 export default router

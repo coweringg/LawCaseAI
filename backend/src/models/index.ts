@@ -4,6 +4,7 @@ import CaseFileModel from './CaseFile'
 import ChatMessageModel from './ChatMessage'
 import EventModel from './Event'
 import TransactionModel from './Transaction'
+import AuditLog from './AuditLog'
 
 export {
   User,
@@ -11,7 +12,8 @@ export {
   CaseFileModel as CaseFile,
   ChatMessageModel as ChatMessage,
   EventModel as Event,
-  TransactionModel as Transaction
+  TransactionModel as Transaction,
+  AuditLog
 }
 
 export default {
@@ -20,5 +22,6 @@ export default {
   CaseFile: CaseFileModel,
   ChatMessage: ChatMessageModel,
   Event: EventModel,
-  Transaction: TransactionModel
+  Transaction: TransactionModel,
+  AuditLog
 }

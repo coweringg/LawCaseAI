@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const authenticated = !!user
 
       if (authenticated && restrictedRoutes.includes(currentPath)) {
-        router.push('/dashboard')
+        router.push(user.role === 'admin' ? '/dashboard/admin' : '/dashboard')
         return
       }
 

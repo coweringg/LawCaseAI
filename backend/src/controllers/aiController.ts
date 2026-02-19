@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { IAuthRequest } from '../types'
 import AIService from '@/utils/aiService'
 import { Case, CaseFile } from '@/models'
+import { logAction } from '@/utils/auditLogger'
 
 const aiService = AIService.getInstance()
 
@@ -40,6 +41,18 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
 
         const aiRes = await aiService.generateResponse(message, caseContext)
 
+        // Log the action
+        await logAction({
+            adminId: req.user?._id as any,
+            adminName: req.user?.name || 'User',
+            targetId: currentCase._id as any,
+            targetName: currentCase.name,
+            targetType: 'case',
+            category: 'platform',
+            action: 'UPDATE', // AI interaction is an update to case activity
+            description: `User consulted AI for case "${currentCase.name}"`
+        })
+
         return res.status(200).json({
             success: true,
             data: aiRes
@@ -76,6 +89,18 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
 
         const mockContent = `Document: ${file.name}. Type: ${file.type}. Size: ${file.size} bytes.`
         const analysis = await aiService.analyzeDocument(mockContent)
+
+        // Log the action
+        await logAction({
+            adminId: req.user?._id as any,
+            adminName: req.user?.name || 'User',
+            targetId: file._id as any,
+            targetName: file.name,
+            targetType: 'case',
+            category: 'platform',
+            action: 'UPDATE',
+            description: `User performed AI analysis on document: ${file.name}`
+        })
 
         return res.status(200).json({
             success: true,

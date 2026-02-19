@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { User } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest } from '../types'
+import { logAction } from '../utils/auditLogger'
 
 export const getProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
@@ -73,6 +74,12 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
       updateData.email = email.toLowerCase()
     }
 
+    const beforeState = {
+      name: user.name,
+      email: user.email,
+      lawFirm: user.lawFirm
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       updateData,
@@ -86,6 +93,20 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
       } as IApiResponse)
       return
     }
+
+    // Log the action
+    await logAction({
+      adminId: updatedUser._id,
+      adminName: updatedUser.name,
+      targetId: updatedUser._id,
+      targetName: updatedUser.name,
+      targetType: 'user',
+      category: updatedUser.role === 'admin' ? 'admin' : 'platform',
+      action: 'PROFILE_UPDATE',
+      before: beforeState,
+      after: { name: updatedUser.name, email: updatedUser.email, lawFirm: updatedUser.lawFirm },
+      description: updatedUser.role === 'admin' ? `Admin ${updatedUser.email} updated their profile` : `User ${updatedUser.email} updated their profile`
+    })
 
     res.status(200).json({
       success: true,
@@ -154,6 +175,18 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
     userWithPassword.password = newPassword
     await userWithPassword.save()
 
+    // Log the action
+    await logAction({
+      adminId: userWithPassword._id,
+      adminName: userWithPassword.name,
+      targetId: userWithPassword._id,
+      targetName: userWithPassword.name,
+      targetType: 'user',
+      category: userWithPassword.role === 'admin' ? 'admin' : 'platform',
+      action: 'PASSWORD_CHANGE',
+      description: userWithPassword.role === 'admin' ? `Admin ${userWithPassword.email} updated their account security passcode` : `User ${userWithPassword.email} updated their account security passcode`
+    })
+
     res.status(200).json({
       success: true,
       message: 'Password changed successfully'
@@ -198,6 +231,18 @@ export const updateNotifications = async (req: IAuthRequest, res: Response): Pro
       } as IApiResponse)
       return
     }
+
+    // Log the action
+    await logAction({
+      adminId: updatedUser._id,
+      adminName: updatedUser.name,
+      targetId: updatedUser._id,
+      targetName: updatedUser.name,
+      targetType: 'user',
+      category: 'platform',
+      action: 'NOTIFICATION_CHANGE',
+      description: `User ${updatedUser.email} updated notification preferences`
+    })
 
     res.status(200).json({
       success: true,
@@ -319,6 +364,18 @@ export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promis
 
     await user.save()
 
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: 'platform',
+      action: 'PAYMENT_METHOD_ADD',
+      description: `User ${user.email} added a new payment method (*${last4})`
+    })
+
     res.status(200).json({
       success: true,
       message: 'Payment method added successfully',
@@ -351,6 +408,18 @@ export const removePaymentMethod = async (req: IAuthRequest, res: Response): Pro
     }
 
     await user.save()
+
+    // Log the action
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: 'platform',
+      action: 'PAYMENT_METHOD_REMOVE',
+      description: `User ${user.email} removed a payment method`
+    })
 
     res.status(200).json({
       success: true,

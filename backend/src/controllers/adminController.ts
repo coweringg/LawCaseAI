@@ -150,7 +150,11 @@ export const updateUser = async (req: IAuthRequest, res: Response): Promise<void
       message: 'User updated successfully',
       data: user
     } as IApiResponse)
-  } catch (error: unknown) {
+  } catch (error: any) {
+    if (error.code === 11000) {
+      res.status(400).json({ success: false, message: 'Email already in use' } as IApiResponse)
+      return
+    }
     const message = error instanceof Error ? error.message : 'Failed to update user'
     res.status(500).json({ success: false, message } as IApiResponse)
   }

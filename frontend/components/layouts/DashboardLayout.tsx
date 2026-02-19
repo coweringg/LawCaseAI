@@ -73,7 +73,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             }
         };
 
-        fetchUsageStats();
+        // Execute fetch usage stats fail-safe
+        fetchUsageStats().catch(() => {
+            // Error handled by global interceptor or ignored
+        });
 
         // Heartbeat to keep user online even when idle
         const heartbeatInterval = setInterval(() => {

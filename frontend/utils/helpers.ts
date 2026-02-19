@@ -5,8 +5,10 @@ export const cn = (...inputs: ClassValue[]) => {
   return clsx(inputs)
 }
 
-export const formatDate = (date: string | Date): string => {
+export const formatDate = (date: string | Date | undefined | null): string => {
+  if (!date) return 'N/A'
   const dateObj = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(dateObj.getTime())) return 'N/A'
   return format(dateObj, 'MMM dd, yyyy')
 }
 

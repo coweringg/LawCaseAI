@@ -91,6 +91,7 @@ export default function AdminDashboard() {
   const [userHistory, setUserHistory] = useState<UserHistory | null>(null)
   const [isHistoryLoading, setIsHistoryLoading] = useState(false)
   const [editData, setEditData] = useState({ name: '', email: '', password: '', lawFirm: '' })
+  const [editError, setEditError] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [activeTab, setActiveTab] = useState<'users' | 'history'>('users')
   const [activeHistoryTab, setActiveHistoryTab] = useState<'admin' | 'platform'>('admin')
@@ -337,18 +338,27 @@ export default function AdminDashboard() {
     if (!selectedUser) return
 
     setIsUpdating(true)
+    setEditError(null)
+    
     try {
       const payload: any = { ...editData }
       if (!payload.password) delete payload.password
 
-      const response = await api.put(`/admin/users/${selectedUser.id}`, payload)
-      if (response.data.success) {
+      const response = await api.put(`/admin/users/${selectedUser.id}`, payload, {
+        validateStatus: (status) => status < 500 // Resolve promise for 400 errors to avoid dev overlay
+      })
+
+      if (response.status === 200 && response.data.success) {
         setUsers(prev => prev.map(u => u.id === selectedUser.id ? response.data.data : u))
         setShowEditModal(false)
         setSelectedUser(null)
+      } else if (response.status === 400) {
+        // Handle validation error manually without throwing
+        setEditError(response.data.message || 'Failed to update user')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update user:', error)
+      setEditError(error.response?.data?.message || 'Failed to update user')
     } finally {
       setIsUpdating(false)
     }
@@ -356,6 +366,7 @@ export default function AdminDashboard() {
 
   const openEditModal = (user: AdminUser) => {
     setSelectedUser(user)
+    setEditError(null)
     setEditData({
       name: user.name,
       email: user.email,
@@ -1125,6 +1136,12 @@ export default function AdminDashboard() {
           size="lg"
         >
           <form onSubmit={handleEditSubmit} className="space-y-6">
+            {editError && (
+              <div className="bg-error-500/10 border border-error-500/20 text-error-500 p-4 rounded-xl flex items-center animate-in fade-in slide-in-from-top-2">
+                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                <p className="text-xs font-bold">{editError}</p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Member Identity</label>

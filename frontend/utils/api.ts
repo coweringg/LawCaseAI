@@ -31,12 +31,12 @@ api.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Potential auto-logout logic or redirect to login
-            console.warn('Unauthorized access detected. Please log in again.');
-            if (typeof window !== 'undefined') {
+            // Check if we are already on the login page to avoid loops
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+                console.warn('Unauthorized access detected. Redirecting to login.');
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                // We avoid a hard redirect here to let AuthContext handle it if necessary
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { User } from '../models'
 import { IAuthRequest, IJWTPayload, UserRole, UserStatus } from '../types'
@@ -6,9 +6,12 @@ import config from '../config'
 
 export const authenticate = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '')
-    
+    const authHeader = req.header('Authorization');
+    const cookieToken = req.cookies?.auth_token;
+    const token = authHeader?.replace('Bearer ', '') || cookieToken;
+
     if (!token) {
+      console.warn(`[AUTH] No token for ${req.method} ${req.url}. Header: ${authHeader ? 'Y' : 'N'}, Cookie: ${cookieToken ? 'Y' : 'N'}`);
       res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'
@@ -17,9 +20,9 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     }
 
     const decoded = jwt.verify(token, config.jwt.secret) as IJWTPayload
-    
+
     const user = await User.findById(decoded.userId)
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
@@ -79,7 +82,7 @@ export const checkPlanLimit = async (req: IAuthRequest, res: Response, next: Nex
     }
 
     const user = await User.findById(req.user._id)
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
@@ -112,8 +115,8 @@ export const checkPlanLimit = async (req: IAuthRequest, res: Response, next: Nex
 
 export const optionalAuth = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '')
-    
+    const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies?.auth_token
+
     if (!token) {
       next()
       return
@@ -121,11 +124,11 @@ export const optionalAuth = async (req: IAuthRequest, res: Response, next: NextF
 
     const decoded = jwt.verify(token, config.jwt.secret) as IJWTPayload
     const user = await User.findById(decoded.userId)
-    
+
     if (user && user.status === UserStatus.ACTIVE) {
       req.user = user
     }
-    
+
     next()
   } catch (error) {
     // Continue without authentication for optional routes

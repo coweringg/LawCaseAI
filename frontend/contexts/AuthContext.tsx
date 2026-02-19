@@ -1,19 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/router'
-
-interface User {
-  id: string
-  name: string
-  email: string
-  lawFirm: string
-  role: string
-  plan: 'basic' | 'professional' | 'enterprise'
-  planLimit: number
-  currentCases: number
-  status: string
-  createdAt: string
-  lastLogin: string
-}
+import api from '@/utils/api'
+import { User } from '@/types'
 
 interface AuthContextType {
   user: User | null
@@ -22,14 +10,17 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>
   register: (userData: any) => Promise<{ success: boolean; message: string }>
   logout: () => void
+  updateProfile: (userData: { name: string; lawFirm: string; email: string }) => Promise<{ success: boolean; message: string }>
+  changePassword: (passwordData: any) => Promise<{ success: boolean; message: string }>
+  fetchProfile: () => Promise<void>
   updateUser: (userData: Partial<User>) => void
   isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const publicRoutes = ['/', '/login', '/register', '/pricing', '/about', '/privacy', '/terms']
-const restrictedRoutes = ['/pricing', '/about', '/register', '/login']
+const publicRoutes = ['/', '/login', '/register', '/pricing', '/about', '/features', '/privacy', '/terms']
+const restrictedRoutes = ['/pricing', '/about', '/features', '/register', '/login']
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -37,21 +28,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    const initAuth = () => {
-      const storedToken = localStorage.getItem('token')
-      const storedUser = localStorage.getItem('user')
+  const fetchProfile = async (): Promise<void> => {
+    try {
+      const response = await api.get('/user/profile')
+      if (response.data.success) {
+        setUser(response.data.data)
+      }
+    } catch (error: any) {
+      // Silently fail — user is not authenticated
+      if (error?.response?.status !== 401) {
+        console.warn('Profile fetch failed:', error?.message)
+      }
+      setUser(null)
+    }
+  }
 
-      if (storedToken && storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser)
-          setToken(storedToken)
-          setUser(parsedUser)
-        } catch (error) {
-          console.error('Error parsing stored user:', error)
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-        }
+  useEffect(() => {
+    const initAuth = async () => {
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        setToken(storedToken)
+        await fetchProfile()
       }
       setIsLoading(false)
     }
@@ -62,8 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoading) {
       const currentPath = router.pathname
-      const authenticated = !!user && !!token
-      
+      // Check auth state based on user presence
+      const authenticated = !!user
+
       if (authenticated && restrictedRoutes.includes(currentPath)) {
         router.push('/dashboard')
         return
@@ -74,86 +72,90 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
     }
-  }, [router.pathname, user, token, isLoading])
+  }, [router.pathname, user, isLoading])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await api.post('/auth/login', { email, password })
+      const { data, message } = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setToken(data.data.token)
-        setUser(data.data.user)
-        localStorage.setItem('token', data.data.token)
-        localStorage.setItem('user', JSON.stringify(data.data.user))
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Login failed' }
-      }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      setToken(data.token)
+      setUser(data.user)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      return { success: true, message: message || 'Login successful' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Login failed' }
     }
   }
 
   const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
+      const response = await api.post('/auth/register', userData)
+      const { data, message } = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setToken(data.data.token)
-        setUser(data.data.user)
-        localStorage.setItem('token', data.data.token)
-        localStorage.setItem('user', JSON.stringify(data.data.user))
-        return { success: true, message: data.message }
-      } else {
-        return { success: false, message: data.message || 'Registration failed' }
-      }
-    } catch (error) {
-      return { success: false, message: 'Network error. Please try again.' }
+      setToken(data.token)
+      setUser(data.user)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      return { success: true, message: message || 'Registration successful' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Registration failed' }
     }
   }
 
   const logout = () => {
-    setUser(null)
-    setToken(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    router.push('/login')
+    api.post('/auth/logout').finally(() => {
+      setUser(null)
+      setToken(null)
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      router.push('/login')
+    })
+  }
+
+  const updateProfile = async (userData: { name: string; lawFirm: string; email: string }): Promise<{ success: boolean; message: string }> => {
+    try {
+      const response = await api.put('/user/profile', userData)
+      if (response.data.success) {
+        setUser(response.data.data)
+        return { success: true, message: response.data.message }
+      }
+      return { success: false, message: response.data.message || 'Failed to update profile' }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Network error' }
+    }
+  }
+
+  const changePassword = async (passwordData: any): Promise<{ success: boolean; message: string }> => {
+    try {
+      const response = await api.put('/user/password', passwordData)
+      return { success: true, message: response.data.message }
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Failed to change password' }
+    }
   }
 
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData }
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+      setUser(updatedUser as User)
     }
   }
 
-  const isAuthenticated = !!user && !!token
+  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider value={{
       user,
-      token,
+      token, // Kept for interface compatibility but null
       isLoading,
       login,
       register,
       logout,
+      updateProfile,
+      changePassword,
+      fetchProfile,
       updateUser,
       isAuthenticated
     }}>

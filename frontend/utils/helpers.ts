@@ -17,11 +17,11 @@ export const formatDateTime = (date: string | Date): string => {
 
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
-  
+
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
@@ -40,7 +40,9 @@ export const validateEmail = (email: string): boolean => {
 }
 
 export const validatePassword = (password: string): boolean => {
-  return password.length >= 8
+  // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  return passwordRegex.test(password)
 }
 
 export const getInitials = (name: string): string => {

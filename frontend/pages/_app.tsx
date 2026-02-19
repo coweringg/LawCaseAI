@@ -1,10 +1,12 @@
 import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import '@/styles/globals.css'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <Component {...pageProps} />
       <Toaster
@@ -59,5 +61,6 @@ export default function App({ Component, pageProps }: AppProps) {
         }}
       />
     </AuthProvider>
+    </ErrorBoundary>
   )
 }

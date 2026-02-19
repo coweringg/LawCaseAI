@@ -1,262 +1,244 @@
-import { Request, Response } from 'express'
-import { User } from '../models'
-import CaseModel from '../models/Case'
-import { IApiResponse, ICaseUpdate } from '../types'
+import { Response } from 'express'
+import { Case, User } from '../models'
+import { IApiResponse, CaseStatus, IAuthRequest } from '../types'
 
-export const getCases = async (req: Request, res: Response): Promise<void> => {
+export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
-    const { status, search, page = 1, limit = 10 } = req.query
+    const { name, client, description, practiceArea } = req.body
+    const userId = req.user?._id
 
-    // Build query
-    const query: any = { userId: user._id }
-    
-    if (status) {
-      query.status = status
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
     }
-
-    if (search) {
-      query.$text = { $search: search as string }
-    }
-
-    // Calculate pagination
-    const skip = (Number(page) - 1) * Number(limit)
-
-    // Get cases
-    const cases = await CaseModel.find(query)
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(skip)
-
-    // Get total count
-    const total = await CaseModel.countDocuments(query)
-
-    res.status(200).json({
-      success: true,
-      message: 'Cases retrieved successfully',
-      data: {
-        cases: cases.map(case_ => ({
-          id: case_._id,
-          name: case_.name,
-          client: case_.client,
-          description: case_.description,
-          status: case_.status,
-          fileCount: case_.fileCount,
-          createdAt: case_.createdAt,
-          updatedAt: case_.updatedAt
-        })),
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total,
-          pages: Math.ceil(total / Number(limit))
-        }
-      }
-    } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to retrieve cases'
-    } as IApiResponse)
-  }
-}
-
-export const createCase = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = (req as any).user
-    const { name, client, description } = req.body
 
     // Check plan limit
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+      return
+    }
+
     if (user.currentCases >= user.planLimit) {
       res.status(403).json({
         success: false,
-        message: 'Plan limit reached. Please upgrade your plan to create more cases.',
-        data: {
-          current: user.currentCases,
-          limit: user.planLimit,
-          plan: user.plan
-        }
+        message: 'Case limit reached. Please upgrade your plan.'
       } as IApiResponse)
       return
     }
 
-    // Create case
-    const case_ = new CaseModel({
+    const newCase = new Case({
       name,
       client,
       description,
-      userId: user._id,
-      status: 'active',
-      fileCount: 0
+      practiceArea,
+      status: CaseStatus.ACTIVE,
+      userId
     })
 
-    await case_.save()
+    await newCase.save()
 
-    // Update user's case count
-    await User.findByIdAndUpdate(user._id, { $inc: { currentCases: 1 } })
+    // Atomic increment of user's current case count
+    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
 
     res.status(201).json({
       success: true,
       message: 'Case created successfully',
-      data: {
-        id: case_._id,
-        name: case_.name,
-        client: case_.client,
-        description: case_.description,
-        status: case_.status,
-        fileCount: case_.fileCount,
-        createdAt: case_.createdAt,
-        updatedAt: case_.updatedAt
-      }
+      data: newCase
     } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to create case'
-    } as IApiResponse)
+  } catch (error: unknown) {
+    console.error('[CaseController] createCase error:', error)
+    res.status(500).json({ success: false, message: 'Failed to create case' } as IApiResponse)
   }
 }
 
-export const getCase = async (req: Request, res: Response): Promise<void> => {
+export const getCases = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
+    const userId = req.user?._id
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page as string) || 1)
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100)
+    const skip = (page - 1) * limit
+    const status = req.query.status as string | undefined
+
+    const filter: Record<string, unknown> = { userId }
+    if (status && Object.values(CaseStatus).includes(status as CaseStatus)) {
+      filter.status = status
+    }
+
+    const [cases, total] = await Promise.all([
+      Case.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Case.countDocuments(filter)
+    ])
+
+    res.status(200).json({
+      success: true,
+      message: 'Cases retrieved successfully',
+      data: cases,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    console.error('[CaseController] getCases error:', error)
+    res.status(500).json({ success: false, message: 'Failed to fetch cases' } as IApiResponse)
+  }
+}
+
+export const getCaseStats = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?._id
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    const stats = await Case.aggregate([
+      { $match: { userId } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ])
+
+    const formattedStats = {
+      total: 0,
+      active: 0,
+      closed: 0,
+      archived: 0
+    }
+
+    stats.forEach((stat: { _id: string; count: number }) => {
+      formattedStats.total += stat.count
+      if (stat._id === 'active') formattedStats.active = stat.count
+      if (stat._id === 'closed') formattedStats.closed = stat.count
+      if (stat._id === 'archived') formattedStats.archived = stat.count
+    })
+
+    res.status(200).json({
+      success: true,
+      data: formattedStats
+    } as IApiResponse)
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, message: 'Failed to fetch stats' } as IApiResponse)
+  }
+}
+
+export const getCaseById = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
     const { id } = req.params
+    const userId = req.user?._id
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
 
-    if (!case_) {
-      res.status(404).json({
-        success: false,
-        message: 'Case not found'
-      } as IApiResponse)
+    const caseData = await Case.findOne({ _id: id, userId })
+
+    if (!caseData) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
     }
 
     res.status(200).json({
       success: true,
-      message: 'Case retrieved successfully',
-      data: {
-        id: case_._id,
-        name: case_.name,
-        client: case_.client,
-        description: case_.description,
-        status: case_.status,
-        fileCount: case_.fileCount,
-        createdAt: case_.createdAt,
-        updatedAt: case_.updatedAt
-      }
+      data: caseData
     } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to retrieve case'
-    } as IApiResponse)
+  } catch (error: unknown) {
+    console.error('[CaseController] getCaseById error:', error)
+    res.status(500).json({ success: false, message: 'Failed to fetch case' } as IApiResponse)
   }
 }
 
-export const updateCase = async (req: Request, res: Response): Promise<void> => {
+export const updateCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
     const { id } = req.params
-    const updates: ICaseUpdate = req.body
+    const userId = req.user?._id
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
-
-    if (!case_) {
-      res.status(404).json({
-        success: false,
-        message: 'Case not found'
-      } as IApiResponse)
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
       return
     }
 
-    // Update case
-    const updatedCase = await CaseModel.findByIdAndUpdate(
-      id,
-      updates,
+    // Whitelist allowed fields to prevent NoSQL injection
+    const { name, client, description, status, practiceArea } = req.body
+    const allowedUpdates: Record<string, unknown> = {}
+    if (name !== undefined) allowedUpdates.name = name
+    if (client !== undefined) allowedUpdates.client = client
+    if (description !== undefined) allowedUpdates.description = description
+    if (practiceArea !== undefined) allowedUpdates.practiceArea = practiceArea
+    if (status !== undefined && Object.values(CaseStatus).includes(status)) {
+      allowedUpdates.status = status
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      res.status(400).json({ success: false, message: 'No valid fields to update' } as IApiResponse)
+      return
+    }
+
+    const updatedCase = await Case.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: allowedUpdates },
       { new: true, runValidators: true }
     )
+
+    if (!updatedCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
 
     res.status(200).json({
       success: true,
       message: 'Case updated successfully',
-      data: {
-        id: updatedCase!._id,
-        name: updatedCase!.name,
-        client: updatedCase!.client,
-        description: updatedCase!.description,
-        status: updatedCase!.status,
-        fileCount: updatedCase!.fileCount,
-        createdAt: updatedCase!.createdAt,
-        updatedAt: updatedCase!.updatedAt
-      }
+      data: updatedCase
     } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to update case'
-    } as IApiResponse)
+  } catch (error: unknown) {
+    console.error('[CaseController] updateCase error:', error)
+    res.status(500).json({ success: false, message: 'Failed to update case' } as IApiResponse)
   }
 }
 
-export const deleteCase = async (req: Request, res: Response): Promise<void> => {
+export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const user = (req as any).user
     const { id } = req.params
+    const userId = req.user?._id
 
-    const case_ = await Case.findOne({ _id: id, userId: user._id })
-
-    if (!case_) {
-      res.status(404).json({
-        success: false,
-        message: 'Case not found'
-      } as IApiResponse)
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
       return
     }
 
-    // Delete case (this will trigger the pre-remove middleware to update user's case count)
-    await CaseModel.findByIdAndDelete(id)
+    const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
+
+    if (!deletedCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    // Atomic decrement of user's current case count
+    await User.updateOne(
+      { _id: userId, currentCases: { $gt: 0 } },
+      { $inc: { currentCases: -1 } }
+    )
 
     res.status(200).json({
       success: true,
       message: 'Case deleted successfully'
     } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to delete case'
-    } as IApiResponse)
-  }
-}
-
-export const getCaseStats = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = (req as any).user
-
-    const stats = await CaseModel.aggregate([
-      { $match: { userId: user._id } },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          active: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } },
-          closed: { $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] } },
-          archived: { $sum: { $cond: [{ $eq: ['$status', 'archived'] }, 1, 0] } }
-        }
-      }
-    ])
-
-    const result = stats[0] || { total: 0, active: 0, closed: 0, archived: 0 }
-
-    res.status(200).json({
-      success: true,
-      message: 'Case stats retrieved successfully',
-      data: result
-    } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to retrieve case stats'
-    } as IApiResponse)
+  } catch (error: unknown) {
+    console.error('[CaseController] deleteCase error:', error)
+    res.status(500).json({ success: false, message: 'Failed to delete case' } as IApiResponse)
   }
 }

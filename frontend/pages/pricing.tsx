@@ -1,198 +1,218 @@
-import React from 'react'
-import Link from 'next/link'
-import { Check, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Layout } from '@/components/Layout'
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import PublicLayout from '@/components/layouts/PublicLayout';
+import { Check, Star, Shield, Zap, Info } from 'lucide-react';
 
 export default function Pricing() {
-  const plans = [
-    {
-      name: 'Basic',
-      price: 49,
-      interval: 'month',
-      features: [
-        'Up to 5 active cases',
-        'Basic document storage (1GB)',
-        'Email support',
-        'Standard analytics',
-        'Mobile app access'
-      ],
-      caseLimit: 5,
-      popular: false
-    },
-    {
-      name: 'Professional',
-      price: 149,
-      interval: 'month',
-      features: [
-        'Up to 25 active cases',
-        'Advanced document storage (10GB)',
-        'Priority email support',
-        'Advanced analytics & insights',
-        'Mobile app access',
-        'AI-powered case analysis',
-        'Custom workflows'
-      ],
-      caseLimit: 25,
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: 399,
-      interval: 'month',
-      features: [
-        'Unlimited active cases',
-        'Unlimited document storage',
-        '24/7 phone & email support',
-        'Advanced analytics & insights',
-        'Mobile app access',
-        'AI-powered case analysis',
-        'Custom workflows',
-        'API access',
-        'White-label options',
-        'Dedicated account manager'
-      ],
-      caseLimit: 100,
-      popular: false
-    }
-  ]
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  };
+
+  if (!mounted) {
+    return (
+      <PublicLayout>
+        <div className="min-h-screen bg-background-dark" />
+      </PublicLayout>
+    );
+  }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-6">
-              Simple, Transparent
-              <span className="text-primary-600"> Pricing</span>
+    <PublicLayout>
+      <Head>
+        <title>Pricing - LawCaseAI | Invest in Your Practice</title>
+        <meta name="description" content="Simple, transparent pricing for law firms of all sizes. Choice between Growth, Professional and Enterprise plans." />
+      </Head>
+
+      <section className="relative pt-32 pb-24 bg-background-dark overflow-hidden">
+        <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
+        <div className="container-stitch relative z-10 text-center">
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={fadeInUp}
+          >
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-display">
+              Invest in your <br />
+              <span className="text-primary italic">Firm's Future</span>
             </h1>
-            <p className="text-xl text-secondary-600 mb-8 max-w-3xl mx-auto">
-              Choose the perfect plan for your law practice. Start with a free trial, upgrade anytime.
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12">
+              Transparent, professional-tier subscriptions. <br className="hidden md:block" />
+              Scale your intelligence as you scale your practice.
             </p>
-          </div>
-        </section>
 
-        <section className="py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              {plans.map((plan, index) => (
-                <Card 
-                  key={plan.name}
-                  className={`relative ${plan.popular ? 'border-2 border-primary-500 shadow-lg' : 'border border-secondary-200'}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  
-                  <CardHeader className="text-center pb-8">
-                    <div className="mb-4">
-                      <span className="text-4xl font-bold text-secondary-900">
-                        ${plan.price}
-                      </span>
-                      <span className="text-secondary-600">/{plan.interval}</span>
-                    </div>
-                    <CardTitle className="text-xl text-secondary-900">{plan.name}</CardTitle>
-                    <CardDescription className="text-secondary-600">
-                      Perfect for {plan.name === 'Basic' ? 'solo practitioners' : plan.name === 'Professional' ? 'growing firms' : 'large enterprises'}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <ul className="space-y-3 mb-8">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start">
-                          <Check className="w-5 h-5 text-success-500 mr-3 flex-shrink-0 mt-0.5" />
-                          <span className="text-secondary-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <Link href="/register">
-                      <Button 
-                        className={`w-full ${plan.popular ? 'bg-primary-600 hover:bg-primary-700' : 'bg-secondary-600 hover:bg-secondary-700'} text-white`}
-                        size="lg"
-                      >
-                        {plan.name === 'Basic' ? 'Start Free Trial' : 'Get Started'}
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-secondary-900 mb-4">
-                Frequently Asked Questions
-              </h2>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  Can I change plans anytime?
-                </h3>
-                <p className="text-secondary-600">
-                  Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately and we will prorate any differences.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  Is there a free trial?
-                </h3>
-                <p className="text-secondary-600">
-                  Yes, all new users get a 14-day free trial with full access to Professional plan features.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  What happens if I exceed my case limit?
-                </h3>
-                <p className="text-secondary-600">
-                  You will receive a notification when approaching your limit. You can upgrade your plan or archive old cases to make room for new ones.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  Is my data secure?
-                </h3>
-                <p className="text-secondary-600">
-                  Absolutely. We use bank-level encryption, regular security audits, and comply with all legal industry standards for data protection.
-                </p>
+            <div className="flex justify-center items-center gap-6 mb-16">
+              <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
+              <button
+                role="switch"
+                aria-checked={billingInterval === 'annual'}
+                onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
+              >
+                <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
+              </button>
+              <div className="flex flex-col items-start">
+                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
+                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
               </div>
             </div>
-          </div>
-        </section>
+          </motion.div>
 
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-primary-600">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Ready to Get Started?
-            </h2>
-            <p className="text-xl text-primary-100 mb-8">
-              Join thousands of lawyers who trust LawCaseAI for their practice management.
-            </p>
-            <Link href="/register">
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-                Start Your Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+            {/* Associate Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 p-10 text-left shadow-sm hover:shadow-2xl transition-all"
+            >
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Growth</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-5xl font-bold dark:text-white">${billingInterval === 'annual' ? '49' : '59'}</span>
+                  <span className="text-slate-500 font-medium">/mo</span>
+                </div>
+                <p className="text-xs text-slate-400">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+              </div>
+              <ul className="space-y-4 mb-10 min-h-[220px]">
+                {[
+                  "5 Active AI Cases",
+                  "Standard Discovery Suite",
+                  "Knowledge Base Search",
+                  "SOC2 Type II Security",
+                  "Email Support (24h)"
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-400 text-sm">
+                    <Check size={18} className="text-primary" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-4 bg-slate-100 dark:bg-slate-800 dark:text-white rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                Select Growth
+              </button>
+            </motion.div>
+
+            {/* Partner Plan */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-primary p-10 text-left shadow-2xl shadow-primary/10 relative transform md:-translate-y-8"
+            >
+              <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-bold px-4 py-1 rounded-b-xl uppercase tracking-widest">Recommended</div>
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em] mb-4">Professional</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-5xl font-bold dark:text-white">${billingInterval === 'annual' ? '149' : '179'}</span>
+                  <span className="text-slate-500 font-medium">/mo</span>
+                </div>
+                <p className="text-xs text-slate-400">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+              </div>
+              <ul className="space-y-4 mb-10 min-h-[220px]">
+                {[
+                  "20 Active AI Cases",
+                  "Deep Discovery Insights",
+                  "Elite Jurisprudence Bank",
+                  "Team Collaboration Portal",
+                  "Auto-Chronology Engine",
+                  "Priority Support (1h)",
+                  "HIPAA Compliance"
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
+                    <Check size={18} className="text-primary" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-xl shadow-primary/30 transition-all">
+                Go Professional
+              </button>
+            </motion.div>
+
+            {/* Enterprise Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 p-10 text-left shadow-sm hover:shadow-2xl transition-all"
+            >
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Enterprise</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-5xl font-bold dark:text-white">Custom</span>
+                </div>
+                <p className="text-xs text-slate-400">Firm-wide licensing</p>
+              </div>
+              <ul className="space-y-4 mb-10 min-h-[220px]">
+                {[
+                  "Unlimited AI Cases",
+                  "Full API Access",
+                  "Dedicated AI Training",
+                  "Custom Compliance Rules",
+                  "On-premise Options",
+                  "White-label Portals"
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-400 text-sm">
+                    <Check size={18} className="text-primary" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-4 bg-background-dark text-white dark:bg-white dark:text-background-dark rounded-xl font-bold hover:opacity-90 transition-opacity">
+                Contact Sales
+              </button>
+            </motion.div>
           </div>
-        </section>
-      </div>
-    </Layout>
-  )
+        </div>
+      </section>
+
+      {/* Security & Compliance Grid */}
+      <section className="py-24 bg-white dark:bg-[#0a0f18]">
+        <div className="container-stitch">
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { icon: Shield, label: "Zero Knowledge", desc: "We can't see your data." },
+              { icon: Zap, label: "Sub-second", desc: "Analysis at light speed." },
+              { icon: Star, label: "Compliance", desc: "SOC2, HIPAA, GDPR." },
+              { icon: Info, label: "Insurance", desc: "Cyber-liability coverage." }
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center text-center space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <item.icon size={24} />
+                </div>
+                <h4 className="font-bold dark:text-white font-display uppercase tracking-widest text-xs">{item.label}</h4>
+                <p className="text-slate-500 text-xs">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Simplified FAQ */}
+      <section className="py-24 bg-slate-50 dark:bg-background-dark border-y border-white/5">
+        <div className="container-stitch max-w-3xl">
+          <h2 className="text-3xl font-bold text-center mb-12 font-display">Financial Precision</h2>
+          <div className="space-y-6">
+            {[
+              { q: "Can I switch plans mid-cycle?", a: "Yes. Upgrades take effect immediately with prorated billing. Downgrades apply at the next cycle." },
+              { q: "Is there a trial available?", a: "We don't offer generic trials. Contact sales for a live demo on your firm's complex data." },
+              { q: "What is a 'Priority Case'?", a: "A priority case is an active litigation or matter receiving top-tier GPU priority for AI analysis and storage." }
+            ].map((faq, i) => (
+              <div key={i} className="p-6 glass rounded-2xl border border-white/5">
+                <h4 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">{faq.q}</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </PublicLayout>
+  );
 }

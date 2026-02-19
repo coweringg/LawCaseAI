@@ -1,17 +1,20 @@
 import { Request, Response, NextFunction } from 'express'
 import { validationResult } from 'express-validator'
-import { IApiResponse } from '@/types'
+import { IApiResponse } from '../types'
 
 export const handleValidationErrors = (req: Request, res: Response, next: NextFunction): void => {
   const errors = validationResult(req)
-  
+
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map(error => ({
-      field: error.type === 'field' ? error.path : 'unknown',
-      message: error.msg,
-      value: error.value
-    }))
-    
+    const formattedErrors = errors.array().map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (error: any) => ({
+        field: error.type === 'field' ? (error.path || 'unknown') : 'unknown',
+        message: error.msg || 'Validation error',
+        value: error.value
+      })
+    )
+
     res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -19,7 +22,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
     } as IApiResponse)
     return
   }
-  
+
   next()
 }
 
@@ -32,7 +35,7 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
     } as IApiResponse)
     return
   }
-  
+
   // Check for empty request body
   if (!req.body || Object.keys(req.body).length === 0) {
     res.status(400).json({
@@ -41,23 +44,24 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
     } as IApiResponse)
     return
   }
-  
+
   next()
 }
 
-export const sanitizeInput = (req: Request, res: Response, next: NextFunction): void => {
-  // Basic input sanitization
-  if (req.body) {
+/**
+ * Basic input sanitization middleware.
+ * Note: express-mongo-sanitize is applied at the app level in server.ts
+ * for comprehensive NoSQL injection protection. This middleware handles
+ * basic string trimming for request body fields.
+ */
+export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
+  if (req.body && typeof req.body === 'object') {
     Object.keys(req.body).forEach(key => {
       if (typeof req.body[key] === 'string') {
-        // Remove potential XSS
-        req.body[key] = req.body[key]
-          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-          .replace(/<[^>]*>/g, '')
-          .trim()
+        req.body[key] = req.body[key].trim()
       }
     })
   }
-  
+
   next()
 }

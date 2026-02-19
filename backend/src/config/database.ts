@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-import config from './index'
 
 dotenv.config()
 
@@ -15,8 +14,6 @@ export const connectDatabase = async (): Promise<void> => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      bufferMaxEntries: 0,
-      bufferCommands: false,
     }
 
     await mongoose.connect(mongoUri, options)

@@ -2,12 +2,80 @@ export interface User {
   id: string
   email: string
   name: string
+  lawFirm?: string
   role: 'lawyer' | 'admin'
   plan: 'basic' | 'professional' | 'enterprise'
   planLimit: number
   currentCases: number
   createdAt: string
   isActive: boolean
+  lastLogin?: string
+}
+
+export interface DashboardDeadline {
+  title: string
+  date: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+}
+
+export interface DashboardStats {
+  hoursSaved: {
+    today: number
+    total: number
+  }
+  cases: {
+    active: number
+    limit: number
+    usagePercentage: number
+    closed: number
+  }
+  documents: {
+    total: number
+  }
+  recentCases: Case[]
+  upcomingDeadlines: DashboardDeadline[]
+}
+
+export interface PaymentMethod {
+  id: string
+  brand: string
+  last4: string
+  expiryMonth: number
+  expiryYear: number
+}
+
+export interface BillingInfo {
+  plan: string
+  currentCases: number
+  planLimit: number
+  remainingCases: number
+  planUsagePercentage: number
+  paymentMethods: PaymentMethod[]
+  defaultPaymentMethodId: string
+  nextBillingDate: string
+  amount: number
+}
+
+export interface Purchase {
+  _id: string
+  date: string
+  plan: string
+  amount: number
+  status: 'succeeded' | 'failed' | 'pending'
+  invoiceUrl: string
+}
+
+export interface CalendarEvent {
+  _id: string
+  title: string
+  description?: string
+  start: string
+  end: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'active' | 'closed'
+  type: string
+  location?: string
+  caseId?: string
 }
 
 export interface Case {

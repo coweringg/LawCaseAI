@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { DashboardNav } from '@/components/DashboardNav'
 import { useAuth } from '@/contexts/AuthContext'
+import api from '@/utils/api'
 import toast from 'react-hot-toast'
 
 export default function Upgrade() {
@@ -24,7 +25,6 @@ export default function Upgrade() {
         'Basic document storage (1GB)',
         'Email support',
         'Standard security features',
-        'Mobile app access'
       ],
       caseLimit: 5,
       popular: false
@@ -75,18 +75,10 @@ export default function Upgrade() {
       await new Promise(resolve => setTimeout(resolve, 2000))
 
       // Update user plan via API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/upgrade`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ plan: planId })
-      })
+      const response = await api.post('/user/upgrade', { plan: planId })
+      const data = response.data
 
-      const data = await response.json()
-
-      if (response.ok) {
+      if (response.status === 200) {
         updateUser(data.data)
         toast.success(`Successfully upgraded to ${planId.charAt(0).toUpperCase() + planId.slice(1)} plan!`)
         setSelectedPlan('')
@@ -121,7 +113,7 @@ export default function Upgrade() {
       <div className="min-h-screen bg-secondary-50">
         <div className="flex">
           <DashboardNav currentPage="upgrade" />
-          
+
           <div className="flex-1">
             <header className="bg-white shadow-sm border-b border-secondary-100">
               <div className="px-6 py-4">
@@ -168,7 +160,7 @@ export default function Upgrade() {
                   </div>
                   <div className="mt-4">
                     <div className="w-full bg-secondary-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary-600 h-2 rounded-full"
                         style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
                       ></div>
@@ -183,8 +175,8 @@ export default function Upgrade() {
               {/* Available Plans */}
               <div className="grid md:grid-cols-3 gap-8 mb-8">
                 {plans.filter(plan => plan.id !== user.plan).map((plan) => (
-                  <Card 
-                    key={plan.id} 
+                  <Card
+                    key={plan.id}
                     className={`relative ${plan.popular ? 'border-primary-500 shadow-xl scale-105' : ''}`}
                   >
                     {plan.popular && (
@@ -194,7 +186,7 @@ export default function Upgrade() {
                         </span>
                       </div>
                     )}
-                    
+
                     <CardHeader className="text-center">
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
                       <div className="mt-4">
@@ -205,7 +197,7 @@ export default function Upgrade() {
                         {plan.caseLimit === 100 ? 'Unlimited' : plan.caseLimit} active cases
                       </CardDescription>
                     </CardHeader>
-                    
+
                     <CardContent>
                       <ul className="space-y-3 mb-8">
                         {plan.features.map((feature, featureIndex) => (
@@ -215,8 +207,8 @@ export default function Upgrade() {
                           </li>
                         ))}
                       </ul>
-                      
-                      <Button 
+
+                      <Button
                         className={`w-full ${plan.popular ? 'bg-primary-600 hover:bg-primary-700' : ''}`}
                         variant={plan.popular ? 'primary' : 'outline'}
                         onClick={() => handleUpgrade(plan.id)}

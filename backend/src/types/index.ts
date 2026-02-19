@@ -1,65 +1,141 @@
-import { Document } from 'mongoose'
+import { Document, Types } from 'mongoose'
 import { Request } from 'express'
 
+// Enums (defined first to be available for interfaces)
+export enum UserRole {
+  LAWYER = 'lawyer',
+  ADMIN = 'admin'
+}
+
+export enum UserPlan {
+  BASIC = 'basic',
+  PROFESSIONAL = 'professional',
+  ENTERPRISE = 'enterprise'
+}
+
+export enum CaseStatus {
+  ACTIVE = 'active',
+  CLOSED = 'closed',
+  ARCHIVED = 'archived'
+}
+
+export enum EventType {
+  DEADLINE = 'deadline',
+  HEARING = 'hearing',
+  MEETING = 'meeting',
+  REVIEW = 'review',
+  CONSULTATION = 'consultation',
+  OTHER = 'other'
+}
+
+export enum EventPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  DISABLED = 'disabled',
+  SUSPENDED = 'suspended'
+}
+
+export enum EventStatus {
+  ACTIVE = 'active',
+  CLOSED = 'closed'
+}
+
+export interface IPaymentMethod {
+  id: string
+  brand: string
+  last4: string
+  expiryMonth: number
+  expiryYear: number
+}
+
 export interface IUser extends Document {
-  _id: string
+  _id: Types.ObjectId
   name: string
   email: string
   password: string
   lawFirm: string
-  role: 'lawyer' | 'admin'
-  plan: 'basic' | 'professional' | 'enterprise'
+  role: UserRole
+  plan: UserPlan
   planLimit: number
   currentCases: number
-  status: 'active' | 'disabled' | 'suspended'
+  status: UserStatus
   emailNotifications: boolean
   caseUpdates: boolean
   aiResponses: boolean
   marketingEmails: boolean
+  hoursSavedByAI: number
+  hoursSavedToday: number
+  lastHoursSavedReset: Date
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
+  paymentMethods: IPaymentMethod[]
+  defaultPaymentMethodId?: string
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
 }
 
 export interface ICase extends Document {
-  _id: string
+  _id: Types.ObjectId
   name: string
   client: string
   description: string
-  status: 'active' | 'closed' | 'archived'
-  userId: string
+  status: CaseStatus
+  userId: Types.ObjectId
+  practiceArea?: string
   createdAt: Date
   updatedAt: Date
   fileCount: number
 }
 
 export interface ICaseFile extends Document {
-  _id: string
+  _id: Types.ObjectId
   name: string
   originalName: string
   size: number
   type: string
-  caseId: string
-  userId: string
+  caseId: Types.ObjectId
+  userId: Types.ObjectId
   url: string
   key: string
   uploadedAt: Date
 }
 
 export interface IChatMessage extends Document {
-  _id: string
+  _id: Types.ObjectId
   content: string
   sender: 'user' | 'ai'
-  caseId: string
-  userId: string
+  caseId: Types.ObjectId
+  userId: Types.ObjectId
   timestamp: Date
   metadata?: {
     model?: string
     tokens?: number
     responseTime?: number
   }
+}
+
+export interface IEvent extends Document {
+  _id: Types.ObjectId
+  title: string
+  description?: string
+  start: Date
+  end?: Date
+  type: EventType
+  priority: EventPriority
+  caseId?: Types.ObjectId
+  userId: Types.ObjectId
+  location?: string
+  isAllDay: boolean
+  status: EventStatus
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface IAdminStats {
@@ -82,7 +158,7 @@ export interface IJWTPayload {
   plan: string
 }
 
-export interface IApiResponse<T = any> {
+export interface IApiResponse<T = unknown> {
   success: boolean
   message: string
   data?: T
@@ -92,7 +168,7 @@ export interface IApiResponse<T = any> {
 export interface ValidationError {
   field: string
   message: string
-  value?: any
+  value?: unknown
 }
 
 export interface IFileUploadResponse {
@@ -127,7 +203,7 @@ export interface ICaseUpdate {
   name?: string
   client?: string
   description?: string
-  status?: 'active' | 'closed' | 'archived'
+  status?: CaseStatus
 }
 
 export interface INotificationSettings {
@@ -152,35 +228,12 @@ export interface IValidationRule {
 export interface IValidationError {
   field: string
   message: string
-  value?: any
+  value?: unknown
 }
 
 export interface IMiddlewareError extends Error {
   statusCode?: number
   code?: string
-}
-
-export enum UserRole {
-  LAWYER = 'lawyer',
-  ADMIN = 'admin'
-}
-
-export enum UserPlan {
-  BASIC = 'basic',
-  PROFESSIONAL = 'professional',
-  ENTERPRISE = 'enterprise'
-}
-
-export enum CaseStatus {
-  ACTIVE = 'active',
-  CLOSED = 'closed',
-  ARCHIVED = 'archived'
-}
-
-export enum UserStatus {
-  ACTIVE = 'active',
-  DISABLED = 'disabled',
-  SUSPENDED = 'suspended'
 }
 
 export const PLAN_LIMITS: IPlanLimits = {

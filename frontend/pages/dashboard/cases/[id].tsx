@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import {
@@ -21,6 +21,7 @@ import {
   AlertCircle,
   Settings
 } from 'lucide-react'
+import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -72,29 +73,12 @@ export default function CaseDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (id) {
-      fetchCase()
-      fetchFiles()
-      fetchMessages()
-    }
-  }, [id])
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  const fetchCase = async () => {
+  const fetchCase = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
+      const response = await api.get(`/cases/${id}`)
+
+      if (response.status === 200) {
+        const data = response.data
         setCase(data)
       }
     } catch (error) {
@@ -102,43 +86,45 @@ export default function CaseDetail() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [id])
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/files`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
+      const response = await api.get(`/cases/${id}/files`)
+
+      if (response.status === 200) {
+        const data = response.data
         setFiles(data)
       }
     } catch (error) {
       console.error('Failed to fetch files:', error)
     }
-  }
+  }, [id])
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/chat`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
+      const response = await api.get(`/cases/${id}/chat`)
+
+      if (response.status === 200) {
+        const data = response.data
         setMessages(data)
       }
     } catch (error) {
       console.error('Failed to fetch messages:', error)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    if (id) {
+      fetchCase()
+      fetchFiles()
+      fetchMessages()
+    }
+  }, [id, fetchCase, fetchFiles, fetchMessages])
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleFileUpload = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,21 +132,18 @@ export default function CaseDetail() {
 
     setIsUploading(true)
     try {
-      const token = localStorage.getItem('token')
       const formData = new FormData()
       formData.append('file', selectedFile)
       formData.append('caseId', id as string)
 
-      const response = await fetch('/api/files/upload', {
-        method: 'POST',
+      const response = await api.post('/files/upload', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+          'Content-Type': 'multipart/form-data'
+        }
       })
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data
         setFiles(prev => [...prev, data])
         setShowUploadModal(false)
         setSelectedFile(null)
@@ -198,18 +181,10 @@ export default function CaseDetail() {
     setMessages(prev => [...prev, typingMessage])
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/cases/${id}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: userMessage.content })
-      })
+      const response = await api.post(`/cases/${id}/chat`, { message: userMessage.content })
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data
         // Remove typing indicator and add AI response
         setMessages(prev => {
           const filtered = prev.filter(msg => msg.id !== 'typing')
@@ -234,15 +209,9 @@ export default function CaseDetail() {
     if (!confirm('Are you sure you want to delete this file?')) return
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/files/${fileId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.delete(`/files/${fileId}`)
 
-      if (response.ok) {
+      if (response.status === 200) {
         setFiles(prev => prev.filter(file => file.id !== fileId))
       }
     } catch (error) {
@@ -252,15 +221,12 @@ export default function CaseDetail() {
 
   const handleFileDownload = async (file: CaseFile) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(file.url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await api.get(file.url, {
+        responseType: 'blob'
       })
 
-      if (response.ok) {
-        const blob = await response.blob()
+      if (response.status === 200) {
+        const blob = response.data
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -315,7 +281,7 @@ export default function CaseDetail() {
               </div>
               <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
             </Link>
-            
+
             <nav className="space-y-2">
               <Link href="/dashboard" className="sidebar-item sidebar-item-inactive">
                 <FileText className="w-5 h-5 mr-3" />
@@ -348,11 +314,10 @@ export default function CaseDetail() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className={`badge ${
-                    case_.status === 'active' ? 'badge-success' :
+                  <span className={`badge ${case_.status === 'active' ? 'badge-success' :
                     case_.status === 'closed' ? 'bg-law-charcoal-100 text-law-charcoal-800' :
-                    'badge-warning'
-                  }`}>
+                      'badge-warning'
+                    }`}>
                     {case_.status.charAt(0).toUpperCase() + case_.status.slice(1)}
                   </span>
                 </div>
@@ -468,20 +433,18 @@ export default function CaseDetail() {
                           >
                             <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                               <div className={`flex items-start space-x-3 ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  message.sender === 'user' ? 'bg-law-blue-600' : 'bg-law-charcoal-200'
-                                }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === 'user' ? 'bg-law-blue-600' : 'bg-law-charcoal-200'
+                                  }`}>
                                   {message.sender === 'user' ? (
                                     <User className="w-4 h-4 text-white" />
                                   ) : (
                                     <Bot className="w-4 h-4 text-law-charcoal-600" />
                                   )}
                                 </div>
-                                <div className={`px-4 py-3 rounded-law-lg ${
-                                  message.sender === 'user' 
-                                    ? 'bg-law-blue-600 text-white' 
-                                    : 'bg-law-charcoal-100 text-law-charcoal-900'
-                                }`}>
+                                <div className={`px-4 py-3 rounded-law-lg ${message.sender === 'user'
+                                  ? 'bg-law-blue-600 text-white'
+                                  : 'bg-law-charcoal-100 text-law-charcoal-900'
+                                  }`}>
                                   {message.isTyping ? (
                                     <div className="flex space-x-1">
                                       <div className="w-2 h-2 bg-law-charcoal-400 rounded-full animate-bounce"></div>

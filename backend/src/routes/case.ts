@@ -1,25 +1,17 @@
 import { Router } from 'express'
+import { createCase, getCases, getCaseStats, getCaseById, updateCase, deleteCase } from '../controllers/caseController'
+import { authenticate } from '../middleware/auth'
+
 const router = Router()
 
-// Placeholder routes - will be implemented
-router.get('/', (req, res) => {
-  res.json({ success: false, message: 'Get cases endpoint - coming soon' })
-})
+// All case routes require authentication (proper typing)
+router.use(authenticate)
 
-router.post('/', (req, res) => {
-  res.json({ success: false, message: 'Create case endpoint - coming soon' })
-})
-
-router.get('/:id', (req, res) => {
-  res.json({ success: false, message: 'Get case endpoint - coming soon' })
-})
-
-router.put('/:id', (req, res) => {
-  res.json({ success: false, message: 'Update case endpoint - coming soon' })
-})
-
-router.delete('/:id', (req, res) => {
-  res.json({ success: false, message: 'Delete case endpoint - coming soon' })
-})
+router.get('/', getCases)
+router.post('/', createCase)
+router.get('/stats', getCaseStats)
+router.get('/:id', getCaseById)
+router.put('/:id', updateCase)
+router.delete('/:id', deleteCase)
 
 export default router

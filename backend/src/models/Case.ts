@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema, Document } from 'mongoose'
 import { ICase, CaseStatus } from '../types'
 
 const caseSchema = new Schema<ICase>({
@@ -33,6 +33,11 @@ const caseSchema = new Schema<ICase>({
     type: Number,
     default: 0,
     min: 0
+  },
+  practiceArea: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Practice area cannot exceed 100 characters']
   }
 }, {
   timestamps: true,
@@ -42,12 +47,12 @@ const caseSchema = new Schema<ICase>({
 
 // Indexes
 caseSchema.index({ userId: 1 })
-caseSchema.index({ status: 1 })
-caseSchema.index({ createdAt: -1 })
+caseSchema.index({ userId: 1, status: 1 })
+caseSchema.index({ userId: 1, createdAt: -1 })
 caseSchema.index({ name: 'text', client: 'text', description: 'text' })
 
 // Pre-remove middleware to update user's case count
-caseSchema.pre('remove', async function(next) {
+caseSchema.pre('deleteOne', { document: true, query: false }, async function (this: ICase & Document, next: (err?: Error) => void) {
   try {
     const User = mongoose.model('User')
     await User.findByIdAndUpdate(this.userId, { $inc: { currentCases: -1 } })
@@ -58,21 +63,21 @@ caseSchema.pre('remove', async function(next) {
 })
 
 // Static methods
-caseSchema.statics.findByUser = function(userId: string, options: any = {}) {
-  const query = { userId }
-  
+caseSchema.statics.findByUser = function (userId: string, options: { status?: CaseStatus; limit?: number; skip?: number } = {}) {
+  const query: { userId: string; status?: CaseStatus } = { userId }
+
   if (options.status) {
     query.status = options.status
   }
-  
+
   return this.find(query)
     .sort({ createdAt: -1 })
     .limit(options.limit || 50)
     .skip(options.skip || 0)
 }
 
-caseSchema.statics.countByUser = function(userId: string, status?: string) {
-  const query: any = { userId }
+caseSchema.statics.countByUser = function (userId: string, status?: CaseStatus) {
+  const query: { userId: string; status?: CaseStatus } = { userId }
   if (status) {
     query.status = status
   }
@@ -80,11 +85,11 @@ caseSchema.statics.countByUser = function(userId: string, status?: string) {
 }
 
 // Virtuals
-caseSchema.virtual('isActive').get(function() {
+caseSchema.virtual('isActive').get(function (this: ICase & Document) {
   return this.status === CaseStatus.ACTIVE
 })
 
-caseSchema.virtual('isClosed').get(function() {
+caseSchema.virtual('isClosed').get(function (this: ICase & Document) {
   return this.status === CaseStatus.CLOSED
 })
 

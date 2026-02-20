@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import { Case, User, CaseFile, Event } from '../models'
-import { IApiResponse, IAuthRequest } from '../types'
+import { IApiResponse, IAuthRequest, IEvent } from '../types'
 
 // Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
@@ -87,7 +87,7 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
                 total: totalDocuments
             },
             recentCases: recentCases,
-            upcomingDeadlines: upcomingDeadlines.map(d => ({
+            upcomingDeadlines: upcomingDeadlines.map((d: any) => ({
                 id: d._id,
                 title: d.title,
                 date: d.start,

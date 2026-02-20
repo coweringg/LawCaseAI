@@ -46,6 +46,7 @@ import paymentRoutes from './routes/payment'
 import aiRoutes from './routes/ai'
 import dashboardRoutes from './routes/dashboard'
 import eventRoutes from './routes/event'
+import systemRoutes from './routes/system'
 
 const app = express()
 
@@ -98,6 +99,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // NoSQL injection protection
 app.use(mongoSanitize())
 
+// Global Maintenance Mode Check
+import { checkMaintenanceMode } from './middleware/maintenance'
+app.use(checkMaintenanceMode)
+
 // Logging
 if (config.nodeEnv === 'development') {
   app.use(morgan('dev'))
@@ -126,6 +131,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/user', userRoutes)
+app.use('/api/system', systemRoutes)
 
 // 404 handler
 app.use('*', (req: express.Request, res: express.Response) => {

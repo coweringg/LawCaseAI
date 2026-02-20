@@ -30,6 +30,28 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
+        // Handle 503 Maintenance Mode globally to prevent runtime crashes
+        if (error.response && error.response.status === 503) {
+            return Promise.resolve({
+                data: {
+                    success: false,
+                    message: 'System is under maintenance',
+                    maintenance: true
+                }
+            });
+        }
+
+        // Handle 429 Too Many Requests globally to prevent runtime crashes
+        if (error.response && error.response.status === 429) {
+            console.warn('Rate limit reached. Requests are being throttled.');
+            return Promise.resolve({
+                data: {
+                    success: false,
+                    message: 'Too many requests. Please slow down.'
+                }
+            });
+        }
+
         if (error.response && error.response.status === 401) {
             // Check if we are already on the login page to avoid loops
             if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {

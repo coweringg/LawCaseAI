@@ -29,7 +29,11 @@ export default function Dashboard() {
         if (response.data.success) {
           setDashboardData(response.data.data);
         }
-      } catch (error) {
+      } catch (error: any) {
+        // Ignore 503 errors as they are handled by the maintenance overlay
+        if (error.response && error.response.status === 503) {
+            return;
+        }
         console.error('Error fetching dashboard data:', error);
       } finally {
         setIsLoading(false);

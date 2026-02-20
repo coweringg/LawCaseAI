@@ -1,27 +1,15 @@
-import User from './User'
-import CaseModel from './Case'
-import CaseFileModel from './CaseFile'
-import ChatMessageModel from './ChatMessage'
-import EventModel from './Event'
-import TransactionModel from './Transaction'
-import AuditLog from './AuditLog'
+export { default as User } from './User'
+export { default as Case } from './Case'
+export { default as CaseFile } from './CaseFile'
+export { default as ChatMessage } from './ChatMessage'
+export { default as Event } from './Event'
+export { default as AuditLog } from './AuditLog'
+export { default as Transaction } from './Transaction'
+export { default as SystemSetting } from './SystemSetting'
 
-export {
-  User,
-  CaseModel as Case,
-  CaseFileModel as CaseFile,
-  ChatMessageModel as ChatMessage,
-  EventModel as Event,
-  TransactionModel as Transaction,
-  AuditLog
-}
-
-export default {
-  User,
-  Case: CaseModel,
-  CaseFile: CaseFileModel,
-  ChatMessage: ChatMessageModel,
-  Event: EventModel,
-  Transaction: TransactionModel,
-  AuditLog
-}
+// Re-export types if needed, or keep * if there are named exports used elsewhere
+export * from './User'
+export * from './Case'
+export * from './CaseFile'
+export * from './ChatMessage'
+export * from './Event'

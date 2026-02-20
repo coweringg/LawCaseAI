@@ -43,6 +43,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
     const [mounted, setMounted] = useState(false);
+    const [globalAlert, setGlobalAlert] = useState<{message: string, type: string} | null>(null);
+    const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -73,15 +75,32 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             }
         };
 
-        // Execute fetch usage stats fail-safe
-        fetchUsageStats().catch(() => {
-            // Error handled by global interceptor or ignored
-        });
+        const checkSystemStatus = () => {
+            if (!token) return;
+            // Poll for global system status (public endpoint, available to all users)
+            api.get('/system/status').then(res => {
+                if (res.data.success && res.data.data) {
+                    // Handle Global Alert
+                    setGlobalAlert(res.data.data.globalAlert || null);
+
+                    // Handle Maintenance Mode - block ALL non-admin users
+                    const isMaintenance = !!res.data.data.maintenanceMode;
+                    const isAdmin = user?.role === 'admin';
+                    setIsMaintenanceMode(isMaintenance && !isAdmin);
+                }
+            }).catch(() => {}) // Silent fail
+        };
+
+        fetchUsageStats().catch(() => {});
+
+        // Run immediately on mount, then every 30 seconds
+        checkSystemStatus();
 
         // Heartbeat to keep user online even when idle
         const heartbeatInterval = setInterval(() => {
             if (token && user) {
                 api.get('/user/profile').catch(() => {});
+                checkSystemStatus();
             }
         }, 30000);
 
@@ -138,7 +157,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }
     };
 
-    const isActive = (path: string) => {
+    const isActive = (path: string, exact = false) => {
+        if (exact) return router.pathname === path;
         return router.pathname === path || router.pathname.startsWith(`${path}/`);
     };
 
@@ -146,6 +166,49 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const showWarning = usagePercentage >= 80 && isBannerVisible;
 
     if (!mounted) return null;
+
+    // Maintenance Mode Overlay
+    if (isMaintenanceMode) {
+        return (
+            <div className="bg-slate-900 text-white h-screen flex flex-col items-center justify-center relative overflow-hidden font-display">
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <motion.div
+                        animate={{ opacity: [0.1, 0.2, 0.1], scale: [1, 1.1, 1] }}
+                        transition={{ duration: 5, repeat: Infinity }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-600/20 rounded-full blur-[150px]"
+                    />
+                </div>
+                <div className="z-10 text-center px-4 max-w-lg">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-24 h-24 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-2xl shadow-red-900/20"
+                    >
+                        <span className="material-icons-round text-5xl text-red-500">engineering</span>
+                    </motion.div>
+                    <h1 className="text-4xl font-black mb-4 tracking-tight">System Under Maintenance</h1>
+                    <p className="text-slate-400 text-lg leading-relaxed mb-8">
+                        We are currently performing scheduled maintenance to improve the platform. 
+                        Please check back in a few minutes.
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 text-xs font-bold uppercase tracking-widest text-slate-500 mb-8">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Updates in progress
+                    </div>
+
+                    <div>
+                        <button
+                            onClick={logout}
+                            className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto"
+                        >
+                            <span className="material-icons-round text-sm">logout</span>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display h-screen flex flex-col overflow-hidden relative">
@@ -193,6 +256,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
             )}
 
+            {/* Global System Alert */}
+            {globalAlert && (
+                <div className={`
+                    border-b py-3 px-4 flex items-center justify-between z-50 flex-shrink-0 animate-in slide-in-from-top
+                    ${globalAlert.type === 'error' ? 'bg-error-500 text-white border-error-600' : 
+                      globalAlert.type === 'success' ? 'bg-success-500 text-white border-success-600' : 
+                      globalAlert.type === 'warning' ? 'bg-warning-500 text-white border-warning-600' : 
+                      'bg-primary text-white border-primary'}
+                `}>
+                    <div className="flex items-center justify-center gap-3 flex-1">
+                        <span className="material-icons-round text-lg">
+                            {globalAlert.type === 'error' ? 'error' : 
+                             globalAlert.type === 'success' ? 'check_circle' : 
+                             globalAlert.type === 'warning' ? 'warning' : 'info'}
+                        </span>
+                        <p className="text-xs font-bold uppercase tracking-wide">
+                            {globalAlert.message}
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar */}
                 <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 flex flex-col hidden md:flex h-full relative overflow-hidden">
@@ -207,7 +292,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             </div>
                             <nav className="px-4 space-y-2">
                                 {(user?.role === 'admin' ? [
-                                    { href: '/dashboard/admin', label: 'Admin Panel', icon: 'admin_panel_settings' }
+                                    { href: '/dashboard/admin', label: 'Overview', icon: 'admin_panel_settings', exact: true },
+                                    { href: '/dashboard/admin/analytics', label: 'AI Analytics', icon: 'psychology', exact: false },
+                                    { href: '/dashboard/admin/treasury', label: 'Treasury', icon: 'account_balance', exact: false },
+                                    { href: '/dashboard/admin/system', label: 'System Command', icon: 'security', exact: false }
                                 ] : [
                                     { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
                                     { href: '/cases', label: 'My Cases', icon: 'folder_open' },
@@ -217,15 +305,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <Link key={item.href} href={item.href}>
                                         <motion.div
                                             whileHover={{ x: 4 }}
-                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all border group cursor-pointer ${isActive(item.href)
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all border group cursor-pointer ${isActive(item.href, (item as any).exact)
                                                 ? 'bg-primary/10 text-primary border-primary/20 shadow-lg shadow-primary/5'
                                                 : 'hover:bg-white/5 hover:text-white border-transparent'}`}
                                         >
-                                            <span className={`material-icons-round ${isActive(item.href) ? 'text-primary' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                                            <span className={`material-icons-round ${isActive(item.href, (item as any).exact) ? 'text-primary' : 'text-slate-500 group-hover:text-slate-300'}`}>
                                                 {item.icon}
                                             </span>
-                                            <span className={isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}>{item.label}</span>
-                                            {isActive(item.href) && (
+                                            <span className={isActive(item.href, (item as any).exact) ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}>{item.label}</span>
+                                            {isActive(item.href, (item as any).exact) && (
                                                 <motion.div layoutId="activeNav" className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
                                             )}
                                         </motion.div>

@@ -4,12 +4,24 @@ export interface User {
   name: string
   lawFirm?: string
   role: 'lawyer' | 'admin'
-  plan: 'basic' | 'professional' | 'enterprise'
+  plan: 'basic' | 'professional' | 'elite' | 'enterprise'
   planLimit: number
   currentCases: number
   createdAt: string
   isActive: boolean
   lastLogin?: string
+  organizationId?: string
+  isOrgAdmin?: boolean
+}
+
+export interface IOrganization {
+  id: string
+  name: string
+  firmCode: string
+  totalSeats: number
+  usedSeats: number
+  isActive: boolean
+  isOrgAdmin: boolean
 }
 
 export interface DashboardDeadline {

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { User } from '../models'
-import { IApiResponse, IUserRegistration, IUserLogin, UserRole } from '../types'
+import { IApiResponse, IUserRegistration, IUserLogin, UserRole, UserPlan } from '../types'
 import config from '../config'
 import { logAction } from '../utils/auditLogger'
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, lawFirm }: IUserRegistration = req.body
+    const { name, email, password, lawFirm, firmCode }: IUserRegistration = req.body
 
     // Check if user already exists
     const existingUser = await User.findOne({ email })
@@ -18,14 +18,49 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    let organizationId = null
+    let plan = UserPlan.NONE
+    let effectiveLawFirm = lawFirm
+
+    // If firmCode provided, handle organizational join
+    if (firmCode) {
+      const { default: Organization } = await import('../models/Organization')
+      const org = await Organization.findOne({ firmCode: firmCode.toUpperCase(), isActive: true })
+      
+      if (!org) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid or inactive firm code'
+        } as IApiResponse)
+        return
+      }
+
+      if (org.usedSeats >= org.totalSeats) {
+        res.status(400).json({
+          success: false,
+          message: 'No seats available in this organization'
+        } as IApiResponse)
+        return
+      }
+
+      organizationId = org._id
+      plan = UserPlan.ELITE // All firm members get Elite
+      effectiveLawFirm = org.name
+
+      // Increment used seats
+      org.usedSeats += 1
+      await org.save()
+    }
+
     // Create new user
     const user = new User({
       name,
       email,
       password,
-      lawFirm,
+      lawFirm: effectiveLawFirm,
       role: 'lawyer',
-      plan: 'basic'
+      plan,
+      organizationId
     })
 
     await user.save()
@@ -67,7 +102,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           plan: user.plan,
           planLimit: user.planLimit,
           currentCases: user.currentCases,
-          createdAt: user.createdAt
+          createdAt: user.createdAt,
+          isOrgAdmin: user.isOrgAdmin,
+          organizationId: user.organizationId
         },
         token
       }
@@ -164,7 +201,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           plan: user.plan,
           planLimit: user.planLimit,
           currentCases: user.currentCases,
-          lastLogin: user.lastLogin
+          lastLogin: user.lastLogin,
+          isOrgAdmin: user.isOrgAdmin,
+          organizationId: user.organizationId
         },
         token
       }

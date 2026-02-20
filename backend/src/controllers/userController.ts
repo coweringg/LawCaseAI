@@ -279,7 +279,7 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       planLimit: user.planLimit,
       currentCases: user.currentCases,
       remainingCases: Math.max(0, user.planLimit - user.currentCases),
-      planUsagePercentage: Math.round((user.currentCases / user.planLimit) * 100),
+      planUsagePercentage: user.planLimit > 0 ? Math.round((user.currentCases / user.planLimit) * 100) : 0,
       isAtPlanLimit: user.currentCases >= user.planLimit,
       paymentMethods: user.paymentMethods || [],
       defaultPaymentMethodId: user.defaultPaymentMethodId || (user.paymentMethods.length > 0 ? user.paymentMethods[0].id : null)

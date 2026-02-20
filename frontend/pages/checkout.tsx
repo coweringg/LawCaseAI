@@ -1,226 +1,255 @@
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  ArrowRight, 
+  Building2, 
+  User as UserIcon,
+  ChevronLeft,
+  Globe,
+  Sparkles
+} from 'lucide-react';
+import Link from 'next/link';
+
+interface OrderSummary {
+  plan: string;
+  seats: number;
+  pricePerUser: number;
+  totalPrice: number;
+  interval: 'monthly' | 'annual';
+  isBusiness: boolean;
+}
 
 export default function Checkout() {
-    const router = useRouter();
-    const { plan } = router.query;
-    const { token, updateUser } = useAuth();
-    const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { plan, seats, type } = router.query;
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [order, setOrder] = useState<OrderSummary | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const planDetails = {
-        basic: { name: 'Associate', price: '49.00', cases: '5' },
-        professional: { name: 'Partner', price: '149.00', cases: '20' },
-        enterprise: { name: 'Enterprise', price: 'Custom', cases: 'Unlimited' }
-    };
+  useEffect(() => {
+    setMounted(true);
 
-    const selectedPlan = (plan as string) || 'professional';
-    const activePlan = (planDetails as any)[selectedPlan] || planDetails.professional;
+    if (router.isReady) {
+      if (!plan) {
+        router.push('/pricing');
+        return;
+      }
 
-    const handleCheckout = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
+      const isBusiness = type === 'empresa' || (plan === 'elite' && seats);
+      const seatCount = seats ? parseInt(seats as string) : 1;
+      
+      let price = 0;
+      const p = (plan as string).toLowerCase();
+      if (isBusiness) {
+        price = 300;
+      } else {
+        if (p === 'basic' || p === 'growth') price = 99;
+        else if (p === 'professional') price = 199;
+        else if (p === 'elite') price = 300;
+      }
 
-        try {
-            const response = await api.post('/payments/confirm', { planId: selectedPlan });
-            const data = response.data;
+      setOrder({
+        plan: p,
+        seats: seatCount,
+        pricePerUser: price,
+        totalPrice: price * seatCount,
+        interval: 'monthly',
+        isBusiness: !!isBusiness
+      });
+    }
+  }, [router.isReady, plan, seats, type, router]);
 
-            if (data.success) {
-                toast.success('Subscription activated!');
-                updateUser(data.data.user);
-                router.push('/success');
-            } else {
-                toast.error(data.message || 'Payment failed');
-            }
-        } catch (error) {
-            toast.error('Network error during payment');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const handleCompletePurchase = async () => {
+    if (!order || !user) {
+      toast.error("Missing order data");
+      return;
+    }
 
-    return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
-            {/* Header / Navigation */}
-            <nav className="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                        <span className="material-icons-round text-white text-lg">gavel</span>
-                    </div>
-                    <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">LawCase<span className="text-primary">AI</span></span>
-                </Link>
-                <Link href="/dashboard" className="text-sm font-medium text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
-                    <span className="material-icons-round text-sm">arrow_back</span>
-                    Back to Dashboard
-                </Link>
-            </nav>
+    setIsLoading(true);
 
-            {/* Main Checkout Container */}
-            <main className="max-w-xl mx-auto px-6 pb-24">
-                {/* Step Indicator */}
-                <div className="flex items-center justify-between mb-12 relative">
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 dark:bg-slate-800 -z-10 -translate-y-1/2"></div>
-                    {/* Step 1 */}
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold border-4 border-background-light dark:border-background-dark">
-                            <span className="material-icons-round text-sm">check</span>
-                        </div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Account</span>
-                    </div>
-                    {/* Step 2 */}
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold ring-4 ring-primary/20 border-4 border-background-light dark:border-background-dark">
-                            2
-                        </div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-primary">Payment</span>
-                    </div>
-                    {/* Step 3 */}
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center text-xs font-bold border-4 border-background-light dark:border-background-dark">
-                            3
-                        </div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Activation</span>
-                    </div>
+    try {
+      const { data: response } = await api.post('/api/payments/confirm-purchase', {
+        plan: order.plan,
+        seats: order.seats,
+        isBusiness: order.isBusiness,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to initialize payment');
+      }
+
+      // Simulate network delay for the transaction
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      toast.success("Purchase initialized successfully!");
+      if (order.isBusiness) {
+        router.push('/dashboard?status=success_org');
+      } else {
+        router.push('/dashboard?status=success');
+      }
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Transaction error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!mounted || !order) return (
+    <div className="min-h-screen bg-background-dark flex items-center justify-center">
+       <div className="animate-spin h-12 w-12 border-4 border-primary/20 border-t-primary rounded-full" />
+    </div>
+  );
+
+  return (
+    <DashboardLayout>
+      <Head>
+        <title>Checkout - Secure Payment | LawCaseAI</title>
+      </Head>
+
+      <div className="max-w-6xl mx-auto pt-8 pb-16 px-4">
+        <Link href="/pricing" className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-8 group">
+          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-black uppercase tracking-widest">Pricing & Tiers</span>
+        </Link>
+
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-7 space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-dark border border-white/5 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16"></div>
+
+              <div className="flex justify-between items-start mb-10">
+                <div>
+                  <h1 className="text-4xl font-black text-white mb-2 font-display tracking-tight">
+                    Cross-Border <span className="text-primary italic">Checkout</span>
+                  </h1>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Global Compliance Enabled via Paddle</p>
+                </div>
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary border border-primary/20">
+                  <ShieldCheck size={28} />
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                   <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                      <span className="text-xs font-black text-white uppercase tracking-widest">Secure Connection Verified</span>
+                   </div>
+                   <p className="text-slate-400 text-sm leading-relaxed">
+                      You are using our global payment infrastructure. This allows for seamless USD transactions from the United States with full regulatory compliance in Uruguay.
+                   </p>
                 </div>
 
-                {/* Checkout Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div className="p-8">
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Secure Payment</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">Professional firm billing for LawCaseAI {activePlan.name}.</p>
-
-                        {/* Express Pay Options */}
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-black text-white hover:bg-slate-800 transition-all">
-                                <span className="font-medium text-sm">Apple Pay</span>
-                            </button>
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
-                                <span className="font-medium text-sm">Google Pay</span>
-                            </button>
-                        </div>
-
-                        <div className="relative flex items-center justify-center mb-8">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-100 dark:border-slate-800"></div>
-                            </div>
-                            <span className="relative px-4 bg-white dark:bg-slate-900 text-[10px] uppercase tracking-widest text-slate-400 font-bold">Or pay with card</span>
-                        </div>
-
-                        {/* Card Form */}
-                        <form className="space-y-4" onSubmit={handleCheckout}>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Cardholder Name</label>
-                                <input className="w-full px-4 py-3 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" placeholder="e.g. Jonathan Aris" type="text" required />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Card Number</label>
-                                <div className="relative">
-                                    <input className="w-full px-4 py-3 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" placeholder="0000 0000 0000 0000" type="text" required />
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                                        <span className="material-icons-round text-slate-300">credit_card</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expiry Date</label>
-                                    <input className="w-full px-4 py-3 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" placeholder="MM / YY" type="text" required />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">CVV</label>
-                                    <input className="w-full px-4 py-3 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm" placeholder="123" type="text" required />
-                                </div>
-                            </div>
-
-                            <div className="pt-6">
-                                <div className="flex justify-between items-end mb-6">
-                                    <div>
-                                        <span className="text-xs font-bold text-slate-400 uppercase">{activePlan.name} Plan</span>
-                                        <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                                            {activePlan.price === 'Custom' ? 'Contact Us' : `$${activePlan.price}`}
-                                            {activePlan.price !== 'Custom' && <span className="text-sm font-normal text-slate-400">/mo</span>}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <span className="text-xs text-slate-400">Taxes calculated at next step</span>
-                                    </div>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 disabled:opacity-70"
-                                >
-                                    {isLoading ? (
-                                        'Processing...'
-                                    ) : (
-                                        <>
-                                            <span className="material-icons-round text-sm">lock</span>
-                                            Complete Secure Purchase
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    {/* Benefits Summary Section */}
-                    <div className="bg-slate-50 dark:bg-slate-800/50 p-8 border-t border-slate-100 dark:border-slate-800">
-                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Plan Benefits</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-start gap-3">
-                                <span className="material-icons-round text-primary text-sm mt-0.5">check_circle</span>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">20 Active Cases</p>
-                                    <p className="text-[11px] text-slate-500">Full lifecycle management</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <span className="material-icons-round text-primary text-sm mt-0.5">check_circle</span>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Unlimited AI Chat</p>
-                                    <p className="text-[11px] text-slate-500">Legal research assistant</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <span className="material-icons-round text-primary text-sm mt-0.5">check_circle</span>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Advanced OCR</p>
-                                    <p className="text-[11px] text-slate-500">High-speed document parsing</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <span className="material-icons-round text-primary text-sm mt-0.5">check_circle</span>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">SOC2 Compliant</p>
-                                    <p className="text-[11px] text-slate-500">Enterprise grade security</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="pt-6">
+                  <button 
+                    onClick={handleCompletePurchase}
+                    disabled={isLoading}
+                    className="w-full py-6 bg-primary text-white text-sm font-black uppercase tracking-[0.3em] rounded-[1.5rem] shadow-2xl shadow-primary/30 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-4 disabled:opacity-50 group"
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin h-6 w-6 border-4 border-white/20 border-t-white rounded-full" />
+                    ) : (
+                      <>
+                        Initialize Secure Payment
+                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
                 </div>
 
-                {/* Trust Badges */}
-                <div className="mt-12 flex flex-col items-center gap-6">
-                    <div className="flex items-center gap-2 text-slate-400">
-                        <span className="material-icons-round text-sm">verified_user</span>
-                        <span className="text-xs font-medium">Secure 256-bit SSL Encrypted Connection</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                        By completing this purchase, you agree to LawCaseAI's Terms of Service and Data Processing Agreement.<br />
-                        Your data is protected under legal-grade encryption standards.
-                    </p>
+                <div className="flex items-center justify-center gap-8 pt-4">
+                   <div className="flex items-center gap-2">
+                      <ShieldCheck size={14} className="text-emerald-500" />
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Paddle Verified Merchant</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <Globe size={14} className="text-emerald-500" />
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">International Compliance</span>
+                   </div>
                 </div>
-            </main>
+              </div>
+            </motion.div>
+          </div>
 
-            {/* Footer Support Link */}
-            <footer className="fixed bottom-0 left-0 w-full p-6 text-center">
-                <a className="text-xs font-semibold text-slate-400 hover:text-primary transition-colors" href="#">
-                    Need help? Contact our Firm Concierge Team
-                </a>
-            </footer>
+          <div className="lg:col-span-5">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="glass-dark border border-white/5 rounded-[2.5rem] p-10 sticky top-24 shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 right-10 bg-primary/20 text-primary text-[10px] font-black px-4 py-2 rounded-b-2xl uppercase tracking-[0.2em] border border-t-0 border-primary/30">
+                L-C-AI Global
+              </div>
+
+              <h2 className="text-2xl font-black text-white mb-8 font-display">Provisioning <span className="text-primary italic">Plan</span></h2>
+              
+              <div className="space-y-8">
+                <div className="pb-8 border-b border-white/5 space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-5">
+                      <div className={`p-4 rounded-[1.25rem] ${order.isBusiness ? 'bg-primary/20 text-primary border border-primary/20' : 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/20'}`}>
+                        {order.isBusiness ? <Building2 size={32} /> : <UserIcon size={32} />}
+                      </div>
+                      <div>
+                        <p className="text-lg font-black text-white uppercase tracking-tighter">{order.plan} License</p>
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{order.isBusiness ? 'Corporate FIRM Hub' : 'Individual Practitioner'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-2xl p-4 flex justify-between items-center border border-white/5">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Seats Allocated</span>
+                    <span className="text-white font-black">{order.seats} Users</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between text-xs text-slate-500 font-black uppercase tracking-[0.2em]">
+                    <span>Standard Billing</span>
+                    <span className="text-slate-300">${(order.pricePerUser * order.seats).toLocaleString()} /mo</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-slate-500 font-black uppercase tracking-[0.2em]">
+                    <span>Neural Credits</span>
+                    <span className="text-emerald-500">Unlimited</span>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-white/10 flex justify-between items-end">
+                  <div>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Total Monthly Commitment</p>
+                    <p className="text-5xl font-black text-white tracking-tighter">${order.totalPrice.toLocaleString()}</p>
+                  </div>
+                  <p className="text-xs text-slate-500 font-black uppercase mb-2 tracking-widest">USD</p>
+                </div>
+              </div>
+
+              <div className="mt-10 p-5 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-4">
+                 <div className="bg-primary/20 p-2 rounded-lg text-primary">
+                    <Sparkles size={20} />
+                 </div>
+                 <div>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">Instant Deployment</p>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Plan activated immediately after success</p>
+                 </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
-    );
+      </div>
+    </DashboardLayout>
+  );
 }

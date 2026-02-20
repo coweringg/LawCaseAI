@@ -7,8 +7,8 @@ interface AuthContextType {
   user: User | null
   token: string | null
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; message: string }>
-  register: (userData: any) => Promise<{ success: boolean; message: string }>
+  login: (email: string, password: string) => Promise<{ success: boolean; message: string; error?: any }>
+  register: (userData: any) => Promise<{ success: boolean; message: string; error?: any }>
   logout: () => void
   updateProfile: (userData: { name: string; lawFirm: string; email: string }) => Promise<{ success: boolean; message: string }>
   changePassword: (passwordData: any) => Promise<{ success: boolean; message: string }>
@@ -20,7 +20,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const publicRoutes = ['/', '/login', '/register', '/pricing', '/about', '/features', '/privacy', '/terms']
-const restrictedRoutes = ['/pricing', '/about', '/features', '/register', '/login']
+const restrictedRoutes = ['/pricing', '/about', '/features', '/login']
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -72,9 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
     }
-  }, [router.pathname, user, isLoading])
+  }, [router, user, isLoading])
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; message: string; error?: any }> => {
     try {
       const response = await api.post('/auth/login', { email, password })
 
@@ -91,11 +91,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('user', JSON.stringify(data.user))
       return { success: true, message: message || 'Login successful' }
     } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Login failed' }
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed',
+        error: error.response?.data?.error
+      }
     }
   }
 
-  const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
+  const register = async (userData: any): Promise<{ success: boolean; message: string; error?: any }> => {
     try {
       const response = await api.post('/auth/register', userData)
 
@@ -112,7 +116,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('user', JSON.stringify(data.user))
       return { success: true, message: message || 'Registration successful' }
     } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Registration failed' }
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Registration failed',
+        error: error.response?.data?.error
+      }
     }
   }
 

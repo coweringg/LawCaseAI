@@ -6,8 +6,11 @@ import PublicLayout from '@/components/layouts/PublicLayout';
 import { Check, Star, Shield, Zap, Info } from 'lucide-react';
 
 export default function Pricing() {
-  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
+  const [pricingType, setPricingType] = useState<'personal' | 'empresa'>('personal');
+  const [seats, setSeats] = useState(10);
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -17,6 +20,8 @@ export default function Pricing() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 }
   };
+
+  const businessPrice = seats * 300;
 
   if (!mounted) {
     return (
@@ -30,7 +35,7 @@ export default function Pricing() {
     <PublicLayout>
       <Head>
         <title>Pricing - LawCaseAI | Invest in Your Practice</title>
-        <meta name="description" content="Simple, transparent pricing for law firms of all sizes. Choice between Growth, Professional and Enterprise plans." />
+        <meta name="description" content="Simple, transparent pricing for law firms of all sizes. Choice between Personal and Business plans." />
       </Head>
 
       <section className="relative pt-32 pb-24 bg-background-dark overflow-hidden">
@@ -41,135 +46,218 @@ export default function Pricing() {
             animate="animate"
             variants={fadeInUp}
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-display">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-display leading-tight">
               Invest in your <br />
-              <span className="text-primary italic">Firm's Future</span>
+              <span className="text-primary italic">Firm&apos;s Future</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12">
-              Transparent, professional-tier subscriptions. <br className="hidden md:block" />
-              Scale your intelligence as you scale your practice.
-            </p>
 
-            <div className="flex justify-center items-center gap-6 mb-16">
-              <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
-              <button
-                role="switch"
-                aria-checked={billingInterval === 'annual'}
-                onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-                className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
-              >
-                <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
-              </button>
-              <div className="flex flex-col items-start">
-                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
-                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
+            {/* Main Toggle: Personal vs Empresa */}
+            <div className="flex justify-center mb-12">
+              <div className="bg-slate-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl flex gap-1">
+                <button
+                  onClick={() => setPricingType('personal')}
+                  className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${pricingType === 'personal' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
+                >
+                  Personal Firm
+                </button>
+                <button
+                  onClick={() => setPricingType('empresa')}
+                  className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${pricingType === 'empresa' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
+                >
+                  Business Firm
+                </button>
               </div>
             </div>
+
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12">
+              {pricingType === 'personal' 
+                ? 'Professional subscriptions billed per individual practitioner. Scale your intelligence as you scale your practice.'
+                : 'Corporate solutions with centralized billing. Empower your entire team with unlimited Elite access.'}
+            </p>
+
+            {pricingType === 'personal' && (
+              <div className="flex justify-center items-center gap-6 mb-16">
+                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
+                <button
+                  role="switch"
+                  aria-checked={billingInterval === 'annual'}
+                  onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                  className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
+                >
+                  <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                </button>
+                <div className="flex flex-col items-start">
+                  <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
+                  <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
+                </div>
+              </div>
+            )}
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
-            {/* Associate Plan */}
+          {pricingType === 'personal' ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+              {/* Growth Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="glass-dark rounded-[2rem] border border-white/5 p-10 text-left hover:shadow-2xl transition-all"
+              >
+                <div className="mb-8">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Growth</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '79' : '99'}</span>
+                    <div className="flex flex-col">
+                      <span className="text-slate-500 font-medium text-sm">/mo</span>
+                    </div>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-10 min-h-[220px]">
+                  {["8 Active AI Matters", "Automated Chronology Suite", "Knowledge Base Search", "SOC2 Type II Security", "Standard AI Discovery"].map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
+                      <Check size={18} className="text-primary" /> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link 
+                  href="/register?plan=growth"
+                  className="w-full py-4 bg-white/5 text-white rounded-xl font-bold hover:bg-white/10 transition-colors text-center block"
+                >
+                  Select Growth
+                </Link>
+              </motion.div>
+
+              {/* Professional Plan */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="glass-dark rounded-[2.5rem] border-2 border-primary p-10 text-left shadow-2xl shadow-primary/10 relative transform md:-translate-y-8"
+              >
+                <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-bold px-4 py-1 rounded-b-xl uppercase tracking-widest">Recommended</div>
+                <div className="mb-8">
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em] mb-4">Professional</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '159' : '199'}</span>
+                    <div className="flex flex-col">
+                      <span className="text-slate-500 font-medium text-sm">/mo</span>
+                    </div>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-10 min-h-[220px]">
+                  {["18 Active AI Matters", "Advanced AI Jurisprudence", "Team Collaboration Portal", "Premium Matter Analytics", "Priority GPU Allocation", "HIPAA & GDPR Compliance"].map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 text-slate-300 text-sm font-medium">
+                      <Check size={18} className="text-primary" /> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link 
+                  href="/register?plan=professional"
+                  className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-xl shadow-primary/30 transition-all text-center block"
+                >
+                  Go Professional
+                </Link>
+              </motion.div>
+
+              {/* Elite Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass-dark rounded-[2rem] border border-white/5 p-10 text-left hover:shadow-2xl transition-all"
+              >
+                <div className="mb-8">
+                  <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-[0.2em] mb-4">Elite</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '249' : '300'}</span>
+                    <div className="flex flex-col">
+                      <span className="text-slate-500 font-medium text-sm">/mo</span>
+                    </div>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-10 min-h-[220px]">
+                  {["Unlimited Active Matters", "Cross-Matter AI Intelligence", "Dedicated Success Manager", "Bulk Neural Transcription", "Firm-wide Knowledge Bank", "White-label Client Portals"].map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
+                      <Check size={18} className="text-primary" /> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link 
+                  href="/register?plan=elite"
+                  className="w-full py-4 bg-emerald-500 text-white rounded-xl font-bold shadow-xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-center block"
+                >
+                  Select Elite
+                </Link>
+              </motion.div>
+            </div>
+          ) : (
+            /* Business / Empresa Track */
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 p-10 text-left shadow-sm hover:shadow-2xl transition-all"
+              className="max-w-4xl mx-auto"
             >
-              <div className="mb-8">
-                <h3 className="text-sm font-bold text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Growth</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-5xl font-bold dark:text-white">${billingInterval === 'annual' ? '49' : '59'}</span>
-                  <span className="text-slate-500 font-medium">/mo</span>
-                </div>
-                <p className="text-xs text-slate-400">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-              </div>
-              <ul className="space-y-4 mb-10 min-h-[220px]">
-                {[
-                  "5 Active AI Cases",
-                  "Standard Discovery Suite",
-                  "Knowledge Base Search",
-                  "SOC2 Type II Security",
-                  "Email Support (24h)"
-                ].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-400 text-sm">
-                    <Check size={18} className="text-primary" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-4 bg-slate-100 dark:bg-slate-800 dark:text-white rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                Select Growth
-              </button>
-            </motion.div>
+              <div className="glass-dark rounded-[3rem] border border-white/10 p-12 text-left relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+                
+                <div className="grid md:grid-cols-2 gap-16 items-center">
+                  <div>
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">ELITE FIRM LICENSE</h3>
+                    <p className="text-slate-400 mb-8 leading-relaxed">
+                      Acquire unlimited Elite licenses for your entire team. Get an exclusive firm code for instant access.
+                    </p>
+                    
+                    <div className="space-y-8 mb-12">
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-end">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Number of Lawyers</span>
+                          <span className="text-2xl font-black text-primary">{seats} Seats</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="5" 
+                          max="200" 
+                          value={seats} 
+                          onChange={(e) => setSeats(parseInt(e.target.value))}
+                          className="w-full h-2 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary border border-white/5"
+                        />
+                        <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                          <span>5 Users</span>
+                          <span>200+ Users</span>
+                        </div>
+                      </div>
+                    </div>
 
-            {/* Partner Plan */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-primary p-10 text-left shadow-2xl shadow-primary/10 relative transform md:-translate-y-8"
-            >
-              <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-bold px-4 py-1 rounded-b-xl uppercase tracking-widest">Recommended</div>
-              <div className="mb-8">
-                <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em] mb-4">Professional</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-5xl font-bold dark:text-white">${billingInterval === 'annual' ? '149' : '179'}</span>
-                  <span className="text-slate-500 font-medium">/mo</span>
-                </div>
-                <p className="text-xs text-slate-400">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-              </div>
-              <ul className="space-y-4 mb-10 min-h-[220px]">
-                {[
-                  "20 Active AI Cases",
-                  "Deep Discovery Insights",
-                  "Elite Jurisprudence Bank",
-                  "Team Collaboration Portal",
-                  "Auto-Chronology Engine",
-                  "Priority Support (1h)",
-                  "HIPAA Compliance"
-                ].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
-                    <Check size={18} className="text-primary" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-xl shadow-primary/30 transition-all">
-                Go Professional
-              </button>
-            </motion.div>
+                    <ul className="space-y-3">
+                      {["Centralized Firm Billing", "Global Knowledge Bank", "Enterprise-Grade Security", "24/7 Priority Concierge"].map((f, i) => (
+                        <li key={i} className="flex items-center gap-3 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                          <Check size={16} className="text-primary" /> {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-            {/* Enterprise Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-white/5 p-10 text-left shadow-sm hover:shadow-2xl transition-all"
-            >
-              <div className="mb-8">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Enterprise</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-5xl font-bold dark:text-white">Custom</span>
+                  <div className="bg-white/5 rounded-[2.5rem] p-10 border border-white/5 text-center">
+                    <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Monthly Total</p>
+                    <div className="flex justify-center items-baseline gap-2 mb-8">
+                      <span className="text-6xl font-black text-white tracking-tighter">${businessPrice.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-slate-500 uppercase">/mo</span>
+                    </div>
+                    
+                    <Link 
+                      href={`/register?plan=elite&seats=${seats}&type=empresa`}
+                      className="w-full py-5 bg-primary text-white text-sm font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all mb-4 text-center block"
+                    >
+                      Get Firm Code
+                    </Link>
+                    <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.1em]">
+                      Corporate Billing · Wire or Card
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-400">Firm-wide licensing</p>
               </div>
-              <ul className="space-y-4 mb-10 min-h-[220px]">
-                {[
-                  "Unlimited AI Cases",
-                  "Full API Access",
-                  "Dedicated AI Training",
-                  "Custom Compliance Rules",
-                  "On-premise Options",
-                  "White-label Portals"
-                ].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-400 text-sm">
-                    <Check size={18} className="text-primary" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-4 bg-background-dark text-white dark:bg-white dark:text-background-dark rounded-xl font-bold hover:opacity-90 transition-opacity">
-                Contact Sales
-              </button>
             </motion.div>
-          </div>
+          )}
         </div>
       </section>
 

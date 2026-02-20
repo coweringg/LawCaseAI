@@ -8,9 +8,12 @@ export { default as Transaction } from './Transaction'
 export { default as SystemSetting } from './SystemSetting'
 export { default as SupportRequest } from './SupportRequest'
 
+export { default as Organization } from './Organization'
+
 // Re-export types if needed, or keep * if there are named exports used elsewhere
 export * from './User'
 export * from './Case'
 export * from './CaseFile'
 export * from './ChatMessage'
 export * from './Event'
+export * from './Organization'

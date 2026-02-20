@@ -6,27 +6,46 @@ import { useAuth } from '@/contexts/AuthContext'
 import toast from 'react-hot-toast'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { validateEmail, validatePassword } from '@/utils/helpers'
-import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building } from 'lucide-react'
+import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building, CheckCircle2 } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export default function Register() {
+  const [registrationMode, setRegistrationMode] = useState<'individual' | 'empresa'>('individual')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     lawFirm: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    firmCode: ''
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const { register } = useAuth()
+  const { register, user } = useAuth()
   const router = useRouter()
+  const { plan, seats: seatsQuery, type } = router.query
+
+  useEffect(() => {
+    if (user && !registrationSuccess) {
+      router.push('/dashboard')
+    }
+  }, [user, registrationSuccess, router])
+
+  useEffect(() => {
+    if (router.isReady) {
+      if (type === 'empresa') {
+        setRegistrationMode('empresa')
+      }
+    }
+  }, [router.isReady, type])
 
   if (!mounted) {
     return (
@@ -49,7 +68,13 @@ export default function Register() {
     if (!formData.name.trim()) newErrors.name = 'Full name is required'
     if (!formData.email) newErrors.email = 'Email is required'
     else if (!validateEmail(formData.email)) newErrors.email = 'Invalid email address'
-    if (!formData.lawFirm.trim()) newErrors.lawFirm = 'Law firm name is required'
+    
+    if (registrationMode === 'individual') {
+      if (!formData.lawFirm.trim()) newErrors.lawFirm = 'Law firm name is required'
+    } else {
+      if (!formData.firmCode.trim()) newErrors.firmCode = 'Firm code is required'
+    }
+
     if (!formData.password) newErrors.password = 'Password is required'
     else if (!validatePassword(formData.password)) newErrors.password = 'At least 8 characters'
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
@@ -68,21 +93,107 @@ export default function Register() {
       const result = await register({
         name: formData.name,
         email: formData.email,
-        lawFirm: formData.lawFirm,
-        password: formData.password
+        lawFirm: registrationMode === 'individual' ? formData.lawFirm : 'Company User',
+        password: formData.password,
+        firmCode: registrationMode === 'empresa' ? formData.firmCode : undefined
       })
 
       if (result.success) {
         toast.success('Account created successfully!')
-        router.push('/dashboard')
+        setRegistrationSuccess(true);
       } else {
-        toast.error(result.message)
+        // Handle validation errors from backend
+        if (result.error && Array.isArray(result.error)) {
+          const newErrors: Record<string, string> = {};
+          result.error.forEach((err: any) => {
+            newErrors[err.field] = err.message;
+          });
+          setErrors(newErrors);
+          toast.error('Please check the highlighted fields');
+        } else {
+          toast.error(result.message || 'Registration failed');
+        }
       }
     } catch (error) {
-      toast.error('An unexpected error occurred')
+      toast.error('An unexpected error occurred');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
+  }
+
+  if (registrationSuccess) {
+    return (
+      <AuthLayout>
+        <Head>
+          <title>Account Ready - LawCaseAI</title>
+        </Head>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-8 py-8"
+        >
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-2xl shadow-primary/20">
+              <CheckCircle2 size={40} />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-black text-white mb-3 font-display tracking-tight">System Initialized</h2>
+            <p className="text-slate-400 text-sm font-medium">Your professional AI workspace is ready. <br /> How would you like to proceed?</p>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Select Your Infrastructure Tier</h3>
+            
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+                { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', color: 'bg-primary/10 text-primary border-primary/20' },
+                { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' }
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    const checkoutUrl = `/checkout?plan=${p.id}${seatsQuery ? `&seats=${seatsQuery}` : ''}${registrationMode === 'empresa' ? '&type=empresa' : ''}`;
+                    router.push(checkoutUrl);
+                  }}
+                  className={`w-full p-4 rounded-2xl border flex items-center justify-between group hover:scale-[1.02] active:scale-[0.98] transition-all bg-white/5 border-white/5 hover:border-white/20`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${p.color}`}>
+                      {p.id.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white font-bold text-sm tracking-tight">{p.name}</p>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{p.cases}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-black text-lg font-display">{p.price}<span className="text-[10px] text-slate-500">/mo</span></p>
+                    <div className="flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform">
+                      <span className="text-[10px] font-black uppercase tracking-widest">Select</span>
+                      <ArrowRight size={12} />
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full py-5 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-colors border-t border-white/5 mt-4"
+            >
+              Skip for now, explore dashboard
+            </button>
+          </div>
+
+          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest pt-4">
+            You can always configure your subscription in Settings
+          </p>
+        </motion.div>
+      </AuthLayout>
+    )
   }
 
   return (
@@ -103,10 +214,36 @@ export default function Register() {
         </button>
       </div>
 
+      {/* Dual Registration Mode Selector */}
+      <div className="flex justify-center mb-10">
+        <div className="bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl border border-slate-200 dark:border-white/5 flex gap-1 w-full">
+          <button
+            type="button"
+            onClick={() => setRegistrationMode('individual')}
+            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationMode === 'individual' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-700 dark:hover:text-white'}`}
+          >
+            Individual Registration
+          </button>
+          <button
+            type="button"
+            onClick={() => setRegistrationMode('empresa')}
+            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationMode === 'empresa' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-700 dark:hover:text-white'}`}
+          >
+            Join a Firm
+          </button>
+        </div>
+      </div>
+
       {/* Heading */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 font-display">Setup Your Firm</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">Deploy your professional AI infrastructure today.</p>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 font-display">
+          {registrationMode === 'individual' ? 'Setup Your Firm' : 'Link Your Account'}
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">
+          {registrationMode === 'individual' 
+            ? 'Deploy your professional AI infrastructure today.' 
+            : 'Join your firm\'s Elite workspace using your unique access code.'}
+        </p>
       </div>
 
       {/* Form */}
@@ -147,23 +284,43 @@ export default function Register() {
           {errors.email && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.email}</p>}
         </div>
 
-        {/* Law Firm */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="lawFirm">Organization</label>
-          <div className="relative group">
-            <input
-              className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.lawFirm ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
-              id="lawFirm"
-              name="lawFirm"
-              value={formData.lawFirm}
-              onChange={handleChange}
-              placeholder="Davis & Partners"
-              type="text"
-            />
-            <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+        {registrationMode === 'individual' ? (
+          /* Law Firm - Individual Mode */
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="lawFirm">Organization</label>
+            <div className="relative group">
+              <input
+                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.lawFirm ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+                id="lawFirm"
+                name="lawFirm"
+                value={formData.lawFirm}
+                onChange={handleChange}
+                placeholder="Davis & Partners"
+                type="text"
+              />
+              <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            </div>
+            {errors.lawFirm && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.lawFirm}</p>}
           </div>
-          {errors.lawFirm && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.lawFirm}</p>}
-        </div>
+        ) : (
+          /* Firm Code - Empresa Mode */
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="firmCode">Firm Access Code</label>
+            <div className="relative group">
+              <input
+                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.firmCode ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono tracking-widest`}
+                id="firmCode"
+                name="firmCode"
+                value={formData.firmCode}
+                onChange={handleChange}
+                placeholder="ELITE-XXXX-XXXX"
+                type="text"
+              />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            </div>
+            {errors.firmCode && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.firmCode}</p>}
+          </div>
+        )}
 
         {/* Password */}
         <div className="space-y-2">
@@ -187,6 +344,9 @@ export default function Register() {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+            Requirement: 8+ chars, Uppercase, Lowercase, & Number
+          </p>
           {errors.password && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.password}</p>}
         </div>
 

@@ -8,6 +8,8 @@ export interface ITransaction extends Document {
     status: 'succeeded' | 'pending' | 'failed'
     paymentMethod: string
     invoiceUrl?: string
+    stripePaymentIntentId?: string
+    stripeCustomerId?: string
     date: Date
 }
 

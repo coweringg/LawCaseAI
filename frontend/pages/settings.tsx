@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '@/utils/api';
-import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon } from 'lucide-react';
+import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { BillingInfo, Purchase } from '@/types';
+import { BillingInfo, Purchase, IOrganization } from '@/types';
 
 export default function Settings() {
     const { user, updateProfile, changePassword, logout } = useAuth();
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState('profile');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [orgData, setOrgData] = useState<IOrganization | null>(null);
+    const [isLoadingOrg, setIsLoadingOrg] = useState(false);
+    const [showFirmCode, setShowFirmCode] = useState(false);
 
     // Profile state
     const [profileData, setProfileData] = useState({
@@ -55,6 +61,7 @@ export default function Settings() {
         expiryMonth: 12,
         expiryYear: 2025
     });
+    const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
     // Purchase History state
     const [purchaseHistory, setPurchaseHistory] = useState<Purchase[]>([]);
@@ -66,18 +73,19 @@ export default function Settings() {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    // Update profile data when user context changes
-    React.useEffect(() => {
-        if (user) {
-            setProfileData({
-                name: user.name || '',
-                email: user.email || '',
-                lawFirm: user.lawFirm || ''
-            });
-            fetchBillingInfo();
-            fetchPurchaseHistory();
+    const fetchOrganizationDetails = async () => {
+        setIsLoadingOrg(true);
+        try {
+            const response = await api.get('/payments/organization');
+            if (response.status === 200 && response.data.success) {
+                setOrgData(response.data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch organization details:', error);
+        } finally {
+            setIsLoadingOrg(false);
         }
-    }, [user]);
+    };
 
     const fetchBillingInfo = async () => {
         setIsLoadingBilling(true);
@@ -107,6 +115,22 @@ export default function Settings() {
         }
     };
 
+    // Update profile data when user context changes
+    React.useEffect(() => {
+        if (user) {
+            setProfileData({
+                name: user.name || '',
+                email: user.email || '',
+                lawFirm: user.lawFirm || ''
+            });
+            fetchBillingInfo();
+            fetchPurchaseHistory();
+            if (user.isOrgAdmin) {
+                fetchOrganizationDetails();
+            }
+        }
+    }, [user]);
+
     const handleSupportSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmittingSupport(true);
@@ -131,80 +155,12 @@ export default function Settings() {
         }
     };
 
-    const handleUpgradePlan = async () => {
-        if (billingInfo?.plan === 'professional') {
-            toast.error('You are already on the Professional plan');
-            return;
-        }
-
-        setIsUpgrading(true);
-        try {
-            const response = await api.post('/payments/confirm', { planId: 'professional' });
-            const data = response.data;
-            if (response.status === 200) {
-                toast.success('Plan upgraded successfully!');
-                fetchBillingInfo();
-                fetchPurchaseHistory();
-            } else {
-                toast.error(data.message || 'Upgrade failed');
-            }
-        } catch (error) {
-            toast.error('Network error. Please try again.');
-        } finally {
-            setIsUpgrading(false);
-        }
+    const handleUpgradePlan = () => {
+        setIsPlanModalOpen(true);
     };
 
-    const handleAddPaymentMethod = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsUpdatingPayment(true);
-        try {
-            const response = await api.post('/user/payment-methods', paymentFormData);
-            const data = response.data;
-            if (response.status === 200 || response.status === 201) {
-                toast.success('Payment method added!');
-                setIsPaymentModalOpen(false);
-                fetchBillingInfo();
-            } else {
-                toast.error(data.message || 'Failed to add card');
-            }
-        } catch (error) {
-            toast.error('Network error. Please try again.');
-        } finally {
-            setIsUpdatingPayment(false);
-        }
-    };
-
-    const handleRemoveCard = async (id: string) => {
-        if (!confirm('Are you sure you want to remove this card?')) return;
-
-        try {
-            const response = await api.delete(`/user/payment-methods/${id}`);
-            const data = response.data;
-            if (response.status === 200) {
-                toast.success('Card removed');
-                fetchBillingInfo();
-            } else {
-                toast.error(data.message || 'Failed to remove card');
-            }
-        } catch (error) {
-            toast.error('Network error. Please try again.');
-        }
-    };
-
-    const handleSetDefaultCard = async (id: string) => {
-        try {
-            const response = await api.patch(`/user/payment-methods/${id}/default`);
-            const data = response.data;
-            if (response.status === 200) {
-                toast.success('Default card updated');
-                fetchBillingInfo();
-            } else {
-                toast.error(data.message || 'Failed to set default');
-            }
-        } catch (error) {
-            toast.error('Network error. Please try again.');
-        }
+    const handleUpdatePayment = async () => {
+        setIsPaymentModalOpen(true);
     };
 
     const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -241,6 +197,7 @@ export default function Settings() {
 
     const tabs = [
         { id: 'profile', label: 'Profile', icon: 'person' },
+        ...(user?.isOrgAdmin ? [{ id: 'organization', label: 'Firm Management', icon: 'business' }] : []),
         { id: 'team', label: 'Team Management', icon: 'groups' },
         { id: 'billing', label: 'Billing & Plans', icon: 'credit_card' },
         { id: 'notifications', label: 'Notifications', icon: 'notifications' },
@@ -419,6 +376,110 @@ export default function Settings() {
                                 </motion.div>
                             )}
 
+                            {activeTab === 'organization' && user?.isOrgAdmin && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="space-y-8"
+                                >
+                                    <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
+                                        <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                                        <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                                            <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
+                                                <Building className="text-primary" size={20} />
+                                                Firm Management
+                                            </h2>
+                                        </div>
+                                        
+                                        <div className="p-10 space-y-10 relative z-10">
+                                            {/* Organization Info */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="space-y-8">
+                                                    <div>
+                                                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Firm Access Protocol</h3>
+                                                        <div className="relative group">
+                                                            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-30 group-focus-within:opacity-100 transition duration-500"></div>
+                                                            <div className="relative flex items-center bg-black/40 border border-white/10 rounded-2xl p-2 pr-4 transition-all overflow-hidden">
+                                                                <input
+                                                                    type={showFirmCode ? "text" : "password"}
+                                                                    readOnly
+                                                                    value={orgData?.firmCode || '••••••••••••'}
+                                                                    className="flex-1 bg-transparent border-none focus:ring-0 text-white font-mono font-black tracking-widest px-4 py-3 text-lg"
+                                                                />
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        onClick={() => setShowFirmCode(!showFirmCode)}
+                                                                        className="p-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                                                                        title={showFirmCode ? "Hide Code" : "Show Code"}
+                                                                    >
+                                                                        {showFirmCode ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (orgData?.firmCode) {
+                                                                                navigator.clipboard.writeText(orgData.firmCode);
+                                                                                toast.success('Firm Code copied to vault');
+                                                                            }
+                                                                        }}
+                                                                        className="p-3 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-xl transition-all"
+                                                                        title="Copy Code"
+                                                                    >
+                                                                        <Copy size={18} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-[9px] text-slate-500 font-bold mt-4 uppercase tracking-wider leading-relaxed">
+                                                            Share this code with your firm members for instant Elite access.
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-8">
+                                                    <div>
+                                                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Neural Seat Allocation</h3>
+                                                        <div className="space-y-6">
+                                                            <div className="flex justify-between items-end">
+                                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Active Seats</span>
+                                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                                                    {orgData?.usedSeats || 0} / {orgData?.totalSeats || 0} Members
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-full bg-white/5 rounded-full h-3 overflow-hidden border border-white/5 p-0.5">
+                                                                <motion.div
+                                                                    initial={{ width: 0 }}
+                                                                    animate={{ width: `${((orgData?.usedSeats || 0) / (orgData?.totalSeats || 1)) * 100}%` }}
+                                                                    className="bg-primary h-full rounded-full shadow-[0_0_20px_rgba(37,99,235,0.6)]"
+                                                                />
+                                                            </div>
+                                                            <div className="flex justify-between text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">
+                                                                <span>Allocated: {orgData?.usedSeats}</span>
+                                                                <span>Available: {(orgData?.totalSeats || 0) - (orgData?.usedSeats || 0)}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-10 border-t border-white/5 flex gap-6">
+                                                <div className="flex-1 p-6 bg-white/[0.02] rounded-[2rem] border border-white/5">
+                                                    <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-2">Firm Integrity</h4>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-relaxed">
+                                                        All members registered with this code automatically inherit ELITE level benefits and firm-wide SOC2 Type II compliance.
+                                                    </p>
+                                                </div>
+                                                <div className="flex-1 p-6 bg-white/[0.02] rounded-[2rem] border border-white/5">
+                                                    <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-2">Centralized Billing</h4>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-relaxed">
+                                                        Billing is managed centrally for your convenience. Individual licenses do not require personal payment methods.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+
                             {activeTab === 'security' && (
                                 <motion.div
                                     initial={{ opacity: 0, x: 20 }}
@@ -549,29 +610,38 @@ export default function Settings() {
                                                             <div>
                                                                 <div className="flex items-center gap-4 mb-2">
                                                                     <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
-                                                                        {billingInfo?.plan || 'Loading...'} System
+                                                                        {billingInfo?.plan === 'none' ? 'No Active Plan' :
+                                                                         billingInfo?.plan === 'basic' ? 'Growth' : 
+                                                                         billingInfo?.plan === 'professional' ? 'Professional' : 
+                                                                         billingInfo?.plan === 'elite' ? 'Elite' : 
+                                                                         billingInfo?.plan || 'Loading...'} System
                                                                     </h2>
-                                                                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/30">
-                                                                        Active
+                                                                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
+                                                                        {billingInfo?.plan === 'none' ? 'Infrastructure Inactive' : 'Active'}
                                                                     </span>
                                                                 </div>
                                                                 <p className="text-slate-500 font-bold text-xs uppercase tracking-wider">
-                                                                    {billingInfo?.plan === 'basic' ? 'Standard Legal Processing' : 'Advanced Neural Jurisprudence'}
+                                                                    {billingInfo?.plan === 'none' ? 'Select a tier to activate neural processing' :
+                                                                     billingInfo?.plan === 'basic' ? 'Standard Legal Processing' : 
+                                                                     billingInfo?.plan === 'professional' ? 'Advanced Neural Jurisprudence' : 
+                                                                     'Firm-Wide Intelligence Access'}
                                                                 </p>
                                                             </div>
                                                             <div className="text-right">
                                                                 <p className="text-4xl font-black text-white tracking-tighter">
-                                                                    ${billingInfo?.plan === 'basic' ? '0' : '149'}
+                                                                    ${billingInfo?.plan === 'none' ? '0' :
+                                                                       billingInfo?.plan === 'basic' ? '99' : 
+                                                                       billingInfo?.plan === 'professional' ? '199' : '300'}
                                                                     <span className="text-sm text-slate-500 font-bold">/mo</span>
                                                                 </p>
-                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">SaaS Protocol</p>
+                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">Per User License</p>
                                                             </div>
                                                         </div>
 
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-10">
                                                             <div className="space-y-4">
                                                                 <div className="flex justify-between items-end">
-                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Efficiency Load</span>
+                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matters</span>
                                                                     <span className="text-[10px] font-black text-primary uppercase tracking-widest">
                                                                         {billingInfo?.currentCases || 0} / {billingInfo?.planLimit || 0}
                                                                     </span>
@@ -586,9 +656,9 @@ export default function Settings() {
                                                             </div>
                                                             <div className="space-y-4">
                                                                 <div className="flex justify-between items-end">
-                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Surplus</span>
+                                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Units</span>
                                                                     <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                                                                        {billingInfo?.remainingCases || 0} Units
+                                                                        {(billingInfo?.remainingCases ?? 0) >= 10000 ? 'Unlimited' : `${billingInfo?.remainingCases || 0} Matters`}
                                                                     </span>
                                                                 </div>
                                                                 <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
@@ -606,11 +676,12 @@ export default function Settings() {
                                                                 whileHover={{ scale: 1.02 }}
                                                                 whileTap={{ scale: 0.98 }}
                                                                 onClick={handleUpgradePlan}
-                                                                disabled={isUpgrading || billingInfo?.plan === 'professional'}
+                                                                disabled={isUpgrading || billingInfo?.plan === 'elite'}
                                                                 className="px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50"
                                                             >
                                                                 {isUpgrading && <Loader2 className="w-4 h-4 animate-spin mr-3 inline" />}
-                                                                {billingInfo?.plan === 'professional' ? 'Max Tier Active' : 'Enhance Protocol'}
+                                                                    {billingInfo?.plan === 'elite' ? 'Max Tier Active' : 
+                                                                     billingInfo?.plan === 'none' ? 'Select Plan' : 'Enhance Protocol'}
                                                             </motion.button>
                                                         </div>
                                                     </div>
@@ -661,14 +732,11 @@ export default function Settings() {
                                                         <motion.button
                                                             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
                                                             whileTap={{ scale: 0.98 }}
-                                                            onClick={() => {
-                                                                setPaymentFormData({ brand: 'Visa', last4: '', expiryMonth: 12, expiryYear: 2025 });
-                                                                setIsPaymentModalOpen(true);
-                                                            }}
+                                                            onClick={handleUpdatePayment}
                                                             className="w-full flex items-center justify-center px-6 py-4 bg-white/5 border border-white/5 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all gap-3"
                                                         >
                                                             <CreditCard size={18} />
-                                                            Initialize New Key
+                                                            Configure Global Billing
                                                         </motion.button>
                                                     </div>
                                                 </div>
@@ -885,87 +953,148 @@ export default function Settings() {
                             className="absolute inset-0 bg-black/60 backdrop-blur-md"
                         />
                         <motion.div
-                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-                            className="relative w-full max-w-xl glass-dark rounded-[40px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-md glass-dark rounded-[40px] shadow-2xl border border-white/10 overflow-hidden"
                         >
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
-                            <div className="p-8 border-b border-white/10 flex justify-between items-center relative z-10">
-                                <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                                    <CreditCard className="text-primary" />
-                                    Initialize Key
-                                </h3>
-                                <button onClick={() => setIsPaymentModalOpen(false)} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+                            
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center relative z-10 bg-white/[0.02]">
+                                <div>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                        <CreditCard className="text-primary" />
+                                        Update Payment
+                                    </h3>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Add a new payment method</p>
+                                </div>
+                                <button onClick={() => setIsPaymentModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
                                     <span className="material-icons-round">close</span>
                                 </button>
                             </div>
-                            <form onSubmit={handleAddPaymentMethod} className="p-10 space-y-8 relative z-10">
-                                <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Card Protocol</label>
-                                    <select
-                                        value={paymentFormData.brand}
-                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, brand: e.target.value })}
-                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold appearance-none"
-                                    >
-                                        <option value="Visa">Visa Protocol</option>
-                                        <option value="Mastercard">Mastercard Protocol</option>
-                                        <option value="American Express">Amex Protocol</option>
-                                    </select>
-                                </div>
 
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                toast.success("Payment method updated successfully");
+                                setIsPaymentModalOpen(false);
+                            }} className="p-8 relative z-10 space-y-6">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Final 4 Identifiers</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        maxLength={4}
-                                        value={paymentFormData.last4}
-                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, last4: e.target.value.replace(/\D/g, '') })}
-                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
-                                        placeholder="4242"
-                                    />
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Card Number</label>
+                                    <input type="text" placeholder="•••• •••• •••• ••••" required className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold" />
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Expiry Index (M)</label>
-                                        <input
-                                            type="number"
-                                            required
-                                            min={1}
-                                            max={12}
-                                            value={paymentFormData.expiryMonth}
-                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryMonth: parseInt(e.target.value) })}
-                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
-                                        />
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Expiry</label>
+                                        <input type="text" placeholder="MM/YY" required className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold" />
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Expiry Index (Y)</label>
-                                        <input
-                                            type="number"
-                                            required
-                                            min={new Date().getFullYear()}
-                                            value={paymentFormData.expiryYear}
-                                            onChange={(e) => setPaymentFormData({ ...paymentFormData, expiryYear: parseInt(e.target.value) })}
-                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
-                                        />
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">CVC</label>
+                                        <input type="text" placeholder="123" required className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold" />
                                     </div>
                                 </div>
-
-                                <div className="flex justify-end gap-5 pt-4">
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        type="submit"
-                                        disabled={isUpdatingPayment}
-                                        className="px-10 py-4 bg-white text-black text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-white/10 transition-all disabled:opacity-50 flex items-center gap-3"
-                                    >
-                                        {isUpdatingPayment ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-                                        Commit Key
-                                    </motion.button>
+                                <div className="pt-4">
+                                    <button type="submit" className="w-full py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                        Save Payment Method
+                                    </button>
                                 </div>
                             </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isPlanModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsPlanModalOpen(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-4xl glass-dark rounded-[40px] shadow-2xl border border-white/10 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                            
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center relative z-10 bg-white/[0.02]">
+                                <div>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                        <Layers className="text-primary" />
+                                        Neural Tier Selection
+                                    </h3>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Select your processing infrastructure</p>
+                                </div>
+                                <button onClick={() => setIsPlanModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
+                                    <span className="material-icons-round">close</span>
+                                </button>
+                            </div>
+
+                            <div className="p-10 relative z-10">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {[
+                                        { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500' },
+                                        { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary' },
+                                        { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-purple-500' }
+                                    ].map((tier) => (
+                                        <button
+                                            key={tier.id}
+                                            onClick={() => {
+                                                router.push(`/checkout?plan=${tier.id}`);
+                                                setIsPlanModalOpen(false);
+                                            }}
+                                            disabled={billingInfo?.plan === tier.id}
+                                            className={`group text-left p-8 rounded-[2.5rem] border transition-all relative overflow-hidden flex flex-col h-full ${
+                                                billingInfo?.plan === tier.id 
+                                                ? 'border-white/20 bg-white/5 scale-[0.98] opacity-50 cursor-default' 
+                                                : 'border-white/5 bg-black/40 hover:border-primary/50 hover:bg-primary/5 hover:translate-y-[-4px]'
+                                            }`}
+                                        >
+                                            <div className="relative z-10 flex flex-col h-full">
+                                                <div className="flex justify-between items-start mb-6">
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm ${tier.color}/20 text-${tier.id === 'professional' ? 'primary' : tier.color.split('-')[1] + '-400'} border border-${tier.id === 'professional' ? 'primary' : tier.color.split('-')[1] + '-500'}/20`}>
+                                                        {tier.name.charAt(0)}
+                                                    </div>
+                                                    {billingInfo?.plan === tier.id && (
+                                                        <span className="text-[8px] font-black uppercase tracking-widest bg-white/10 text-white px-2 py-1 rounded-full">Current</span>
+                                                    )}
+                                                </div>
+
+                                                <h4 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{tier.name}</h4>
+                                                <div className="flex items-baseline gap-1 mb-6">
+                                                    <span className="text-3xl font-black text-white">{tier.price}</span>
+                                                    <span className="text-xs text-slate-500 font-bold">/mo</span>
+                                                </div>
+
+                                                <div className="space-y-3 mb-8 flex-1">
+                                                    <div className="flex items-center gap-2 text-primary">
+                                                        <Sparkles size={12} />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">{tier.cases}</span>
+                                                    </div>
+                                                    {tier.features.map((f, i) => (
+                                                        <div key={i} className="flex items-center gap-2 text-slate-500 group-hover:text-slate-300 transition-colors">
+                                                            <div className="w-1 h-1 rounded-full bg-slate-700" />
+                                                            <span className="text-[10px] font-bold uppercase tracking-tight">{f}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className={`mt-auto w-full py-4 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                    billingInfo?.plan === tier.id 
+                                                    ? 'bg-white/5 text-slate-500' 
+                                                    : 'bg-primary text-white shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-[1.02]'
+                                                }`}>
+                                                    {billingInfo?.plan === tier.id ? 'Active' : 'Deploy Tier'}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 )}

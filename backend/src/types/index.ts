@@ -8,8 +8,10 @@ export enum UserRole {
 }
 
 export enum UserPlan {
+  NONE = 'none',
   BASIC = 'basic',
   PROFESSIONAL = 'professional',
+  ELITE = 'elite',
   ENTERPRISE = 'enterprise'
 }
 
@@ -66,6 +68,19 @@ export interface IPaymentMethod {
   expiryYear: number
 }
 
+export interface IOrganization extends Document {
+  _id: Types.ObjectId
+  name: string
+  adminId: Types.ObjectId
+  totalSeats: number
+  usedSeats: number
+  firmCode: string
+  isActive: boolean
+  stripeSubscriptionId?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId
   name: string
@@ -77,6 +92,8 @@ export interface IUser extends Document {
   planLimit: number
   currentCases: number
   status: UserStatus
+  organizationId?: Types.ObjectId
+  isOrgAdmin?: boolean
   emailNotifications: boolean
   caseUpdates: boolean
   aiResponses: boolean
@@ -221,6 +238,7 @@ export interface IUserRegistration {
   email: string
   password: string
   lawFirm: string
+  firmCode?: string
 }
 
 export interface IUserLogin {
@@ -243,8 +261,10 @@ export interface INotificationSettings {
 }
 
 export interface IPlanLimits {
+  none: number
   basic: number
   professional: number
+  elite: number
   enterprise: number
 }
 
@@ -266,9 +286,11 @@ export interface IMiddlewareError extends Error {
 }
 
 export const PLAN_LIMITS: IPlanLimits = {
-  basic: 5,
-  professional: 25,
-  enterprise: 100
+  none: 0,
+  basic: 8,
+  professional: 18,
+  elite: 10000,
+  enterprise: 500
 }
 
 export const ALLOWED_FILE_TYPES = [

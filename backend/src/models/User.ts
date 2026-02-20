@@ -45,7 +45,7 @@ const userSchema = new Schema<IUser>({
   plan: {
     type: String,
     enum: Object.values(UserPlan),
-    default: UserPlan.BASIC
+    default: UserPlan.NONE
   },
   planLimit: {
     type: Number,
@@ -60,6 +60,14 @@ const userSchema = new Schema<IUser>({
     type: String,
     enum: Object.values(UserStatus),
     default: UserStatus.ACTIVE
+  },
+  organizationId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Organization'
+  },
+  isOrgAdmin: {
+    type: Boolean,
+    default: false
   },
   emailNotifications: {
     type: Boolean,
@@ -139,7 +147,7 @@ userSchema.pre('save', async function (next) {
 // Pre-save middleware to set plan limit based on plan
 userSchema.pre('save', function (next) {
   if (this.isModified('plan')) {
-    this.planLimit = config.planLimits[this.plan as UserPlan]
+    this.planLimit = (config.planLimits as Record<string, number>)[this.plan as string]
   }
   next()
 })

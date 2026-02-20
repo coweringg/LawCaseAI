@@ -80,9 +80,11 @@ export const config = {
 
   // Plan Limits
   planLimits: {
-    basic: 5,
-    professional: 25,
-    enterprise: 100,
+    none: 0,
+    basic: 8,
+    professional: 18,
+    elite: 10000,
+    enterprise: 500,
   },
 };
 

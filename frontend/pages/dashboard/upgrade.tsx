@@ -17,51 +17,48 @@ export default function Upgrade() {
   const plans = [
     {
       id: 'basic',
-      name: 'Basic',
-      price: 49,
+      name: 'Growth',
+      price: 99,
       interval: 'month',
       features: [
-        'Up to 5 active cases',
-        'Basic document storage (1GB)',
-        'Email support',
-        'Standard security features',
+        'Up to 8 active matters',
+        'Automated Chronology Suite',
+        'Standard AI Discovery',
+        'SOC2 Type II Security',
       ],
-      caseLimit: 5,
+      caseLimit: 8,
       popular: false
     },
     {
       id: 'professional',
       name: 'Professional',
-      price: 149,
+      price: 199,
       interval: 'month',
       features: [
-        'Up to 25 active cases',
-        'Enhanced document storage (10GB)',
-        'Priority email support',
-        'Advanced security features',
-        'AI-powered legal research',
-        'Client collaboration tools',
-        'Advanced analytics'
+        'Up to 18 active matters',
+        'Advanced AI Jurisprudence',
+        'Team Collaboration Portal',
+        'Matter Intelligence Analytics',
+        'Priority GPU Allocation',
+        'HIPAA & GDPR Compliance'
       ],
-      caseLimit: 25,
+      caseLimit: 18,
       popular: true
     },
     {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: 399,
+      id: 'elite',
+      name: 'Elite',
+      price: 300,
       interval: 'month',
       features: [
-        'Unlimited active cases',
-        'Unlimited document storage',
-        '24/7 phone support',
-        'Enterprise-grade security',
-        'Custom AI training',
-        'White-label options',
-        'API access',
-        'Dedicated account manager'
+        'Unlimited active matters',
+        'Cross-Matter Intelligence',
+        '24/7 Priority Support',
+        'Bulk Neural Transcription',
+        'Dedicated Success Manager',
+        'White-label Client Portals'
       ],
-      caseLimit: 100,
+      caseLimit: 10000,
       popular: false
     }
   ]
@@ -150,7 +147,7 @@ export default function Upgrade() {
                         </span>
                       </div>
                       <p className="text-secondary-600 mt-1">
-                        ${currentPlan?.price}/month • {user.currentCases} of {user.planLimit} cases used
+                        ${currentPlan?.price}/month • {user.currentCases} of {user.planLimit} matters used
                       </p>
                     </div>
                     <div className="text-right">
@@ -166,7 +163,7 @@ export default function Upgrade() {
                       ></div>
                     </div>
                     <p className="text-sm text-secondary-500 mt-2">
-                      {user.planLimit - user.currentCases} cases remaining
+                      {user.planLimit - user.currentCases} matters remaining
                     </p>
                   </div>
                 </CardContent>
@@ -194,7 +191,7 @@ export default function Upgrade() {
                         <span className="text-secondary-600">/{plan.interval}</span>
                       </div>
                       <CardDescription className="mt-2">
-                        {plan.caseLimit === 100 ? 'Unlimited' : plan.caseLimit} active cases
+                        {plan.caseLimit >= 10000 ? 'Unlimited' : plan.caseLimit} active matters
                       </CardDescription>
                     </CardHeader>
 

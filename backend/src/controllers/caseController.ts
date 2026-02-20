@@ -83,7 +83,10 @@ export const getCases = async (req: IAuthRequest, res: Response): Promise<void> 
     const skip = (page - 1) * limit
     const status = req.query.status as string | undefined
 
-    const filter: Record<string, unknown> = { userId }
+    const filter: Record<string, unknown> = { 
+      userId,
+      status: { $ne: CaseStatus.DELETED }
+    }
     if (status && Object.values(CaseStatus).includes(status as CaseStatus)) {
       filter.status = status
     }
@@ -119,7 +122,7 @@ export const getCaseStats = async (req: IAuthRequest, res: Response): Promise<vo
     }
 
     const stats = await Case.aggregate([
-      { $match: { userId } },
+      { $match: { userId, status: { $ne: CaseStatus.DELETED } } },
       {
         $group: {
           _id: '$status',

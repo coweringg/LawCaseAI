@@ -20,7 +20,8 @@ import {
   RotateCcw,
   Trash2,
   Filter,
-  X
+  X,
+  Bell
 } from 'lucide-react'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
@@ -32,6 +33,7 @@ import { formatDate, cn } from '@/utils/helpers'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
+import { toast } from 'react-hot-toast'
 
 interface AdminUser {
   id: string
@@ -78,6 +80,19 @@ interface UserHistory {
   auditLogs: AuditLogEntry[]
 }
 
+interface SupportRequest {
+  _id: string
+  userId: string
+  userEmail: string
+  userName: string
+  type: 'system_error' | 'feature_uplink'
+  subject: string
+  description: string
+  status: 'pending' | 'resolved'
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const { user, isLoading: isAuthLoading } = useAuth()
@@ -93,7 +108,7 @@ export default function AdminDashboard() {
   const [editData, setEditData] = useState({ name: '', email: '', password: '', lawFirm: '' })
   const [editError, setEditError] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [activeTab, setActiveTab] = useState<'users' | 'history'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'history' | 'support'>('users')
   const [activeHistoryTab, setActiveHistoryTab] = useState<'admin' | 'platform'>('admin')
   const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity'>('overview')
   const [adminLogs, setAdminLogs] = useState<AuditLogEntry[]>([])
@@ -104,6 +119,12 @@ export default function AdminDashboard() {
   const [endDate, setEndDate] = useState('')
   const [showDiffModal, setShowDiffModal] = useState(false)
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
+  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([])
+  const [isSupportLoading, setIsSupportLoading] = useState(false)
+  const [supportTypeFilter, setSupportTypeFilter] = useState<'system_error' | 'feature_uplink'>('system_error')
+  const [supportStatusFilter, setSupportStatusFilter] = useState('')
+  const [supportPage, setSupportPage] = useState(1)
+  const [totalSupportRequests, setTotalSupportRequests] = useState(0)
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -163,6 +184,27 @@ export default function AdminDashboard() {
     }
   }, [activeHistoryTab, logSearchTerm, startDate, endDate])
 
+  const fetchSupportRequests = useCallback(async () => {
+    setIsSupportLoading(true)
+    try {
+      const query = new URLSearchParams({
+        page: supportPage.toString(),
+        limit: '20',
+        ...(supportTypeFilter ? { type: supportTypeFilter } : {}),
+        ...(supportStatusFilter ? { status: supportStatusFilter } : {})
+      })
+      const response = await api.get(`/admin/support?${query.toString()}`)
+      if (response.data.success) {
+        setSupportRequests(response.data.data.requests)
+        setTotalSupportRequests(response.data.data.total)
+      }
+    } catch (error) {
+      console.error('Failed to fetch support requests:', error)
+    } finally {
+      setIsSupportLoading(false)
+    }
+  }, [supportPage, supportTypeFilter, supportStatusFilter])
+
   useEffect(() => {
     const initDashboard = async () => {
       if (!isAuthLoading) {
@@ -175,7 +217,8 @@ export default function AdminDashboard() {
               fetchUsers(),
               fetchStats(),
               fetchAuditLogs('admin'),
-              fetchAuditLogs('platform')
+              fetchAuditLogs('platform'),
+              fetchSupportRequests()
             ])
           } catch (error) {
             console.error('Initialization error:', error)
@@ -187,13 +230,15 @@ export default function AdminDashboard() {
     }
     
     initDashboard()
-  }, [user, isAuthLoading, router, fetchUsers, fetchStats, fetchAuditLogs])
+  }, [user, isAuthLoading, router, fetchUsers, fetchStats, fetchAuditLogs, fetchSupportRequests])
 
   useEffect(() => {
     if (activeTab === 'history' && user?.role === 'admin') {
       fetchAuditLogs(activeHistoryTab)
+    } else if (activeTab === 'support' && user?.role === 'admin') {
+      fetchSupportRequests()
     }
-  }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs])
+  }, [activeTab, activeHistoryTab, supportTypeFilter, user?.role, fetchAuditLogs, fetchSupportRequests])
 
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -364,6 +409,70 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleResolveSupport = async (requestId: string) => {
+    try {
+      const response = await api.put(`/admin/support/${requestId}/status`, { status: 'resolved' })
+      if (response.data.success) {
+        setSupportRequests(prev => prev.map(req => 
+          req._id === requestId ? { ...req, status: 'resolved' } : req
+        ))
+        toast.success('Support request marked as resolved')
+      }
+    } catch (error) {
+      console.error('Failed to resolve support request:', error)
+      toast.error('Failed to update status')
+    }
+  }
+
+  const handleDeleteSupport = async (requestId: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Support Signal',
+      message: 'Are you sure you want to permanently delete this support request? This action cannot be undone.',
+      confirmText: 'Delete Signal',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await api.delete(`/admin/support/${requestId}`)
+          if (response.data.success) {
+            setSupportRequests(prev => prev.filter(r => r._id !== requestId))
+            setTotalSupportRequests(prev => prev - 1)
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
+            toast.success('Support request deleted')
+          }
+        } catch (error) {
+          console.error('Failed to delete support request:', error)
+          toast.error('Failed to delete request')
+        }
+      }
+    })
+  }
+
+  const handleClearSupport = async () => {
+    const categoryName = supportTypeFilter === 'system_error' ? 'System Errors' : 'Feature Uplinks'
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Signal Cleanup',
+      message: `Are you sure you want to delete ALL ${categoryName}? This action will permanently wipe this section.`,
+      confirmText: 'Wipe All',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await api.delete(`/admin/support?type=${supportTypeFilter}`)
+          if (response.data.success) {
+            setSupportRequests([])
+            setTotalSupportRequests(0)
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
+            toast.success(`Cleared all ${categoryName}`)
+          }
+        } catch (error) {
+          console.error('Failed to clear support requests:', error)
+          toast.error('Failed to clear requests')
+        }
+      }
+    })
+  }
+
   const openEditModal = (user: AdminUser) => {
     setSelectedUser(user)
     setEditError(null)
@@ -441,32 +550,32 @@ export default function AdminDashboard() {
       render: (_value: any, item: AdminUser) => (
         <div className="flex items-center space-x-2">
           <Button
-            variant="ghost"
+            variant="none"
             size="sm"
             onClick={() => {
               setSelectedUser(item)
               setShowHistoryModal(true)
               fetchUserHistory(item.id)
             }}
-            className="text-secondary hover:text-white bg-secondary/10 hover:bg-secondary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-secondary/20"
+            className="text-secondary hover:text-white bg-secondary/10 hover:bg-secondary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-secondary/20 h-8 rounded-lg transition-all"
           >
             <Eye className="w-3.5 h-3.5 mr-1" />
             Details
           </Button>
           <Button
-            variant="ghost"
+            variant="none"
             size="sm"
             onClick={() => openEditModal(item)}
-            className="text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-indigo-500/20"
+            className="text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-indigo-500/20 h-8 rounded-lg transition-all"
           >
             Edit
           </Button>
           <Button
-            variant="ghost"
+            variant="none"
             size="sm"
             onClick={() => handleUserStatusChange(item.id, item.status === 'active' ? 'disabled' : 'active')}
             className={cn(
-              "font-bold uppercase text-[10px] tracking-widest px-3 border",
+              "font-bold uppercase text-[10px] tracking-widest px-3 border h-8 rounded-lg transition-all",
               item.status === 'active' 
                 ? 'text-warning-500 bg-warning-500/10 hover:bg-warning-500/30 border-warning-500/20' 
                 : 'text-success-500 bg-success-500/10 hover:bg-success-500/30 border-success-500/20'
@@ -475,10 +584,10 @@ export default function AdminDashboard() {
             {item.status === 'active' ? 'Disable' : 'Enable'}
           </Button>
           <Button
-            variant="ghost"
+            variant="none"
             size="sm"
             onClick={() => handleDeleteUser(item.id)}
-            className="text-error-500 hover:text-white bg-error-500/10 hover:bg-error-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20"
+            className="text-error-500 hover:text-white bg-error-500/10 hover:bg-error-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-8 rounded-lg transition-all"
           >
             Delete
           </Button>
@@ -551,13 +660,13 @@ export default function AdminDashboard() {
           </span>
           {item.details.before && item.details.after && (
             <Button
-              variant="ghost"
+              variant="none"
               size="sm"
               onClick={() => {
                 setSelectedLogForDiff(item)
                 setShowDiffModal(true)
               }}
-              className="p-1 px-2 h-auto text-primary hover:text-white hover:bg-primary/20 transition-all font-black text-[9px] uppercase tracking-tighter"
+              className="p-1 px-2 h-auto text-primary hover:text-white hover:bg-primary/20 bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all font-black text-[9px] uppercase tracking-tighter rounded-md"
             >
               Diff
             </Button>
@@ -570,13 +679,92 @@ export default function AdminDashboard() {
       title: 'Cleanup',
       render: (_value: any, item: AuditLogEntry) => (
         <Button
-          variant="ghost"
+          variant="none"
           size="sm"
           onClick={() => handleDeleteLog(item._id)}
-          className="p-1 px-2 h-auto text-slate-600 hover:text-error-500 hover:bg-error-500/10 transition-colors"
+          className="p-1 px-2 h-auto text-slate-600 hover:text-error-500 hover:bg-error-500/10 border border-transparent hover:border-error-500/20 transition-all duration-200"
         >
           <Trash2 className="w-3 h-3" />
         </Button>
+      )
+    }
+  ]
+
+  const supportColumns = [
+    {
+      key: 'createdAt' as keyof SupportRequest,
+      title: 'Received',
+      render: (v: string) => <span className="text-slate-400 text-sm">{formatDate(v)}</span>
+    },
+    {
+      key: 'userName' as keyof SupportRequest,
+      title: 'User',
+      render: (v: string, item: SupportRequest) => (
+        <div className="flex flex-col">
+          <span className="text-white font-bold tracking-tight">{v}</span>
+          <span className="text-[10px] text-slate-500 font-medium">{item.userEmail}</span>
+        </div>
+      )
+    },
+    {
+      key: 'type' as keyof SupportRequest,
+      title: 'Category',
+      render: (v: string) => (
+        <span className={cn(
+          "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
+          v === 'system_error' ? "bg-error-500/20 text-error-500" : "bg-primary/20 text-primary"
+        )}>
+          {v === 'system_error' ? 'System Error' : 'Feature Uplink'}
+        </span>
+      )
+    },
+    {
+      key: 'subject' as keyof SupportRequest,
+      title: 'Transmission',
+      render: (v: string, item: SupportRequest) => (
+        <div className="flex flex-col max-w-md">
+          <span className="text-white font-bold truncate">{v}</span>
+          <span className="text-xs text-slate-400 line-clamp-1">{item.description}</span>
+        </div>
+      )
+    },
+    {
+      key: 'status' as keyof SupportRequest,
+      title: 'Status',
+      render: (v: string) => (
+        <span className={cn(
+          "inline-flex items-center px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full",
+          v === 'resolved' ? "bg-success-500/20 text-success-500" : "bg-warning-500/20 text-warning-500"
+        )}>
+          {v === 'resolved' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
+          {v}
+        </span>
+      )
+    },
+    {
+      key: '_id' as keyof SupportRequest,
+      title: 'Action',
+      render: (v: string, item: SupportRequest) => (
+        <div className="flex items-center space-x-2">
+          {item.status === 'pending' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleResolveSupport(item._id)}
+              className="text-success-500 hover:text-white bg-success-500/10 hover:bg-success-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-success-500/20"
+            >
+              Resolve
+            </Button>
+          )}
+          <Button
+            variant="none"
+            size="sm"
+            onClick={() => handleDeleteSupport(item._id)}
+            className="p-1 px-2 h-auto text-slate-600 hover:text-error-500 hover:bg-error-500/10 border border-transparent hover:border-error-500/20 transition-all duration-200"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       )
     }
   ]
@@ -672,6 +860,15 @@ export default function AdminDashboard() {
           >
             Platform History
           </button>
+          <button
+            onClick={() => setActiveTab('support')}
+            className={cn(
+              "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+              activeTab === 'support' ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+            )}
+          >
+            Support Notifications
+          </button>
         </div>
 
         {activeTab === 'users' ? (
@@ -703,7 +900,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </>
-        ) : (
+        ) : activeTab === 'history' ? (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center">
@@ -789,27 +986,27 @@ export default function AdminDashboard() {
                     setStartDate('')
                     setEndDate('')
                   }}
-                  className="text-slate-500 hover:text-white font-bold uppercase text-[10px] tracking-widest px-2"
+                  className="text-slate-500 hover:text-white hover:bg-white/5 font-bold uppercase text-[10px] tracking-widest px-2 transition-all duration-200"
                   title="Reset filters"
                 >
                   <Filter className="w-3.5 h-3.5" />
                 </Button>
 
                 <Button
-                  variant="ghost"
+                  variant="none"
                   size="sm"
                   onClick={() => fetchAuditLogs(activeHistoryTab)}
                   disabled={isLogsLoading}
-                  className="text-slate-400 hover:text-white hover:bg-white/5 font-bold uppercase text-[10px] tracking-widest px-3 border border-white/5 h-9 rounded-xl"
+                  className="text-slate-400 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-widest px-3 border border-white/10 h-9 rounded-xl transition-all duration-200"
                 >
                   <RotateCcw className={cn("w-3.5 h-3.5", isLogsLoading && "animate-spin")} />
                 </Button>
 
                 <Button
-                  variant="ghost"
+                  variant="none"
                   size="sm"
                   onClick={handleClearLogs}
-                  className="text-error-500 hover:text-white hover:bg-error-500/20 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-9 rounded-xl"
+                  className="text-error-500 hover:text-white hover:bg-error-500/20 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-9 rounded-xl transition-all duration-200"
                 >
                   <Trash2 className="w-3.5 h-3.5 mr-2" />
                   Clear All
@@ -825,6 +1022,90 @@ export default function AdminDashboard() {
                 emptyMessage="No history found."
               />
             </Card>
+          </div>
+        ) : activeTab === 'support' ? (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center">
+                <h3 className="flex items-center text-xs font-black uppercase tracking-widest text-primary">
+                  <Bell className="w-4 h-4 mr-2" />
+                  Signal Center
+                </h3>
+                <span className="mx-4 h-4 w-[1px] bg-white/10 hidden md:block"></span>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Incoming Support & Feature Uplinks</p>
+              </div>
+
+              <div className="flex bg-white/5 p-1 rounded-xl">
+                <button
+                  onClick={() => setSupportTypeFilter('system_error')}
+                  className={cn(
+                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                    supportTypeFilter === 'system_error' 
+                      ? "bg-error-500/20 text-error-500 shadow-lg shadow-error-500/10" 
+                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                  )}
+                >
+                  System Errors
+                </button>
+                <button
+                  onClick={() => setSupportTypeFilter('feature_uplink')}
+                  className={cn(
+                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                    supportTypeFilter === 'feature_uplink' 
+                      ? "bg-primary/20 text-primary shadow-lg shadow-primary/10" 
+                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                  )}
+                >
+                  Feature Uplinks
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <select
+                  value={supportStatusFilter}
+                  onChange={(e) => setSupportStatusFilter(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer hover:border-white/20 transition-all appearance-none"
+                >
+                  <option value="" className="bg-slate-900">All Statuses</option>
+                  <option value="pending" className="bg-slate-900">Pending</option>
+                  <option value="resolved" className="bg-slate-900">Resolved</option>
+                </select>
+
+                <Button
+                  variant="none"
+                  size="sm"
+                  onClick={fetchSupportRequests}
+                  disabled={isSupportLoading}
+                  className="text-slate-400 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-widest px-3 border border-white/5 h-9 rounded-xl transition-all"
+                  title="Refresh Signals"
+                >
+                  <RotateCcw className={cn("w-3.5 h-3.5", isSupportLoading && "animate-spin")} />
+                </Button>
+
+                <Button
+                  variant="none"
+                  size="sm"
+                  onClick={handleClearSupport}
+                  className="text-error-500 hover:text-white hover:bg-error-500/20 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-9 rounded-xl transition-all"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-2" />
+                  Clear All
+                </Button>
+              </div>
+            </div>
+
+            <Card variant="glass" className="overflow-hidden border-white/5">
+              <Table 
+                data={supportRequests}
+                columns={supportColumns}
+                loading={isSupportLoading}
+                emptyMessage="No signals detected."
+              />
+            </Card>
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-slate-500 font-bold uppercase tracking-widest">Module Offline or Access Denied</p>
           </div>
         )}
 
@@ -861,8 +1142,10 @@ export default function AdminDashboard() {
                     key={tab.id}
                     onClick={() => setActiveDetailTab(tab.id as any)}
                     className={cn(
-                      "flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                      activeDetailTab === tab.id ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+                      "flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200",
+                      activeDetailTab === tab.id 
+                        ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                     )}
                   >
                     <tab.icon className="w-3 h-3" />
@@ -923,20 +1206,20 @@ export default function AdminDashboard() {
                     </h3>
                     <div className="flex flex-wrap gap-4">
                       <Button
-                        variant="ghost"
+                        variant="none"
                         onClick={() => {
                           setShowHistoryModal(false)
                           openEditModal(selectedUser!)
                         }}
-                        className="text-warning-500 bg-warning-500/10 hover:bg-warning-500/30 font-bold uppercase text-[10px] tracking-widest px-4 border border-warning-500/20"
+                        className="text-warning-500 bg-warning-500/10 hover:bg-warning-500/30 font-bold uppercase text-[10px] tracking-widest px-4 border border-warning-500/20 h-10 rounded-xl transition-all"
                       >
                         <Key className="w-3.5 h-3.5 mr-2" />
                         Modify Security Passcode
                       </Button>
                       <Button
-                        variant="ghost"
+                        variant="none"
                         onClick={() => handleForceLogout(selectedUser!.id)}
-                        className="text-error-500 bg-error-500/10 hover:bg-error-500/30 font-bold uppercase text-[10px] tracking-widest px-4 border border-error-500/20"
+                        className="text-error-500 bg-error-500/10 hover:bg-error-500/30 font-bold uppercase text-[10px] tracking-widest px-4 border border-error-500/20 h-10 rounded-xl transition-all"
                       >
                         <XCircle className="w-3.5 h-3.5 mr-2" />
                         Force System Logout
@@ -1114,8 +1397,9 @@ export default function AdminDashboard() {
 
               <div className="flex justify-end pt-4">
                 <Button 
+                  variant="none"
                   onClick={() => setShowDiffModal(false)}
-                  className="bg-white/5 hover:bg-white/10 text-white font-bold uppercase text-[10px] tracking-widest px-8"
+                  className="bg-white/5 hover:bg-white/10 text-white font-bold uppercase text-[10px] tracking-widest px-8 py-2 rounded-lg transition-all"
                 >
                   Close Analysis
                 </Button>
@@ -1189,20 +1473,21 @@ export default function AdminDashboard() {
 
             <div className="flex justify-end space-x-4 pt-8">
               <Button
-                variant="ghost"
+                variant="none"
                 type="button"
                 onClick={() => {
                   setShowEditModal(false)
                   setSelectedUser(null)
                 }}
-                className="text-slate-400 hover:text-white font-bold uppercase text-[10px] tracking-[0.2em]"
+                className="text-slate-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg font-bold uppercase text-[10px] tracking-[0.2em] transition-all"
               >
                 Abort
               </Button>
               <Button 
+                variant="none"
                 type="submit" 
                 disabled={isUpdating} 
-                className="bg-primary hover:bg-primary/80 text-white px-10 py-4 h-auto rounded-2xl shadow-xl shadow-primary/20 text-[11px] font-black uppercase tracking-[0.2em]"
+                className="bg-primary hover:bg-primary/80 text-white px-10 py-4 h-auto rounded-2xl shadow-xl shadow-primary/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
               >
                 {isUpdating ? 'Transmitting...' : 'Commit Changes'}
               </Button>

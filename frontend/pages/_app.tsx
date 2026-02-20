@@ -14,55 +14,45 @@ export default function App({ Component, pageProps }: AppProps) {
         </Head>
         <Component {...pageProps} />
         <Toaster
-          position="top-right"
+          position="top-center"
           toastOptions={{
-            duration: 4000,
+            duration: 5000,
             style: {
-              background: "#ffffff",
-              color: "#0d1117",
-              border: "1px solid #dee2e6",
-              borderRadius: "0.5rem",
-              boxShadow:
-                "0 10px 15px -3px rgba(13, 25, 41, 0.1), 0 4px 6px -2px rgba(13, 25, 41, 0.05)",
-              padding: "12px 16px",
-              fontSize: "14px",
-              fontFamily: "IBM Plex Sans, system-ui, sans-serif",
+              background: "rgba(15, 23, 42, 0.8)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              color: "#f8fafc",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "1.25rem",
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)",
+              padding: "16px 24px",
+              fontSize: "13px",
+              fontWeight: "600",
+              fontFamily: "'Inter', system-ui, sans-serif",
+              letterSpacing: "0.01em",
+              maxWidth: "450px",
             },
             success: {
-              duration: 3000,
               iconTheme: {
-                primary: "#16a34a",
-                secondary: "#ffffff",
+                primary: "#10b981",
+                secondary: "rgba(15, 23, 42, 0.8)",
               },
               style: {
-                background: "#f0fdf4",
-                color: "#052e16",
-                border: "1px solid #bbf7d0",
+                border: "1px solid rgba(16, 185, 129, 0.2)",
               },
             },
             error: {
-              duration: 5000,
               iconTheme: {
-                primary: "#dc2626",
-                secondary: "#ffffff",
+                primary: "#f43f5e",
+                secondary: "rgba(15, 23, 42, 0.8)",
               },
               style: {
-                background: "#fef2f2",
-                color: "#450a0a",
-                border: "1px solid #fecaca",
-              },
-            },
-            loading: {
-              style: {
-                background: "#f0f4f8",
-                color: "#0d1929",
-                border: "1px solid #c7d2e4",
+                border: "1px solid rgba(244, 63, 94, 0.2)",
               },
             },
           }}
           containerStyle={{
-            top: "20px",
-            right: "20px",
+            top: "40px",
           }}
         />
       </AuthProvider>

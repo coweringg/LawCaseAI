@@ -5,12 +5,12 @@ export interface IAuditLog extends Document {
   adminName: string
   targetId: Types.ObjectId
   targetName: string
-  targetType: 'user' | 'case'
+  targetType: 'user' | 'case' | 'support'
   category: 'admin' | 'platform'
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE' | 'PLAN_CHANGE' | 'LOGIN' | 'PASSWORD_RESET' | 'USER_DISABLED' | 'USER_ENABLED' | 'CASE_CREATED' | 'CASE_DELETED' | 'FILE_UPLOADED' | 'FILE_DELETED' | 'AI_CONSULTATION' | 'PROFILE_UPDATE' | 'NOTIFICATION_CHANGE' | 'PAYMENT_METHOD_ADD' | 'PAYMENT_METHOD_REMOVE' | 'CASE_STATUS_CHANGE' | 'USER_DELETED' | 'CASE_CLOSED' | 'PASSWORD_CHANGE'
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE' | 'PLAN_CHANGE' | 'LOGIN' | 'PASSWORD_RESET' | 'USER_DISABLED' | 'USER_ENABLED' | 'CASE_CREATED' | 'CASE_DELETED' | 'FILE_UPLOADED' | 'FILE_DELETED' | 'AI_CONSULTATION' | 'PROFILE_UPDATE' | 'NOTIFICATION_CHANGE' | 'PAYMENT_METHOD_ADD' | 'PAYMENT_METHOD_REMOVE' | 'CASE_STATUS_CHANGE' | 'USER_DELETED' | 'CASE_CLOSED' | 'PASSWORD_CHANGE' | 'SUPPORT_REQUEST_SUBMITTED' | 'SUPPORT_REQUEST_STATUS_UPDATE'
   details: {
-    before?: any
-    after?: any
+    before?: Record<string, unknown>
+    after?: Record<string, unknown>
     description: string
   }
   timestamp: Date
@@ -36,7 +36,7 @@ const auditLogSchema = new Schema<IAuditLog>({
   },
   targetType: {
     type: String,
-    enum: ['user', 'case'],
+    enum: ['user', 'case', 'support'],
     required: true
   },
   category: {
@@ -47,7 +47,15 @@ const auditLogSchema = new Schema<IAuditLog>({
   },
   action: {
     type: String,
-    enum: ['CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE', 'PLAN_CHANGE', 'LOGIN', 'PASSWORD_RESET', 'USER_DISABLED', 'USER_ENABLED', 'CASE_CREATED', 'CASE_DELETED', 'FILE_UPLOADED', 'FILE_DELETED', 'AI_CONSULTATION', 'PROFILE_UPDATE', 'NOTIFICATION_CHANGE', 'PAYMENT_METHOD_ADD', 'PAYMENT_METHOD_REMOVE', 'CASE_STATUS_CHANGE', 'USER_DELETED', 'CASE_CLOSED', 'PASSWORD_CHANGE'],
+    enum: [
+      'CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE', 'PLAN_CHANGE', 'LOGIN', 
+      'PASSWORD_RESET', 'USER_DISABLED', 'USER_ENABLED', 'CASE_CREATED', 
+      'CASE_DELETED', 'FILE_UPLOADED', 'FILE_DELETED', 'AI_CONSULTATION', 
+      'PROFILE_UPDATE', 'NOTIFICATION_CHANGE', 'PAYMENT_METHOD_ADD', 
+      'PAYMENT_METHOD_REMOVE', 'CASE_STATUS_CHANGE', 'USER_DELETED', 
+      'CASE_CLOSED', 'PASSWORD_CHANGE', 'SUPPORT_REQUEST_SUBMITTED', 
+      'SUPPORT_REQUEST_STATUS_UPDATE'
+    ],
     required: true
   },
   details: {

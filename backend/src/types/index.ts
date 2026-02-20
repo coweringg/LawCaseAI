@@ -16,7 +16,8 @@ export enum UserPlan {
 export enum CaseStatus {
   ACTIVE = 'active',
   CLOSED = 'closed',
-  ARCHIVED = 'archived'
+  ARCHIVED = 'archived',
+  DELETED = 'deleted'
 }
 
 export enum EventType {
@@ -45,6 +46,16 @@ export enum UserStatus {
 export enum EventStatus {
   ACTIVE = 'active',
   CLOSED = 'closed'
+}
+
+export enum SupportRequestType {
+  SYSTEM_ERROR = 'system_error',
+  FEATURE_UPLINK = 'feature_uplink'
+}
+
+export enum SupportRequestStatus {
+  PENDING = 'pending',
+  RESOLVED = 'resolved'
 }
 
 export interface IPaymentMethod {
@@ -138,6 +149,19 @@ export interface IEvent extends Document {
   location?: string
   isAllDay: boolean
   status: EventStatus
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ISupportRequest extends Document {
+  _id: Types.ObjectId
+  userId: Types.ObjectId
+  userEmail: string
+  userName: string
+  type: SupportRequestType
+  subject: string
+  description: string
+  status: SupportRequestStatus
   createdAt: Date
   updatedAt: Date
 }

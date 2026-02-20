@@ -1,6 +1,7 @@
 import { Response } from 'express'
-import { User, Case, Transaction, AuditLog } from '../models'
-import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats } from '../types'
+import { Types } from 'mongoose'
+import { User, Case, Transaction, AuditLog, SupportRequest } from '../models'
+import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
 
 /**
@@ -11,7 +12,7 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
     const { search, page = 1, limit = 10 } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
-    const query: any = { status: { $ne: UserStatus.DELETED } } // Exclude deleted users from main list
+    const query: Record<string, unknown> = { status: { $ne: UserStatus.DELETED } } // Exclude deleted users from main list
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -50,7 +51,13 @@ export const getStats = async (_req: IAuthRequest, res: Response): Promise<void>
   try {
     const totalUsers = await User.countDocuments({ status: { $ne: UserStatus.DELETED } })
     const activeUsers = await User.countDocuments({ status: UserStatus.ACTIVE })
-    const totalCases = await Case.countDocuments()
+    // Sync: ensure cases of deleted users are also marked as deleted (handles existing data)
+    await Case.updateMany(
+      { userId: { $in: await User.find({ status: UserStatus.DELETED }).distinct('_id') }, status: { $ne: CaseStatus.DELETED } },
+      { $set: { status: CaseStatus.DELETED } }
+    )
+
+    const totalCases = await Case.countDocuments({ status: { $ne: CaseStatus.DELETED } })
     
     // Revenue placeholders
     const totalRevenue = totalUsers * 49 
@@ -150,8 +157,8 @@ export const updateUser = async (req: IAuthRequest, res: Response): Promise<void
       message: 'User updated successfully',
       data: user
     } as IApiResponse)
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       res.status(400).json({ success: false, message: 'Email already in use' } as IApiResponse)
       return
     }
@@ -181,9 +188,15 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
     const admin = req.user!
     const oldStatus = user.status
     
-    // Soft delete
+    // Soft delete user
     user.status = UserStatus.DELETED
     await user.save()
+
+    // Cascade soft delete to all user's cases
+    await Case.updateMany(
+      { userId: user._id, status: { $ne: CaseStatus.DELETED } },
+      { $set: { status: CaseStatus.DELETED } }
+    )
 
     // Log the action
     await logAction({
@@ -468,6 +481,153 @@ export const logoutUser = async (req: IAuthRequest, res: Response): Promise<void
     } as IApiResponse)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to force logout'
+    res.status(500).json({ success: false, message } as IApiResponse)
+  }
+}
+
+/**
+ * Get support requests with filtering and pagination.
+ */
+export const getSupportRequests = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { type, status, page = 1, limit = 20 } = req.query
+    const skip = (Number(page) - 1) * Number(limit)
+
+    const query: any = {}
+    if (type) query.type = type
+    if (status) query.status = status
+
+    const requests = await SupportRequest.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+
+    const total = await SupportRequest.countDocuments(query)
+
+    res.status(200).json({
+      success: true,
+      message: 'Support requests fetched successfully',
+      data: {
+        requests,
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit))
+      }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch support requests'
+    res.status(500).json({ success: false, message } as IApiResponse)
+  }
+}
+
+/**
+ * Update support request status (e.g., mark as RESOLVED).
+ */
+export const updateSupportRequestStatus = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+
+    if (!Object.values(SupportRequestStatus).includes(status)) {
+      res.status(400).json({ success: false, message: 'Invalid status' } as IApiResponse)
+      return
+    }
+
+    const request = await SupportRequest.findByIdAndUpdate(id, { status }, { new: true })
+    if (!request) {
+      res.status(404).json({ success: false, message: 'Support request not found' } as IApiResponse)
+      return
+    }
+
+    // Log the action
+    await logAction({
+      adminId: req.user!._id,
+      adminName: req.user!.name,
+      targetId: request._id,
+      targetName: request.subject,
+      targetType: 'support',
+      category: 'admin',
+      action: 'SUPPORT_REQUEST_STATUS_UPDATE',
+      after: { status: request.status },
+      description: `Admin marked support request "${request.subject}" as ${status}`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: `Support request status updated to ${status}`,
+      data: request
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to update status'
+    res.status(500).json({ success: false, message } as IApiResponse)
+  }
+}
+
+/**
+ * Delete a specific support request.
+ */
+export const deleteSupportRequest = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+
+    const request = await SupportRequest.findByIdAndDelete(id)
+    if (!request) {
+      res.status(404).json({ success: false, message: 'Support request not found' } as IApiResponse)
+      return
+    }
+
+    // Log the action
+    await logAction({
+      adminId: req.user!._id,
+      adminName: req.user!.name,
+      targetId: request._id,
+      targetName: request.subject,
+      targetType: 'support',
+      category: 'admin',
+      action: 'DELETE',
+      description: `Admin deleted support request: ${request.subject}`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Support request deleted successfully'
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to delete support request'
+    res.status(500).json({ success: false, message } as IApiResponse)
+  }
+}
+
+/**
+ * Clear support requests (optionally filtered by type).
+ */
+export const clearSupportRequests = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { type } = req.query
+    const query: Record<string, unknown> = {}
+    if (type) query.type = type
+
+    const result = await SupportRequest.deleteMany(query)
+
+    // Log the action
+    await logAction({
+      adminId: req.user!._id,
+      adminName: req.user!.name,
+      targetId: new Types.ObjectId(), // Virtual ID for bulk action
+      targetName: type === 'system_error' ? 'All System Errors' : type === 'feature_uplink' ? 'All Feature Uplinks' : 'All support requests',
+      targetType: 'support',
+      category: 'admin',
+      action: 'DELETE',
+      description: `Admin cleared ${result.deletedCount} support requests${type ? ` of type ${type}` : ''}`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: `Cleared ${result.deletedCount} support requests`,
+      data: { deletedCount: result.deletedCount }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to clear support requests'
     res.status(500).json({ success: false, message } as IApiResponse)
   }
 }

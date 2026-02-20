@@ -1,0 +1,52 @@
+import mongoose, { Schema } from 'mongoose'
+import { ISupportRequest, SupportRequestType, SupportRequestStatus } from '../types'
+
+const supportRequestSchema = new Schema<ISupportRequest>({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  userEmail: {
+    type: String,
+    required: true
+  },
+  userName: {
+    type: String,
+    required: true
+  },
+  type: {
+    type: String,
+    enum: Object.values(SupportRequestType),
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 200
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 2000
+  },
+  status: {
+    type: String,
+    enum: Object.values(SupportRequestStatus),
+    default: SupportRequestStatus.PENDING
+  }
+}, {
+  timestamps: true
+})
+
+// Indexes
+supportRequestSchema.index({ userId: 1 })
+supportRequestSchema.index({ type: 1 })
+supportRequestSchema.index({ status: 1 })
+supportRequestSchema.index({ createdAt: -1 })
+
+const SupportRequest = mongoose.model<ISupportRequest>('SupportRequest', supportRequestSchema)
+
+export default SupportRequest

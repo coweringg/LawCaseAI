@@ -41,7 +41,7 @@ export default function Settings() {
     // Support Modal state
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
     const [supportData, setSupportData] = useState({
-        type: 'error',
+        type: 'system_error',
         subject: '',
         description: ''
     });
@@ -114,9 +114,13 @@ export default function Settings() {
             const response = await api.post('/user/support', supportData);
             const data = response.data;
             if (response.status === 201 || response.status === 200) {
-                toast.success(data.message || 'Support request submitted!');
+                const successMessage = supportData.type === 'system_error'
+                    ? "We will get in touch with you as soon as possible. Thank you for your patience."
+                    : "Thank you for helping us improve our platform. We truly appreciate your feedback!";
+                
+                toast.success(successMessage);
                 setIsSupportModalOpen(false);
-                setSupportData({ type: 'error', subject: '', description: '' });
+                setSupportData({ type: 'system_error', subject: '', description: '' });
             } else {
                 toast.error(data.message || 'Failed to submit support request');
             }
@@ -812,18 +816,18 @@ export default function Settings() {
                                 <div className="grid grid-cols-2 gap-6">
                                     <button
                                         type="button"
-                                        onClick={() => setSupportData({ ...supportData, type: 'error' })}
-                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'error' ? 'border-red-500/50 bg-red-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
+                                        onClick={() => setSupportData({ ...supportData, type: 'system_error' })}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'system_error' ? 'border-red-500/50 bg-red-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                     >
-                                        <span className={`material-icons-round text-2xl ${supportData.type === 'error' ? 'text-red-500' : 'text-slate-600'}`}>report_problem</span>
+                                        <span className={`material-icons-round text-2xl ${supportData.type === 'system_error' ? 'text-red-500' : 'text-slate-600'}`}>report_problem</span>
                                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">System Error</span>
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setSupportData({ ...supportData, type: 'implementation' })}
-                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'implementation' ? 'border-primary/50 bg-primary/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
+                                        onClick={() => setSupportData({ ...supportData, type: 'feature_uplink' })}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'feature_uplink' ? 'border-primary/50 bg-primary/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                     >
-                                        <span className={`material-icons-round text-2xl ${supportData.type === 'implementation' ? 'text-primary' : 'text-slate-600'}`}>rocket_launch</span>
+                                        <span className={`material-icons-round text-2xl ${supportData.type === 'feature_uplink' ? 'text-primary' : 'text-slate-600'}`}>rocket_launch</span>
                                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Feature Uplink</span>
                                     </button>
                                 </div>

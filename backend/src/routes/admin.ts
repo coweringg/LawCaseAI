@@ -10,7 +10,11 @@ import {
   getUserHistory,
   deleteAuditLog,
   clearAuditLogs,
-  logoutUser
+  logoutUser,
+  getSupportRequests,
+  updateSupportRequestStatus,
+  deleteSupportRequest,
+  clearSupportRequests
 } from '../controllers/adminController'
 import { authenticate, authorize } from '../middleware/auth'
 import { UserRole } from '../types'
@@ -60,5 +64,11 @@ router.get('/treasury', getTreasuryStats)
 router.get('/system/status', getSystemStatus)
 router.post('/system/maintenance', toggleMaintenance)
 router.post('/system/alert', updateGlobalAlert)
+
+// 4. Support Notifications
+router.get('/support', getSupportRequests)
+router.put('/support/:id/status', updateSupportRequestStatus)
+router.delete('/support/:id', deleteSupportRequest)
+router.delete('/support', clearSupportRequests)
 
 export default router

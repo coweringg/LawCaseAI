@@ -1,6 +1,6 @@
 import { Response } from 'express'
-import { User } from '../models'
-import { IApiResponse, INotificationSettings, IAuthRequest } from '../types'
+import { User, SupportRequest } from '../models'
+import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
 
 export const getProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -320,12 +320,34 @@ export const submitSupportRequest = async (req: IAuthRequest, res: Response): Pr
       return
     }
 
-    // TODO: Integrate with a real support system (email, Zendesk, etc.)
-    console.info(`[SUPPORT] User: ${user.email}, Type: ${type}, Subject: ${subject}`)
+    const supportRequest = new SupportRequest({
+      userId: user._id,
+      userEmail: user.email,
+      userName: user.name,
+      type,
+      subject,
+      description,
+      status: SupportRequestStatus.PENDING
+    })
 
-    res.status(200).json({
+    await supportRequest.save()
+
+    // Log the action for support
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: supportRequest._id,
+      targetName: subject,
+      targetType: 'support',
+      category: 'platform',
+      action: 'SUPPORT_REQUEST_SUBMITTED',
+      description: `User ${user.email} submitted a support request: ${subject}`
+    })
+
+    res.status(201).json({
       success: true,
-      message: 'Support request submitted successfully. Our team will contact you soon.'
+      message: 'Support request submitted successfully. Our team will contact you soon.',
+      data: supportRequest
     } as IApiResponse)
   } catch (error: unknown) {
     console.error('[UserController] submitSupportRequest error:', error)

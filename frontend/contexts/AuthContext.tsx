@@ -77,6 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await api.post('/auth/login', { email, password })
+
+      // Check for soft failures first (e.g. 429/503 resolved by interceptor)
+      if (!response.data.success) {
+        return { success: false, message: response.data.message || 'Login failed' }
+      }
+
       const { data, message } = response.data
 
       setToken(data.token)
@@ -92,6 +98,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (userData: any): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await api.post('/auth/register', userData)
+
+      // Check for soft failures first (e.g. 429/503 resolved by interceptor)
+      if (!response.data.success) {
+        return { success: false, message: response.data.message || 'Registration failed' }
+      }
+
       const { data, message } = response.data
 
       setToken(data.token)

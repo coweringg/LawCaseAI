@@ -19,7 +19,7 @@ const authLimiter = rateLimit({
   max: 10, // 10 attempts per window
   message: {
     success: false,
-    message: 'Too many authentication attempts. Please try again later.'
+    message: 'Too many login attempts from your IP. For your security, access has been temporarily locked. Please wait 15 minutes before trying again.'
   },
   standardHeaders: true,
   legacyHeaders: false

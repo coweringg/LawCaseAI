@@ -47,7 +47,8 @@ api.interceptors.response.use(
             return Promise.resolve({
                 data: {
                     success: false,
-                    message: 'Too many requests. Please slow down.'
+                    // Forward the actual backend message so the UI can display it
+                    message: error.response.data?.message || 'Too many requests. Please slow down.'
                 }
             });
         }

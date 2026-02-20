@@ -50,8 +50,10 @@ export default function Login() {
       } else {
         toast.error(result.message)
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred')
+    } catch (error: any) {
+      // Display the specific error message from the server if available (e.g. rate limit)
+      const msg = error?.response?.data?.message || 'An unexpected error occurred. Please try again.'
+      toast.error(msg)
     } finally {
       setIsLoading(false)
     }

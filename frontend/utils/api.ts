@@ -62,6 +62,17 @@ api.interceptors.response.use(
                 window.location.href = '/login';
             }
         }
+
+        // Handle 403 Forbidden (e.g. Plan Limit Reached)
+        if (error.response && error.response.status === 403) {
+            return Promise.resolve({
+                data: {
+                    success: false,
+                    message: error.response.data?.message || 'Access denied or limit reached.'
+                }
+            });
+        }
+
         return Promise.reject(error);
     }
 );

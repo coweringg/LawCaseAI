@@ -40,7 +40,7 @@ interface AdminUser {
   name: string
   email: string
   lawFirm: string
-  plan: 'basic' | 'professional' | 'enterprise'
+  plan: 'none' | 'basic' | 'professional' | 'elite' | 'enterprise'
   planLimit: number
   currentCases: number
   status: 'active' | 'disabled' | 'suspended'
@@ -139,6 +139,8 @@ export default function AdminDashboard() {
     onConfirm: () => {},
     variant: 'danger'
   })
+  const [showPlanModal, setShowPlanModal] = useState(false)
+  const [isPlanUpdating, setIsPlanUpdating] = useState(false)
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -296,6 +298,26 @@ export default function AdminDashboard() {
         }
       }
     })
+  }
+
+  const handleUpdatePlan = async (userId: string, plan: string) => {
+    setIsPlanUpdating(true)
+    try {
+      const response = await api.put(`/admin/users/${userId}/plan`, { plan })
+      if (response.data.success) {
+        setUsers(prev => prev.map(user =>
+          user.id === userId ? { ...user, plan: plan as any } : user
+        ))
+        setShowPlanModal(false)
+        setSelectedUser(null)
+        toast.success(`Plan updated to ${plan} successfully`)
+      }
+    } catch (error) {
+      console.error('Failed to update plan:', error)
+      toast.error('Failed to update user plan')
+    } finally {
+      setIsPlanUpdating(false)
+    }
   }
 
   const fetchUserHistory = useCallback(async (userId: string) => {
@@ -582,6 +604,17 @@ export default function AdminDashboard() {
             )}
           >
             {item.status === 'active' ? 'Disable' : 'Enable'}
+          </Button>
+          <Button
+            variant="none"
+            size="sm"
+            onClick={() => {
+              setSelectedUser(item)
+              setShowPlanModal(true)
+            }}
+            className="text-primary hover:text-white bg-primary/10 hover:bg-primary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-primary/20 h-8 rounded-lg transition-all"
+          >
+            Plan
           </Button>
           <Button
             variant="none"
@@ -1504,6 +1537,67 @@ export default function AdminDashboard() {
           confirmText={confirmConfig.confirmText}
           variant={confirmConfig.variant}
         />
+        {/* Plan Selection Modal */}
+        <Modal
+          isOpen={showPlanModal}
+          onClose={() => {
+            setShowPlanModal(false)
+            setSelectedUser(null)
+          }}
+          title="Manage User Plan"
+          variant="glass"
+          size="md"
+        >
+          <div className="space-y-6">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
+              <p className="text-lg font-black text-white uppercase">{selectedUser?.plan || 'None'}</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                { id: 'none', label: 'None (Default)', limit: 0, color: 'text-slate-400' },
+                { id: 'basic', label: 'Basic', limit: 8, color: 'text-primary' },
+                { id: 'professional', label: 'Professional', limit: 18, color: 'text-indigo-400' },
+                { id: 'elite', label: 'Elite', limit: 10000, color: 'text-secondary' },
+                { id: 'enterprise', label: 'Enterprise', limit: 500, color: 'text-amber-400' }
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleUpdatePlan(selectedUser!.id, p.id)}
+                  disabled={isPlanUpdating || selectedUser?.plan === p.id}
+                  className={cn(
+                    "flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left group",
+                    selectedUser?.plan === p.id 
+                      ? "border-primary bg-primary/10 cursor-default" 
+                      : "border-white/5 bg-white/5 hover:border-white/20 hover:bg-white/10"
+                  )}
+                >
+                  <div className="flex flex-col">
+                    <span className={cn("text-sm font-black uppercase tracking-widest", p.color)}>
+                      {p.label}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold">
+                      {p.limit === 10000 ? 'Unlimited' : `${p.limit} Cases Limit`}
+                    </span>
+                  </div>
+                  {selectedUser?.plan === p.id ? (
+                    <CheckCircle className="w-5 h-5 text-primary" />
+                  ) : (
+                    <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-all group-hover:translate-x-1" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {isPlanUpdating && (
+              <div className="flex items-center justify-center py-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary mr-2"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Updating Protocol...</span>
+              </div>
+            )}
+          </div>
+        </Modal>
       </div>
     </DashboardLayout>
   )

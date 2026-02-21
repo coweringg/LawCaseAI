@@ -22,12 +22,14 @@ import {
     Building2,
     Calendar,
     Clock,
-    Info
+    Info,
+    AlertCircle,
+    ShieldAlert
 } from 'lucide-react';
 
 export default function NewCase() {
     const router = useRouter();
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -59,6 +61,10 @@ export default function NewCase() {
                 router.push('/dashboard');
             } else {
                 toast.error(data.message || 'Failed to create case');
+                // Suggest upgrade if limit reached
+                if (data.message?.toLowerCase().includes('limit')) {
+                    toast.error('Consider upgrading your plan in Settings.', { duration: 5000 });
+                }
             }
         } catch (error) {
             toast.error('Network error. Failed to create case');
@@ -133,7 +139,7 @@ export default function NewCase() {
                                     <div>
                                         <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">AI Smart Index</h4>
                                         <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 font-medium italic">
-                                            "Provide accurate details to help me build a comprehensive legal context for your case analysis."
+                                            &quot;Provide accurate details to help me build a comprehensive legal context for your case analysis.&quot;
                                         </p>
                                     </div>
                                 </div>
@@ -164,6 +170,42 @@ export default function NewCase() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-8">
+                            {user && user.planLimit > 0 && user.currentCases >= user.planLimit && (
+                                <div className="max-w-2xl mx-auto mb-6 p-4 bg-error-500/10 border border-error-500/20 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
+                                    <AlertCircle className="w-6 h-6 text-error-500 flex-shrink-0" />
+                                    <div>
+                                        <h4 className="text-sm font-bold text-error-500 tracking-tight">Case Limit Reached</h4>
+                                        <p className="text-xs text-slate-500 font-medium">
+                                            You have reached the limit for your current plan ({user.currentCases}/{user.planLimit}). Please upgrade to create more cases.
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => router.push('/dashboard/upgrade')}
+                                        className="ml-auto px-4 py-2 bg-error-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-error-500/20 hover:bg-error-600 transition-all"
+                                    >
+                                        Upgrade
+                                    </button>
+                                </div>
+                            )}
+
+                            {user && user.planLimit === 0 && (
+                                <div className="max-w-2xl mx-auto mb-6 p-4 bg-warning-500/10 border border-warning-500/20 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
+                                    <ShieldAlert className="w-6 h-6 text-warning-500 flex-shrink-0" />
+                                    <div>
+                                        <h4 className="text-sm font-bold text-warning-500 tracking-tight">No Active Plan</h4>
+                                        <p className="text-xs text-slate-500 font-medium">
+                                            Your current plan does not allow for case creation. Please select a plan to begin initializing workspaces.
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => router.push('/dashboard/upgrade')}
+                                        className="ml-auto px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all"
+                                    >
+                                        Select Plan
+                                    </button>
+                                </div>
+                            )}
+
                             <form className="space-y-6 max-w-2xl mx-auto">
                                 {step === 1 && (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -333,7 +375,7 @@ export default function NewCase() {
                                             </div>
                                             <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Calendar Integration</h4>
                                             <p className="text-[10px] font-medium text-slate-500 max-w-xs">
-                                                Once created, you'll be able to sync court calendars and deadlines through your dashboard settings.
+                                                Once created, you&apos;ll be able to sync court calendars and deadlines through your dashboard settings.
                                             </p>
                                         </div>
                                     </div>
@@ -342,7 +384,7 @@ export default function NewCase() {
                                 {step === 4 && (
                                     <div className="animate-in fade-in zoom-in duration-500 space-y-6">
                                         <div className="relative p-1 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/5 to-indigo-500/20 border border-primary/20 overflow-hidden">
-                                            <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-8 shadow-2xl relative z-10">
+                                            <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-8 shadow-2xl z-10">
                                                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-slate-800">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
@@ -375,7 +417,7 @@ export default function NewCase() {
                                                                 <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
                                                                     <Gavel className="w-3 h-3" /> Practice Area
                                                                 </div>
-                                                                <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">{formData.practiceArea || 'General'}</div>
+                                                              <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">{formData.practiceArea || 'General'}</div>
                                                             </div>
                                                             <div className="flex-1">
                                                                 <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
@@ -398,7 +440,7 @@ export default function NewCase() {
                                                         <Layers className="w-3 h-3" /> Full Description
                                                     </div>
                                                     <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 italic">
-                                                        "{formData.description || 'No description provided.'}"
+                                                        &quot;{formData.description || 'No description provided.'}&quot;
                                                     </p>
                                                 </div>
                                             </div>
@@ -428,8 +470,8 @@ export default function NewCase() {
                             </button>
                             <button
                                 onClick={step === 4 ? handleSubmit : handleNext}
-                                disabled={isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea)}
-                                className={`group relative px-10 py-3 rounded-xl font-bold text-xs uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea))
+                                disabled={isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit)}
+                                className={`group relative px-10 py-3 rounded-xl font-bold text-xs uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit))
                                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                                     : 'bg-primary text-white shadow-xl shadow-primary/25 hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0'
                                     }`}

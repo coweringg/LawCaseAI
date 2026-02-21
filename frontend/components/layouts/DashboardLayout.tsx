@@ -282,7 +282,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Sidebar */}
                 <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 hidden md:flex h-full relative overflow-hidden">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
-                    <div className="relative z-10 flex flex-col h-full justify-between">
+                    <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
                             <div className="h-20 flex items-center px-6 mb-4">
                                 <Link href={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard'} className="flex items-center gap-2 text-primary dark:text-white">
@@ -321,9 +321,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 ))}
                             </nav>
                         </div>
-                        <div className="p-4 space-y-4 relative z-10 flex-shrink-0">
+                        <div className="px-2 pb-4 space-y-4 relative z-10 flex-shrink-0">
                             {user?.role !== 'admin' && user?.plan !== 'elite' && user?.plan !== 'enterprise' && (
-                                <div className="glass border-white/10 rounded-2xl p-4 shadow-xl">
+                                <div className="glass border-white/10 rounded-2xl p-5 shadow-xl w-full">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan Usage</span>
                                         <span className="text-[10px] font-bold text-primary">{usagePercentage}%</span>
@@ -348,7 +348,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 </div>
                             )}
                             {router.pathname !== '/settings' && (
-                                <div className="flex items-center gap-3 px-2 py-2 border-t border-white/5 pt-6">
+                                <div className="flex items-center gap-3 px-3 py-4 border-t border-white/5 mt-2">
                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
                                         {user?.name?.charAt(0) || 'U'}
                                     </div>
@@ -370,7 +370,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </aside>
 
                 {/* Main Content Area */}
-                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-background-light dark:bg-background-dark">
                     {/* Header */}
                     <header className="h-20 glass border-b border-white/5 flex items-center justify-between px-8 flex-shrink-0 z-20">
                         <div className="flex items-center gap-4">

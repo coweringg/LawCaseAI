@@ -8,8 +8,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, lawFirm, firmCode }: IUserRegistration = req.body
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email })
+    // Check if user already exists (exclude deleted users)
+    const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
       res.status(400).json({
         success: false,
@@ -276,8 +276,8 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
 
     const { name, email, password, lawFirm }: IUserRegistration = req.body
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email })
+    // Check if user already exists (exclude deleted users)
+    const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
       res.status(400).json({
         success: false,

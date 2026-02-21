@@ -188,7 +188,9 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
     const admin = req.user!
     const oldStatus = user.status
     
-    // Soft delete user
+    // Soft delete user and release email for future use
+    const originalEmail = user.email
+    user.email = `deleted_${Date.now()}_${originalEmail}`
     user.status = UserStatus.DELETED
     await user.save()
 

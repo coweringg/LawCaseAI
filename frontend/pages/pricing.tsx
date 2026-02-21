@@ -174,6 +174,9 @@ export default function Pricing() {
                       <span className="text-slate-500 font-medium text-sm">/mo</span>
                     </div>
                   </div>
+                  <div className="text-[10px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <span className="text-lg">∞</span> Active Matters
+                  </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
                   {["Unlimited Active Matters", "Cross-Matter AI Intelligence", "Dedicated Success Manager", "Bulk Neural Transcription", "Firm-wide Knowledge Bank", "White-label Client Portals"].map((f, i) => (
@@ -202,9 +205,9 @@ export default function Pricing() {
                 
                 <div className="grid md:grid-cols-2 gap-16 items-center">
                   <div>
-                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">ELITE FIRM LICENSE</h3>
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">ENTERPRISE FIRM INFRASTRUCTURE</h3>
                     <p className="text-slate-400 mb-8 leading-relaxed">
-                      Acquire unlimited Elite licenses for your entire team. Get an exclusive firm code for instant access.
+                      Acquire <span className="text-primary font-bold italic">∞ unlimited capacity</span> for your entire organization. Get an exclusive firm code for instant network-wide access.
                     </p>
                     
                     <div className="space-y-8 mb-12">

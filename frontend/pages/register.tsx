@@ -146,11 +146,12 @@ export default function Register() {
           <div className="space-y-4">
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Select Your Infrastructure Tier</h3>
             
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-4">
               {[
-                { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-                { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', color: 'bg-primary/10 text-primary border-primary/20' },
-                { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' }
+                { id: 'basic', name: 'Growth Tier', price: '$99', cases: '8 Case Capacity', color: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-400', border: 'border-emerald-500/20' },
+                { id: 'professional', name: 'Professional Tier', price: '$199', cases: '18 Case Capacity', color: 'from-primary/20 to-primary/5', iconColor: 'text-primary', border: 'border-primary/20' },
+                { id: 'elite', name: 'Elite Infrastructure', price: '$300', cases: '∞ Unlimited Matters', color: 'from-purple-500/20 to-purple-500/5', iconColor: 'text-purple-400', border: 'border-purple-500/20' },
+                { id: 'enterprise', name: 'Enterprise Intelligence', price: '$999', cases: '∞ Unlimited Capacity', color: 'from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-400', border: 'border-rose-500/20' }
               ].map((p) => (
                 <button
                   key={p.id}
@@ -158,22 +159,23 @@ export default function Register() {
                     const checkoutUrl = `/checkout?plan=${p.id}${seatsQuery ? `&seats=${seatsQuery}` : ''}${registrationMode === 'empresa' ? '&type=empresa' : ''}`;
                     router.push(checkoutUrl);
                   }}
-                  className={`w-full p-4 rounded-2xl border flex items-center justify-between group hover:scale-[1.02] active:scale-[0.98] transition-all bg-white/5 border-white/5 hover:border-white/20`}
+                  className={`w-full p-5 rounded-3xl border ${p.border} flex items-center justify-between group hover:scale-[1.02] active:scale-[0.98] transition-all bg-gradient-to-br ${p.color} backdrop-blur-md relative overflow-hidden`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${p.color}`}>
-                      {p.id.charAt(0).toUpperCase()}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 pointer-events-none"></div>
+                  <div className="flex items-center gap-5 relative z-10">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg bg-black/20 ${p.iconColor} shadow-inner`}>
+                      {p.id === 'elite' || p.id === 'enterprise' ? '∞' : p.id.charAt(0).toUpperCase()}
                     </div>
                     <div className="text-left">
-                      <p className="text-white font-bold text-sm tracking-tight">{p.name}</p>
-                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{p.cases}</p>
+                      <p className="text-white font-black text-base tracking-tight mb-0.5">{p.name}</p>
+                      <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${p.id === 'elite' || p.id === 'enterprise' ? p.iconColor : 'text-slate-500'}`}>{p.cases}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white font-black text-lg font-display">{p.price}<span className="text-[10px] text-slate-500">/mo</span></p>
+                  <div className="text-right relative z-10">
+                    <p className="text-white font-black text-xl font-display">{p.price}<span className="text-[10px] text-slate-500 ml-1">/mo</span></p>
                     <div className="flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform">
-                      <span className="text-[10px] font-black uppercase tracking-widest">Select</span>
-                      <ArrowRight size={12} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Select Tier</span>
+                      <ArrowRight size={14} />
                     </div>
                   </div>
                 </button>

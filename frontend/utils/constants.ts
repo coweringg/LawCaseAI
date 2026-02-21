@@ -3,7 +3,8 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost
 export const PLAN_LIMITS = {
   basic: 5,
   professional: 25,
-  enterprise: 100
+  elite: 100000,
+  enterprise: 100000
 }
 
 export const FILE_SIZE_LIMIT = 10 * 1024 * 1024 // 10MB

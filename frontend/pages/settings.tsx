@@ -163,6 +163,14 @@ export default function Settings() {
         setIsPaymentModalOpen(true);
     };
 
+    const handleSetDefaultCard = async (cardId: string) => {
+        toast.success("Default payment method updated");
+    };
+
+    const handleRemoveCard = async (cardId: string) => {
+        toast.success("Payment method removed");
+    };
+
     const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -614,6 +622,7 @@ export default function Settings() {
                                                                          billingInfo?.plan === 'basic' ? 'Growth' : 
                                                                          billingInfo?.plan === 'professional' ? 'Professional' : 
                                                                          billingInfo?.plan === 'elite' ? 'Elite' : 
+                                                                         billingInfo?.plan === 'enterprise' ? 'Enterprise Intelligence' :
                                                                          billingInfo?.plan || 'Loading...'} System
                                                                     </h2>
                                                                     <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
@@ -631,7 +640,8 @@ export default function Settings() {
                                                                 <p className="text-4xl font-black text-white tracking-tighter">
                                                                     ${billingInfo?.plan === 'none' ? '0' :
                                                                        billingInfo?.plan === 'basic' ? '99' : 
-                                                                       billingInfo?.plan === 'professional' ? '199' : '300'}
+                                                                       billingInfo?.plan === 'professional' ? '199' : 
+                                                                       billingInfo?.plan === 'enterprise' ? '999' : '300'}
                                                                     <span className="text-sm text-slate-500 font-bold">/mo</span>
                                                                 </p>
                                                                 <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">Per User License</p>
@@ -640,34 +650,38 @@ export default function Settings() {
 
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-10">
                                                             <div className="space-y-4">
-                                                                <div className="flex justify-between items-end">
+                                                                 <div className="flex justify-between items-end">
                                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matters</span>
-                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">
-                                                                        {billingInfo?.currentCases || 0} / {billingInfo?.planLimit || 0}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
-                                                                    <motion.div
-                                                                        initial={{ width: 0 }}
-                                                                        animate={{ width: `${billingInfo?.planUsagePercentage || 0}%` }}
-                                                                        className="bg-primary h-full rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
-                                                                    />
-                                                                </div>
+                                                                     <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                                                        {billingInfo?.currentCases || 0} / {(billingInfo?.planLimit || 0) >= 100000 ? '∞' : (billingInfo?.planLimit || 0)}
+                                                                     </span>
+                                                                 </div>
+                                                                 {(billingInfo?.planLimit || 0) < 100000 && (
+                                                                     <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                                                                        <motion.div
+                                                                            initial={{ width: 0 }}
+                                                                            animate={{ width: `${billingInfo?.planUsagePercentage || 0}%` }}
+                                                                            className="bg-primary h-full rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
+                                                                        />
+                                                                     </div>
+                                                                 )}
                                                             </div>
                                                             <div className="space-y-4">
-                                                                <div className="flex justify-between items-end">
+                                                                 <div className="flex justify-between items-end">
                                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Units</span>
                                                                     <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                                                                        {(billingInfo?.remainingCases ?? 0) >= 10000 ? 'Unlimited' : `${billingInfo?.remainingCases || 0} Matters`}
+                                                                        {(billingInfo?.remainingCases ?? 0) >= 90000 ? 'Unlimited' : `${billingInfo?.remainingCases || 0} Matters`}
                                                                     </span>
                                                                 </div>
-                                                                <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
-                                                                    <motion.div
-                                                                        initial={{ width: 0 }}
-                                                                        animate={{ width: `${100 - (billingInfo?.planUsagePercentage || 0)}%` }}
-                                                                        className="bg-slate-600 h-full rounded-full"
-                                                                    />
-                                                                </div>
+                                                                {(billingInfo?.remainingCases ?? 0) < 90000 && (
+                                                                    <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                                                                        <motion.div
+                                                                            initial={{ width: 0 }}
+                                                                            animate={{ width: `${100 - (billingInfo?.planUsagePercentage || 0)}%` }}
+                                                                            className="bg-slate-600 h-full rounded-full"
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
 

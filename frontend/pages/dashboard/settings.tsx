@@ -201,7 +201,7 @@ export default function Settings() {
       case 'professional':
         return { name: 'Professional', price: '$79', color: 'bg-law-blue-100 text-law-blue-800' }
       case 'enterprise':
-        return { name: 'Enterprise', price: '$199', color: 'bg-law-accent-100 text-law-accent-800' }
+        return { name: 'Enterprise', price: '$999', color: 'bg-law-accent-100 text-law-accent-800' }
       default:
         return { name: 'Basic', price: '$29', color: 'bg-law-charcoal-100 text-law-charcoal-800' }
     }
@@ -540,16 +540,18 @@ export default function Settings() {
                           <div className="text-right">
                             <p className="text-sm text-law-charcoal-500">Cases Used</p>
                             <p className="text-2xl font-semibold text-law-charcoal-900">
-                              {user.currentCases} / {user.planLimit}
+                              {user.currentCases} / {user.planLimit >= 100000 ? '∞' : user.planLimit}
                             </p>
                           </div>
                         </div>
-                        <div className="progress-bar">
-                          <div
-                            className="progress-fill"
-                            style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
-                          ></div>
-                        </div>
+                        {user.planLimit < 100000 && (
+                          <div className="progress-bar">
+                            <div
+                              className="progress-fill"
+                              style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
+                            ></div>
+                          </div>
+                        )}
                       </CardContent>
                     </div>
 

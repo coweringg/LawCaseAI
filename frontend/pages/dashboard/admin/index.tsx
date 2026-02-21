@@ -1559,8 +1559,8 @@ export default function AdminDashboard() {
                 { id: 'none', label: 'None (Default)', limit: 0, color: 'text-slate-400' },
                 { id: 'basic', label: 'Basic', limit: 8, color: 'text-primary' },
                 { id: 'professional', label: 'Professional', limit: 18, color: 'text-indigo-400' },
-                { id: 'elite', label: 'Elite', limit: 10000, color: 'text-secondary' },
-                { id: 'enterprise', label: 'Enterprise', limit: 500, color: 'text-amber-400' }
+                { id: 'elite', label: 'Elite', limit: 100000, color: 'text-secondary' },
+                { id: 'enterprise', label: 'Enterprise', limit: 100000, color: 'text-amber-400' }
               ].map((p) => (
                 <button
                   key={p.id}
@@ -1578,7 +1578,7 @@ export default function AdminDashboard() {
                       {p.label}
                     </span>
                     <span className="text-[10px] text-slate-500 font-bold">
-                      {p.limit === 10000 ? 'Unlimited' : `${p.limit} Cases Limit`}
+                      {p.limit >= 100000 ? 'Unlimited' : `${p.limit} Cases Limit`}
                     </span>
                   </div>
                   {selectedUser?.plan === p.id ? (

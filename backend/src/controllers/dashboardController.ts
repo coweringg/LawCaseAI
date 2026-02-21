@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { Case, User, CaseFile, Event } from '../models'
-import { IApiResponse, IAuthRequest, IEvent } from '../types'
+import { IApiResponse, IAuthRequest } from '../types'
+import config from '../config'
 
 // Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
@@ -79,8 +80,10 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
                 closed: formattedCaseStats.closed,
                 archived: formattedCaseStats.archived,
                 total: formattedCaseStats.total,
-                usagePercentage: Math.round((user.currentCases / user.planLimit) * 100),
-                limit: user.planLimit,
+                usagePercentage: (config.planLimits as Record<string, number>)[user.plan] > 0 
+                    ? Math.round((user.currentCases / (config.planLimits as Record<string, number>)[user.plan]) * 100) 
+                    : 0,
+                limit: (config.planLimits as Record<string, number>)[user.plan],
                 current: user.currentCases
             },
             documents: {

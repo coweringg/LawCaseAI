@@ -83,8 +83,8 @@ export const config = {
     none: 0,
     basic: 8,
     professional: 18,
-    elite: 10000,
-    enterprise: 500,
+    elite: 100000,
+    enterprise: 100000,
   },
 };
 

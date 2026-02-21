@@ -51,14 +51,30 @@ export default function Upgrade() {
       price: 300,
       interval: 'month',
       features: [
-        'Unlimited active matters',
+        '∞ Unlimited active matters',
         'Cross-Matter Intelligence',
         '24/7 Priority Support',
         'Bulk Neural Transcription',
         'Dedicated Success Manager',
         'White-label Client Portals'
       ],
-      caseLimit: 10000,
+      caseLimit: 100000,
+      popular: false
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise Intelligence',
+      price: 999,
+      interval: 'month',
+      features: [
+        '∞ Unlimited organization capacity',
+        'Network-Wide Firm Access',
+        'Custom AI Protocol Integration',
+        'Vault Security Architecture',
+        'Dedicated Legal Technologist',
+        'Priority GPU Uplink'
+      ],
+      caseLimit: 100000,
       popular: false
     }
   ]
@@ -147,7 +163,7 @@ export default function Upgrade() {
                         </span>
                       </div>
                       <p className="text-secondary-600 mt-1">
-                        ${currentPlan?.price}/month • {user.currentCases} of {user.planLimit} matters used
+                        ${currentPlan?.price}/month • {user.currentCases} of {(user.planLimit || 0) >= 10000 ? '∞' : user.planLimit} matters used
                       </p>
                     </div>
                     <div className="text-right">
@@ -159,11 +175,11 @@ export default function Upgrade() {
                     <div className="w-full bg-secondary-200 rounded-full h-2">
                       <div
                         className="bg-primary-600 h-2 rounded-full"
-                        style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
+                        style={{ width: `${(user.planLimit || 0) >= 10000 ? 0 : (user.currentCases / user.planLimit) * 100}%` }}
                       ></div>
                     </div>
                     <p className="text-sm text-secondary-500 mt-2">
-                      {user.planLimit - user.currentCases} matters remaining
+                      {(user.planLimit || 0) >= 10000 ? 'Unlimited capacity available' : `${user.planLimit - user.currentCases} matters remaining`}
                     </p>
                   </div>
                 </CardContent>
@@ -190,8 +206,8 @@ export default function Upgrade() {
                         <span className="text-4xl font-bold text-secondary-900">${plan.price}</span>
                         <span className="text-secondary-600">/{plan.interval}</span>
                       </div>
-                      <CardDescription className="mt-2">
-                        {plan.caseLimit >= 10000 ? 'Unlimited' : plan.caseLimit} active matters
+                      <CardDescription className="mt-2 text-primary font-bold">
+                        {plan.caseLimit >= 10000 ? '∞ Unlimited' : plan.caseLimit} active matters
                       </CardDescription>
                     </CardHeader>
 

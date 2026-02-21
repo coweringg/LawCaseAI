@@ -176,7 +176,7 @@ export default function NewCase() {
                                     <div>
                                         <h4 className="text-sm font-bold text-error-500 tracking-tight">Case Limit Reached</h4>
                                         <p className="text-xs text-slate-500 font-medium">
-                                            You have reached the limit for your current plan ({user.currentCases}/{user.planLimit}). Please upgrade to create more cases.
+                                            You have reached the limit for your current plan ({user.currentCases}/{user.planLimit >= 10000 ? '∞' : user.planLimit}). Please upgrade to create more cases.
                                         </p>
                                     </div>
                                     <button 

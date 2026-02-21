@@ -97,22 +97,38 @@ export default function Dashboard() {
                   <Briefcase size={20} />
                 </div>
                 <span className="text-[10px] font-bold text-slate-400 border border-white/5 px-2 py-1 rounded-full">
-                  {dashboardData?.cases?.active || 0} / {dashboardData?.cases?.limit || 5} Active
+                  {dashboardData?.cases?.active || 0} / {(dashboardData?.cases?.limit || 0) >= 500 ? '∞' : (dashboardData?.cases?.limit || 0)} Active
                 </span>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Active Cases</p>
               <div className="flex items-end gap-3 mt-2">
                 <h3 className="text-3xl font-black text-white font-display">
-                  {dashboardData?.cases?.usagePercentage || 0}%
+                  {(dashboardData?.cases?.limit || 0) >= 500 
+                    ? '∞' 
+                    : (dashboardData?.cases?.limit || 0) === 0 
+                      ? 'None' 
+                      : `${dashboardData?.cases?.usagePercentage || 0}%`}
                 </h3>
-                <div className="mb-2 flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="bg-gradient-to-r from-primary to-blue-500 h-full rounded-full"
-                  ></motion.div>
-                </div>
+                {(dashboardData?.cases?.limit || 0) < 500 && (
+                  <div className="mb-2 flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="bg-gradient-to-r from-primary to-blue-500 h-full rounded-full"
+                    ></motion.div>
+                  </div>
+                )}
+                {(dashboardData?.cases?.limit || 0) >= 500 && (
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 italic">
+                    Unlimited Infrastructure
+                  </p>
+                )}
+                {(dashboardData?.cases?.limit || 0) === 0 && (
+                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-1 italic">
+                    Upgrade to Start
+                  </p>
+                )}
               </div>
             </motion.div>
 

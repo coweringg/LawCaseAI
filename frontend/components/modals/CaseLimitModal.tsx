@@ -9,6 +9,7 @@ interface CaseLimitModalProps {
 }
 
 export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }: CaseLimitModalProps) {
+    const isUnlimited = caseLimit >= 10000;
     if (!isOpen) return null;
 
     return (
@@ -38,23 +39,38 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                             Plan Limit Reached
                         </h2>
                         <p className="text-slate-600 dark:text-slate-400 text-lg">
-                            You've reached your maximum capacity on the <span className="font-bold text-slate-800 dark:text-slate-200">Starter Plan</span>.
+                            You&apos;ve reached your maximum capacity on the <span className="font-bold text-slate-800 dark:text-slate-200">Starter Plan</span>.
                         </p>
                     </div>
 
                     {/* Usage Progress Section */}
-                    <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 mb-8 border border-primary/10 text-left">
-                        <div className="flex justify-between items-center mb-3">
-                            <span className="text-sm font-semibold text-primary uppercase tracking-wider">Active Cases</span>
-                            <span className="text-sm font-bold text-primary">{caseCount} / {caseLimit} Cases</span>
+                    {!isUnlimited && (
+                        <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 mb-8 border border-primary/10 text-left">
+                            <div className="flex justify-between items-end mb-2">
+                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Global Capacity</span>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">{caseCount} / {caseLimit >= 10000 ? '∞' : caseLimit}</span>
+                            </div>
+                            <div className="w-full h-3 bg-primary/20 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary w-full rounded-full"></div>
+                            </div>
+                            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 italic">
+                                All {caseLimit} case slots are currently active. Close a case or upgrade to continue.
+                            </p>
                         </div>
-                        <div className="w-full h-3 bg-primary/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary w-full rounded-full"></div>
+                    )}
+
+                    {isUnlimited && (
+                        <div className="bg-emerald-500/5 rounded-xl p-8 mb-8 border border-emerald-500/20 text-center">
+                            <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl text-emerald-500 font-bold">∞</span>
+                            </div>
+                            <h3 className="text-emerald-500 font-bold uppercase tracking-widest text-xs mb-2">Unlimited Quota</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                                Your current plan allows for virtually unlimited case management. 
+                                You shouldn&apos;t be seeing this message unless there&apos;s a specific system constraint.
+                            </p>
                         </div>
-                        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 italic">
-                            All {caseLimit} case slots are currently active. Close a case or upgrade to continue.
-                        </p>
-                    </div>
+                    )}
 
                     {/* Benefits List */}
                     <div className="mb-10 text-left">

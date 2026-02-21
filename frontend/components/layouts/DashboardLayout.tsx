@@ -280,7 +280,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar */}
-                <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 flex flex-col hidden md:flex h-full relative overflow-hidden">
+                <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 hidden md:flex h-full relative overflow-hidden">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between">
                         <div>
@@ -322,7 +322,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             </nav>
                         </div>
                         <div className="p-4 space-y-4 relative z-10 flex-shrink-0">
-                            {user?.role !== 'admin' && (
+                            {user?.role !== 'admin' && user?.plan !== 'elite' && user?.plan !== 'enterprise' && (
                                 <div className="glass border-white/10 rounded-2xl p-4 shadow-xl">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan Usage</span>

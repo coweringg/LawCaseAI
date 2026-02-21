@@ -6,7 +6,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '@/utils/api';
-import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy, AlertTriangle } from 'lucide-react';
+import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy, AlertTriangle, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { BillingInfo, Purchase, IOrganization } from '@/types';
@@ -159,6 +159,16 @@ export default function Settings() {
         }
     };
 
+    // Contextual Polling removed as per user request (switched to manual refresh)
+
+    // Initial fetch when switching to organization tab
+    React.useEffect(() => {
+        if (activeTab === 'organization' && user?.isOrgAdmin) {
+            fetchOrganizationDetails();
+            fetchOrganizationMembers();
+        }
+    }, [activeTab, user?.isOrgAdmin]);
+
     // Update profile data when user context changes
     React.useEffect(() => {
         if (user) {
@@ -169,10 +179,6 @@ export default function Settings() {
             });
             fetchBillingInfo();
             fetchPurchaseHistory();
-            if (user.isOrgAdmin) {
-                fetchOrganizationDetails();
-                fetchOrganizationMembers();
-            }
         }
     }, [user]);
 
@@ -685,7 +691,17 @@ export default function Settings() {
                                                 </div>
                                             </div>
                                             <div className="pt-10 border-t border-white/5 space-y-8">
-                                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Member Directory</h3>
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Member Directory</h3>
+                                                    <button
+                                                        onClick={fetchOrganizationMembers}
+                                                        disabled={isLoadingMembers}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 active:scale-95 text-[10px] font-black uppercase tracking-[0.2em] text-white rounded-xl transition-all border border-white/5 group disabled:opacity-50"
+                                                    >
+                                                        <RotateCcw size={14} className={`${isLoadingMembers ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                                                        {isLoadingMembers ? 'Syncing...' : 'Refresh Nodes'}
+                                                    </button>
+                                                </div>
                                                 <div className="overflow-x-auto">
                                                     <table className="w-full text-left">
                                                         <thead>

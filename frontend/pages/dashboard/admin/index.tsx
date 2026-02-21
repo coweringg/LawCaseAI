@@ -44,6 +44,9 @@ interface AdminUser {
   planLimit: number
   currentCases: number
   status: 'active' | 'disabled' | 'suspended'
+  organizationId?: string
+  isOrgAdmin?: boolean
+  firmCode?: string
   createdAt: string
   lastLogin: string
   lastActivity?: string
@@ -78,6 +81,7 @@ interface UserHistory {
   cases: any[]
   payments: any[]
   auditLogs: AuditLogEntry[]
+  orgMembers?: any[]
 }
 
 interface SupportRequest {
@@ -105,12 +109,12 @@ export default function AdminDashboard() {
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [userHistory, setUserHistory] = useState<UserHistory | null>(null)
   const [isHistoryLoading, setIsHistoryLoading] = useState(false)
-  const [editData, setEditData] = useState({ name: '', email: '', password: '', lawFirm: '' })
+  const [editData, setEditData] = useState({ name: '', email: '', password: '', lawFirm: '', firmCode: '' })
   const [editError, setEditError] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [activeTab, setActiveTab] = useState<'users' | 'history' | 'support'>('users')
   const [activeHistoryTab, setActiveHistoryTab] = useState<'admin' | 'platform'>('admin')
-  const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity'>('overview')
+  const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity' | 'members'>('overview')
   const [adminLogs, setAdminLogs] = useState<AuditLogEntry[]>([])
   const [platformLogs, setPlatformLogs] = useState<AuditLogEntry[]>([])
   const [isLogsLoading, setIsLogsLoading] = useState(false)
@@ -412,15 +416,30 @@ export default function AdminDashboard() {
       if (!payload.password) delete payload.password
 
       const response = await api.put(`/admin/users/${selectedUser.id}`, payload, {
-        validateStatus: (status) => status < 500 // Resolve promise for 400 errors to avoid dev overlay
+        validateStatus: (status) => status < 500
       })
 
       if (response.status === 200 && response.data.success) {
-        setUsers(prev => prev.map(u => u.id === selectedUser.id ? response.data.data : u))
+        // If firm code changed and user is org admin, update organization
+        if (selectedUser.isOrgAdmin && selectedUser.organizationId && editData.firmCode !== selectedUser.firmCode) {
+          try {
+            await api.put(`/admin/organizations/${selectedUser.organizationId}/code`, { 
+              firmCode: editData.firmCode 
+            })
+          } catch (orgError: any) {
+            console.error('Failed to update firm code:', orgError)
+            const errorMsg = orgError.response?.data?.message || 'Failed to update organization code'
+            setEditError(errorMsg)
+            setIsUpdating(false)
+            return // Stop here so modal stays open with the error visible
+          }
+        }
+        
+        await fetchUsers() // Refresh list to get latest data
         setShowEditModal(false)
         setSelectedUser(null)
+        toast.success('User protocol updated successfully')
       } else if (response.status === 400) {
-        // Handle validation error manually without throwing
         setEditError(response.data.message || 'Failed to update user')
       }
     } catch (error: any) {
@@ -502,6 +521,7 @@ export default function AdminDashboard() {
       name: user.name,
       email: user.email,
       lawFirm: user.lawFirm,
+      firmCode: user.firmCode || '',
       password: ''
     })
     setShowEditModal(true)
@@ -544,6 +564,23 @@ export default function AdminDashboard() {
       title: 'Law Firm',
       render: (value: string) => (
         <span className="text-slate-300 font-medium">{value || 'N/A'}</span>
+      )
+    },
+    {
+      key: 'firmCode' as keyof AdminUser,
+      title: 'Firm Code',
+      render: (value: string, item: AdminUser) => (
+        <div className="flex flex-col">
+          <span className={cn(
+            "font-mono text-xs font-bold tracking-tight",
+            value ? "text-primary" : "text-slate-600 italic"
+          )}>
+            {value || 'NO CODE'}
+          </span>
+          {item.isOrgAdmin && value && (
+            <span className="text-[9px] text-slate-500 uppercase font-black tracking-tighter">System Admin Key</span>
+          )}
+        </div>
       )
     },
     {
@@ -1169,7 +1206,10 @@ export default function AdminDashboard() {
                   { id: 'overview', label: 'Overview', icon: User },
                   { id: 'cases', label: 'Cases', icon: FileText },
                   { id: 'payments', label: 'Payments', icon: CreditCard },
-                  { id: 'activity', label: 'Activity', icon: History }
+                  { id: 'activity', label: 'Activity', icon: History },
+                  ...(userHistory.orgMembers && userHistory.orgMembers.length > 0 
+                    ? [{ id: 'members', label: 'Firm Members', icon: Users }] 
+                    : [])
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -1380,6 +1420,43 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+
+              {activeDetailTab === 'members' && (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="bg-black/40 rounded-3xl overflow-hidden border border-white/5">
+                    {userHistory.orgMembers && userHistory.orgMembers.length > 0 ? (
+                      <Table 
+                        data={userHistory.orgMembers}
+                        columns={[
+                          { key: 'name', title: 'Member Name', render: (v) => <span className="font-bold text-white">{v}</span> },
+                          { key: 'email', title: 'Email Address', render: (v) => <span className="text-slate-400 font-medium">{v}</span> },
+                          { key: 'plan', title: 'Current Plan', render: (v) => (
+                            <span className={cn(
+                              "px-2 py-0.5 rounded text-[10px] font-black uppercase",
+                              v === 'enterprise' ? 'text-primary bg-primary/10' : 'text-slate-500 bg-white/5'
+                            )}>
+                              {v}
+                            </span>
+                          )},
+                          { key: 'status', title: 'Account Status', render: (v) => (
+                            <span className={cn(
+                              "px-2 py-0.5 rounded text-[10px] font-black uppercase",
+                              v === 'active' ? 'text-success-500' : 'text-error-500'
+                            )}>
+                              {v}
+                            </span>
+                          )},
+                          { key: 'createdAt', title: 'Registered On', render: (v) => <span className="text-slate-500 text-[11px]">{formatDate(v)}</span> }
+                        ]}
+                      />
+                    ) : (
+                      <div className="p-12 text-center bg-white/5 rounded-3xl text-slate-600 font-bold uppercase text-[10px] tracking-widest">
+                        No additional firm members identified
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : null}
         </Modal>
@@ -1503,6 +1580,22 @@ export default function AdminDashboard() {
                 className="bg-black/40 border-white/10 text-white py-4 rounded-2xl focus:border-primary/50"
               />
             </div>
+
+            {selectedUser?.isOrgAdmin && (
+              <div className="space-y-2 animate-in slide-in-from-left-2 duration-300">
+                <label className="text-[10px] font-black text-primary uppercase tracking-[0.2em] ml-1">Firm Access Code (Administrative Key)</label>
+                <div className="relative">
+                  <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                  <Input
+                    value={editData.firmCode}
+                    onChange={(e) => setEditData({ ...editData, firmCode: e.target.value.toUpperCase() })}
+                    placeholder="ENTERPRISE CODE"
+                    className="bg-primary/5 border-primary/20 text-primary py-4 pl-12 rounded-2xl focus:border-primary font-mono font-bold tracking-widest"
+                  />
+                </div>
+                <p className="text-[9px] text-slate-500 ml-1 italic capitalize">Changing this will require new members to use the new key, but existing members stay linked.</p>
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4 pt-8">
               <Button

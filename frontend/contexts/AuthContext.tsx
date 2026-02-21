@@ -28,6 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
+  const isAuthenticated = !!user
+
   const fetchProfile = async (): Promise<User | null> => {
     try {
       const response = await api.get('/user/profile')
@@ -58,6 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initAuth()
   }, [])
+
+  // Global polling for state sync (membership changes, plan resets)
+  useEffect(() => {
+    if (!isAuthenticated || isLoading) return;
+
+    const pollInterval = setInterval(() => {
+      fetchProfile();
+    }, 10000); // Poll every 10s
+
+    return () => clearInterval(pollInterval);
+  }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -165,8 +178,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(updatedUser as User)
     }
   }
-
-  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider value={{

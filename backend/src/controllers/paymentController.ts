@@ -1,6 +1,6 @@
 import { Response } from 'express'
-import { User, Transaction, Organization } from '../models'
-import { IApiResponse, IAuthRequest, UserPlan, UserRole } from '../types'
+import { User, Transaction, Organization, Case, Event } from '../models'
+import { IApiResponse, IAuthRequest, UserPlan, UserRole, CaseStatus, EventStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
 import { validateLuhn } from '../utils/cardValidator'
 import mongoose from 'mongoose'
@@ -471,9 +471,26 @@ export const removeMember = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
+        // DEACTIVATION SIDE EFFECTS:
+        // 1. Close all user cases
+        await Case.updateMany(
+            { userId: member._id, status: CaseStatus.ACTIVE },
+            { $set: { status: CaseStatus.CLOSED, closedAt: new Date() } }
+        )
+
+        // 2. Close all user events
+        await Event.updateMany(
+            { userId: member._id, status: EventStatus.ACTIVE },
+            { $set: { status: EventStatus.CLOSED } }
+        )
+
+        // 3. Reset user profile and unlink
         member.organizationId = undefined
         member.plan = UserPlan.NONE
         member.role = UserRole.LAWYER
+        member.isOrgAdmin = false
+        member.currentCases = 0 // Reset active case count
+        
         await member.save()
 
         res.status(200).json({

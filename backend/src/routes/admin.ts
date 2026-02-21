@@ -14,7 +14,8 @@ import {
   getSupportRequests,
   updateSupportRequestStatus,
   deleteSupportRequest,
-  clearSupportRequests
+  clearSupportRequests,
+  updateOrganizationCode
 } from '../controllers/adminController'
 import { authenticate, authorize } from '../middleware/auth'
 import { UserRole } from '../types'
@@ -64,6 +65,7 @@ router.get('/treasury', getTreasuryStats)
 router.get('/system/status', getSystemStatus)
 router.post('/system/maintenance', toggleMaintenance)
 router.post('/system/alert', updateGlobalAlert)
+router.put('/organizations/:id/code', updateOrganizationCode)
 
 // 4. Support Notifications
 router.get('/support', getSupportRequests)

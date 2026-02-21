@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { Types } from 'mongoose'
-import { User, Case, Transaction, AuditLog, SupportRequest } from '../models'
-import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus } from '../types'
+import { User, Case, Transaction, AuditLog, SupportRequest, Organization, Event } from '../models'
+import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus, EventStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
 
 /**
@@ -25,6 +25,19 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
+      .lean()
+
+    // Enrich users with organization code if they are enterprise admins
+    const enrichedUsers = await Promise.all(users.map(async (u) => {
+      const userObj = { ...u, id: u._id.toString() }
+      if (u.plan === UserPlan.ENTERPRISE && u.isOrgAdmin && u.organizationId) {
+        const org = await Organization.findById(u.organizationId)
+        if (org) {
+          return { ...userObj, firmCode: org.firmCode }
+        }
+      }
+      return userObj
+    }))
 
     const total = await User.countDocuments(query)
 
@@ -32,7 +45,7 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
       success: true,
       message: 'Users fetched successfully',
       data: {
-        users,
+        users: enrichedUsers,
         total,
         page: Number(page),
         pages: Math.ceil(total / Number(limit))
@@ -194,7 +207,44 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
     user.status = UserStatus.DELETED
     await user.save()
 
-    // Cascade soft delete to all user's cases
+    // CASCADE LOGIC: If deleting an Enterprise Admin, handle firm-wide reset
+    if (user.plan === UserPlan.ENTERPRISE && user.isOrgAdmin && user.organizationId) {
+      const orgId = user.organizationId
+      
+      // 1. Find all members of this organization
+      const members = await User.find({ organizationId: orgId })
+      const memberIds = members.map(m => m._id)
+
+      // 2. Reset all members to 'none' plan and 0 cases, unlink from org
+      await User.updateMany(
+        { organizationId: orgId },
+        { 
+          $set: { 
+            plan: UserPlan.NONE, 
+            currentCases: 0,
+            isOrgAdmin: false
+          },
+          $unset: { organizationId: 1 }
+        }
+      )
+
+      // 3. Close all cases for all members
+      await Case.updateMany(
+        { userId: { $in: memberIds }, status: CaseStatus.ACTIVE },
+        { $set: { status: CaseStatus.CLOSED, closedAt: new Date() } }
+      )
+
+      // 4. Close all calendar events for all members
+      await Event.updateMany(
+        { userId: { $in: memberIds }, status: EventStatus.ACTIVE },
+        { $set: { status: EventStatus.CLOSED } }
+      )
+
+      // 5. Deactivate the organization
+      await Organization.findByIdAndUpdate(orgId, { isActive: false })
+    }
+
+    // Cascade soft delete to all user's cases (standard for any user)
     await Case.updateMany(
       { userId: user._id, status: { $ne: CaseStatus.DELETED } },
       { $set: { status: CaseStatus.DELETED } }
@@ -340,13 +390,25 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
     const payments = await Transaction.find({ userId: id }).sort({ date: -1 })
     const auditLogs = await AuditLog.find({ targetId: id }).sort({ timestamp: -1 })
 
+    // If user is part of an organization, fetch other members
+    let orgMembers: Record<string, unknown>[] = []
+    if (user.organizationId) {
+      orgMembers = await User.find({ 
+        organizationId: user.organizationId,
+        _id: { $ne: user._id } 
+      })
+      .select('name email plan status createdAt')
+      .lean()
+    }
+
     res.status(200).json({
       success: true,
       message: 'User history fetched successfully',
       data: {
         cases,
         payments,
-        auditLogs
+        auditLogs,
+        orgMembers
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -363,7 +425,7 @@ export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<vo
     const { page = 1, limit = 50, category, search, startDate, endDate } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
-    const filter: any = {}
+    const filter: Record<string, any> = {}
     if (category && (category === 'admin' || category === 'platform')) {
       filter.category = category
     }
@@ -495,7 +557,7 @@ export const getSupportRequests = async (req: IAuthRequest, res: Response): Prom
     const { type, status, page = 1, limit = 20 } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
-    const query: any = {}
+    const query: Record<string, unknown> = {}
     if (type) query.type = type
     if (status) query.status = status
 
@@ -630,6 +692,61 @@ export const clearSupportRequests = async (req: IAuthRequest, res: Response): Pr
     } as IApiResponse)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to clear support requests'
+    res.status(500).json({ success: false, message } as IApiResponse)
+  }
+}
+
+/**
+ * Update organization firm code (Admin only)
+ */
+export const updateOrganizationCode = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params // Organization ID
+    const { firmCode } = req.body
+
+    if (!firmCode) {
+      res.status(400).json({ success: false, message: 'Firm code is required' } as IApiResponse)
+      return
+    }
+
+    const org = await Organization.findById(id)
+    if (!org) {
+      res.status(404).json({ success: false, message: 'Organization not found' } as IApiResponse)
+      return
+    }
+
+    const oldCode = org.firmCode
+    org.firmCode = firmCode.toUpperCase()
+    await org.save()
+
+    // Log the action
+    await logAction({
+      adminId: req.user!._id,
+      adminName: req.user!.name,
+      targetId: org._id,
+      targetName: org.name,
+      targetType: 'organization',
+      category: 'admin',
+      action: 'ORG_CODE_UPDATE',
+      before: { firmCode: oldCode },
+      after: { firmCode: org.firmCode },
+      description: `Updated firm code for ${org.name} from ${oldCode} to ${org.firmCode}`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Firm code updated successfully',
+      data: org
+    } as IApiResponse)
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'This firm code is already in use by another organization.' 
+      } as IApiResponse)
+      return
+    }
+    const message = error instanceof Error ? error.message : 'Failed to update firm code'
     res.status(500).json({ success: false, message } as IApiResponse)
   }
 }

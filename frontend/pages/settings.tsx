@@ -6,7 +6,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '@/utils/api';
-import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy, AlertTriangle, RotateCcw } from 'lucide-react';
+import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy, AlertTriangle, RotateCcw, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { BillingInfo, Purchase, IOrganization } from '@/types';
@@ -80,6 +80,7 @@ export default function Settings() {
     const [modalStep, setModalStep] = useState<'selection' | 'checkout'>('selection');
     const [planCategory, setPlanCategory] = useState<'personal' | 'enterprise'>('personal');
     const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+    const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
     const [planSeats, setPlanSeats] = useState(1);
     const [paymentData, setPaymentData] = useState({
         cardNumber: '',
@@ -187,6 +188,8 @@ export default function Settings() {
         if (router.isReady && router.query.openPlan === 'true') {
             const planId = router.query.planId as string;
             const tab = router.query.tab as string;
+            const interval = router.query.interval as string;
+            const seats = router.query.seats as string;
             
             if (tab) setActiveTab(tab);
             
@@ -205,9 +208,12 @@ export default function Settings() {
                 setModalStep('selection');
                 setIsPlanModalOpen(true);
             }
+
+            if (interval === 'annual') setBillingInterval('annual');
+            if (seats) setPlanSeats(parseInt(seats));
             
             // Clean up the URL
-            const { openPlan, planId: _, tab: __, ...rest } = router.query;
+            const { openPlan, planId: _, tab: __, interval: ___, seats: ____, ...rest } = router.query;
             router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
         }
     }, [router.isReady, router.query, router, user?.isOrgAdmin, user?.organizationId]);
@@ -315,7 +321,8 @@ export default function Settings() {
                 plan: selectedPlanId,
                 seats: planSeats,
                 cardNumber: paymentData.cardNumber,
-                firmName: paymentData.firmName
+                firmName: paymentData.firmName,
+                interval: billingInterval
             });
 
             if (response.data.success) {
@@ -637,7 +644,7 @@ export default function Settings() {
                                                             </div>
                                                         </div>
                                                         <p className="text-[9px] text-slate-500 font-bold mt-4 uppercase tracking-wider leading-relaxed">
-                                                            Share this code with your firm members for instant Elite access.
+                                                            Share this code with your firm members for instant Enterprise access.
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1326,29 +1333,45 @@ export default function Settings() {
                                             exit={{ opacity: 0, x: 20 }}
                                             className="space-y-12"
                                         >
-                                            {/* Category Toggle */}
-                                            <div className="flex justify-center">
-                                                <div className="p-1 bg-black/40 rounded-3xl border border-white/5 flex items-center relative w-full max-w-[500px] overflow-hidden">
-                                                    <motion.div
-                                                        className="absolute inset-y-1 w-[calc(50%-4px)] bg-primary rounded-[1.25rem] z-0 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
-                                                        initial={false}
-                                                        animate={{
-                                                            x: planCategory === 'personal' ? '4px' : 'calc(100% - 4px)'
-                                                        }}
-                                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                                    />
+                                            {/* Plan Category & Interval Toggles */}
+                                            <div className="space-y-6">
+                                                <div className="flex justify-center">
+                                                    <div className="p-1 bg-black/40 rounded-3xl border border-white/5 flex items-center relative w-full max-w-[500px] overflow-hidden">
+                                                        <motion.div
+                                                            className="absolute inset-y-1 w-[calc(50%-4px)] bg-primary rounded-[1.25rem] z-0 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
+                                                            initial={false}
+                                                            animate={{
+                                                                x: planCategory === 'personal' ? '4px' : 'calc(100% - 4px)'
+                                                            }}
+                                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                                        />
+                                                        <button
+                                                            onClick={() => setPlanCategory('personal')}
+                                                            className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'personal' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                        >
+                                                            Personal Firm
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setPlanCategory('enterprise')}
+                                                            className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'enterprise' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                        >
+                                                            Enterprise Infrastructure
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-center items-center gap-6">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly Billing</span>
                                                     <button
-                                                        onClick={() => setPlanCategory('personal')}
-                                                        className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'personal' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                        onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
                                                     >
-                                                        Personal Firm
+                                                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${billingInterval === 'annual' ? 'translate-x-6' : 'translate-x-1'}`}></div>
                                                     </button>
-                                                    <button
-                                                        onClick={() => setPlanCategory('enterprise')}
-                                                        className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'enterprise' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
-                                                    >
-                                                        Enterprise Infrastructure
-                                                    </button>
+                                                    <div className="flex flex-col items-start leading-none">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual Selection</span>
+                                                        <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Save 20%</span>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -1363,9 +1386,9 @@ export default function Settings() {
                                                     >
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                             {[
-                                                                { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500' },
-                                                                { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary' },
-                                                                { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-purple-500' }
+                                                                { id: 'basic', name: 'Growth', price: billingInterval === 'annual' ? '$79' : '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500' },
+                                                                { id: 'professional', name: 'Professional', price: billingInterval === 'annual' ? '$159' : '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary' },
+                                                                { id: 'elite', name: 'Elite', price: billingInterval === 'annual' ? '$249' : '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-purple-500' }
                                                             ].map((tier) => (
                                                                 <button
                                                                     key={tier.id}
@@ -1472,8 +1495,9 @@ export default function Settings() {
                                                                             <p className="text-xl font-black text-white uppercase">5 Seats</p>
                                                                         </div>
                                                                         <div className="text-right">
-                                                                            <span className="text-4xl font-black text-white tracking-tighter">$1.500</span>
+                                                                            <span className="text-4xl font-black text-white tracking-tighter">${(planSeats * (billingInterval === 'annual' ? 249 : 300)).toLocaleString()}</span>
                                                                             <span className="text-[10px] text-slate-500 font-black block">/mo</span>
+                                                                            <span className="text-[8px] text-primary font-black uppercase tracking-tighter block mt-1">(${billingInterval === 'annual' ? 249 : 300} per seat)</span>
                                                                         </div>
                                                                     </div>
 
@@ -1517,12 +1541,13 @@ export default function Settings() {
                                                 </div>
                                                 <div className="px-6 py-3 bg-primary/10 border border-primary/20 rounded-2xl">
                                                     <span className="text-xs font-black text-primary uppercase tracking-widest">
-                                                        Total Monthly Commitment: 
+                                                        Total {billingInterval === 'annual' ? 'Annualized' : 'Monthly'} Commitment: 
                                                         <span className="text-lg ml-2">
                                                             ${selectedPlanId === 'enterprise' 
-                                                                ? (planSeats * 300).toLocaleString() 
-                                                                : selectedPlanId === 'basic' ? '99' 
-                                                                : selectedPlanId === 'professional' ? '199' : '300'
+                                                                ? (planSeats * (billingInterval === 'annual' ? 249 : 300)).toLocaleString() 
+                                                                : selectedPlanId === 'basic' ? (billingInterval === 'annual' ? '79' : '99')
+                                                                : selectedPlanId === 'professional' ? (billingInterval === 'annual' ? '159' : '199') 
+                                                                : (billingInterval === 'annual' ? '249' : '300')
                                                             }
                                                         </span>
                                                     </span>
@@ -1545,21 +1570,53 @@ export default function Settings() {
                                                             </div>
                                                             
                                                             <div className="space-y-6">
-                                                                <div className="flex justify-between items-end">
+                                                                <div className="flex justify-between items-center">
                                                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Number of Lawyers (Seats)</label>
-                                                                    <span className="text-2xl font-black text-primary">{planSeats}</span>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <button 
+                                                                            onClick={() => setPlanSeats(Math.max(5, planSeats - 1))}
+                                                                            type="button"
+                                                                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/5 transition-all text-xs font-black"
+                                                                        >-</button>
+                                                                        <input 
+                                                                            type="number" 
+                                                                            min="5" max="200"
+                                                                            value={planSeats}
+                                                                            onChange={(e) => {
+                                                                                const val = parseInt(e.target.value);
+                                                                                if (!isNaN(val)) setPlanSeats(Math.min(200, Math.max(5, val)));
+                                                                            }}
+                                                                            className="w-16 bg-black/40 border border-white/10 rounded-lg py-1 text-center text-primary font-black text-lg focus:border-primary/50 outline-none"
+                                                                        />
+                                                                        <button 
+                                                                            onClick={() => setPlanSeats(Math.min(200, planSeats + 1))}
+                                                                            type="button"
+                                                                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/5 transition-all text-xs font-black"
+                                                                        >+</button>
+                                                                    </div>
                                                                 </div>
                                                                 <div className="relative pt-2">
                                                                     <input 
-                                                                        type="range" min="5" max="100" 
+                                                                        type="range" min="5" max="200" 
                                                                         value={planSeats}
                                                                         onChange={(e) => setPlanSeats(parseInt(e.target.value))}
                                                                         className="w-full accent-primary h-2 bg-white/5 rounded-full appearance-none cursor-pointer" 
                                                                     />
                                                                 </div>
-                                                                <p className="text-[8px] text-slate-600 font-black uppercase tracking-[0.1em] text-center">
-                                                                    Scalable up to 200+ Operators on demand
-                                                                </p>
+                                                                <div className="space-y-4">
+                                                                    <p className="text-[8px] text-slate-600 font-black uppercase tracking-[0.1em] text-center">
+                                                                        Scalable up to 200+ Operators on demand
+                                                                    </p>
+                                                                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-2">
+                                                                        <div className="flex items-center gap-2 text-primary">
+                                                                            <Info size={12} />
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest">Deployment Note</span>
+                                                                        </div>
+                                                                        <p className="text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wide">
+                                                                            Upon deployment, a <span className="text-white">&quot;Firm Management&quot;</span> control center will be initialized in your settings. There, you can retrieve your unique Firm Access Code for employee distribution and adjust infrastructure capacity in real-time.
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     )}
@@ -1606,15 +1663,14 @@ export default function Settings() {
 
                                                         <div className="pt-8 space-y-6">
                                                             <div className="flex justify-between items-end">
-                                                                <div className="space-y-1">
-                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Total Monthly Cost</span>
+                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Total {billingInterval === 'annual' ? 'Annualized' : 'Monthly'} Cost</span>
                                                                     <p className="text-5xl font-black text-white tracking-tighter">
                                                                         ${selectedPlanId === 'enterprise' 
-                                                                            ? (planSeats * 300).toLocaleString() 
-                                                                            : selectedPlanId === 'basic' ? '99' 
-                                                                            : selectedPlanId === 'professional' ? '199' : '300'}
+                                                                            ? (planSeats * (billingInterval === 'annual' ? 249 : 300)).toLocaleString() 
+                                                                            : selectedPlanId === 'basic' ? (billingInterval === 'annual' ? '79' : '99')
+                                                                            : selectedPlanId === 'professional' ? (billingInterval === 'annual' ? '159' : '199') 
+                                                                            : (billingInterval === 'annual' ? '249' : '300')}
                                                                     </p>
-                                                                </div>
                                                                 <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-2">USD CURRENCY</p>
                                                             </div>
                                                             

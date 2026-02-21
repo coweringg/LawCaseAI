@@ -6,12 +6,20 @@ import { validateLuhn } from '../utils/cardValidator'
 import mongoose from 'mongoose'
 import crypto from 'crypto'
 
-// Plan pricing lookup
+// Plan pricing lookup (Monthly)
 const PLAN_PRICES: Record<string, number> = {
   [UserPlan.BASIC]: 99,
   [UserPlan.PROFESSIONAL]: 199,
   [UserPlan.ELITE]: 300,
   [UserPlan.ENTERPRISE]: 300 // Price per seat
+}
+
+// Annual Plan pricing lookup (with roughly 20% discount)
+const ANNUAL_PRICES: Record<string, number> = {
+  [UserPlan.BASIC]: 79,
+  [UserPlan.PROFESSIONAL]: 159,
+  [UserPlan.ELITE]: 249,
+  [UserPlan.ENTERPRISE]: 249 // Price per seat
 }
 
 export const getTransactionHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -118,7 +126,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
     }
 
     try {
-        const { plan, seats, cardNumber, firmName } = req.body
+        const { plan, seats, cardNumber, firmName, interval = 'monthly' } = req.body
         const userId = req.user?._id
 
         if (!userId) {
@@ -153,7 +161,8 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             return
         }
 
-        let transactionAmount = PLAN_PRICES[plan] || 0
+        const priceTable = interval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
+        let transactionAmount = priceTable[plan] || 0
         let organizationId = user.organizationId
         let orgFirmCode: string | undefined = undefined
 
@@ -211,8 +220,8 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             targetType: 'user',
             category: 'platform',
             action: 'PLAN_CHANGE',
-            after: { plan: user.plan },
-            description: `User upgraded to ${plan} plan.`
+            after: { plan: user.plan, interval },
+            description: `User upgraded to ${plan} plan (${interval}).`
         })
 
         if (isTransactional) {

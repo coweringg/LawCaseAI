@@ -184,7 +184,7 @@ export default function Upgrade() {
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
                       <div className="mt-4">
                         <span className="text-4xl font-bold text-secondary-900">${plan.price}</span>
-                        <span className="text-secondary-600">/{plan.interval}</span>
+                        <span className="text-secondary-600">/{plan.id === 'enterprise' ? 'user/month' : plan.interval}</span>
                       </div>
                       <CardDescription className="mt-2 text-primary font-bold">
                         {plan.caseLimit >= 10000 ? '∞ Unlimited' : plan.caseLimit} active matters

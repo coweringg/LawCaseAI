@@ -2,7 +2,7 @@ import { Response } from 'express'
 
 
 import { Case, User } from '../models'
-import { IApiResponse, CaseStatus, IAuthRequest } from '../types'
+import { IApiResponse, CaseStatus, IAuthRequest, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
 
 export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -22,10 +22,18 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
+    if (user.plan === UserPlan.NONE) {
+      res.status(403).json({
+        success: false,
+        message: 'You do not have an active plan. Please subscribe to a plan to start creating cases.'
+      } as IApiResponse)
+      return
+    }
+
     if (user.currentCases >= user.planLimit) {
       res.status(403).json({
         success: false,
-        message: 'Case limit reached. Please upgrade your plan.'
+        message: `Case limit reached for your ${user.plan} plan (${user.planLimit} cases). Please upgrade your plan to create more cases.`
       } as IApiResponse)
       return
     }

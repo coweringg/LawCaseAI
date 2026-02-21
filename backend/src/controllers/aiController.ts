@@ -18,7 +18,7 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
         if (!message || !caseId) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide message and caseId'
+                message: 'Both a message and a valid Case ID are required to consult the AI.'
             })
         }
 
@@ -27,7 +27,7 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
         if (!currentCase) {
             return res.status(404).json({
                 success: false,
-                message: 'Case not found or unauthorized'
+                message: 'This case could not be found, or you do not have permission to access it.'
             })
         }
 
@@ -61,7 +61,7 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
         console.error('AI Chat Controller Error:', error)
         return res.status(500).json({
             success: false,
-            message: 'Server error during AI chat'
+            message: 'An unexpected error occurred while communicating with the AI. Please try again in a moment.'
         })
     }
 }
@@ -79,7 +79,7 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
         if (!file) {
             return res.status(404).json({
                 success: false,
-                message: 'File not found or unauthorized'
+                message: 'The requested file could not be found, or you do not have permission to analyze it.'
             })
         }
 
@@ -128,7 +128,7 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
         if (!currentCase) {
             return res.status(404).json({
                 success: false,
-                message: 'Case not found or unauthorized'
+                message: 'The requested case summary is unavailable because the case could not be found or you lack permission.'
             })
         }
 

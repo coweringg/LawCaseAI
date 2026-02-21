@@ -13,7 +13,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (existingUser) {
       res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: 'An account with this email already exists. Please try logging in instead.'
       } as IApiResponse)
       return
     }
@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       if (!org) {
         res.status(400).json({
           success: false,
-          message: 'Invalid or inactive firm code'
+          message: 'The firm code provided is either invalid or the organization is currently inactive.'
         } as IApiResponse)
         return
       }
@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       if (org.usedSeats >= org.totalSeats) {
         res.status(400).json({
           success: false,
-          message: 'No seats available in this organization'
+          message: 'The organization has reached its maximum seat capacity. Please contact your administrator.'
         } as IApiResponse)
         return
       }
@@ -281,7 +281,7 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
     if (existingUser) {
       res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: 'An account with this email already exists. Please try logging in instead.'
       } as IApiResponse)
       return
     }

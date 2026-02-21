@@ -45,7 +45,7 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
 
         const validPlans = Object.values(UserPlan)
         if (!planId || !validPlans.includes(planId as UserPlan)) {
-            res.status(400).json({ success: false, message: 'Invalid plan selected' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'The selected subscription plan is invalid. Please choose from our available tiers.' } as IApiResponse)
             return
         }
 
@@ -78,7 +78,7 @@ export const confirmPayment = async (req: IAuthRequest, res: Response): Promise<
 
         const validPlans = Object.values(UserPlan)
         if (!planId || !validPlans.includes(planId as UserPlan)) {
-            res.status(400).json({ success: false, message: 'Invalid plan selected' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'The selected subscription plan is invalid. Please choose from our available tiers.' } as IApiResponse)
             return
         }
 
@@ -115,7 +115,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
 
         const validPlans = Object.values(UserPlan)
         if (!plan || !validPlans.includes(plan as UserPlan)) {
-            res.status(400).json({ success: false, message: 'Invalid plan selected' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'The selected subscription plan is invalid. Please choose from our available tiers.' } as IApiResponse)
             return
         }
 
@@ -152,7 +152,7 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
         }
 
         if (!firmName || !seats || seats < 5) {
-            res.status(400).json({ success: false, message: 'Invalid firm name or seat count (min 5 seats)' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'Firm registration requires a valid name and a minimum of 5 seats.' } as IApiResponse)
             return
         }
 

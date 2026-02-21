@@ -111,7 +111,7 @@ export default function Register() {
           setErrors(newErrors);
           toast.error('Please check the highlighted fields');
         } else {
-          toast.error(result.message || 'Registration failed');
+          toast.error(result.message || 'Registration failed. Please verify your information.');
         }
       }
     } catch (error) {

@@ -11,14 +11,14 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         const userId = req.user?._id
 
         if (!userId || !file || !caseId) {
-            res.status(400).json({ success: false, message: 'Missing required fields' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'Unable to upload file. Please ensure you have selected a valid file and case.' } as IApiResponse)
             return
         }
 
         // Verify case ownership
         const lawyerCase = await Case.findOne({ _id: caseId, userId })
         if (!lawyerCase) {
-            res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+            res.status(404).json({ success: false, message: 'The specified case could not be found for file association.' } as IApiResponse)
             return
         }
 

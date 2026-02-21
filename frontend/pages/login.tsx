@@ -48,7 +48,7 @@ export default function Login() {
         toast.success('Welcome back to LawCaseAI!')
         router.push('/dashboard')
       } else {
-        toast.error(result.message)
+        toast.error(result.message || 'Verification failed. Please check your credentials.')
       }
     } catch (error: any) {
       // Display the specific error message from the server if available (e.g. rate limit)

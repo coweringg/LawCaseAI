@@ -5,7 +5,10 @@ import {
   getTransactionHistory, 
   purchaseBusinessPlan, 
   getOrganizationDetails, 
-  confirmPurchase 
+  confirmPurchase,
+  increaseSeats,
+  getOrganizationMembers,
+  removeMember
 } from '../controllers/paymentController'
 import { authenticate } from '../middleware/auth'
 
@@ -20,5 +23,8 @@ router.post('/checkout', createCheckoutSession)
 router.post('/confirm', confirmPayment)
 router.post('/confirm-purchase', confirmPurchase)
 router.post('/purchase-business', purchaseBusinessPlan)
+router.post('/increase-seats', increaseSeats) // Added
+router.get('/members', getOrganizationMembers) // Added
+router.delete('/members/:memberId', removeMember) // Added
 
 export default router

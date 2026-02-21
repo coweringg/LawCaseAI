@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { DashboardNav } from '@/components/DashboardNav'
+import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
 import api from '@/utils/api'
 import toast from 'react-hot-toast'
 
 export default function Upgrade() {
   const { user, token, updateUser } = useAuth()
+  const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -64,7 +66,7 @@ export default function Upgrade() {
     {
       id: 'enterprise',
       name: 'Enterprise Intelligence',
-      price: 999,
+      price: 300,
       interval: 'month',
       features: [
         '∞ Unlimited organization capacity',
@@ -79,30 +81,8 @@ export default function Upgrade() {
     }
   ]
 
-  const handleUpgrade = async (planId: string) => {
-    setSelectedPlan(planId)
-    setIsProcessing(true)
-
-    try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Update user plan via API
-      const response = await api.post('/user/upgrade', { plan: planId })
-      const data = response.data
-
-      if (response.status === 200) {
-        updateUser(data.data)
-        toast.success(`Successfully upgraded to ${planId.charAt(0).toUpperCase() + planId.slice(1)} plan!`)
-        setSelectedPlan('')
-      } else {
-        toast.error(data.message || 'Failed to upgrade plan')
-      }
-    } catch (error) {
-      toast.error('Payment processing failed. Please try again.')
-    } finally {
-      setIsProcessing(false)
-    }
+  const handleUpgrade = (planId: string) => {
+    router.push(`/settings?tab=billing&openPlan=true&planId=${planId}`);
   }
 
   const getCurrentPlanInfo = () => {

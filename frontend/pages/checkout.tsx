@@ -38,32 +38,9 @@ export default function Checkout() {
     setMounted(true);
 
     if (router.isReady) {
-      if (!plan) {
-        router.push('/pricing');
-        return;
-      }
-
-      const isBusiness = type === 'empresa' || (plan === 'elite' && seats);
-      const seatCount = seats ? parseInt(seats as string) : 1;
-      
-      let price = 0;
-      const p = (plan as string).toLowerCase();
-      if (isBusiness) {
-        price = 300;
-      } else {
-        if (p === 'basic' || p === 'growth') price = 99;
-        else if (p === 'professional') price = 199;
-        else if (p === 'elite') price = 300;
-      }
-
-      setOrder({
-        plan: p,
-        seats: seatCount,
-        pricePerUser: price,
-        totalPrice: price * seatCount,
-        interval: 'monthly',
-        isBusiness: !!isBusiness
-      });
+      // Redirect to the unified settings billing modal
+      const settingsUrl = `/settings?tab=billing&openPlan=true&planId=${plan || ''}${seats ? `&seats=${seats}` : ''}`;
+      router.replace(settingsUrl);
     }
   }, [router.isReady, plan, seats, type, router]);
 

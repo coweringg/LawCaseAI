@@ -12,7 +12,7 @@ interface AuthContextType {
   logout: () => void
   updateProfile: (userData: { name: string; lawFirm: string; email: string }) => Promise<{ success: boolean; message: string }>
   changePassword: (passwordData: any) => Promise<{ success: boolean; message: string }>
-  fetchProfile: () => Promise<void>
+  fetchProfile: () => Promise<User | null>
   updateUser: (userData: Partial<User>) => void
   isAuthenticated: boolean
 }
@@ -28,18 +28,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  const fetchProfile = async (): Promise<void> => {
+  const fetchProfile = async (): Promise<User | null> => {
     try {
       const response = await api.get('/user/profile')
       if (response.data.success) {
         setUser(response.data.data)
+        return response.data.data
       }
+      return null
     } catch (error: any) {
       // Silently fail — user is not authenticated
       if (error?.response?.status !== 401) {
         console.warn('Profile fetch failed:', error?.message)
       }
       setUser(null)
+      return null
     }
   }
 

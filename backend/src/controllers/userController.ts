@@ -31,6 +31,8 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
         caseUpdates: user.caseUpdates,
         aiResponses: user.aiResponses,
         marketingEmails: user.marketingEmails,
+        organizationId: user.organizationId,
+        isOrgAdmin: user.isOrgAdmin,
         createdAt: user.createdAt,
         lastLogin: user.lastLogin
       }
@@ -125,6 +127,8 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
         caseUpdates: updatedUser.caseUpdates,
         aiResponses: updatedUser.aiResponses,
         marketingEmails: updatedUser.marketingEmails,
+        organizationId: updatedUser.organizationId,
+        isOrgAdmin: updatedUser.isOrgAdmin,
         createdAt: updatedUser.createdAt,
         lastLogin: updatedUser.lastLogin
       }

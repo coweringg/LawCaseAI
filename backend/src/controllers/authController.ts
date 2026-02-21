@@ -25,31 +25,43 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // If firmCode provided, handle organizational join
     if (firmCode) {
       const { default: Organization } = await import('../models/Organization')
-      const org = await Organization.findOne({ firmCode: firmCode.toUpperCase(), isActive: true })
+      
+      // Atomically check seats and increment
+      const org = await Organization.findOneAndUpdate(
+        { firmCode: firmCode.toUpperCase(), isActive: true, $expr: { $lt: ['$usedSeats', '$totalSeats'] } },
+        { $inc: { usedSeats: 1 } },
+        { new: true }
+      )
       
       if (!org) {
-        res.status(400).json({
-          success: false,
-          message: 'The firm code provided is either invalid or the organization is currently inactive.'
-        } as IApiResponse)
-        return
-      }
+        // Double check if it's invalid code or full seats
+        const checkOrg = await Organization.findOne({ firmCode: firmCode.toUpperCase() })
+        if (!checkOrg) {
+          res.status(400).json({
+            success: false,
+            message: 'The firm code provided is invalid.'
+          } as IApiResponse)
+          return
+        }
+        
+        if (checkOrg.usedSeats >= checkOrg.totalSeats) {
+          res.status(400).json({
+            success: false,
+            message: 'Firm seat limit reached.'
+          } as IApiResponse)
+          return
+        }
 
-      if (org.usedSeats >= org.totalSeats) {
         res.status(400).json({
           success: false,
-          message: 'The organization has reached its maximum seat capacity. Please contact your administrator.'
+          message: 'The organization is currently inactive.'
         } as IApiResponse)
         return
       }
 
       organizationId = org._id
-      plan = UserPlan.ELITE // All firm members get Elite
+      plan = UserPlan.ENTERPRISE // Updated to ENTERPRISE as requested
       effectiveLawFirm = org.name
-
-      // Increment used seats
-      org.usedSeats += 1
-      await org.save()
     }
 
     // Create new user

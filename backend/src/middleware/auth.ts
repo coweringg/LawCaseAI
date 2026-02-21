@@ -49,9 +49,12 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     }
 
     // Update last activity (heartbeat) - Don't await to keep it fast
-    User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err => 
-      console.error('[AUTH] Failed to update lastActivity:', err)
-    )
+    // Skip heartbeat for critical write routes (like confirm-purchase) to avoid WriteConflict during transactions
+    if (!req.url.includes('/confirm-purchase')) {
+      User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err => 
+        console.error('[AUTH] Failed to update lastActivity:', err)
+      )
+    }
 
     req.user = user
     next()

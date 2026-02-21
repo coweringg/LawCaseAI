@@ -36,6 +36,9 @@ export default function Register() {
   useEffect(() => {
     if (user && !registrationSuccess) {
       router.push('/dashboard')
+    } else if (user && registrationSuccess && user.organizationId) {
+      // If they joined via firm code, skip the plan selection screen
+      router.push('/dashboard')
     }
   }, [user, registrationSuccess, router])
 
@@ -151,13 +154,13 @@ export default function Register() {
                 { id: 'basic', name: 'Growth Tier', price: '$99', cases: '8 Case Capacity', color: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-400', border: 'border-emerald-500/20' },
                 { id: 'professional', name: 'Professional Tier', price: '$199', cases: '18 Case Capacity', color: 'from-primary/20 to-primary/5', iconColor: 'text-primary', border: 'border-primary/20' },
                 { id: 'elite', name: 'Elite Infrastructure', price: '$300', cases: '∞ Unlimited Matters', color: 'from-purple-500/20 to-purple-500/5', iconColor: 'text-purple-400', border: 'border-purple-500/20' },
-                { id: 'enterprise', name: 'Enterprise Intelligence', price: '$999', cases: '∞ Unlimited Capacity', color: 'from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-400', border: 'border-rose-500/20' }
+                { id: 'enterprise', name: 'Enterprise Intelligence', price: '$300', cases: '∞ Unlimited Capacity', color: 'from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-400', border: 'border-rose-500/20' }
               ].map((p) => (
                 <button
                   key={p.id}
                   onClick={() => {
-                    const checkoutUrl = `/checkout?plan=${p.id}${seatsQuery ? `&seats=${seatsQuery}` : ''}${registrationMode === 'empresa' ? '&type=empresa' : ''}`;
-                    router.push(checkoutUrl);
+                    const settingsUrl = `/settings?tab=billing&openPlan=true&planId=${p.id}${seatsQuery ? `&seats=${seatsQuery}` : ''}`;
+                    router.push(settingsUrl);
                   }}
                   className={`w-full p-5 rounded-3xl border ${p.border} flex items-center justify-between group hover:scale-[1.02] active:scale-[0.98] transition-all bg-gradient-to-br ${p.color} backdrop-blur-md relative overflow-hidden`}
                 >

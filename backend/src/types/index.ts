@@ -4,7 +4,8 @@ import { Request } from 'express'
 // Enums (defined first to be available for interfaces)
 export enum UserRole {
   LAWYER = 'lawyer',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
+  ORG_ADMIN = 'org_admin'
 }
 
 export enum UserPlan {

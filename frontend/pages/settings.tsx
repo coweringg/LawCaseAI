@@ -6,13 +6,13 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '@/utils/api';
-import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy } from 'lucide-react';
+import { User, Mail, Building, Lock, Save, Shield, Eye, EyeOff, Loader2, Sparkles, CreditCard, Bell, Share2, Layers, Settings as SettingsIcon, Copy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { BillingInfo, Purchase, IOrganization } from '@/types';
 
 export default function Settings() {
-    const { user, updateProfile, changePassword, logout } = useAuth();
+    const { user, updateProfile, changePassword, logout, fetchProfile } = useAuth();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('profile');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,6 +20,21 @@ export default function Settings() {
     const [orgData, setOrgData] = useState<IOrganization | null>(null);
     const [isLoadingOrg, setIsLoadingOrg] = useState(false);
     const [showFirmCode, setShowFirmCode] = useState(false);
+    
+    // Confirmation Modal State
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type: 'danger' | 'warning' | 'info';
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+        type: 'info'
+    });
 
     // Profile state
     const [profileData, setProfileData] = useState({
@@ -62,6 +77,21 @@ export default function Settings() {
         expiryYear: 2025
     });
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+    const [modalStep, setModalStep] = useState<'selection' | 'checkout'>('selection');
+    const [planCategory, setPlanCategory] = useState<'personal' | 'enterprise'>('personal');
+    const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+    const [planSeats, setPlanSeats] = useState(1);
+    const [paymentData, setPaymentData] = useState({
+        cardNumber: '',
+        expiry: '',
+        cvc: '',
+        firmName: ''
+    });
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+    // Members state
+    const [members, setMembers] = useState<any[]>([]);
+    const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
     // Purchase History state
     const [purchaseHistory, setPurchaseHistory] = useState<Purchase[]>([]);
@@ -115,6 +145,20 @@ export default function Settings() {
         }
     };
 
+    const fetchOrganizationMembers = async () => {
+        setIsLoadingMembers(true);
+        try {
+            const response = await api.get('/payments/members');
+            if (response.status === 200) {
+                setMembers(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Failed to fetch members', error);
+        } finally {
+            setIsLoadingMembers(false);
+        }
+    };
+
     // Update profile data when user context changes
     React.useEffect(() => {
         if (user) {
@@ -127,9 +171,40 @@ export default function Settings() {
             fetchPurchaseHistory();
             if (user.isOrgAdmin) {
                 fetchOrganizationDetails();
+                fetchOrganizationMembers();
             }
         }
     }, [user]);
+
+    // Handle inbound redirection for plan selection
+    React.useEffect(() => {
+        if (router.isReady && router.query.openPlan === 'true') {
+            const planId = router.query.planId as string;
+            const tab = router.query.tab as string;
+            
+            if (tab) setActiveTab(tab);
+            
+            // Security check: If they are a firm member and try to open billing, ignore it
+            if (user?.organizationId && !user?.isOrgAdmin && (tab === 'billing' || router.query.openPlan === 'true')) {
+                router.replace('/settings?tab=profile');
+                return;
+            }
+            
+            if (planId) {
+                setSelectedPlanId(planId);
+                setPlanCategory(planId === 'enterprise' ? 'enterprise' : 'personal');
+                setModalStep('checkout'); // Skip selection if planId is provided
+                setIsPlanModalOpen(true);
+            } else {
+                setModalStep('selection');
+                setIsPlanModalOpen(true);
+            }
+            
+            // Clean up the URL
+            const { openPlan, planId: _, tab: __, ...rest } = router.query;
+            router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+        }
+    }, [router.isReady, router.query, router, user?.isOrgAdmin, user?.organizationId]);
 
     const handleSupportSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -203,11 +278,129 @@ export default function Settings() {
         }
     };
 
+    const validateLuhn = (cardNumber: string): boolean => {
+        const digits = cardNumber.replace(/\D/g, '');
+        if (digits.length < 13 || digits.length > 19) return false;
+        let sum = 0;
+        let shouldDouble = false;
+        for (let i = digits.length - 1; i >= 0; i--) {
+            let digit = parseInt(digits.charAt(i), 10);
+            if (shouldDouble) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;
+            }
+            sum += digit;
+            shouldDouble = !shouldDouble;
+        }
+        return sum % 10 === 0;
+    };
+
+    const handleConfirmPurchase = async () => {
+        if (!selectedPlanId) return;
+        
+        if (!validateLuhn(paymentData.cardNumber)) {
+            toast.error("Invalid card number. Please check and try again.");
+            return;
+        }
+
+        setIsProcessingPayment(true);
+        try {
+            const response = await api.post('/payments/confirm-purchase', {
+                plan: selectedPlanId,
+                seats: planSeats,
+                cardNumber: paymentData.cardNumber,
+                firmName: paymentData.firmName
+            });
+
+            if (response.data.success) {
+                const purchasedPlanId = selectedPlanId; // Capture before clearing
+                const code = response.data.data.firmCode;
+                const successMsg = code 
+                    ? `Tier deployed! Your Firm Access Code is: ${code}`
+                    : "Tier deployed successfully!";
+                
+                toast.success(successMsg, { duration: 10000 }); // Show longer toast
+                setIsPlanModalOpen(false);
+                
+                // Refresh billing and profile info immediately
+                fetchBillingInfo();
+                const updatedUser = await fetchProfile(); // Update global user state (role, isOrgAdmin)
+                
+                if (purchasedPlanId === 'enterprise' || purchasedPlanId === 'elite' || updatedUser?.isOrgAdmin) {
+                    // Force switch to organization tab
+                    setActiveTab('organization');
+                    // Fetch details explicitly
+                    fetchOrganizationDetails();
+                    fetchOrganizationMembers();
+                }
+
+                setSelectedPlanId(null); // Clear at the very end
+            } else {
+                toast.error(response.data.message || "Purchase failed");
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Payment processing error");
+        } finally {
+            setIsProcessingPayment(false);
+        }
+    };
+
+    const handleRemoveMember = (memberId: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Neural Disconnection',
+            message: 'Are you sure you want to remove this member? This will immediately revoke their access to the firm\'s neural infrastructure.',
+            type: 'danger',
+            onConfirm: async () => {
+                try {
+                    const response = await api.delete(`/payments/members/${memberId}`);
+                    if (response.data.success) {
+                        toast.success("Member removed successfully");
+                        fetchOrganizationMembers();
+                        fetchOrganizationDetails();
+                    }
+                } catch (error) {
+                    toast.error("Failed to remove member");
+                }
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const [isIncreasingSeats, setIsIncreasingSeats] = useState(false);
+    const [additionalSeats, setAdditionalSeats] = useState(1);
+    const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
+
+    const handleIncreaseCapacity = async () => {
+        if (!validateLuhn(paymentData.cardNumber)) {
+            toast.error("Invalid card number");
+            return;
+        }
+
+        setIsIncreasingSeats(true);
+        try {
+            const response = await api.post('/payments/increase-seats', {
+                additionalSeats,
+                cardNumber: paymentData.cardNumber
+            });
+
+            if (response.data.success) {
+                toast.success(`Capacity increased to ${response.data.data.totalSeats} seats`);
+                setIsCapacityModalOpen(false);
+                fetchOrganizationDetails();
+            }
+        } catch (error) {
+            toast.error("Failed to increase capacity");
+        } finally {
+            setIsIncreasingSeats(false);
+        }
+    };
+
     const tabs = [
         { id: 'profile', label: 'Profile', icon: 'person' },
         ...(user?.isOrgAdmin ? [{ id: 'organization', label: 'Firm Management', icon: 'business' }] : []),
         { id: 'team', label: 'Team Management', icon: 'groups' },
-        { id: 'billing', label: 'Billing & Plans', icon: 'credit_card' },
+        ...((!user?.organizationId || user?.isOrgAdmin) ? [{ id: 'billing', label: 'Billing & Plans', icon: 'credit_card' }] : []),
         { id: 'notifications', label: 'Notifications', icon: 'notifications' },
         { id: 'security', label: 'Security', icon: 'security' },
         { id: 'integrations', label: 'Integrations', icon: 'integration_instructions' },
@@ -449,9 +642,17 @@ export default function Settings() {
                                                         <div className="space-y-6">
                                                             <div className="flex justify-between items-end">
                                                                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Active Seats</span>
-                                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">
-                                                                    {orgData?.usedSeats || 0} / {orgData?.totalSeats || 0} Members
-                                                                </span>
+                                                                <div className="flex items-center gap-4">
+                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                                                        {orgData?.usedSeats || 0} / {orgData?.totalSeats || 0} Members
+                                                                    </span>
+                                                                    <button 
+                                                                        onClick={() => setIsCapacityModalOpen(true)}
+                                                                        className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                                                                    >
+                                                                        Increase
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                             <div className="w-full bg-white/5 rounded-full h-3 overflow-hidden border border-white/5 p-0.5">
                                                                 <motion.div
@@ -481,6 +682,55 @@ export default function Settings() {
                                                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-relaxed">
                                                         Billing is managed centrally for your convenience. Individual licenses do not require personal payment methods.
                                                     </p>
+                                                </div>
+                                            </div>
+                                            <div className="pt-10 border-t border-white/5 space-y-8">
+                                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Member Directory</h3>
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-left">
+                                                        <thead>
+                                                            <tr className="border-b border-white/5">
+                                                                <th className="pb-4 text-[9px] font-black text-slate-600 uppercase tracking-widest">Operator</th>
+                                                                <th className="pb-4 text-[9px] font-black text-slate-600 uppercase tracking-widest">Access Key</th>
+                                                                <th className="pb-4 text-[9px] font-black text-slate-600 uppercase tracking-widest">Role</th>
+                                                                <th className="pb-4 text-[9px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-white/5">
+                                                            {isLoadingMembers ? (
+                                                                <tr><td colSpan={4} className="py-8 text-center text-[10px] font-bold text-slate-500 uppercase">Scanning for signatures...</td></tr>
+                                                            ) : members.length === 0 ? (
+                                                                <tr><td colSpan={4} className="py-8 text-center text-[10px] font-bold text-slate-500 uppercase">No active operators detected</td></tr>
+                                                            ) : members.map((member) => (
+                                                                <tr key={member._id} className="group">
+                                                                    <td className="py-6 pr-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-black text-slate-400">
+                                                                                {member.name.charAt(0)}
+                                                                            </div>
+                                                                            <span className="text-xs font-black text-white uppercase truncate max-w-[150px]">{member.name}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="py-6 px-4 text-[10px] font-bold text-slate-500 truncate">{member.email}</td>
+                                                                    <td className="py-6 px-4">
+                                                                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full border ${member.role === 'org_admin' ? 'bg-primary/20 text-primary border-primary/20' : 'bg-slate-500/10 text-slate-400 border-white/5'}`}>
+                                                                            {member.role === 'org_admin' ? 'Admin' : 'Member'}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="py-6 pl-4 text-right">
+                                                                        {member._id !== (user as any)?._id && (
+                                                                            <button 
+                                                                                onClick={() => handleRemoveMember(member._id)}
+                                                                                className="p-2 text-slate-600 hover:text-red-500 transition-colors"
+                                                                            >
+                                                                                <span className="material-icons-round text-lg">person_remove</span>
+                                                                            </button>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
                                         </div>
@@ -1039,75 +1289,473 @@ export default function Settings() {
                                 <div>
                                     <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                                         <Layers className="text-primary" />
-                                        Neural Tier Selection
+                                        {modalStep === 'selection' ? 'Neural Tier Selection' : 'Deployment Authorization'}
                                     </h3>
-                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Select your processing infrastructure</p>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">
+                                        {modalStep === 'selection' ? 'Select your processing infrastructure' : 'Secure initialization of your workspace'}
+                                    </p>
                                 </div>
-                                <button onClick={() => setIsPlanModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
+                                <button onClick={() => { setIsPlanModalOpen(false); setModalStep('selection'); setSelectedPlanId(null); }} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
                                     <span className="material-icons-round">close</span>
                                 </button>
                             </div>
 
                             <div className="p-10 relative z-10">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {[
-                                        { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500' },
-                                        { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary' },
-                                        { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-purple-500' }
-                                    ].map((tier) => (
-                                        <button
-                                            key={tier.id}
-                                            onClick={() => {
-                                                router.push(`/checkout?plan=${tier.id}`);
-                                                setIsPlanModalOpen(false);
-                                            }}
-                                            disabled={billingInfo?.plan === tier.id}
-                                            className={`group text-left p-8 rounded-[2.5rem] border transition-all relative overflow-hidden flex flex-col h-full ${
-                                                billingInfo?.plan === tier.id 
-                                                ? 'border-white/20 bg-white/5 scale-[0.98] opacity-50 cursor-default' 
-                                                : 'border-white/5 bg-black/40 hover:border-primary/50 hover:bg-primary/5 hover:translate-y-[-4px]'
-                                            }`}
+                                <AnimatePresence mode="wait">
+                                    {modalStep === 'selection' ? (
+                                        <motion.div
+                                            key="selection"
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            className="space-y-12"
                                         >
-                                            <div className="relative z-10 flex flex-col h-full">
-                                                <div className="flex justify-between items-start mb-6">
-                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm ${tier.color}/20 text-${tier.id === 'professional' ? 'primary' : tier.color.split('-')[1] + '-400'} border border-${tier.id === 'professional' ? 'primary' : tier.color.split('-')[1] + '-500'}/20`}>
-                                                        {tier.name.charAt(0)}
-                                                    </div>
-                                                    {billingInfo?.plan === tier.id && (
-                                                        <span className="text-[8px] font-black uppercase tracking-widest bg-white/10 text-white px-2 py-1 rounded-full">Current</span>
-                                                    )}
-                                                </div>
-
-                                                <h4 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{tier.name}</h4>
-                                                <div className="flex items-baseline gap-1 mb-6">
-                                                    <span className="text-3xl font-black text-white">{tier.price}</span>
-                                                    <span className="text-xs text-slate-500 font-bold">/mo</span>
-                                                </div>
-
-                                                <div className="space-y-3 mb-8 flex-1">
-                                                    <div className="flex items-center gap-2 text-primary">
-                                                        <Sparkles size={12} />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">{tier.cases}</span>
-                                                    </div>
-                                                    {tier.features.map((f, i) => (
-                                                        <div key={i} className="flex items-center gap-2 text-slate-500 group-hover:text-slate-300 transition-colors">
-                                                            <div className="w-1 h-1 rounded-full bg-slate-700" />
-                                                            <span className="text-[10px] font-bold uppercase tracking-tight">{f}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className={`mt-auto w-full py-4 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest transition-all ${
-                                                    billingInfo?.plan === tier.id 
-                                                    ? 'bg-white/5 text-slate-500' 
-                                                    : 'bg-primary text-white shadow-lg shadow-primary/20 group-hover:shadow-primary/40 group-hover:scale-[1.02]'
-                                                }`}>
-                                                    {billingInfo?.plan === tier.id ? 'Active' : 'Deploy Tier'}
+                                            {/* Category Toggle */}
+                                            <div className="flex justify-center">
+                                                <div className="p-1 bg-black/40 rounded-3xl border border-white/5 flex items-center relative w-full max-w-[500px] overflow-hidden">
+                                                    <motion.div
+                                                        className="absolute inset-y-1 w-[calc(50%-4px)] bg-primary rounded-[1.25rem] z-0 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
+                                                        initial={false}
+                                                        animate={{
+                                                            x: planCategory === 'personal' ? '4px' : 'calc(100% - 4px)'
+                                                        }}
+                                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                                    />
+                                                    <button
+                                                        onClick={() => setPlanCategory('personal')}
+                                                        className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'personal' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                    >
+                                                        Personal Firm
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setPlanCategory('enterprise')}
+                                                        className={`flex-1 relative z-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${planCategory === 'enterprise' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                    >
+                                                        Enterprise Infrastructure
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </button>
-                                    ))}
+
+                                            <AnimatePresence mode="wait">
+                                                {planCategory === 'personal' ? (
+                                                    <motion.div
+                                                        key="personal-tiers"
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="space-y-6"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                            {[
+                                                                { id: 'basic', name: 'Growth', price: '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500' },
+                                                                { id: 'professional', name: 'Professional', price: '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary' },
+                                                                { id: 'elite', name: 'Elite', price: '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-purple-500' }
+                                                            ].map((tier) => (
+                                                                <button
+                                                                    key={tier.id}
+                                                                    onClick={() => {
+                                                                        setSelectedPlanId(tier.id);
+                                                                        setPlanSeats(1);
+                                                                        setModalStep('checkout');
+                                                                    }}
+                                                                    disabled={billingInfo?.plan === tier.id}
+                                                                    className={`group text-left p-8 rounded-[2.5rem] border transition-all relative overflow-hidden flex flex-col h-full ${
+                                                                        billingInfo?.plan === tier.id 
+                                                                        ? 'border-white/20 bg-white/5 scale-[0.98] opacity-50 cursor-default' 
+                                                                        : 'border-white/5 bg-black/40 hover:border-primary/50 hover:bg-primary/5 hover:translate-y-[-4px]'
+                                                                    }`}
+                                                                >
+                                                                    <div className="relative z-10 flex flex-col h-full">
+                                                                        <div className="flex justify-between items-start mb-6">
+                                                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm ${tier.color}/20 text-white border border-white/20`}>
+                                                                                {tier.name.charAt(0)}
+                                                                            </div>
+                                                                            {billingInfo?.plan === tier.id && (
+                                                                                <span className="text-[8px] font-black uppercase tracking-widest bg-white/10 text-white px-2 py-1 rounded-full">Current</span>
+                                                                            )}
+                                                                        </div>
+                                                                        <h4 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{tier.name}</h4>
+                                                                        <div className="flex items-baseline gap-1 mb-6">
+                                                                            <span className="text-3xl font-black text-white">{tier.price}</span>
+                                                                            <span className="text-xs text-slate-500 font-bold">/mo</span>
+                                                                        </div>
+                                                                        <div className="space-y-3 mb-8 flex-1">
+                                                                            <div className="flex items-center gap-2 text-primary">
+                                                                                <Sparkles size={12} />
+                                                                                <span className="text-[10px] font-black uppercase tracking-widest">{tier.cases}</span>
+                                                                            </div>
+                                                                            {tier.features.map((f, i) => (
+                                                                                <div key={i} className="flex items-center gap-2 text-slate-500">
+                                                                                    <div className="w-1 h-1 rounded-full bg-slate-700" />
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-tight">{f}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                        <div className="mt-auto w-full py-4 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest transition-all bg-white/10 text-white group-hover:bg-primary group-hover:text-white">
+                                                                            {billingInfo?.plan === tier.id ? 'Active' : 'Select Tier'}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </motion.div>
+                                                ) : (
+                                                    <motion.div
+                                                        key="enterprise-tier"
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="space-y-6"
+                                                    >
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedPlanId('enterprise');
+                                                                setPlanSeats(5);
+                                                                setModalStep('checkout');
+                                                            }}
+                                                            className="w-full group text-left p-10 rounded-[3rem] border border-primary/20 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 transition-all relative overflow-hidden"
+                                                        >
+                                                            <div className="absolute top-0 right-0 p-8">
+                                                                <div className="px-4 py-2 bg-primary text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-primary/20 ring-4 ring-primary/10 animate-pulse">
+                                                                    Network-Wide Access
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+                                                                <div className="space-y-6">
+                                                                    <div className="w-16 h-16 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40">
+                                                                        <Building size={32} />
+                                                                    </div>
+                                                                    <div className="space-y-2">
+                                                                        <h4 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Enterprise Firm Infrastructure</h4>
+                                                                        <p className="text-xs text-slate-400 font-bold leading-relaxed max-w-sm">
+                                                                            Acquire ∞ unlimited capacity for your entire organization. Get an exclusive firm code for instant network-wide access.
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap gap-x-8 gap-y-4">
+                                                                        {[
+                                                                            '5 Users',
+                                                                            '200+ Users',
+                                                                            'Centralized Firm Billing',
+                                                                            'Global Knowledge Bank',
+                                                                            'Enterprise-Grade Security',
+                                                                            '24/7 Priority Concierge'
+                                                                        ].map((f, i) => (
+                                                                            <div key={i} className="flex items-center gap-2 text-primary">
+                                                                                <div className="w-1 h-1 rounded-full bg-primary" />
+                                                                                <span className="text-[9px] font-black uppercase tracking-widest">{f}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="bg-black/40 rounded-[2.5rem] p-10 border border-white/5 space-y-8">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <div className="space-y-1">
+                                                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Number of Lawyers</span>
+                                                                            <p className="text-xl font-black text-white uppercase">5 Seats</p>
+                                                                        </div>
+                                                                        <div className="text-right">
+                                                                            <span className="text-4xl font-black text-white tracking-tighter">$1.500</span>
+                                                                            <span className="text-[10px] text-slate-500 font-black block">/mo</span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="pt-6 border-t border-white/5 space-y-4">
+                                                                        <div className="w-full py-5 bg-white text-black text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all text-center">
+                                                                            Get Firm Code
+                                                                        </div>
+                                                                        <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.15em]">
+                                                                            Corporate Billing · Wire or Card
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="checkout"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-10"
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <button 
+                                                        onClick={() => setModalStep('selection')}
+                                                        className="p-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-all"
+                                                    >
+                                                        <span className="material-icons-round">arrow_back</span>
+                                                    </button>
+                                                    <div>
+                                                        <h4 className="text-xl font-black text-white uppercase tracking-tight">
+                                                            {selectedPlanId === 'enterprise' ? 'Enterprise Deployment' : `${selectedPlanId?.toUpperCase()} Protocol`}
+                                                        </h4>
+                                                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Final Authorization Sequence</p>
+                                                    </div>
+                                                </div>
+                                                <div className="px-6 py-3 bg-primary/10 border border-primary/20 rounded-2xl">
+                                                    <span className="text-xs font-black text-primary uppercase tracking-widest">
+                                                        Total Monthly Commitment: 
+                                                        <span className="text-lg ml-2">
+                                                            ${selectedPlanId === 'enterprise' 
+                                                                ? (planSeats * 300).toLocaleString() 
+                                                                : selectedPlanId === 'basic' ? '99' 
+                                                                : selectedPlanId === 'professional' ? '199' : '300'
+                                                            }
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                                <div className="space-y-8">
+                                                    {selectedPlanId === 'enterprise' && (
+                                                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-8">
+                                                            <div className="space-y-4">
+                                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Firm Infrastructure Name</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    placeholder="e.g. DARWIN CASE AI SOLUTIONS"
+                                                                    value={paymentData.firmName}
+                                                                    onChange={(e) => setPaymentData({ ...paymentData, firmName: e.target.value })}
+                                                                    className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold flex-1" 
+                                                                />
+                                                            </div>
+                                                            
+                                                            <div className="space-y-6">
+                                                                <div className="flex justify-between items-end">
+                                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Number of Lawyers (Seats)</label>
+                                                                    <span className="text-2xl font-black text-primary">{planSeats}</span>
+                                                                </div>
+                                                                <div className="relative pt-2">
+                                                                    <input 
+                                                                        type="range" min="5" max="100" 
+                                                                        value={planSeats}
+                                                                        onChange={(e) => setPlanSeats(parseInt(e.target.value))}
+                                                                        className="w-full accent-primary h-2 bg-white/5 rounded-full appearance-none cursor-pointer" 
+                                                                    />
+                                                                </div>
+                                                                <p className="text-[8px] text-slate-600 font-black uppercase tracking-[0.1em] text-center">
+                                                                    Scalable up to 200+ Operators on demand
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/5 space-y-6">
+                                                        <div className="space-y-4">
+                                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Authorization Key (Mock Card)</label>
+                                                            <input 
+                                                                type="text" 
+                                                                placeholder="4111 1111 1111 1111"
+                                                                value={paymentData.cardNumber}
+                                                                onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
+                                                                className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold" 
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <input type="text" placeholder="MM/YY" className="px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold" />
+                                                            <input type="text" placeholder="CVC" className="px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-6">
+                                                    <div className="flex-1 p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex flex-col justify-between">
+                                                        <div className="space-y-6">
+                                                            <h5 className="text-[10px] font-black text-white uppercase tracking-[0.2em] border-b border-white/5 pb-4">Verification Summary</h5>
+                                                            <div className="space-y-4">
+                                                                <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+                                                                    <span>Active Profile</span>
+                                                                    <span className="text-white">{user?.name}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+                                                                    <span>Deployment Tier</span>
+                                                                    <span className="text-white">{selectedPlanId?.toUpperCase()}</span>
+                                                                </div>
+                                                                {selectedPlanId === 'enterprise' && (
+                                                                    <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+                                                                        <span>Neural Capacity</span>
+                                                                        <span className="text-white">{planSeats} Units</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="pt-8 space-y-6">
+                                                            <div className="flex justify-between items-end">
+                                                                <div className="space-y-1">
+                                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Total Monthly Cost</span>
+                                                                    <p className="text-5xl font-black text-white tracking-tighter">
+                                                                        ${selectedPlanId === 'enterprise' 
+                                                                            ? (planSeats * 300).toLocaleString() 
+                                                                            : selectedPlanId === 'basic' ? '99' 
+                                                                            : selectedPlanId === 'professional' ? '199' : '300'}
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-2">USD CURRENCY</p>
+                                                            </div>
+                                                            
+                                                            <button 
+                                                                onClick={handleConfirmPurchase}
+                                                                disabled={isProcessingPayment}
+                                                                className="w-full py-6 bg-primary text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[1.5rem] shadow-2xl shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                                            >
+                                                                {isProcessingPayment ? <Loader2 className="animate-spin" size={18} /> : (
+                                                                    <>
+                                                                        <Shield size={18} />
+                                                                        Authorize Deployment
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="px-8 py-4 bg-white/5 rounded-2xl border border-white/5 flex items-center gap-3 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                                        <Lock size={12} className="text-primary" />
+                                                        Encrypted Transaction via Darwin Case AI Secure Node
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isCapacityModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsCapacityModalOpen(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg glass-dark rounded-[40px] shadow-2xl border border-white/10 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center relative z-10 bg-white/[0.02]">
+                                <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <Layers className="text-primary" />
+                                    Expand Infrastructure
+                                </h3>
+                                <button onClick={() => setIsCapacityModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                                    <span className="material-icons-round">close</span>
+                                </button>
+                            </div>
+
+                            <div className="p-10 relative z-10 space-y-8">
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Additional Neural Seats</label>
+                                    <div className="flex items-center gap-6 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                        <button 
+                                            onClick={() => setAdditionalSeats(Math.max(1, additionalSeats - 1))}
+                                            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white"
+                                        >-</button>
+                                        <span className="flex-1 text-center text-2xl font-black text-white">{additionalSeats}</span>
+                                        <button 
+                                            onClick={() => setAdditionalSeats(additionalSeats + 1)}
+                                            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white"
+                                        >+</button>
+                                    </div>
+                                    <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider text-center">
+                                        Subtotal: ${(additionalSeats * 300).toLocaleString()} USD commitment
+                                    </p>
                                 </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Authorization Key (Mock Card)</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="4111 1111 1111 1111"
+                                        value={paymentData.cardNumber}
+                                        onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
+                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold" 
+                                    />
+                                </div>
+
+                                <button 
+                                    onClick={handleIncreaseCapacity}
+                                    disabled={isIncreasingSeats}
+                                    className="w-full py-5 bg-primary text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                >
+                                    {isIncreasingSeats ? <Loader2 className="animate-spin" size={18} /> : (
+                                        <>
+                                            <Sparkles size={18} />
+                                            Acquire Capacity
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            {/* Confirmation Modal */}
+            <AnimatePresence>
+                {confirmModal.isOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-md glass-dark p-10 rounded-[40px] border border-white/10 shadow-3xl text-center overflow-hidden"
+                        >
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                            
+                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border ${
+                                confirmModal.type === 'danger' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                confirmModal.type === 'warning' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                'bg-primary/10 border-primary/20 text-primary'
+                            }`}>
+                                <AlertTriangle size={32} />
+                            </div>
+
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">
+                                {confirmModal.title}
+                            </h3>
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed mb-10">
+                                {confirmModal.message}
+                            </p>
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                    className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all border border-white/5"
+                                >
+                                    Abort
+                                </button>
+                                <button
+                                    onClick={confirmModal.onConfirm}
+                                    className={`flex-1 py-4 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg ${
+                                        confirmModal.type === 'danger' ? 'bg-red-600 hover:bg-red-500 shadow-red-600/20' :
+                                        confirmModal.type === 'warning' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20' :
+                                        'bg-primary hover:bg-primary-hover shadow-primary/20'
+                                    }`}
+                                >
+                                    Confirm Connection
+                                </button>
                             </div>
                         </motion.div>
                     </div>

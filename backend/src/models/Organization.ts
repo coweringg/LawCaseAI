@@ -41,8 +41,7 @@ const organizationSchema = new Schema<IOrganization>({
   timestamps: true
 })
 
-// Index for fast code lookup
-organizationSchema.index({ firmCode: 1 })
+// Indexing already handled by unique: true on firmCode field
 
 const Organization = mongoose.model<IOrganization>('Organization', organizationSchema)
 

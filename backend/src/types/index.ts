@@ -109,6 +109,7 @@ export interface IUser extends Document {
   tokenVersion: number
   paymentMethods: IPaymentMethod[]
   defaultPaymentMethodId?: string
+  billingInterval?: 'monthly' | 'annual'
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
 }

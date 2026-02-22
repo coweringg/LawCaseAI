@@ -118,6 +118,11 @@ const userSchema = new Schema<IUser>({
   }],
   defaultPaymentMethodId: {
     type: String
+  },
+  billingInterval: {
+    type: String,
+    enum: ['monthly', 'annual'],
+    default: 'monthly'
   }
 }, {
   timestamps: true,

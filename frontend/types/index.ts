@@ -66,6 +66,7 @@ export interface BillingInfo {
   defaultPaymentMethodId: string
   nextBillingDate: string
   amount: number
+  interval?: 'monthly' | 'annual'
 }
 
 export interface Purchase {

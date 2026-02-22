@@ -200,6 +200,9 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
 
         // Update user plan
         user.plan = plan
+        if (interval === 'monthly' || interval === 'annual') {
+            user.billingInterval = interval
+        }
         await user.save(isTransactional ? { session } : {})
 
         // Record Transaction
@@ -420,10 +423,12 @@ export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<v
             { new: true }
         )
 
+        const pricePerSeat = user.billingInterval === 'annual' ? ANNUAL_PRICES.enterprise : PLAN_PRICES.enterprise
+
         // Record transaction
         await Transaction.create({
             userId,
-            amount: additionalSeats * 300,
+            amount: additionalSeats * pricePerSeat,
             plan: UserPlan.ENTERPRISE,
             status: 'succeeded',
             date: new Date()

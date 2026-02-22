@@ -901,6 +901,11 @@ export default function Settings() {
                                                                     <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
                                                                         {billingInfo?.plan === 'none' ? 'Infrastructure Inactive' : 'Active'}
                                                                     </span>
+                                                                    {billingInfo?.interval === 'annual' && (
+                                                                        <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border bg-primary/20 text-primary border-primary/30">
+                                                                            Annual (-20%)
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <p className="text-slate-500 font-bold text-xs uppercase tracking-wider">
                                                                     {billingInfo?.plan === 'none' ? 'Select a tier to activate neural processing' :
@@ -912,12 +917,15 @@ export default function Settings() {
                                                             <div className="text-right">
                                                                 <p className="text-4xl font-black text-white tracking-tighter">
                                                                     ${billingInfo?.plan === 'none' ? '0' :
-                                                                       billingInfo?.plan === 'basic' ? '99' : 
-                                                                       billingInfo?.plan === 'professional' ? '199' : 
-                                                                       billingInfo?.plan === 'enterprise' ? '999' : '300'}
+                                                                       billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 249 : 300)) :
+                                                                       billingInfo?.plan === 'basic' ? (billingInfo?.interval === 'annual' ? '79' : '99') : 
+                                                                       billingInfo?.plan === 'professional' ? (billingInfo?.interval === 'annual' ? '159' : '199') : 
+                                                                       '300'}
                                                                     <span className="text-sm text-slate-500 font-bold">/mo</span>
                                                                 </p>
-                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">Per User License</p>
+                                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">
+                                                                    {billingInfo?.plan === 'enterprise' ? `${orgData?.totalSeats || 1} User License${(orgData?.totalSeats || 1) > 1 ? 's' : ''}` : 'Per User License'}
+                                                                </p>
                                                             </div>
                                                         </div>
 
@@ -963,11 +971,12 @@ export default function Settings() {
                                                                 whileHover={{ scale: 1.02 }}
                                                                 whileTap={{ scale: 0.98 }}
                                                                 onClick={handleUpgradePlan}
-                                                                disabled={isUpgrading || billingInfo?.plan === 'elite'}
+                                                                disabled={isUpgrading || billingInfo?.plan === 'elite' || billingInfo?.plan === 'enterprise'}
                                                                 className="px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50"
                                                             >
                                                                 {isUpgrading && <Loader2 className="w-4 h-4 animate-spin mr-3 inline" />}
                                                                     {billingInfo?.plan === 'elite' ? 'Max Tier Active' : 
+                                                                     billingInfo?.plan === 'enterprise' ? 'Enterprise Locked' :
                                                                      billingInfo?.plan === 'none' ? 'Select Plan' : 'Enhance Protocol'}
                                                             </motion.button>
                                                         </div>
@@ -1745,7 +1754,7 @@ export default function Settings() {
                                         >+</button>
                                     </div>
                                     <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider text-center">
-                                        Subtotal: ${(additionalSeats * 300).toLocaleString()} USD commitment
+                                        Subtotal: ${(additionalSeats * (billingInfo?.interval === 'annual' ? 249 : 300)).toLocaleString()} USD commitment
                                     </p>
                                 </div>
 
@@ -1758,6 +1767,22 @@ export default function Settings() {
                                         onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
                                         className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold" 
                                     />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <input 
+                                            type="text" 
+                                            placeholder="MM/YY"
+                                            value={paymentData.expiry}
+                                            onChange={(e) => setPaymentData({ ...paymentData, expiry: e.target.value })}
+                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold text-center" 
+                                        />
+                                        <input 
+                                            type="text" 
+                                            placeholder="CVC"
+                                            value={paymentData.cvc}
+                                            onChange={(e) => setPaymentData({ ...paymentData, cvc: e.target.value })}
+                                            className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold text-center" 
+                                        />
+                                    </div>
                                 </div>
 
                                 <button 

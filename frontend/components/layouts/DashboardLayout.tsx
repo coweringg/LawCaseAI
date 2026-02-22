@@ -97,12 +97,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         checkSystemStatus();
 
         // Heartbeat to keep user online even when idle
+        // Increased interval from 30 seconds to 5 minutes to prevent 429 Too Many Requests
         const heartbeatInterval = setInterval(() => {
             if (token && user) {
                 api.get('/user/profile').catch(() => {});
                 checkSystemStatus();
             }
-        }, 30000);
+        }, 300000);
 
         return () => {
             clearInterval(heartbeatInterval);

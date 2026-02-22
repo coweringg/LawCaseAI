@@ -65,11 +65,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated || isLoading) return;
 
-    const pollInterval = setInterval(() => {
-      fetchProfile();
-    }, 10000); // Poll every 10s
-
-    return () => clearInterval(pollInterval);
+    // Polling removed to prevent 429 Too Many Requests errors.
+    // Instead of polling every 10s, critical state updates should rely on explicit actions 
+    // or WebSocket events in the future.
+    
+    // Initial fetch to sync state on load
+    fetchProfile();
+    
   }, [isAuthenticated, isLoading]);
 
   useEffect(() => {

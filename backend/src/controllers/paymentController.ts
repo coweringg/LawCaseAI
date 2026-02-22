@@ -214,7 +214,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             date: new Date()
         }], isTransactional ? { session } : {})
 
-        // Log action
+        // Log action for Plan Change
         await logAction({
             adminId: userId,
             adminName: user.name,
@@ -225,6 +225,19 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             action: 'PLAN_CHANGE',
             after: { plan: user.plan, interval },
             description: `User upgraded to ${plan} plan (${interval}).`
+        })
+
+        // Log action for Payment Source process 
+        await logAction({
+            adminId: userId,
+            adminName: user.name,
+            targetId: userId,
+            targetName: user.name,
+            targetType: 'user',
+            category: 'platform',
+            action: 'PAYMENT_PROCESSED',
+            after: { amount: transactionAmount, currency: 'USD', plan },
+            description: `Processed payment of $${transactionAmount} for ${plan} subscription.`
         })
 
         if (isTransactional) {

@@ -388,7 +388,13 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
 
     const cases = await Case.find({ userId: id }).sort({ createdAt: -1 })
     const payments = await Transaction.find({ userId: id }).sort({ date: -1 })
-    const auditLogs = await AuditLog.find({ targetId: id }).sort({ timestamp: -1 })
+    // Fetch logs where user is either the target OR the actor
+    const auditLogs = await AuditLog.find({ 
+      $or: [
+        { targetId: id },
+        { adminId: id }
+      ]
+    }).sort({ timestamp: -1 })
 
     // If user is part of an organization, fetch other members and org data
     let orgMembers: Record<string, unknown>[] = []

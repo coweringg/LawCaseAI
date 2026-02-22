@@ -68,6 +68,7 @@ interface AuditLogEntry {
   targetId: string
   targetName: string
   targetType: 'user' | 'case'
+  category: 'admin' | 'platform'
   action: string
   details: {
     before?: any
@@ -252,6 +253,9 @@ export default function AdminDashboard() {
     }
   }, [activeTab, activeHistoryTab, supportTypeFilter, user?.role, fetchAuditLogs, fetchSupportRequests])
 
+  // Auto-refresh removed to prevent 429 Too Many Requests errors.
+  // We now rely on explicit manual refresh via the UI.
+  /*
   useEffect(() => {
     if (user?.role === 'admin') {
       const refreshInterval = setInterval(() => {
@@ -261,6 +265,7 @@ export default function AdminDashboard() {
       return () => clearInterval(refreshInterval)
     }
   }, [user?.role, fetchUsers, fetchStats])
+  */
 
   const handleDeleteLog = async (logId: string) => {
     setConfirmConfig({
@@ -713,7 +718,19 @@ export default function AdminDashboard() {
           'PASSWORD_CHANGE': 'bg-orange-500/20 text-orange-400',
           'LOGIN': 'bg-success-500/20 text-success-500',
           'FILE_UPLOADED': 'bg-secondary/20 text-secondary',
-          'AI_CONSULTATION': 'bg-purple-500/20 text-purple-400'
+          'FILE_DELETED': 'bg-error-500/20 text-error-500',
+          'AI_CONSULTATION': 'bg-purple-500/20 text-purple-400',
+          'PLAN_CHANGE': 'bg-indigo-500/20 text-indigo-400',
+          'PAYMENT_PROCESSED': 'bg-emerald-500/20 text-emerald-400',
+          'PAYMENT_METHOD_ADD': 'bg-emerald-500/20 text-emerald-400',
+          'PAYMENT_METHOD_REMOVE': 'bg-error-500/20 text-error-500',
+          'USER_DELETED': 'bg-error-500/20 text-error-500',
+          'STATUS_CHANGE': 'bg-warning-500/20 text-warning-500',
+          'NOTIFICATION_CHANGE': 'bg-slate-500/20 text-slate-400',
+          'SUPPORT_REQUEST_SUBMITTED': 'bg-blue-500/20 text-blue-400',
+          'SUPPORT_REQUEST_STATUS_UPDATE': 'bg-blue-500/20 text-blue-400',
+          'ORG_CODE_UPDATE': 'bg-indigo-500/20 text-indigo-400',
+          'CREATE': 'bg-success-500/20 text-success-500'
         }
         
         return (
@@ -734,7 +751,7 @@ export default function AdminDashboard() {
           <span className="text-slate-300 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] block">
             {value.description}
           </span>
-          {item.details.before && item.details.after && (
+          {(item.details.before || item.details.after) && (
             <Button
               variant="none"
               size="sm"
@@ -744,7 +761,8 @@ export default function AdminDashboard() {
               }}
               className="p-1 px-2 h-auto text-primary hover:text-white hover:bg-primary/20 bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all font-black text-[9px] uppercase tracking-tighter rounded-md"
             >
-              Diff
+              <Eye className="w-3 h-3 mr-1 inline" />
+              View Details
             </Button>
           )}
         </div>
@@ -1379,11 +1397,24 @@ export default function AdminDashboard() {
                                 </span>
                                 <p className="text-xs text-white font-bold">{log.details.description}</p>
                               </div>
-                              <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">
-                                Target: {log.targetName}
-                              </p>
                             </div>
-                            <span className="text-[10px] text-slate-600 font-bold uppercase">{formatDate(log.timestamp)}</span>
+                            <div className="flex flex-col items-end gap-2">
+                              <span className="text-[10px] text-slate-600 font-bold uppercase">{formatDate(log.timestamp)}</span>
+                              {(log.details.before || log.details.after) && (
+                                <Button
+                                  variant="none"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedLogForDiff(log)
+                                    setShowDiffModal(true)
+                                  }}
+                                  className="p-1 px-2 h-auto text-primary hover:text-white hover:bg-primary/20 bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all font-black text-[9px] uppercase tracking-tighter rounded-md mt-1"
+                                >
+                                  <Eye className="w-3 h-3 mr-1 inline" />
+                                  View Details
+                                </Button>
+                              )}
+                            </div>
                           </div>
                       ))}
                       {userHistory.auditLogs.filter(log => log.targetType === 'case' || log.action.includes('CASE')).length === 0 && (
@@ -1423,12 +1454,36 @@ export default function AdminDashboard() {
                     {userHistory.auditLogs.map((log) => (
                       <div key={log._id} className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-start justify-between">
                         <div>
-                          <p className="text-xs text-white font-bold">{log.details.description}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={cn(
+                              "px-1.5 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-tighter",
+                              log.category === 'admin' ? 'bg-error-500/20 text-error-500' : 'bg-primary/20 text-primary'
+                            )}>
+                              {log.action.replace(/_/g, ' ')}
+                            </span>
+                            <p className="text-xs text-white font-bold">{log.details.description}</p>
+                          </div>
                           <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">
                             Auth Agent: {log.adminName}
                           </p>
                         </div>
-                        <span className="text-[10px] text-slate-600 font-bold uppercase">{formatDate(log.timestamp)}</span>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-[10px] text-slate-600 font-bold uppercase">{formatDate(log.timestamp)}</span>
+                          {(log.details.before || log.details.after) && (
+                            <Button
+                              variant="none"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedLogForDiff(log)
+                                setShowDiffModal(true)
+                              }}
+                              className="p-1 px-2 h-auto text-primary hover:text-white hover:bg-primary/20 bg-primary/10 border border-primary/20 hover:border-primary/40 transition-all font-black text-[9px] uppercase tracking-tighter rounded-md"
+                            >
+                              <Eye className="w-3 h-3 mr-1 inline" />
+                              View Details
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                     {userHistory.auditLogs.length === 0 && (

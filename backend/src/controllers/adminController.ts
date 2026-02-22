@@ -27,10 +27,10 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
       .limit(Number(limit))
       .lean()
 
-    // Enrich users with organization code if they are enterprise admins
+    // Enrich users with organization code if they belong to an organization
     const enrichedUsers = await Promise.all(users.map(async (u) => {
       const userObj = { ...u, id: u._id.toString() }
-      if (u.plan === UserPlan.ENTERPRISE && u.isOrgAdmin && u.organizationId) {
+      if (u.organizationId) {
         const org = await Organization.findById(u.organizationId)
         if (org) {
           return { ...userObj, firmCode: org.firmCode }
@@ -390,15 +390,27 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
     const payments = await Transaction.find({ userId: id }).sort({ date: -1 })
     const auditLogs = await AuditLog.find({ targetId: id }).sort({ timestamp: -1 })
 
-    // If user is part of an organization, fetch other members
+    // If user is part of an organization, fetch other members and org data
     let orgMembers: Record<string, unknown>[] = []
+    let organizationData: Record<string, unknown> | null = null
+    
     if (user.organizationId) {
       orgMembers = await User.find({ 
         organizationId: user.organizationId,
         _id: { $ne: user._id } 
       })
-      .select('name email plan status createdAt')
+      .select('name email plan status currentCases isOrgAdmin createdAt')
       .lean()
+      
+      const org = await Organization.findById(user.organizationId).lean()
+      if (org) {
+        organizationData = {
+          id: org._id.toString(),
+          firmCode: org.firmCode,
+          totalSeats: org.totalSeats,
+          usedSeats: org.usedSeats
+        }
+      }
     }
 
     res.status(200).json({
@@ -408,7 +420,8 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
         cases,
         payments,
         auditLogs,
-        orgMembers
+        orgMembers,
+        organizationData
       }
     } as IApiResponse)
   } catch (error: unknown) {

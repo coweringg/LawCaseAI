@@ -82,6 +82,12 @@ interface UserHistory {
   payments: any[]
   auditLogs: AuditLogEntry[]
   orgMembers?: any[]
+  organizationData?: {
+    id: string
+    firmCode: string
+    totalSeats: number
+    usedSeats: number
+  }
 }
 
 interface SupportRequest {
@@ -1268,6 +1274,19 @@ export default function AdminDashboard() {
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Member Since</p>
                         <p className="text-white font-bold">{formatDate(selectedUser?.createdAt || '')}</p>
                       </div>
+                      {userHistory.organizationData && (
+                        <>
+                          <div className="col-span-1 md:col-span-2 border-t border-white/5 pt-4 mt-2"></div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Firm Code</p>
+                            <p className="text-primary font-mono font-bold tracking-widest">{userHistory.organizationData.firmCode}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Firm Capacity</p>
+                            <p className="text-white font-bold text-sm tracking-tight">Using {userHistory.organizationData.usedSeats} of {userHistory.organizationData.totalSeats} seats</p>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -1428,8 +1447,14 @@ export default function AdminDashboard() {
                       <Table 
                         data={userHistory.orgMembers}
                         columns={[
-                          { key: 'name', title: 'Member Name', render: (v) => <span className="font-bold text-white">{v}</span> },
+                          { key: 'name', title: 'Member Name', render: (v, item: any) => (
+                            <div className="flex flex-col">
+                              <span className="font-bold text-white">{v}</span>
+                              {item.isOrgAdmin && <span className="text-[8px] text-primary uppercase font-black tracking-tighter mt-0.5">System Admin Key</span>}
+                            </div>
+                          )},
                           { key: 'email', title: 'Email Address', render: (v) => <span className="text-slate-400 font-medium">{v}</span> },
+                          { key: 'currentCases', title: 'Active Cases', render: (v) => <span className="font-bold text-slate-300">{v || 0} Cases</span> },
                           { key: 'plan', title: 'Current Plan', render: (v) => (
                             <span className={cn(
                               "px-2 py-0.5 rounded text-[10px] font-black uppercase",
@@ -1446,7 +1471,21 @@ export default function AdminDashboard() {
                               {v}
                             </span>
                           )},
-                          { key: 'createdAt', title: 'Registered On', render: (v) => <span className="text-slate-500 text-[11px]">{formatDate(v)}</span> }
+                          { key: 'actions', title: '', render: (_, item: any) => (
+                            <Button 
+                              variant="none" 
+                              size="sm"
+                              className="text-secondary bg-secondary/10 hover:bg-secondary/30 transition-all text-[10px] font-black uppercase tracking-widest h-8 px-4 w-full"
+                              onClick={() => {
+                                // Close modal momentarily to update selection, or explicitly update it
+                                setSelectedUser({ ...item, id: item._id } as AdminUser)
+                                setActiveDetailTab('overview')
+                                fetchUserHistory(item._id)
+                              }}
+                            >
+                              View Intel
+                            </Button>
+                          )}
                         ]}
                       />
                     ) : (

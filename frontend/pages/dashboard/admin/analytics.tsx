@@ -12,19 +12,24 @@ import {
   LineChart,
   Line,
   AreaChart,
-  Area
+  Area,
+  Cell
 } from 'recharts'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Brain,
   Zap,
   DollarSign,
   Clock,
   User,
+  Users,
+  Shield,
   TrendingUp,
   Activity,
   Calendar,
   Filter
 } from 'lucide-react'
+import { format } from 'date-fns'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -83,172 +88,195 @@ export default function AnalyticsDashboard() {
         <title>AI Analytics | LawCaseAI Admin</title>
       </Head>
 
-      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+      <div className="p-8 md:p-12 max-w-7xl mx-auto space-y-12 relative z-10">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-              <Brain className="w-8 h-8 text-primary" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></div>
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">System Node: Intelligence</span>
+            </div>
+            <h1 className="text-5xl font-black text-white tracking-tightest font-display italic uppercase">
               Neural Analytics
             </h1>
-            <p className="text-slate-400 mt-1">Deep insight into AI model performance and consumption</p>
+            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
+              Deep-Space Signal Processing &bull; Model Performance Metrics Active
+            </p>
           </div>
 
-          <div className="flex bg-white/5 p-1 rounded-xl">
+          <div className="premium-glass p-1.5 rounded-2xl border border-white/10 shadow-2xl flex gap-1.5">
             {(['7d', '30d', '90d'] as const).map((r) => (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 key={r}
                 onClick={() => setRange(r)}
                 className={cn(
-                  "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all",
-                  range === r ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white"
+                  "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                  range === r 
+                  ? "bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20" 
+                  : "text-slate-500 hover:text-white hover:bg-white/5"
                 )}
               >
                 {r}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card variant="glass" className="border-primary/20 bg-primary/5">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { label: 'Total Tokens', value: data.totals.tokens.toLocaleString(), icon: Zap, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' },
+            { label: 'Est. Cost', value: `$${data.totals.cost.toFixed(2)}`, icon: DollarSign, color: 'secondary', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5' },
+            { label: 'Avg Latency', value: `${data.totals.avgResponseTime}ms`, icon: Clock, color: 'warning', border: 'border-amber-500/20', bg: 'bg-amber-500/5' },
+            { label: 'Interactions', value: data.totals.messages.toLocaleString(), icon: Activity, color: 'success', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5' }
+          ].map((kpi, i) => (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              key={kpi.label}
+              className={`premium-glass border ${kpi.border} ${kpi.bg} p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <div>
-                  <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Total Tokens</p>
-                  <h3 className="text-3xl font-black text-white">{data.totals.tokens.toLocaleString()}</h3>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3">{kpi.label}</p>
+                  <h3 className="text-4xl font-black text-white tracking-tightest leading-none">{kpi.value}</h3>
                 </div>
-                <Zap className="w-5 h-5 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="glass" className="border-secondary/20 bg-secondary/5">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Est. Cost</p>
-                  <h3 className="text-3xl font-black text-white">${data.totals.cost.toFixed(2)}</h3>
+                <div className={`p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform duration-500`}>
+                  <kpi.icon size={20} className={`text-${kpi.color}`} />
                 </div>
-                <DollarSign className="w-5 h-5 text-secondary" />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="glass" className="border-warning/20 bg-warning/5">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-[10px] font-black text-warning uppercase tracking-widest mb-1">Avg Latency</p>
-                  <h3 className="text-3xl font-black text-white">{data.totals.avgResponseTime}ms</h3>
-                </div>
-                <Clock className="w-5 h-5 text-warning" />
+              <div className="mt-6 flex items-center gap-2">
+                <TrendingUp size={12} className="text-emerald-500" />
+                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">+12.4% from average</span>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="glass" className="border-success/20 bg-success/5">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-[10px] font-black text-success-500 uppercase tracking-widest mb-1">Interactions</p>
-                  <h3 className="text-3xl font-black text-white">{data.totals.messages.toLocaleString()}</h3>
-                </div>
-                <Activity className="w-5 h-5 text-success-500" />
-              </div>
-            </CardContent>
-          </Card>
+            </motion.div>
+          ))}
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Main Trend Chart */}
-          <div className="lg:col-span-2">
-            <Card variant="glass" className="h-[400px] flex flex-col">
-               <div className="p-6 border-b border-white/5">
-                 <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                   <TrendingUp className="w-4 h-4 text-primary" />
-                   Token Consumption Trend
-                 </h3>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-2 premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+          >
+               <div className="p-8 border-b border-white/5 flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
+                        <TrendingUp size={18} className="text-primary" />
+                    </div>
+                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Consumption Trend</h3>
+                 </div>
+                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">Signal Status: Synchronized</div>
                </div>
-               <div className="flex-1 p-4 min-h-0">
+               <div className="flex-1 p-8 min-h-[350px]">
                  <ResponsiveContainer width="100%" height="100%">
                    <AreaChart data={data.dailyTrend}>
                      <defs>
                        <linearGradient id="colorTokens" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                         <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                         <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                         <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                        </linearGradient>
                      </defs>
-                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                      <XAxis 
                         dataKey="_id" 
-                        stroke="#94a3b8" 
+                        stroke="#475569" 
                         fontSize={10} 
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(val) => formatDate(val).split(',')[0]} // Short date
+                        tickFormatter={(val) => format(new Date(val), 'MMM d')}
+                        tick={{ fontWeight: 900, letterSpacing: '0.1em' }}
                      />
                      <YAxis 
-                        stroke="#94a3b8" 
+                        stroke="#475569" 
                         fontSize={10} 
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
+                        tick={{ fontWeight: 900, letterSpacing: '0.1em' }}
                      />
                      <RechartsTooltip 
-                        contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                        itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                        labelStyle={{ color: '#94a3b8', fontSize: '10px', marginBottom: '8px' }}
+                        contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', padding: '16px' }}
+                        itemStyle={{ color: '#fff', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                        labelStyle={{ color: '#64748b', fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}
+                        cursor={{ stroke: 'rgba(37, 99, 235, 0.2)', strokeWidth: 2 }}
                      />
                      <Area 
                         type="monotone" 
                         dataKey="tokens" 
-                        stroke="#6366f1" 
-                        strokeWidth={2}
+                        stroke="#2563eb" 
+                        strokeWidth={4}
                         fillOpacity={1} 
                         fill="url(#colorTokens)" 
+                        animationDuration={2000}
                      />
                    </AreaChart>
                  </ResponsiveContainer>
                </div>
-            </Card>
-          </div>
+          </motion.div>
 
           {/* Power Users List */}
-          <div className="lg:col-span-1">
-             <Card variant="glass" className="h-[400px] flex flex-col">
-                <div className="p-6 border-b border-white/5">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <User className="w-4 h-4 text-warning" />
-                    Top Power Users
-                  </h3>
-                </div>
-                <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                  {data.powerUsers.map((user: any, index: number) => (
-                    <div key={user._id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-black text-white">
-                          {index + 1}
-                        </div>
-                        <div>
-                           <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">{user.name}</p>
-                           <p className="text-[10px] text-slate-500">{user.email}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                         <p className="text-xs font-black text-white">{user.messageCount}</p>
-                         <p className="text-[9px] text-slate-500 uppercase">Requests</p>
-                      </div>
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-1 premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+          >
+                <div className="p-8 border-b border-white/5 flex items-center gap-4">
+                    <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                        <Users size={18} className="text-amber-500" />
                     </div>
-                  ))}
+                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Power Node Holders</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+                  <AnimatePresence>
+                    {data.powerUsers.map((user: any, index: number) => (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        key={user._id} 
+                        className="flex items-center justify-between p-5 rounded-[1.5rem] hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all group relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="flex items-center gap-5 relative z-10">
+                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white group-hover:bg-primary/20 group-hover:border-primary/40 transition-all duration-500">
+                            {index + 1}
+                          </div>
+                          <div className="min-w-0">
+                             <p className="text-[12px] font-black text-white group-hover:text-primary transition-colors tracking-tightest truncate max-w-[120px]">{user.name}</p>
+                             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest truncate max-w-[120px]">{user.email}</p>
+                          </div>
+                        </div>
+                        <div className="text-right relative z-10">
+                           <p className="text-[13px] font-black text-white tracking-widest">{user.messageCount}</p>
+                           <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Signals</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                   {data.powerUsers.length === 0 && (
-                     <div className="text-center p-8 text-slate-500 text-xs">No active users found</div>
+                     <div className="flex flex-col items-center justify-center h-full gap-4 opacity-40 py-20">
+                        <Shield size={32} className="text-slate-700" />
+                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] italic">No active power nodes</p>
+                     </div>
                   )}
                 </div>
-             </Card>
-          </div>
+                <div className="p-6 border-t border-white/5 bg-white/[0.01]">
+                    <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-white hover:border-primary/40 transition-all"
+                    >
+                        Deep System Audit
+                    </motion.button>
+                </div>
+          </motion.div>
         </div>
       </div>
     </DashboardLayout>

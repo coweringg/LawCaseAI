@@ -39,28 +39,28 @@ export default function Home() {
       </Head>
 
       {/* Premium Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-background-dark py-20">
-        {/* Crystallography Animated Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 rotate-12"></div>
+      <section className="relative min-h-[95vh] flex items-center overflow-hidden py-20">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12"></div>
           <motion.div
             animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 5, 0],
-              opacity: [0.3, 0.5, 0.3]
+              scale: [1, 1.25, 1],
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-[10%] -right-[5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]"
+          />
+          <motion.div
+            animate={{
+              scale: [1.3, 1, 1.3],
+              x: [0, -40, 0],
+              y: [0, -20, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px]"
-          ></motion.div>
-          <motion.div
-            animate={{
-              scale: [1.2, 1, 1.2],
-              rotate: [0, -5, 0],
-              opacity: [0.2, 0.4, 0.2]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[100px]"
-          ></motion.div>
+            className="absolute -bottom-[5%] -left-[10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px]"
+          />
         </div>
 
         <div className="relative z-10 container-stitch">
@@ -126,28 +126,28 @@ export default function Home() {
               {/* Trust badges */}
               <motion.div
                 variants={fadeInUp}
-                className="mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-8 items-center"
+                className="mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-10 items-center"
               >
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500 w-full mb-2">Compliance & Security</p>
-                <div className="flex items-center gap-2 text-slate-400 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all font-display font-medium text-sm">
-                  <Shield size={16} className="text-primary" /> SOC2 TYPE II
+                <div className="flex flex-col gap-1 w-full mb-2">
+                    <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary/60">Compliance & Trust</p>
+                    <div className="h-0.5 w-12 bg-primary/30 rounded-full"></div>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all font-display font-medium text-sm">
-                  <Shield size={16} className="text-primary" /> HIPAA
-                </div>
-                <div className="flex items-center gap-2 text-slate-400 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all font-display font-medium text-sm">
-                  <Shield size={16} className="text-primary" /> GDPR
-                </div>
+                {['SOC2 TYPE II', 'HIPAA', 'GDPR'].map((badge) => (
+                  <div key={badge} className="flex items-center gap-2 text-slate-500 hover:text-white transition-all duration-500 cursor-default group/badge">
+                    <Shield size={16} className="text-primary group-hover/badge:scale-125 transition-transform" />
+                    <span className="font-display font-black text-[13px] tracking-widest">{badge}</span>
+                  </div>
+                ))}
               </motion.div>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="relative hidden lg:block"
+              initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+              className="relative hidden lg:block perspective-1000"
             >
-              <div className="relative z-10 rounded-2xl overflow-hidden glass border-white/10 shadow-[0_0_100px_rgba(10,68,184,0.3)] aspect-[4/3]">
+              <div className="relative z-10 rounded-[2.5rem] overflow-hidden premium-glass border-white/10 shadow-[0_0_80px_-20px_rgba(10,68,184,0.4)] aspect-[4/3] group/card">
                 <div className="h-12 border-b border-white/5 bg-slate-900/50 flex items-center px-6 gap-3">
                   <div className="flex gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-400/20"></div>
@@ -204,48 +204,62 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Preview (Points to the new Features page) */}
-      <section className="py-24 bg-slate-50 dark:bg-[#0d121d] relative">
+      {/* Features Preview */}
+      <section className="py-32 relative overflow-hidden">
         <div className="container-stitch">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 font-display">Professional Infrastructure</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400">Immediate access to powerful AI tools designed for high-stakes litigation and transactional law.</p>
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 font-display tracking-tightest">
+                Professional <span className="text-primary">Infrastructure</span>
+            </h2>
+            <p className="text-lg text-slate-400 leading-relaxed font-medium">
+                Immediate access to powerful AI tools designed for high-stakes litigation and transactional law.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {[
               {
                 title: "AI Document Insights",
                 desc: "Analyze thousands of pages instantly. AI highlights risks and contradictions in contract law.",
                 icon: "psychology",
-                link: "/features#insights"
+                link: "/features#insights",
+                color: "from-blue-500/20 to-transparent"
               },
               {
                 title: "Legal Research Assistant",
                 desc: "Search jurisprudence across millions of records. Find precedents in seconds, not hours.",
                 icon: "gavel",
-                link: "/features#research"
+                link: "/features#research",
+                color: "from-primary/20 to-transparent"
               },
               {
                 title: "Automated Chronology",
                 desc: "Auto-extract dates from scattered documents to build complete case timelines instantly.",
                 icon: "event_repeat",
-                link: "/features#chronology"
+                link: "/features#chronology",
+                color: "from-indigo-500/20 to-transparent"
               }
             ].map((feature, i) => (
               <motion.div
                 key={i}
-                whileHover={{ y: -5 }}
-                className="group p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-all duration-300 shadow-sm hover:shadow-2xl hover:shadow-primary/5"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -10 }}
+                className="group relative p-10 bg-white/[0.02] premium-border rounded-[2.5rem] border border-white/5 transition-all duration-500 backdrop-blur-sm shadow-2xl overflow-hidden"
               >
-                <div className="w-14 h-14 bg-primary/5 rounded-xl flex items-center justify-center text-primary mb-6 transition-colors group-hover:bg-primary group-hover:text-white">
-                  <span className="material-icons-round text-3xl font-bold">{feature.icon}</span>
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className="relative z-10">
+                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 transition-all duration-500 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_30px_rgba(10,68,184,0.5)]">
+                    <span className="material-icons-round text-3xl font-bold">{feature.icon}</span>
+                    </div>
+                    <h3 className="text-2xl font-black text-white mb-4 font-display tracking-tight">{feature.title}</h3>
+                    <p className="text-slate-400 leading-relaxed mb-8 font-medium">{feature.desc}</p>
+                    <Link href={feature.link} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group/link">
+                    Explore Feature <span className="material-icons-round text-sm transition-transform group-hover/link:translate-x-2">arrow_forward</span>
+                    </Link>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 font-display">{feature.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{feature.desc}</p>
-                <Link href={feature.link} className="text-primary font-bold text-sm flex items-center gap-1 group/link">
-                  Learn more <span className="material-icons-round text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span>
-                </Link>
               </motion.div>
             ))}
           </div>
@@ -253,12 +267,12 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 bg-white dark:bg-background-dark border-y border-slate-100 dark:border-white/5">
+      <section className="py-32 bg-background-dark/50 relative border-y border-white/5">
         <div className="container-stitch">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 font-display">Trusted by Elite Partners</h2>
+          <div className="text-center mb-20">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4 font-display tracking-tight">Trusted by <span className="text-primary">Elite</span> Partners</h2>
             <div className="flex justify-center gap-1 text-primary">
-              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={16} fill="currentColor" />)}
+              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={18} fill="currentColor" className="drop-shadow-[0_0_10px_rgba(10,68,184,0.8)]" />)}
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -279,16 +293,22 @@ export default function Home() {
                 firm: "Federal Practice Group"
               }
             ].map((t, i) => (
-              <div key={i} className="p-8 glass rounded-2xl border border-slate-100 dark:border-white/5 italic text-slate-600 dark:text-slate-400 flex flex-col justify-between">
-                <p className="mb-6 relative">
-                  <span className="absolute -top-4 -left-2 text-6xl text-primary/10 not-italic"></span>
-                  {t.text}
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-10 premium-glass rounded-[2rem] border border-white/5 flex flex-col justify-between group cursor-default hover:bg-white/[0.03] transition-colors"
+              >
+                <p className="mb-8 relative text-lg font-medium text-slate-400 leading-relaxed italic">
+                  &ldquo;{t.text}&rdquo;
                 </p>
-                <div>
-                  <p className="text-slate-900 dark:text-white font-bold not-italic text-sm">{t.author}</p>
-                  <p className="text-primary font-medium not-italic text-xs uppercase tracking-wider">{t.firm}</p>
+                <div className="pt-6 border-t border-white/5">
+                  <p className="text-white font-black text-sm mb-1 uppercase tracking-wider">{t.author}</p>
+                  <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{t.firm}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -296,27 +316,44 @@ export default function Home() {
 
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden bg-background-dark">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.05]"></div>
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] pointer-events-none"></div>
+        
         <div className="relative z-10 container-stitch text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
+            className="max-w-4xl mx-auto premium-glass p-16 rounded-[3rem] border border-white/10 shadow-2xl relative"
           >
-            <h2 className="text-4xl h-auto md:text-5xl font-bold text-white mb-8 font-display">Upgrade to Modern Legal Management</h2>
-            <p className="text-xl text-slate-400 mb-12">
-              Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market.
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/50">
+                <Zap size={32} fill="currentColor" />
+            </div>
+            <h2 className="text-4xl h-auto md:text-6xl font-black text-white mb-8 font-display tracking-tightest leading-tight">
+                Ready to Upgrade your <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Legal Intelligence?</span>
+            </h2>
+            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+              Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market. Trusted by industry leaders.
             </p>
             <Link href="/register">
-              <button className="px-12 py-4 bg-primary text-white font-bold rounded-xl shadow-2xl shadow-primary/40 hover:scale-105 transition-all text-lg">
-                Subscribe Now
+              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(10,68,184,0.4)] hover:scale-105 hover:bg-primary-hover transition-all text-xl uppercase tracking-widest">
+                Get Started Now
               </button>
             </Link>
-            <p className="mt-8 text-xs text-slate-500 uppercase tracking-widest font-bold">
-              Trusted by 500+ US Law Firms
-            </p>
+            <div className="mt-12 flex items-center justify-center gap-6">
+                <div className="flex -space-x-3">
+                    {[1,2,3,4].map(i => (
+                        <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center overflow-hidden">
+                            <Users size={18} className="text-slate-500" />
+                        </div>
+                    ))}
+                </div>
+                <p className="text-[11px] text-slate-500 uppercase tracking-[0.2em] font-black">
+                    Join 500+ US Law Firms
+                </p>
+            </div>
           </motion.div>
         </div>
       </section>

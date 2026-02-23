@@ -45,26 +45,27 @@ export default function Features() {
             </Head>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 bg-background-dark overflow-hidden">
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
+            <section className="relative pt-32 pb-20 overflow-hidden">
                 <div className="container-stitch relative z-10 text-center">
-                    <motion.h1
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-5xl md:text-7xl font-bold text-white mb-6 font-display"
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
                     >
-                        The <span className="text-primary italic">Intelligence</span> Edge
-                    </motion.h1>
-                    <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-                        Deep-tier AI infrastructure tailored for high-stakes US legal practice.
-                        Scale your firm with zero-knowledge security and sub-second analysis.
-                    </p>
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 font-display tracking-tightest leading-tight">
+                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Intelligence</span> Edge
+                        </h1>
+                        <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
+                            Premium AI infrastructure tailored for high-stakes US legal practice. 
+                            Scale your firm with zero-knowledge security and sub-second analysis.
+                        </p>
+                    </motion.div>
                 </div>
             </section>
 
             {/* Interactive Navigation */}
-            <section className="sticky top-16 z-40 bg-background-dark/80 backdrop-blur-xl border-b border-white/5 py-4">
-                <div className="container-stitch flex justify-center gap-4 md:gap-8 overflow-x-auto pb-2">
+            <section className="sticky top-16 z-40 bg-background-dark/40 backdrop-blur-2xl border-b border-white/10 py-6">
+                <div className="container-stitch flex justify-center gap-4 md:gap-10 overflow-x-auto pb-2">
                     {[
                         { id: 'insights', label: 'Document Insights', icon: FileText },
                         { id: 'research', label: 'Research Assistant', icon: Search },
@@ -73,9 +74,9 @@ export default function Features() {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap ${activeTab === tab.id
+                                ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.5)] scale-105'
+                                : 'text-slate-500 hover:text-slate-200 bg-white/[0.02] border border-white/5'
                                 }`}
                         >
                             <tab.icon size={16} />
@@ -97,22 +98,25 @@ export default function Features() {
             </section>
 
             {/* Security Section */}
-            <section className="py-24 bg-background-dark relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-                <div className="container-stitch text-center">
-                    <div className="inline-flex p-4 rounded-2xl bg-primary/10 text-primary mb-8">
-                        <Shield size={48} />
-                    </div>
-                    <h2 className="text-4xl font-bold text-white mb-8 font-display">Zero-Knowledge Sovereignty</h2>
-                    <div className="grid md:grid-cols-3 gap-12 text-left">
+            <section className="py-32 relative overflow-hidden border-t border-white/5">
+                <div className="container-stitch text-center relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        className="inline-flex p-6 rounded-3xl bg-primary/10 text-primary mb-10 shadow-[0_0_40px_rgba(10,68,184,0.15)]"
+                    >
+                        <Shield size={64} />
+                    </motion.div>
+                    <h2 className="text-4xl md:text-6xl font-black text-white mb-12 font-display tracking-tight">Zero-Knowledge <span className="text-primary">Sovereignty</span></h2>
+                    <div className="grid md:grid-cols-3 gap-10 text-left">
                         {[
                             { title: "AES-256 Encryption", desc: "Data is encrypted at the source. Not even LawCaseAI developers can read your case files." },
                             { title: "Isolated Compute", desc: "Your firm's analysis runs in isolated virtual environments, ensuring no data leakage between accounts." },
                             { title: "Sovereign Control", desc: "Download and wipe all data at any time with a single command. Complete ownership of your digital twin." }
                         ].map((s, i) => (
-                            <div key={i} className="space-y-4">
-                                <h3 className="text-primary font-bold uppercase tracking-widest text-sm">{s.title}</h3>
-                                <p className="text-slate-400 leading-relaxed text-sm">{s.desc}</p>
+                            <div key={i} className="p-10 premium-glass rounded-[2rem] border border-white/5 space-y-5 hover:bg-white/[0.04] transition-colors group">
+                                <h3 className="text-primary font-black uppercase tracking-[0.2em] text-[11px] group-hover:scale-105 transition-transform origin-left">{s.title}</h3>
+                                <p className="text-slate-400 leading-relaxed font-medium">{s.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -130,9 +134,12 @@ function InsightsDemo() {
             exit={{ opacity: 0, x: -20 }}
             className="grid lg:grid-cols-2 gap-16 items-center"
         >
-            <div className="space-y-8">
-                <h2 className="text-4xl font-bold text-white font-display">AI Document Insights</h2>
-                <p className="text-lg text-slate-400">
+            <div className="space-y-10">
+                <div className="space-y-4">
+                    <div className="h-0.5 w-16 bg-primary rounded-full"></div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white font-display tracking-tight leading-tight">AI Document <br />Insights</h2>
+                </div>
+                <p className="text-xl text-slate-400 leading-relaxed font-medium">
                     Traditional OCR isn&apos;t enough. Our AI performs <span className="text-primary font-bold">Deep Contextual Scanning</span> to identify risk points, missing clauses, and conflicting testimonies.
                 </p>
                 <ul className="space-y-4">

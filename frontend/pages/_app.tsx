@@ -1,3 +1,4 @@
+import "@/styles/globals.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
@@ -6,9 +7,12 @@ import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import "@/styles/globals.css";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
@@ -16,7 +20,17 @@ export default function App({ Component, pageProps }: AppProps) {
           <Head>
             <title>LawCaseAI - Legal Intelligence</title>
           </Head>
-          <Component {...pageProps} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={router.route}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <Component {...pageProps} />
+            </motion.div>
+          </AnimatePresence>
           <Toaster
             position="top-center"
             toastOptions={{

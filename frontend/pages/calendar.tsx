@@ -205,7 +205,7 @@ export default function Calendar() {
             <DashboardLayout>
                 <div className="flex bg-transparent h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative z-10">
                     {/* Sidebar */}
-                    <aside className="w-80 glass-dark border-r border-white/5 flex flex-col overflow-y-auto hidden md:flex relative">
+                    <aside className="w-80 premium-glass border-r border-white/10 hidden md:flex flex-col overflow-y-auto relative">
                         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                         <div className="relative z-10 p-6">
                             <motion.button
@@ -220,33 +220,38 @@ export default function Calendar() {
                         </div>
 
                         {/* Mini Calendar */}
-                        <div className="p-6 border-b border-white/5 relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <span className="font-black text-xs uppercase tracking-widest text-white">{format(currentDate, 'MMMM yyyy')}</span>
-                                <div className="flex gap-2">
-                                    <button onClick={prevDate} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"><ChevronLeft size={16} /></button>
-                                    <button onClick={nextDate} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white"><ChevronRight size={16} /></button>
+                        <div className="p-8 border-b border-white/10 relative z-10 bg-white/[0.01]">
+                            <div className="flex items-center justify-between mb-8">
+                                <span className="font-black text-[11px] uppercase tracking-[0.3em] text-white font-display">{format(currentDate, 'MMMM yyyy')}</span>
+                                <div className="flex gap-1">
+                                    <button onClick={prevDate} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-500 hover:text-white hover:scale-110 active:scale-90"><ChevronLeft size={16} /></button>
+                                    <button onClick={nextDate} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-500 hover:text-white hover:scale-110 active:scale-90"><ChevronRight size={16} /></button>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-7 gap-1 text-[9px] text-center font-black text-slate-500 mb-4 tracking-tighter">
+                            <div className="grid grid-cols-7 gap-1 text-[8px] text-center font-black text-slate-600 mb-6 tracking-[0.2em]">
                                 {days.map(d => <div key={d}>{d}</div>)}
                             </div>
-                            <div className="grid grid-cols-7 gap-1 text-[11px] text-center">
+                            <div className="grid grid-cols-7 gap-1.5 text-[10px] text-center">
                                 {calendarDays.slice(0, 35).map((date, idx) => {
                                     const isPastMini = isBefore(date, startOfDay(new Date()));
+                                    const isTodayMini = isSameDay(date, new Date());
+                                    const isCurrentDay = isSameDay(date, currentDate);
+                                    
                                     return (
                                         <div
                                             key={idx}
                                             onClick={() => setCurrentDate(date)}
-                                            className={`p-1.5 font-bold rounded-lg cursor-pointer transition-all ${isSameDay(date, new Date())
-                                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                            className={`p-1.5 font-black rounded-lg cursor-pointer transition-all duration-300 relative group/day ${isTodayMini
+                                                ? 'text-primary'
                                                 : isPastMini
-                                                    ? 'text-slate-600/50 hover:bg-white/5 hover:text-white'
+                                                    ? 'text-slate-700 opacity-40 hover:opacity-100 hover:bg-white/5'
                                                     : !isSameMonth(date, monthStart)
-                                                        ? 'text-slate-700'
-                                                        : 'hover:bg-white/5 text-slate-400 hover:text-white'
-                                                } ${isSameDay(date, currentDate) && !isSameDay(date, new Date()) ? 'ring-1 ring-primary/50 bg-primary/10 text-white' : ''}`}
+                                                        ? 'text-slate-800'
+                                                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                                                }`}
                                         >
+                                            {isCurrentDay && !isTodayMini && <div className="absolute inset-0 border border-primary/40 rounded-lg animate-pulse"></div>}
+                                            {isTodayMini && <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_rgba(37,99,235,1)]"></div>}
                                             {format(date, 'd')}
                                         </div>
                                     );
@@ -268,22 +273,35 @@ export default function Calendar() {
                                         transition={{ delay: idx * 0.1 }}
                                         key={idx}
                                         onClick={() => handleOpenModal(undefined, event)}
-                                        className="flex gap-4 items-start p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-primary/30 transition-all cursor-pointer group shadow-xl"
+                                        className="flex gap-4 items-start p-4 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:border-primary/40 hover:scale-[1.02] transition-all cursor-pointer group shadow-2xl relative overflow-hidden active:scale-[0.98]"
                                     >
-                                        <div className={`w-1 h-8 rounded-full ${event.priority === 'critical' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'}`}></div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[11px] font-black text-white group-hover:text-primary transition-colors line-clamp-1 truncate">{event.title}</p>
-                                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-1.5">
-                                                <Clock size={10} />
-                                                {(() => {
-                                                    try {
-                                                        const d = new Date(event.start);
-                                                        return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM d, h:mm a');
-                                                    } catch {
-                                                        return 'Invalid Date';
-                                                    }
-                                                })()}
-                                            </p>
+                                        <div className={`w-1.5 h-10 rounded-full shrink-0 ${event.priority === 'critical' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]'}`}></div>
+                                        <div className="flex-1 min-w-0 py-0.5">
+                                            <p className="text-[11px] font-black text-white group-hover:text-primary transition-colors line-clamp-1 truncate font-display tracking-tightest leading-tight mb-1.5">{event.title}</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-bold uppercase tracking-widest">
+                                                    <Clock size={10} className="text-primary" />
+                                                    {(() => {
+                                                        try {
+                                                            const d = new Date(event.start);
+                                                            return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'h:mm a');
+                                                        } catch {
+                                                            return 'Invalid Date';
+                                                        }
+                                                    })()}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                                                    <CalendarIcon size={10} />
+                                                    {(() => {
+                                                        try {
+                                                            const d = new Date(event.start);
+                                                            return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM d');
+                                                        } catch {
+                                                            return 'Invalid Date';
+                                                        }
+                                                    })()}
+                                                </div>
+                                            </div>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -300,41 +318,45 @@ export default function Calendar() {
                     {/* Main Calendar Area */}
                     <main className="flex-1 overflow-hidden flex flex-col bg-transparent backdrop-blur-3xl">
                         {/* Calendar Header */}
-                        <div className="p-6 flex flex-wrap items-center justify-between border-b border-white/5 bg-white/5 backdrop-blur-xl">
-                            <div className="flex items-center gap-8">
+                        <div className="p-8 flex flex-wrap items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
+                            <div className="flex items-center gap-10 relative z-10">
                                 <div className="flex flex-col">
-                                    <h2 className="text-3xl font-black text-white tracking-tight font-display">{format(currentDate, 'MMMM yyyy')}</h2>
-                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1">Selective Repository Insight</p>
+                                    <h2 className="text-4xl font-black text-white tracking-tightest font-display leading-tight">{format(currentDate, 'MMMM yyyy')}</h2>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Master Timeline &bull; Neural Indexing Active</p>
+                                    </div>
                                 </div>
-                                <div className="flex items-center glass p-1 rounded-2xl border border-white/10 shadow-2xl">
+                                <div className="flex items-center premium-glass p-1.5 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-2xl">
                                     {(['Day', 'Week', 'Month', 'List'] as const).map(v => (
                                         <button
                                             key={v}
                                             onClick={() => setView(v)}
-                                            className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${view === v ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                                            className={`px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 ${view === v ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                         >
                                             {v}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 mt-2 sm:mt-0">
-                                <div className="flex items-center glass p-1 rounded-2xl border border-white/10">
-                                    <button onClick={prevDate} className="p-2.5 text-slate-500 hover:text-white transition-colors"><ChevronLeft size={18} /></button>
-                                    <button onClick={goToToday} className="px-6 py-2 text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors text-slate-400 border-x border-white/5">TODAY</button>
-                                    <button onClick={nextDate} className="p-2.5 text-slate-500 hover:text-white transition-colors"><ChevronRight size={18} /></button>
+                            <div className="flex items-center gap-5 mt-2 sm:mt-0 relative z-10">
+                                <div className="flex items-center premium-glass p-1.5 rounded-2xl border border-white/10 shadow-2xl">
+                                    <button onClick={prevDate} className="p-3 text-slate-500 hover:text-white transition-all hover:scale-110"><ChevronLeft size={20} /></button>
+                                    <button onClick={goToToday} className="px-8 py-2.5 text-[9px] font-black uppercase tracking-[0.3em] hover:text-primary transition-all text-slate-400 border-x border-white/10">TODAY</button>
+                                    <button onClick={nextDate} className="p-3 text-slate-500 hover:text-white transition-all hover:scale-110"><ChevronRight size={20} /></button>
                                 </div>
                                 <motion.button
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(37,99,235,0.3)" }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => {
                                         setIsSearchModalOpen(true);
                                         setSearchQuery('');
                                     }}
-                                    className="flex items-center gap-3 px-5 py-3 glass border border-white/10 rounded-2xl text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-2xl group"
+                                    className="flex items-center gap-3 px-6 py-3.5 premium-glass border border-white/10 rounded-2xl text-slate-400 hover:text-primary hover:border-primary/40 transition-all shadow-2xl group"
                                 >
-                                    <Search size={16} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Discovery</span>
+                                    <Search size={18} className="group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden sm:inline">Discovery Core</span>
                                 </motion.button>
                             </div>
                         </div>
@@ -681,13 +703,13 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor 
     const isPast = isBefore(date, startOfDay(new Date()));
 
     return (
-        <div className={`min-h-[140px] p-4 relative group transition-all hover:z-20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-r border-b border-white/5 
-            ${!isCurrentMonth ? 'bg-black/40 opacity-20' :
-                isPast ? 'bg-black/20 grayscale-[0.5] opacity-60' : 'bg-white/5 hover:bg-white/10'}`}>
-            <div className="flex justify-between items-start">
-                <span className={`text-sm font-black transition-all ${isToday
-                    ? 'bg-primary text-white w-8 h-8 flex items-center justify-center rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.4)] ring-2 ring-primary/20'
-                    : isPast ? 'text-slate-600' : isCurrentMonth ? 'text-slate-400 group-hover:text-white' : 'text-slate-700'
+        <div className={`min-h-[150px] p-5 relative group transition-all duration-500 hover:z-20 hover:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border-r border-b border-white/10 overflow-hidden
+            ${!isCurrentMonth ? 'bg-black/60 opacity-10' :
+                isPast ? 'bg-black/30 grayscale-[0.8] opacity-50' : 'bg-white/[0.02] hover:bg-white/[0.05]'}`}>
+            <div className="flex justify-between items-start relative z-10">
+                <span className={`text-[12px] font-black transition-all duration-500 font-display ${isToday
+                    ? 'bg-primary text-white w-10 h-10 flex items-center justify-center rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.5)] ring-2 ring-white/20'
+                    : isPast ? 'text-slate-600' : isCurrentMonth ? 'text-slate-400 group-hover:text-white group-hover:scale-110' : 'text-slate-700'
                     }`}>
                     {format(date, 'd')}
                 </span>

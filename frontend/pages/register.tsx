@@ -228,31 +228,31 @@ export default function Register() {
       </Head>
 
       {/* Tab Switcher */}
-      <div className="bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl flex mb-8 border border-slate-200 dark:border-white/5">
+      <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <Link href="/login" className="flex-1">
-          <button className="w-full py-2.5 text-xs font-bold uppercase tracking-widest rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+          <button className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-slate-500 hover:text-slate-200 transition-all duration-500">
             Sign In
           </button>
         </Link>
-        <button className="flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-lg text-white bg-primary shadow-lg shadow-primary/20 transition-all">
+        <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-white bg-primary shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">
           Join Now
         </button>
       </div>
 
       {/* Dual Registration Mode Selector */}
-      <div className="flex justify-center mb-10">
-        <div className="bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl border border-slate-200 dark:border-white/5 flex gap-1 w-full">
+      <div className="flex justify-center mb-8">
+        <div className="premium-glass p-1 rounded-2xl border border-white/10 flex gap-1 w-full">
           <button
             type="button"
             onClick={() => setRegistrationMode('individual')}
-            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationMode === 'individual' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-700 dark:hover:text-white'}`}
+            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'individual' ? 'bg-white/10 text-white shadow-xl' : 'text-slate-500 hover:text-slate-300'}`}
           >
             Individual Registration
           </button>
           <button
             type="button"
             onClick={() => setRegistrationMode('empresa')}
-            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationMode === 'empresa' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-700 dark:hover:text-white'}`}
+            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'empresa' ? 'bg-white/10 text-white shadow-xl' : 'text-slate-500 hover:text-slate-300'}`}
           >
             Join a Firm
           </button>
@@ -260,14 +260,14 @@ export default function Register() {
       </div>
 
       {/* Heading */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 font-display">
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-black text-white mb-2 font-display tracking-tightest">
           {registrationMode === 'individual' ? 'Setup Your Firm' : 'Link Your Account'}
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-slate-400 text-xs font-medium">
           {registrationMode === 'individual' 
             ? 'Deploy your professional AI infrastructure today.' 
-            : 'Join your firm\'s Elite workspace using your unique access code.'}
+            : 'Join your firm\'s Elite workspace with an access code.'}
         </p>
       </div>
 
@@ -417,7 +417,7 @@ export default function Register() {
 
         {/* Submit Button */}
         <button
-          className="w-full h-14 flex items-center justify-center gap-2 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-hover shadow-xl shadow-primary/25 transition-all group disabled:opacity-70 mt-4"
+          className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all group disabled:opacity-70 mt-6"
           type="submit"
           disabled={isLoading}
         >

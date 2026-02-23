@@ -9,12 +9,13 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased h-screen w-full flex overflow-hidden font-display transition-colors duration-200">
+        <div className="bg-[#060910] text-slate-100 antialiased h-screen w-full flex overflow-hidden font-display transition-colors duration-200">
             {/* Left Side: Branding & Visuals (45% width on large screens) */}
-            <div className="hidden lg:flex w-[45%] bg-background-dark relative flex-col justify-between overflow-hidden border-r border-white/5">
+            <div className="hidden lg:flex w-[45%] bg-[#060910] relative flex-col justify-between overflow-hidden border-r border-white/5 shadow-2xl">
                 {/* Premium Background Layer */}
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.05] scale-150 rotate-12"></div>
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <div className="absolute inset-0 mesh-gradient opacity-60"></div>
+                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 rotate-12"></div>
 
                     {/* Animated Depth Blobs */}
                     <motion.div
@@ -49,17 +50,17 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
 
                     {/* Main Branding Text */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                         className="mb-12"
                     >
-                        <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.1] mb-6 font-display">
+                        <h1 className="text-4xl xl:text-6xl font-black text-white leading-tight mb-8 font-display tracking-tightest">
                             Command the <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 italic">Digital Twin</span> <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Digital Twin</span> <br />
                             of Your Firm.
                         </h1>
-                        <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+                        <p className="text-slate-400 text-lg leading-relaxed max-w-md font-medium">
                             Standardizing professional AI infrastructure for high-stakes US legal teams.
                         </p>
                     </motion.div>
@@ -69,23 +70,26 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
-                        className="glass border-white/10 rounded-2xl p-6 shadow-2xl"
+                        className="premium-glass border-white/10 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden"
                     >
-                        <div className="flex items-center gap-1 mb-4 text-primary">
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <span key={i} className="material-icons-round text-xs">star</span>
-                            ))}
-                        </div>
-                        <p className="text-slate-300 text-sm mb-6 italic leading-relaxed">
-                            "The crystallography pattern analysis combined with LawCaseAI's semantic layer has saved our discovery team hundreds of hours."
-                        </p>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-xs font-bold text-white">
-                                JD
+                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] rotate-45 scale-150"></div>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-1 mb-6 text-primary drop-shadow-[0_0_10px_rgba(10,68,184,0.4)]">
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <span key={i} className="material-icons-round text-sm">star</span>
+                                ))}
                             </div>
-                            <div>
-                                <p className="text-white font-bold text-sm">James Dale</p>
-                                <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Partner, Dale & Associates</p>
+                            <p className="text-slate-300 text-lg mb-8 italic leading-relaxed font-medium">
+                                &ldquo;The crystallography pattern analysis combined with LawCaseAI&apos;s semantic layer has saved our discovery team hundreds of hours.&rdquo;
+                            </p>
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-xs font-black text-white shadow-lg">
+                                    JD
+                                </div>
+                                <div>
+                                    <p className="text-white font-black text-sm">James Dale</p>
+                                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black">Partner, Dale & Associates</p>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -98,7 +102,7 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
             </div>
 
             {/* Right Side: Secure Form (Full width mobile, 55% desktop) */}
-            <div className="w-full lg:w-[55%] h-full bg-background-light dark:bg-background-dark flex flex-col items-center justify-center relative overflow-y-auto">
+            <div className="w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center lg:justify-start lg:pt-12 xl:justify-center xl:pt-0 relative overflow-y-auto">
                 {/* Mobile Logo (Visible only on small screens) */}
                 <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">

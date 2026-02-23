@@ -21,8 +21,20 @@ import {
   Trash2,
   Filter,
   X,
-  Bell
+  Bell,
+  Cpu,
+  Database,
+  Globe,
+  Lock,
+  Zap,
+  Command,
+  Monitor,
+  Terminal,
+  ShieldCheck,
+  LayoutDashboard,
+  Calendar
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -878,330 +890,332 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <div className="mb-8 text-center sm:text-left transition-all">
-          <h1 className="text-3xl font-extrabold text-white mb-2 flex items-center justify-center sm:justify-start gap-3">
-             <span className="material-icons-round text-primary text-4xl">admin_panel_settings</span>
-             User Management
-          </h1>
-          <p className="text-slate-400">Search, edit, and manage all platform users</p>
+      <Head>
+        <title>Elite Command Center | LawCaseAI</title>
+      </Head>
+
+      <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
+        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+        
+        {/* Header Area */}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Administrative Nexus</span>
+            </div>
+            <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic bg-gradient-to-r from-white via-white to-white/20 bg-clip-text text-transparent">
+              Command Suite
+            </h1>
+            <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
+              <ShieldCheck size={14} className="text-primary" /> System Authorization Level: Alpha-One
+            </p>
+          </div>
+
+          <div className="flex gap-4">
+             <Button 
+                variant="none" 
+                className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/5 transition-all flex items-center gap-3"
+             >
+                <Monitor size={18} className="text-primary" />
+                Network Status: Active
+             </Button>
+          </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card variant="glass" className="border-white/10 hover:border-primary/50 transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="p-3 bg-primary/20 rounded-2xl">
-                    <Users className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Users</p>
-                    <p className="text-3xl font-black text-white">{stats.totalUsers}</p>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+            {[
+              { label: 'Total Network Users', value: stats.totalUsers, icon: Users, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' },
+              { label: 'Active Logic Streams', value: stats.activeUsers, icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-500/5', border: 'border-emerald-500/20' },
+              { label: 'Repository Entities', value: stats.totalCases, icon: Database, color: 'text-secondary', bg: 'bg-secondary/5', border: 'border-secondary/20' }
+            ].map((stat, i) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                key={stat.label}
+                className={`premium-glass p-8 rounded-[2.5rem] border ${stat.border} ${stat.bg} shadow-2xl group flex justify-between items-center`}
+              >
+                <div>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3">{stat.label}</p>
+                  <p className="text-5xl font-black text-white tracking-tighter">{stat.value}</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card variant="glass" className="border-white/10 hover:border-success/50 transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="p-3 bg-success-500/20 rounded-2xl">
-                    <Activity className="w-8 h-8 text-success-500" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Active Users</p>
-                    <p className="text-3xl font-black text-white">{stats.activeUsers}</p>
-                  </div>
+                <div className={`w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-white/10`}>
+                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card variant="glass" className="border-white/10 hover:border-secondary/50 transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="p-3 bg-secondary/20 rounded-2xl">
-                    <FileText className="w-8 h-8 text-secondary" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Cases</p>
-                    <p className="text-3xl font-black text-white">{stats.totalCases}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </motion.div>
+            ))}
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex space-x-1 mb-8 bg-white/5 p-1 rounded-2xl w-fit">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={cn(
-              "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-              activeTab === 'users' ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
-            )}
-          >
-            User Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={cn(
-              "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-              activeTab === 'history' ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
-            )}
-          >
-            Platform History
-          </button>
-          <button
-            onClick={() => setActiveTab('support')}
-            className={cn(
-              "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-              activeTab === 'support' ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
-            )}
-          >
-            Support Notifications
-          </button>
+        {/* Navigation Tabs */}
+        <div className="relative z-10 flex flex-wrap gap-4 premium-glass p-2 rounded-3xl border border-white/10 shadow-2xl w-fit">
+          {[
+            { id: 'users', label: 'User Identity Nexus', icon: Users },
+            { id: 'history', label: 'Protocol Archives', icon: Terminal },
+            { id: 'support', label: 'Logic Signal Feed', icon: Bell }
+          ].map((tab) => (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
+                activeTab === tab.id 
+                ? "bg-primary text-white shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-white/20" 
+                : "text-slate-500 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </motion.button>
+          ))}
         </div>
 
-        {activeTab === 'users' ? (
-          <>
-            {/* Search */}
-            <Card variant="glass" className="mb-6 border-white/10">
-              <CardContent className="p-4">
+        <AnimatePresence mode="wait">
+          {activeTab === 'users' ? (
+            <motion.div 
+              key="users"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="space-y-8 relative z-10"
+            >
+              {/* Search Control */}
+              <div className="premium-glass p-4 rounded-3xl border border-white/10 shadow-2xl">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500 w-5 h-5" />
+                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-500 w-6 h-6" />
                   <input
                     type="text"
-                    placeholder="Search by name, email, or law firm..."
+                    placeholder="Identify network entity by name, stream, or law firm..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-white placeholder-slate-500"
+                    className="w-full pl-16 pr-8 py-5 bg-white/[0.02] border border-white/5 rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] text-[15px] font-bold text-white placeholder-slate-600 transition-all uppercase tracking-widest"
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Users Table */}
-            <Card variant="glass" className="border-white/10 overflow-hidden">
-              <CardContent className="p-0">
+              {/* Data Table */}
+              <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[600px]">
                 <Table
                   data={filteredUsers}
                   columns={userColumns}
-                  emptyMessage="No users found."
+                  emptyMessage="Initial search returned no matching entities."
                 />
-              </CardContent>
-            </Card>
-          </>
-        ) : activeTab === 'history' ? (
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center">
-                <h3 className="flex items-center text-xs font-black uppercase tracking-widest text-error-500">
-                  <ShieldAlert className="w-4 h-4 mr-2" />
-                  Security Protocols
-                </h3>
-                <span className="mx-4 h-4 w-[1px] bg-white/10 hidden md:block"></span>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Platform Activity Audit Trail</p>
               </div>
+            </motion.div>
+          ) : activeTab === 'history' ? (
+            <motion.div 
+              key="history"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="space-y-8 relative z-10"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 bg-error-500/10 rounded-xl border border-error-500/20">
+                    <ShieldAlert size={18} className="text-error-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Security Protocols</h3>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Historical Movement Logs</p>
+                  </div>
+                </div>
 
-              <div className="flex flex-1 max-w-2xl gap-2 items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder={`Search in ${activeHistoryTab === 'admin' ? 'Admin' : 'User'} logs...`}
-                    value={logSearchTerm}
-                    onChange={(e) => setLogSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2 bg-white/5 border border-white/5 rounded-xl text-[11px] text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary/20 transition-all font-medium"
-                  />
-                  {logSearchTerm && (
-                    <button 
-                      onClick={() => setLogSearchTerm('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
+                <div className="flex flex-1 max-w-2xl gap-3 items-center">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input
+                      type="text"
+                      placeholder={`Filter ${activeHistoryTab === 'admin' ? 'Administrative' : 'Client'} archives...`}
+                      value={logSearchTerm}
+                      onChange={(e) => setLogSearchTerm(e.target.value)}
+                      className="w-full pl-12 pr-10 py-3 bg-white/[0.02] border border-white/5 rounded-2xl text-[13px] text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] transition-all font-bold uppercase tracking-widest"
+                    />
+                    {logSearchTerm && (
+                      <button 
+                        onClick={() => setLogSearchTerm('')}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-2 hover:bg-white/[0.04] transition-all">
+                    <Calendar size={12} className="text-slate-500" />
+                    <input 
+                      type="date" 
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-0 w-28 [color-scheme:dark]"
+                    />
+                    <span className="text-slate-800 font-bold">-</span>
+                    <input 
+                      type="date" 
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-0 w-28 [color-scheme:dark]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="premium-glass p-1 rounded-xl border border-white/10 flex gap-1">
+                    {[
+                      { id: 'admin', label: 'Security' },
+                      { id: 'platform', label: 'Activity' }
+                    ].map(hTab => (
+                      <button
+                        key={hTab.id}
+                        onClick={() => {
+                          setActiveHistoryTab(hTab.id as any)
+                          setLogSearchTerm('')
+                        }}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                          activeHistoryTab === hTab.id ? "bg-primary/20 text-primary border border-primary/20" : "text-slate-500 hover:text-slate-300"
+                        )}
+                      >
+                        {hTab.label}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => fetchAuditLogs(activeHistoryTab)}
+                    disabled={isLogsLoading}
+                    className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
+                  >
+                    <RotateCcw size={16} className={cn(isLogsLoading && "animate-spin")} />
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleClearLogs}
+                    className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
+                  >
+                    <Trash2 size={14} />
+                    Purge
+                  </motion.button>
+                </div>
+              </div>
+              
+              <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[500px]">
+                <Table 
+                  data={activeHistoryTab === 'admin' ? adminLogs : platformLogs}
+                  columns={auditColumns}
+                  loading={isLogsLoading}
+                  emptyMessage="Archive query returned zero results."
+                />
+              </div>
+            </motion.div>
+          ) : activeTab === 'support' ? (
+            <motion.div 
+              key="support"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="space-y-8 relative z-10"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
+                    <Bell size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Signal Feed</h3>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Incoming Support Packets</p>
+                  </div>
+                </div>
+
+                <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5">
+                  {[
+                    { id: 'system_error', label: 'System Errors', color: 'error' },
+                    { id: 'feature_uplink', label: 'Feature Uplinks', color: 'primary' }
+                  ].map(sType => (
+                    <button
+                      key={sType.id}
+                      onClick={() => setSupportTypeFilter(sType.id as any)}
+                      className={cn(
+                        "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                        supportTypeFilter === sType.id 
+                          ? `bg-${sType.color}-500/20 text-${sType.color}-500 border border-${sType.color}-500/20 shadow-lg` 
+                          : "text-slate-500 hover:text-slate-300"
+                      )}
                     >
-                      <X className="w-3 h-3" />
+                      {sType.label}
                     </button>
-                  )}
+                  ))}
                 </div>
 
-                <div className="flex items-center space-x-1 bg-white/5 border border-white/5 rounded-xl px-2 py-1">
-                  <span className="text-[10px] font-black uppercase tracking-tighter text-slate-600 mr-2">Time Filter</span>
-                  <input 
-                    type="date" 
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="bg-transparent border-none text-[10px] text-slate-400 focus:ring-0 w-24 [color-scheme:dark]"
-                  />
-                  <span className="text-slate-700 w-2 text-center">-</span>
-                  <input 
-                    type="date" 
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="bg-transparent border-none text-[10px] text-slate-400 focus:ring-0 w-24 [color-scheme:dark]"
-                  />
-                </div>
-              </div>
+                <div className="flex items-center gap-4">
+                  <div className="relative group">
+                    <select
+                      value={supportStatusFilter}
+                      onChange={(e) => setSupportStatusFilter(e.target.value)}
+                      className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
+                    >
+                      <option value="" className="bg-slate-900">All Nodes</option>
+                      <option value="pending" className="bg-slate-900">Pending</option>
+                      <option value="resolved" className="bg-slate-900">Resolved</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
+                        <Filter size={12} />
+                    </div>
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <div className="flex bg-white/5 p-1 rounded-xl">
-                  <button
-                    onClick={() => {
-                      setActiveHistoryTab('admin')
-                      setLogSearchTerm('')
-                    }}
-                    className={cn(
-                      "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                      activeHistoryTab === 'admin' ? "bg-primary/20 text-primary" : "text-slate-500 hover:text-slate-300"
-                    )}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={fetchSupportRequests}
+                    disabled={isSupportLoading}
+                    className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
                   >
-                    Admin Logs
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveHistoryTab('platform')
-                      setLogSearchTerm('')
-                    }}
-                    className={cn(
-                      "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                      activeHistoryTab === 'platform' ? "bg-primary/20 text-primary" : "text-slate-500 hover:text-slate-300"
-                    )}
+                    <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleClearSupport}
+                    className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
                   >
-                    User Movements
-                  </button>
+                    <Trash2 size={14} />
+                    Wipe Signals
+                  </motion.button>
                 </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setLogSearchTerm('')
-                    setStartDate('')
-                    setEndDate('')
-                  }}
-                  className="text-slate-500 hover:text-white hover:bg-white/5 font-bold uppercase text-[10px] tracking-widest px-2 transition-all duration-200"
-                  title="Reset filters"
-                >
-                  <Filter className="w-3.5 h-3.5" />
-                </Button>
-
-                <Button
-                  variant="none"
-                  size="sm"
-                  onClick={() => fetchAuditLogs(activeHistoryTab)}
-                  disabled={isLogsLoading}
-                  className="text-slate-400 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-widest px-3 border border-white/10 h-9 rounded-xl transition-all duration-200"
-                >
-                  <RotateCcw className={cn("w-3.5 h-3.5", isLogsLoading && "animate-spin")} />
-                </Button>
-
-                <Button
-                  variant="none"
-                  size="sm"
-                  onClick={handleClearLogs}
-                  className="text-error-500 hover:text-white hover:bg-error-500/20 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-9 rounded-xl transition-all duration-200"
-                >
-                  <Trash2 className="w-3.5 h-3.5 mr-2" />
-                  Clear All
-                </Button>
-              </div>
-            </div>
-            
-            <Card variant="glass" className="overflow-hidden border-white/5">
-              <Table 
-                data={activeHistoryTab === 'admin' ? adminLogs : platformLogs}
-                columns={auditColumns}
-                loading={isLogsLoading}
-                emptyMessage="No history found."
-              />
-            </Card>
-          </div>
-        ) : activeTab === 'support' ? (
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center">
-                <h3 className="flex items-center text-xs font-black uppercase tracking-widest text-primary">
-                  <Bell className="w-4 h-4 mr-2" />
-                  Signal Center
-                </h3>
-                <span className="mx-4 h-4 w-[1px] bg-white/10 hidden md:block"></span>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Incoming Support & Feature Uplinks</p>
               </div>
 
-              <div className="flex bg-white/5 p-1 rounded-xl">
-                <button
-                  onClick={() => setSupportTypeFilter('system_error')}
-                  className={cn(
-                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                    supportTypeFilter === 'system_error' 
-                      ? "bg-error-500/20 text-error-500 shadow-lg shadow-error-500/10" 
-                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
-                  )}
-                >
-                  System Errors
-                </button>
-                <button
-                  onClick={() => setSupportTypeFilter('feature_uplink')}
-                  className={cn(
-                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                    supportTypeFilter === 'feature_uplink' 
-                      ? "bg-primary/20 text-primary shadow-lg shadow-primary/10" 
-                      : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
-                  )}
-                >
-                  Feature Uplinks
-                </button>
+              <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[500px]">
+                <Table 
+                  data={supportRequests}
+                  columns={supportColumns}
+                  loading={isSupportLoading}
+                  emptyMessage="No logical signals detected in current spectrum."
+                />
               </div>
-
-              <div className="flex items-center space-x-2">
-                <select
-                  value={supportStatusFilter}
-                  onChange={(e) => setSupportStatusFilter(e.target.value)}
-                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer hover:border-white/20 transition-all appearance-none"
-                >
-                  <option value="" className="bg-slate-900">All Statuses</option>
-                  <option value="pending" className="bg-slate-900">Pending</option>
-                  <option value="resolved" className="bg-slate-900">Resolved</option>
-                </select>
-
-                <Button
-                  variant="none"
-                  size="sm"
-                  onClick={fetchSupportRequests}
-                  disabled={isSupportLoading}
-                  className="text-slate-400 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-widest px-3 border border-white/5 h-9 rounded-xl transition-all"
-                  title="Refresh Signals"
-                >
-                  <RotateCcw className={cn("w-3.5 h-3.5", isSupportLoading && "animate-spin")} />
-                </Button>
-
-                <Button
-                  variant="none"
-                  size="sm"
-                  onClick={handleClearSupport}
-                  className="text-error-500 hover:text-white hover:bg-error-500/20 font-bold uppercase text-[10px] tracking-widest px-3 border border-error-500/20 h-9 rounded-xl transition-all"
-                >
-                  <Trash2 className="w-3.5 h-3.5 mr-2" />
-                  Clear All
-                </Button>
-              </div>
-            </div>
-
-            <Card variant="glass" className="overflow-hidden border-white/5">
-              <Table 
-                data={supportRequests}
-                columns={supportColumns}
-                loading={isSupportLoading}
-                emptyMessage="No signals detected."
-              />
-            </Card>
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-slate-500 font-bold uppercase tracking-widest">Module Offline or Access Denied</p>
-          </div>
-        )}
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="fallback"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-40 opacity-40 flex flex-col items-center gap-6"
+            >
+              <Lock size={48} className="text-slate-700" />
+              <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.4em] italic leading-none">Module Offline &bull; Access Level Zero</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
         {/* User Details Modal */}
         <Modal
@@ -1264,7 +1278,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="bg-white/5 p-5 rounded-3xl border border-white/5">
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Cases</p>
-                      <p className="text-xl font-black text-white">{userHistory.cases.length}</p>
+                      <p className="text-xl font-black text-white">{userHistory?.cases.length}</p>
                     </div>
                     <div className="bg-white/5 p-5 rounded-3xl border border-white/5">
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Plan</p>
@@ -1292,16 +1306,16 @@ export default function AdminDashboard() {
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Member Since</p>
                         <p className="text-white font-bold">{formatDate(selectedUser?.createdAt || '')}</p>
                       </div>
-                      {userHistory.organizationData && (
+                      {userHistory?.organizationData && (
                         <>
                           <div className="col-span-1 md:col-span-2 border-t border-white/5 pt-4 mt-2"></div>
                           <div>
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Firm Code</p>
-                            <p className="text-primary font-mono font-bold tracking-widest">{userHistory.organizationData.firmCode}</p>
+                            <p className="text-primary font-mono font-bold tracking-widest">{userHistory?.organizationData.firmCode}</p>
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Firm Capacity</p>
-                            <p className="text-white font-bold text-sm tracking-tight">Using {userHistory.organizationData.usedSeats} of {userHistory.organizationData.totalSeats} seats</p>
+                            <p className="text-white font-bold text-sm tracking-tight">Using {userHistory?.organizationData.usedSeats} of {userHistory?.organizationData.totalSeats} seats</p>
                           </div>
                         </>
                       )}
@@ -1498,9 +1512,9 @@ export default function AdminDashboard() {
               {activeDetailTab === 'members' && (
                 <div className="space-y-4 animate-in fade-in duration-300">
                   <div className="bg-black/40 rounded-3xl overflow-hidden border border-white/5">
-                    {userHistory.orgMembers && userHistory.orgMembers.length > 0 ? (
+                    {userHistory?.orgMembers && userHistory.orgMembers.length > 0 ? (
                       <Table 
-                        data={userHistory.orgMembers}
+                        data={userHistory?.orgMembers || []}
                         columns={[
                           { key: 'name', title: 'Member Name', render: (v, item: any) => (
                             <div className="flex flex-col">
@@ -1571,11 +1585,11 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
                 <div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Movement Type</p>
-                  <p className="text-white font-bold">{selectedLogForDiff.action.replace(/_/g, ' ')}</p>
+                  <p className="text-white font-bold">{selectedLogForDiff?.action?.replace(/_/g, ' ')}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Timestamp</p>
-                  <p className="text-slate-300 font-medium">{formatDate(selectedLogForDiff.timestamp)}</p>
+                  <p className="text-slate-300 font-medium">{selectedLogForDiff && formatDate(selectedLogForDiff.timestamp)}</p>
                 </div>
               </div>
 
@@ -1583,30 +1597,20 @@ export default function AdminDashboard() {
                 <div className="space-y-3">
                   <h4 className="text-[10px] font-black text-error-500 uppercase tracking-widest ml-1">Legacy State (Before)</h4>
                   <div className="bg-error-500/5 border border-error-500/20 rounded-2xl p-4 font-mono text-[11px] text-slate-400 overflow-auto max-h-[300px]">
-                    <pre>{JSON.stringify(selectedLogForDiff.details.before, null, 2)}</pre>
+                    <pre>{JSON.stringify(selectedLogForDiff?.details.before, null, 2)}</pre>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <h4 className="text-[10px] font-black text-success-500 uppercase tracking-widest ml-1">New Protocol (After)</h4>
                   <div className="bg-success-500/5 border border-success-500/20 rounded-2xl p-4 font-mono text-[11px] text-slate-200 overflow-auto max-h-[300px]">
-                    <pre>{JSON.stringify(selectedLogForDiff.details.after, null, 2)}</pre>
+                    <pre>{JSON.stringify(selectedLogForDiff?.details.after, null, 2)}</pre>
                   </div>
                 </div>
               </div>
 
               <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4">
                 <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Auth Agent Context</p>
-                <p className="text-sm text-slate-300 italic">&quot;{selectedLogForDiff.details.description}&quot;</p>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <Button 
-                  variant="none"
-                  onClick={() => setShowDiffModal(false)}
-                  className="bg-white/5 hover:bg-white/10 text-white font-bold uppercase text-[10px] tracking-widest px-8 py-2 rounded-lg transition-all"
-                >
-                  Close Analysis
-                </Button>
+                <p className="text-sm text-slate-300 italic">&quot;{selectedLogForDiff?.details.description}&quot;</p>
               </div>
             </div>
           )}
@@ -1714,6 +1718,7 @@ export default function AdminDashboard() {
             </div>
           </form>
         </Modal>
+
         {/* Confirmation Modal */}
         <ConfirmationModal
           isOpen={confirmConfig.isOpen}
@@ -1722,8 +1727,9 @@ export default function AdminDashboard() {
           title={confirmConfig.title}
           message={confirmConfig.message}
           confirmText={confirmConfig.confirmText}
-          variant={confirmConfig.variant}
+          variant={confirmConfig.confirmText === 'Proceed' ? 'info' : 'danger'}
         />
+
         {/* Plan Selection Modal */}
         <Modal
           isOpen={showPlanModal}
@@ -1751,7 +1757,7 @@ export default function AdminDashboard() {
               ].map((p) => (
                 <button
                   key={p.id}
-                  onClick={() => handleUpdatePlan(selectedUser!.id, p.id)}
+                  onClick={() => handleUpdatePlan(selectedUser!.id, p.id as any)}
                   disabled={isPlanUpdating || selectedUser?.plan === p.id}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left group",
@@ -1785,7 +1791,6 @@ export default function AdminDashboard() {
             )}
           </div>
         </Modal>
-      </div>
     </DashboardLayout>
   )
 }

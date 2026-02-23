@@ -168,7 +168,7 @@ export default function EventModal({
 
                     <div className="space-y-5">
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                 <Type size={12} className="text-primary" />
                                 Event Title
                             </label>
@@ -184,7 +184,7 @@ export default function EventModal({
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                     <CalendarIcon size={12} className="text-primary" />
                                     Date
                                 </label>
@@ -202,7 +202,7 @@ export default function EventModal({
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                     <Clock size={12} className="text-primary" />
                                     Time
                                 </label>
@@ -218,7 +218,7 @@ export default function EventModal({
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                     <ListFilter size={12} className="text-primary" />
                                     Event Type
                                 </label>
@@ -239,7 +239,7 @@ export default function EventModal({
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                     <ShieldAlert size={12} className="text-primary" />
                                     Priority
                                 </label>
@@ -260,7 +260,7 @@ export default function EventModal({
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
                                 <Briefcase size={12} className="text-primary" />
                                 Associated Case (Optional)
                             </label>

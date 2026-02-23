@@ -38,31 +38,30 @@ export default function Pricing() {
         <meta name="description" content="Simple, transparent pricing for law firms of all sizes. Choice between Personal and Business plans." />
       </Head>
 
-      <section className="relative pt-32 pb-24 bg-background-dark overflow-hidden">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
+      <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="container-stitch relative z-10 text-center">
           <motion.div
             initial="initial"
             animate="animate"
             variants={fadeInUp}
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-display leading-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 font-display leading-tight tracking-tightest">
               Invest in your <br />
-              <span className="text-primary italic">Firm&apos;s Future</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Firm&apos;s Future</span>
             </h1>
 
             {/* Main Toggle: Personal vs Empresa */}
-            <div className="flex justify-center mb-12">
-              <div className="bg-slate-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl flex gap-1">
+            <div className="flex justify-center mb-16">
+              <div className="premium-glass p-2 rounded-2xl border border-white/10 flex gap-2">
                 <button
                   onClick={() => setPricingType('personal')}
-                  className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${pricingType === 'personal' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
+                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'personal' ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.4)]' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   Personal Firm
                 </button>
                 <button
                   onClick={() => setPricingType('empresa')}
-                  className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${pricingType === 'empresa' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
+                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'empresa' ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.4)]' : 'text-slate-500 hover:text-white'}`}
                 >
                   Business Firm
                 </button>
@@ -130,15 +129,15 @@ export default function Pricing() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="glass-dark rounded-[2.5rem] border-2 border-primary p-10 text-left shadow-2xl shadow-primary/10 relative transform md:-translate-y-8"
+                className="premium-glass rounded-[2.5rem] border-2 border-primary/50 p-10 text-left shadow-[0_0_80px_-20px_rgba(10,68,184,0.4)] relative transform md:-translate-y-8 group"
               >
-                <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-bold px-4 py-1 rounded-b-xl uppercase tracking-widest">Recommended</div>
+                <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-black px-6 py-2 rounded-b-xl uppercase tracking-[0.2em] shadow-lg">Recommended</div>
                 <div className="mb-8">
-                  <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em] mb-4">Professional</h3>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '159' : '199'}</span>
+                  <h3 className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-4">Professional</h3>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '159' : '199'}</span>
                     <div className="flex flex-col">
-                      <span className="text-slate-500 font-medium text-sm">/mo</span>
+                      <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
                 </div>
@@ -162,18 +161,18 @@ export default function Pricing() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="glass-dark rounded-[2rem] border border-white/5 p-10 text-left hover:shadow-2xl transition-all"
+                className="bg-white/5 premium-border rounded-[2.5rem] border border-white/5 p-10 text-left hover:bg-white/[0.08] transition-all duration-500"
               >
                 <div className="mb-8">
-                  <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-[0.2em] mb-4">Elite</h3>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '249' : '300'}</span>
+                  <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Elite</h3>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '249' : '300'}</span>
                     <div className="flex flex-col">
-                      <span className="text-slate-500 font-medium text-sm">/mo</span>
+                      <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
-                  <div className="text-[10px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <span className="text-lg">∞</span> Active Matters
+                  <div className="text-[11px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <span className="text-2xl">∞</span> Active Matters
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
@@ -298,19 +297,30 @@ export default function Pricing() {
       </section>
 
       {/* Simplified FAQ */}
-      <section className="py-24 bg-slate-50 dark:bg-background-dark border-y border-white/5">
-        <div className="container-stitch max-w-3xl">
-          <h2 className="text-3xl font-bold text-center mb-12 font-display">Financial Precision</h2>
-          <div className="space-y-6">
+      <section className="py-32 relative border-y border-white/5">
+        <div className="container-stitch max-w-4xl">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-20 font-display tracking-tightest text-white">Financial <span className="text-primary">Precision</span></h2>
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               { q: "Can I switch plans mid-cycle?", a: "Yes. Upgrades take effect immediately with prorated billing. Downgrades apply at the next cycle." },
               { q: "Is there a trial available?", a: "We don't offer generic trials. Contact sales for a live demo on your firm's complex data." },
-              { q: "What is a 'Priority Case'?", a: "A priority case is an active litigation or matter receiving top-tier GPU priority for AI analysis and storage." }
+              { q: "What is a 'Priority Case'?", a: "A priority case is an active litigation or matter receiving top-tier GPU priority for AI analysis and storage." },
+              { q: "Security standards enforced?", a: "All transactions and data processing inherit firm-wide SOC2 Type II and HIPAA compliance standards." }
             ].map((faq, i) => (
-              <div key={i} className="p-6 glass rounded-2xl border border-white/5">
-                <h4 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">{faq.q}</h4>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{faq.a}</p>
-              </div>
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-8 premium-glass rounded-3xl border border-white/5 hover:bg-white/[0.04] transition-colors"
+              >
+                <h4 className="font-black text-white mb-4 text-xs uppercase tracking-[0.2em] flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                    {faq.q}
+                </h4>
+                <p className="text-slate-400 text-sm leading-relaxed font-medium">{faq.a}</p>
+              </motion.div>
             ))}
           </div>
         </div>

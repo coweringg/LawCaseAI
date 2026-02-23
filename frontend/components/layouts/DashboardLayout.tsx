@@ -19,17 +19,17 @@ const TimeDisplay = memo(() => {
     }, []);
 
     return (
-        <div className="bg-primary/10 px-4 py-2 rounded-2xl border border-primary/20 flex items-center gap-3 shadow-lg shadow-primary/5">
+        <div className="premium-glass px-4 py-2.5 rounded-2xl border border-white/10 flex items-center gap-4 shadow-2xl backdrop-blur-xl">
             <div className="text-right">
-                <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none">
+                <h2 className="text-2xl font-black text-white leading-none tracking-tighter">
                     {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </h2>
-                <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1">
+                <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1.5 opacity-80">
                     {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="material-icons-round">schedule</span>
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_0_20px_rgba(10,68,184,0.4)] border border-white/20">
+                <span className="material-icons-round text-2xl">schedule</span>
             </div>
         </div>
     );
@@ -212,29 +212,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display h-screen flex flex-col overflow-hidden relative">
-            {/* Background Animated Blobs for Dashboard */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="bg-[#05060a] text-slate-100 font-display h-screen w-full flex flex-col overflow-hidden relative">
+            {/* Immersive Elite Background */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 mesh-gradient opacity-60" />
+                <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12" />
+                
+                {/* Floating Depth Elements */}
                 <motion.div
-                    animate={{
+                    animate={{ 
                         scale: [1, 1.2, 1],
-                        rotate: [0, 45, 0],
-                        opacity: [0.03, 0.05, 0.03]
+                        opacity: [0.1, 0.2, 0.1],
+                        rotate: [0, 45, 0]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute -top-[10%] -right-[10%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px]"
+                />
+                <motion.div
+                    animate={{ 
+                        scale: [1.2, 1, 1.2],
+                        opacity: [0.05, 0.15, 0.05],
+                        rotate: [45, 0, 45]
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-primary/20 rounded-full blur-[80px]"
-                    style={{ willChange: 'transform, opacity' }}
-                ></motion.div>
-                <motion.div
-                    animate={{
-                        scale: [1.2, 1, 1.2],
-                        rotate: [0, -45, 0],
-                        opacity: [0.02, 0.04, 0.02]
-                    }}
-                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[80px]"
-                    style={{ willChange: 'transform, opacity' }}
-                ></motion.div>
+                    className="absolute -bottom-[10%] -left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]"
+                />
             </div>
             {/* Global Usage Warning */}
             {showWarning && (
@@ -283,7 +285,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar */}
-                <aside className="w-64 flex-shrink-0 glass-dark border-r border-white/5 text-slate-400 hidden md:flex h-full relative overflow-hidden">
+                <aside className="w-72 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden">
+                    <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
@@ -307,17 +310,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 ]).map((item) => (
                                     <Link key={item.href} href={item.href}>
                                         <motion.div
-                                            whileHover={{ x: 4 }}
-                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all border group cursor-pointer ${isActive(item.href, (item as any).exact)
-                                                ? 'bg-primary/10 text-primary border-primary/20 shadow-lg shadow-primary/5'
-                                                : 'hover:bg-white/5 hover:text-white border-transparent'}`}
+                                            whileHover={{ x: 6, backgroundColor: "rgba(255,255,255,0.03)" }}
+                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-300 border group cursor-pointer relative overflow-hidden ${isActive(item.href, (item as any).exact)
+                                                ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_30px_rgba(10,68,184,0.1)]'
+                                                : 'text-slate-500 hover:text-slate-200 border-transparent'}`}
                                         >
-                                            <span className={`material-icons-round ${isActive(item.href, (item as any).exact) ? 'text-primary' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                                            <span className={`material-icons-round text-[22px] transition-all duration-300 ${isActive(item.href, (item as any).exact) ? 'text-primary scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}>
                                                 {item.icon}
                                             </span>
-                                            <span className={isActive(item.href, (item as any).exact) ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}>{item.label}</span>
+                                            <span className={`text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ${isActive(item.href, (item as any).exact) ? 'text-white' : 'group-hover:text-white'}`}>
+                                                {item.label}
+                                            </span>
                                             {isActive(item.href, (item as any).exact) && (
-                                                <motion.div layoutId="activeNav" className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                                                <motion.div 
+                                                    layoutId="activeNav" 
+                                                    className="absolute left-0 w-1 h-8 bg-primary rounded-r-full shadow-[0_0_15px_rgba(10,68,184,0.6)]" 
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                />
                                             )}
                                         </motion.div>
                                     </Link>
@@ -373,121 +383,117 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </aside>
 
                 {/* Main Content Area */}
-                <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-background-light dark:bg-background-dark">
+                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                     {/* Header */}
-                    <header className="h-20 glass border-b border-white/5 flex items-center justify-between px-8 flex-shrink-0 z-20">
-                        <div className="flex items-center gap-4">
-                            <TimeDisplay />
-                            {user?.role !== 'admin' && (
-                                <div>
-                                    <h2 className="text-lg font-black text-white leading-tight font-display">Counsel Status</h2>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">On-Duty • Active Session</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-6">
-                            {user?.role !== 'admin' && (
-                                <div className="relative group hidden lg:block">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-xl group-focus-within:text-primary transition-colors">search</span>
-                                    <input
-                                        className="pl-12 pr-4 py-2.5 w-96 bg-white/5 border border-white/10 rounded-2xl text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary/30 focus:bg-white/10 placeholder-slate-500 transition-all outline-none text-white font-medium"
-                                        placeholder="Search repository..."
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
-                                        onFocus={() => searchQuery.length > 1 && setShowSearchDropdown(true)}
-                                    />
+                    <header className="h-24 bg-transparent border-b border-white/5 flex items-center justify-between px-10 flex-shrink-0 z-20 relative overflow-hidden">
+                        <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
+                        <div className="relative z-10 flex items-center justify-between w-full">
+                            <div className="flex items-center gap-6">
+                                <TimeDisplay />
+                                {user?.role !== 'admin' && (
+                                    <div>
+                                        <h2 className="text-xl font-black text-white leading-tight font-display tracking-tightest">Operational Command</h2>
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] opacity-70">Counsel Status &bull; Active Layer</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-10">
+                                {user?.role !== 'admin' && (
+                                    <div className="relative group hidden lg:block">
+                                        <span className="absolute left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-xl group-focus-within:text-primary transition-all duration-500">search</span>
+                                        <input
+                                            className="pl-16 pr-8 py-3.5 w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black uppercase tracking-[0.2em] shadow-inner shadow-black/20"
+                                            placeholder="Audit Core Intelligence..."
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
+                                            onFocus={() => searchQuery.length > 1 && setShowSearchDropdown(true)}
+                                        />
 
-                                    {/* Search Dropdown */}
-                                    <AnimatePresence>
-                                        {showSearchDropdown && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                className="absolute top-full left-0 right-0 mt-3 glass-dark border border-white/10 rounded-2xl shadow-2xl z-50 max-h-[480px] overflow-hidden"
+                                        {/* Search Dropdown */}
+                                        <AnimatePresence>
+                                            {showSearchDropdown && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    className="absolute top-full left-0 right-0 mt-3 glass-dark border border-white/10 rounded-3xl shadow-2xl z-50 max-h-[480px] overflow-hidden backdrop-blur-3xl"
+                                                >
+                                                    <div className="p-2 overflow-y-auto max-h-[470px]">
+                                                        {isSearching ? (
+                                                            <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                                                                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                                                Searching...
+                                                            </div>
+                                                        ) : searchQuery.length > 1 && searchResults.cases.length === 0 && searchResults.files.length === 0 ? (
+                                                            <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No results found</div>
+                                                        ) : (
+                                                            <div className="py-2">
+                                                                {searchResults.cases.length > 0 && (
+                                                                    <div>
+                                                                        <div className="px-5 py-3 text-[9px] font-black text-primary uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Cases</div>
+                                                                        {searchResults.cases.map(c => (
+                                                                            <Link href={`/cases/${c.id}`} key={c.id}>
+                                                                                <div className="px-5 py-4 hover:bg-white/5 rounded-2xl transition-all duration-300 flex items-center gap-4 cursor-pointer group/item">
+                                                                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-white/5 group-hover/item:border-primary/30 group-hover/item:bg-primary/20 transition-all">
+                                                                                        <span className="material-icons-round text-primary text-xl">folder</span>
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <p className="text-sm font-black text-white truncate group-hover/item:text-primary transition-colors">{c.title}</p>
+                                                                                        <p className="text-[10px] text-slate-500 truncate uppercase font-bold tracking-widest mt-0.5">{c.subtitle}</p>
+                                                                                    </div>
+                                                                                    <span className="text-[9px] font-black px-3 py-1 rounded-full bg-white/5 text-slate-400 group-hover/item:bg-primary group-hover/item:text-white uppercase tracking-tighter transition-all">{c.status}</span>
+                                                                                </div>
+                                                                            </Link>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                {searchResults.files.length > 0 && (
+                                                                    <div className={searchResults.cases.length > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
+                                                                        <div className="px-5 py-3 text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Documents</div>
+                                                                        {searchResults.files.map(f => (
+                                                                            <Link href={`/cases/${f.caseId}`} key={f.id}>
+                                                                                <div className="px-5 py-4 hover:bg-white/5 rounded-2xl transition-all duration-300 flex items-center gap-4 cursor-pointer group/item">
+                                                                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-white/5 group-hover/item:border-blue-500/30 group-hover/item:bg-blue-500/20 transition-all">
+                                                                                        <span className="material-icons-round text-blue-400 text-xl">description</span>
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <p className="text-sm font-black text-white truncate group-hover/item:text-blue-400 transition-colors">{f.title}</p>
+                                                                                        <p className="text-[10px] text-slate-500 truncate uppercase font-bold tracking-widest mt-0.5">{f.subtitle}</p>
+                                                                                    </div>
+                                                                                    <span className="material-icons-round text-slate-600 text-sm group-hover/item:translate-x-1 transition-transform">arrow_forward</span>
+                                                                                </div>
+                                                                            </Link>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                )}
+                                {user?.role !== 'admin' && (
+                                    <div className="flex items-center gap-5">
+                                        <Link href="/cases/new">
+                                            <motion.button
+                                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)" }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
                                             >
-                                                <div className="p-2 overflow-y-auto max-h-[470px]">
-                                                    {isSearching ? (
-                                                        <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                                            Searching...
-                                                        </div>
-                                                    ) : searchQuery.length > 1 && searchResults.cases.length === 0 && searchResults.files.length === 0 ? (
-                                                        <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No results found</div>
-                                                    ) : (
-                                                        <div className="py-2">
-                                                            {searchResults.cases.length > 0 && (
-                                                                <div>
-                                                                    <div className="px-4 py-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 mb-1">Cases</div>
-                                                                    {searchResults.cases.map(c => (
-                                                                        <Link href={`/cases/${c.id}`} key={c.id}>
-                                                                            <div
-                                                                                className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 cursor-pointer"
-                                                                                role="link"
-                                                                                tabIndex={0}
-                                                                                aria-label={`Open case ${c.title}`}
-                                                                            >
-                                                                                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                                                                                    <span className="material-icons-round text-primary text-sm">folder</span>
-                                                                                </div>
-                                                                                <div className="flex-1 min-w-0">
-                                                                                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{c.title}</p>
-                                                                                    <p className="text-[10px] text-slate-400 truncate uppercase font-bold">{c.subtitle}</p>
-                                                                                </div>
-                                                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase">{c.status}</span>
-                                                                            </div>
-                                                                        </Link>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                            {searchResults.files.length > 0 && (
-                                                                <div className={searchResults.cases.length > 0 ? "mt-2 pt-2 border-t border-slate-50 dark:border-slate-800" : ""}>
-                                                                    <div className="px-4 py-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-50 dark:border-slate-800 mb-1">Files</div>
-                                                                    {searchResults.files.map(f => (
-                                                                        <Link href={`/cases/${f.caseId}`} key={f.id}>
-                                                                            <div
-                                                                                className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 cursor-pointer"
-                                                                                role="link"
-                                                                                tabIndex={0}
-                                                                                aria-label={`Open file ${f.title}`}
-                                                                            >
-                                                                                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                                                                                    <span className="material-icons-round text-emerald-600 text-sm">description</span>
-                                                                                </div>
-                                                                                <div className="flex-1 min-w-0">
-                                                                                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{f.title}</p>
-                                                                                    <p className="text-[10px] text-slate-400 truncate uppercase font-bold">{f.subtitle}</p>
-                                                                                </div>
-                                                                                <span className="material-icons-round text-slate-300 text-sm">arrow_forward</span>
-                                                                            </div>
-                                                                        </Link>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            )}
-                            {user?.role !== 'admin' && (
-                                <div className="flex items-center gap-3">
-                                    <Link href="/cases/new">
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-bold text-sm transition-all shadow-xl shadow-primary/20 active:shadow-inner"
-                                        >
-                                            <span className="material-icons-round text-lg">add</span>
-                                            <span>Create Case</span>
-                                        </motion.button>
-                                    </Link>
-                                </div>
-                            )}
+                                                <span className="material-icons-round text-lg">add</span>
+                                                <span>Initialize Case</span>
+                                            </motion.button>
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </header>
 

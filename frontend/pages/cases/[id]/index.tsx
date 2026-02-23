@@ -5,7 +5,28 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import api from '@/utils/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Folder, Download, Search, Info } from 'lucide-react';
+import { 
+    Loader2, 
+    Folder, 
+    Download, 
+    Search, 
+    Info, 
+    ArrowLeft, 
+    Shield, 
+    Clock, 
+    CheckCircle, 
+    Zap, 
+    MessageSquare, 
+    List, 
+    Plus,
+    Lock,
+    Unlock,
+    MoreVertical,
+    FileText,
+    Settings as SettingsIcon
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 
@@ -138,289 +159,403 @@ export default function CaseWorkspace() {
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="flex flex-col h-[calc(100vh-theme(spacing.20))] -m-8">
+                <div className="flex flex-col h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative">
+                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                    
                     {/* Case Specific Header */}
-                    <header className="h-14 flex-none border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark flex items-center justify-between px-6 shadow-sm z-10">
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-3">
-                                <Link href="/cases" className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all">
-                                    <span className="material-icons-round text-lg">arrow_back</span>
-                                </Link>
-                                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{caseData?.client || 'Direct Client'}</span>
-                                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                        <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest leading-none">{caseData?.practiceArea || 'General Legal'}</span>
-                                    </div>
-                                    <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[300px]">{caseData?.name || 'Loading case...'}</h2>
+                    <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
+                        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
+                        <div className="flex items-center gap-6 relative z-10">
+                            <Link href="/cases">
+                                <motion.div
+                                    whileHover={{ x: -5, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                    className="p-3 text-slate-400 hover:text-primary rounded-2xl transition-all cursor-pointer border border-transparent hover:border-white/10"
+                                >
+                                    <ArrowLeft size={20} />
+                                </motion.div>
+                            </Link>
+                            <div className="h-10 w-px bg-white/10 mx-2"></div>
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-3 mb-1">
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{caseData?.client || 'Matrix Client'}</span>
+                                    <span className="w-1 h-1 bg-primary/40 rounded-full"></span>
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{caseData?.practiceArea || 'Neural Analysis'}</span>
                                 </div>
+                                <h2 className="text-xl font-black text-white truncate max-w-[400px] font-display tracking-tightest leading-none">{caseData?.name || 'Loading Intelligence...'}</h2>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            {caseData?.status === 'active' && (
-                                <button
-                                    onClick={() => setIsConfirmModalOpen(true)}
-                                    className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2"
-                                >
-                                    <span className="material-icons-round text-sm">lock</span>
-                                    Close Case
-                                </button>
-                            )}
-                            <span className={`flex items-center gap-1 text-[10px] font-extrabold px-3 py-1 rounded-full border tracking-widest ${caseData?.status === 'active'
-                                ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/40'
-                                : 'text-slate-600 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
+
+                        <div className="flex items-center gap-5 relative z-10">
+                            <AnimatePresence>
+                                {caseData?.status === 'active' && (
+                                    <motion.button
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.1)" }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setIsConfirmModalOpen(true)}
+                                        className="px-6 py-2.5 premium-glass border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all flex items-center gap-2.5 shadow-xl"
+                                    >
+                                        <Lock size={12} />
+                                        Seal Case
+                                    </motion.button>
+                                )}
+                            </AnimatePresence>
+                            <div className={`flex items-center gap-2.5 text-[10px] font-black px-5 py-2.5 rounded-xl border tracking-[0.2em] uppercase shadow-2xl backdrop-blur-2xl transition-all duration-500 ${caseData?.status === 'active'
+                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-1 ring-emerald-500/20'
+                                : 'bg-slate-500/10 text-slate-400 border-white/10'
                                 }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${caseData?.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
-                                {(caseData?.status || 'Active').toUpperCase()}
-                            </span>
+                                <div className={`w-2 h-2 rounded-full ${caseData?.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-pulse' : 'bg-slate-600'}`}></div>
+                                {caseData?.status || 'Active'}
+                            </div>
                         </div>
                     </header>
 
                     {/* Main Content Areas */}
-                    <div className="flex-1 flex overflow-hidden">
+                    <div className="flex-1 flex overflow-hidden relative z-10">
                         {/* LEFT PANE: Quick Files */}
-                        <aside className="w-72 flex-none flex flex-col bg-slate-50 dark:bg-background-dark border-r border-slate-200 dark:border-slate-800">
-                            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-surface-dark">
-                                <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Case Files</h2>
-                                <div className="flex gap-1">
-                                    <button className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors" title="Refresh" onClick={() => window.location.reload()}>
-                                        <span className="material-icons-round text-lg">refresh</span>
-                                    </button>
-                                </div>
+                        <aside className="w-80 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative">
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/sidebar:scale-[1.6] transition-transform duration-1000"></div>
+                            
+                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02] relative z-10">
+                                <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Intelligence Repository</h2>
+                                <motion.button 
+                                    whileHover={{ rotate: 180 }}
+                                    className="p-2 text-slate-500 hover:text-primary transition-all rounded-xl"
+                                    onClick={() => window.location.reload()}
+                                >
+                                    <span className="material-icons-round text-lg">sync</span>
+                                </motion.button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1">
-                                <div className="group">
-                                    <div className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-300">
-                                        <span className="material-icons-round text-slate-400 text-lg">folder_open</span>
-                                        <span className="truncate font-medium">All Documents</span>
+                            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8 relative z-10 scrollbar-hide">
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between px-2">
+                                        <div className="flex items-center gap-3">
+                                            <Folder size={16} className="text-primary" />
+                                            <span className="text-[11px] font-black text-white uppercase tracking-wider">All Units</span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-slate-600 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5">{files.length}</span>
                                     </div>
-                                    <div className="ml-6 border-l border-slate-200 dark:border-slate-700 pl-2 mt-1 space-y-1">
-                                        {files.map(f => (
-                                            <button key={f._id} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded group/file text-left transition-all">
-                                                <div className={`w-6 h-6 rounded flex items-center justify-center ${f.type.includes('pdf') ? 'bg-rose-50 text-rose-500 dark:bg-rose-900/20' : 'bg-blue-50 text-blue-500 dark:bg-blue-900/20'}`}>
+                                    
+                                    <div className="space-y-1.5 ml-2 border-l border-white/5 pl-4">
+                                        {files.map((f, idx) => (
+                                            <motion.button 
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                key={f._id} 
+                                                className="w-full flex items-center gap-3 px-3 py-3 text-[11px] text-slate-400 hover:text-white bg-transparent hover:bg-white/[0.05] border border-transparent hover:border-white/10 rounded-2xl group/file text-left transition-all duration-300 relative overflow-hidden"
+                                            >
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${f.type.includes('pdf') ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
                                                     <span className="material-icons-round text-base">{f.type.includes('pdf') ? 'picture_as_pdf' : 'description'}</span>
                                                 </div>
-                                                <span className="truncate flex-1 font-medium">{f.name}</span>
-                                            </button>
+                                                <div className="flex flex-col min-w-0 flex-1">
+                                                    <span className="truncate font-black tracking-tightest leading-none mb-1 group-hover/file:text-primary transition-colors">{f.name}</span>
+                                                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{format(new Date(f.createdAt), 'MMM d, yyyy')}</span>
+                                                </div>
+                                                <div className="opacity-0 group-hover/file:opacity-100 transition-opacity">
+                                                    <MoreVertical size={14} className="text-slate-500 hover:text-primary" />
+                                                </div>
+                                            </motion.button>
                                         ))}
                                         {files.length === 0 && (
-                                            <p className="text-[10px] text-slate-400 py-2 italic">No files uploaded yet.</p>
+                                            <div className="py-10 px-4 text-center">
+                                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] italic">Void Terminal &bull; No Intelligence Uploaded</p>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-4 mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark">
+                            <div className="p-6 border-t border-white/10 bg-white/[0.02] relative z-10">
                                 <Link href={`/cases/${id}/documents`}>
-                                    <button className="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                                        <span className="material-icons-round text-base">folder_open</span>
-                                        Open Document Manager
-                                    </button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 rounded-2xl flex items-center justify-center gap-3 transition-all border border-white/10 shadow-xl premium-glass"
+                                    >
+                                        <Zap size={14} className="text-primary animate-pulse" />
+                                        Command Center
+                                    </motion.button>
                                 </Link>
                             </div>
                         </aside>
 
                         {/* MIDDLE PANE: AI Assistant & Context */}
-                        <section className="flex-1 flex flex-col min-w-0 bg-white dark:bg-surface-dark relative">
+                        <section className="flex-1 flex flex-col min-w-0 bg-transparent relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none"></div>
+                            
                             {/* Assistant Status Bar */}
-                            <div className="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-6 justify-between bg-white dark:bg-surface-dark z-10 sticky top-0">
-                                <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${isSending ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
-                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">AI Assistant: {isSending ? 'Thinking...' : 'Ready'}</span>
+                            <div className="h-14 border-b border-white/10 flex items-center px-8 justify-between bg-white/[0.02] backdrop-blur-2xl z-20 sticky top-0">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <div className={`w-2.5 h-2.5 rounded-full ${isSending ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]'}`}></div>
+                                        {isSending && <div className="absolute inset-0 bg-amber-500 rounded-full animate-ping opacity-40"></div>}
+                                    </div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Neural Interface: {isSending ? 'Synthesizing...' : 'Link Absolute'}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">GPT-4.5 Neural Core</div>
                                 </div>
                             </div>
 
                             {/* Chat Area */}
-                            <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-slate-50/30 dark:bg-black/20">
-                                {chatMessages.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto">
-                                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-                                            <span className="material-icons-round text-primary text-3xl">smart_toy</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Ready to assist with {caseData?.name}</h3>
-                                        <p className="text-xs text-slate-500 leading-relaxed mb-6">
-                                            Upload documents to start analyzing legal patterns, finding discrepancies, and generating case summaries.
-                                        </p>
-                                        <div className="flex flex-wrap justify-center gap-2">
-                                            <button
-                                                onClick={() => { setUserInput('Summarize this case'); handleSendMessage(); }}
-                                                className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-600 hover:border-primary transition-all"
-                                            >
-                                                &quot;Summarize this case&quot;
-                                            </button>
-                                            <button
-                                                onClick={() => { setUserInput('Check for deadlines'); handleSendMessage(); }}
-                                                className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-600 hover:border-primary transition-all"
-                                            >
-                                                &quot;Check for deadlines&quot;
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        {chatMessages.map((msg, i) => (
-                                            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'gap-4'}`}>
-                                                {msg.role === 'ai' && (
-                                                    <div className="w-8 h-8 rounded-lg bg-primary flex-none flex items-center justify-center shadow-lg">
-                                                        <span className="material-icons-round text-white text-sm">smart_toy</span>
-                                                    </div>
-                                                )}
-                                                <div className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm text-[13px] leading-relaxed ${msg.role === 'user'
-                                                    ? 'bg-primary text-white rounded-tr-sm'
-                                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-tl-sm'
-                                                    }`}>
-                                                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                                                    <div className={`mt-2 text-[9px] font-bold uppercase tracking-wider opacity-60 ${msg.role === 'user' ? 'text-blue-100 text-right' : 'text-slate-500'}`}>
-                                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </div>
-                                                </div>
+                            <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide relative z-10">
+                                <AnimatePresence mode="popLayout">
+                                    {chatMessages.length === 0 ? (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex flex-col items-center justify-center h-full text-center max-w-lg mx-auto"
+                                        >
+                                            <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center mb-8 relative group">
+                                                <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:blur-3xl transition-all opacity-40"></div>
+                                                <Zap className="text-primary relative z-10 group-hover:scale-110 transition-transform duration-500" size={40} />
                                             </div>
-                                        ))}
-                                        {isSending && (
-                                            <div className="flex gap-4">
-                                                <div className="w-8 h-8 rounded-lg bg-primary flex-none flex items-center justify-center shadow-lg">
-                                                    <span className="material-icons-round text-white text-sm">smart_toy</span>
-                                                </div>
-                                                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-6 py-4 shadow-sm flex items-center gap-1">
-                                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                                                </div>
+                                            <h3 className="text-2xl font-black text-white mb-4 font-display tracking-tightest uppercase">Directive Core Ready</h3>
+                                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.15em] leading-relaxed mb-10">
+                                                Input query protocols to analyze case repositories, extract legal precedents, and synthesize defense strategies.
+                                            </p>
+                                            <div className="flex flex-wrap justify-center gap-4">
+                                                {[
+                                                    { label: 'Synthesize Case Overview', icon: FileText, delay: 0 },
+                                                    { label: 'Audit Timeline Discrepancies', icon: Clock, delay: 0.1 },
+                                                    { label: 'Generate Discovery Report', icon: Zap, delay: 0.2 }
+                                                ].map((action, idx) => (
+                                                    <motion.button
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: action.delay }}
+                                                        key={idx}
+                                                        onClick={() => { setUserInput(action.label); handleSendMessage(); }}
+                                                        className="px-6 py-3.5 bg-white/[0.03] border border-white/10 rounded-2xl text-[9px] font-black text-slate-400 hover:text-white hover:border-primary/40 hover:bg-white/[0.06] transition-all flex items-center gap-3 uppercase tracking-widest shadow-xl"
+                                                    >
+                                                        <action.icon size={14} className="text-primary" />
+                                                        {action.label}
+                                                    </motion.button>
+                                                ))}
                                             </div>
-                                        )}
-                                    </div>
-                                )}
+                                        </motion.div>
+                                    ) : (
+                                        <div className="space-y-8 pb-10">
+                                            {chatMessages.map((msg, i) => (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    key={i} 
+                                                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'gap-6'}`}
+                                                >
+                                                    {msg.role === 'ai' && (
+                                                        <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/30 flex-none flex items-center justify-center shadow-2xl relative">
+                                                            <div className="absolute inset-0 bg-primary/20 blur-md rounded-2xl"></div>
+                                                            <Zap className="text-primary relative z-10" size={20} />
+                                                        </div>
+                                                    )}
+                                                    <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-500 ${msg.role === 'user'
+                                                        ? 'bg-gradient-to-br from-primary to-blue-700 text-white rounded-tr-sm border border-white/20'
+                                                        : 'premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
+                                                        }`}>
+                                                        <p className="whitespace-pre-wrap font-medium tracking-tightest leading-relaxed">
+                                                            {msg.content}
+                                                        </p>
+                                                        <div className={`mt-4 pt-4 border-t ${msg.role === 'user' ? 'border-white/10' : 'border-white/5'} flex items-center justify-between`}>
+                                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-blue-200' : 'text-slate-500'}`}>
+                                                                {msg.role === 'user' ? 'Authorized Operator' : `Neural Engine • ${msg.model || 'GPT-4.5'}`}
+                                                            </span>
+                                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-blue-200/60' : 'text-slate-600'}`}>
+                                                                {format(new Date(msg.timestamp), 'HH:mm:ss')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                            {isSending && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="flex gap-6"
+                                                >
+                                                    <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex-none flex items-center justify-center">
+                                                        <Loader2 className="text-primary animate-spin" size={20} />
+                                                    </div>
+                                                    <div className="premium-glass border border-white/10 rounded-3xl rounded-tl-sm px-8 py-5 flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                                                        <span className="ml-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Processing Request...</span>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    )}
+                                </AnimatePresence>
                             </div>
 
                             {/* Input Area */}
-                            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark">
-                                <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+                            <div className="p-8 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
+                                <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-500 group/input">
                                     <textarea
-                                        className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 border-none focus:ring-0 resize-none py-3 px-4 outline-none"
-                                        placeholder="Ask your AI assistant about this case..."
+                                        className="w-full bg-transparent text-[11px] font-black uppercase tracking-wider text-white placeholder-slate-600 border-none focus:ring-0 resize-none pt-4 pb-16 px-6 outline-none scrollbar-hide"
+                                        placeholder="INPUT COMMAND PROTOCOLS..."
                                         rows={2}
                                         value={userInput}
                                         onChange={(e) => setUserInput(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                                     />
-                                    <div className="flex items-center justify-between px-2 pb-2">
-                                        <div className="flex gap-1">
-                                            <button className="p-2 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Attach File">
-                                                <span className="material-icons-round text-xl">attach_file</span>
-                                            </button>
+                                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between border-t border-white/5 pt-4">
+                                        <div className="flex gap-2">
+                                            <motion.button 
+                                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                                className="p-2 text-slate-500 hover:text-primary rounded-xl transition-all"
+                                            >
+                                                <Plus size={18} />
+                                            </motion.button>
+                                            <motion.button 
+                                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                                className="p-2 text-slate-500 hover:text-primary rounded-xl transition-all"
+                                            >
+                                                <Search size={18} />
+                                            </motion.button>
                                         </div>
-                                        <button
+                                        <motion.button
+                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(37,99,235,0.4)" }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={handleSendMessage}
                                             disabled={!userInput.trim() || isSending}
-                                            className={`bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-md text-sm font-bold ${(!userInput.trim() || isSending) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            className={`bg-primary text-white pl-6 pr-4 py-3 rounded-2xl flex items-center gap-3 transition-all shadow-2xl text-[10px] font-black uppercase tracking-[0.2em] ${(!userInput.trim() || isSending) ? 'opacity-40 cursor-not-allowed' : ''}`}
                                         >
-                                            {isSending ? 'Sending...' : 'Send'}
-                                            {!isSending && <span className="material-icons-round text-base">send</span>}
-                                        </button>
+                                            {isSending ? 'Synthesizing' : 'Transmit'}
+                                            {!isSending && <Zap size={14} fill="currentColor" />}
+                                        </motion.button>
                                     </div>
                                 </div>
                             </div>
                         </section>
 
                         {/* RIGHT PANE: Summary & Info */}
-                        <aside className="w-80 flex-none flex flex-col bg-slate-50 dark:bg-background-dark border-l border-slate-200 dark:border-slate-800">
-                            <div className="flex border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark">
+                        <aside className="w-80 flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
+                            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/right:scale-[1.6] transition-transform duration-1000"></div>
+                            
+                            <div className="grid grid-cols-2 bg-white/[0.02] border-b border-white/10 p-1.5 m-4 rounded-[1.5rem] premium-glass relative z-10">
                                 <button
                                     onClick={() => setActiveTab('summary')}
-                                    className={`flex-1 py-3 text-xs font-bold border-b-2 uppercase tracking-wider transition-colors ${activeTab === 'summary' ? 'border-primary text-primary bg-blue-50/50 dark:bg-primary/10' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                 >
-                                    Summary
+                                    <List size={12} />
+                                    Abstract
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('search')}
-                                    className={`flex-1 py-3 text-xs font-bold border-b-2 uppercase tracking-wider transition-colors ${activeTab === 'search' ? 'border-primary text-primary bg-blue-50/50 dark:bg-primary/10' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${activeTab === 'search' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                 >
-                                    Status
+                                    <CheckCircle size={12} />
+                                    Metrics
                                 </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                {activeTab === 'summary' && (
-                                    <div className="space-y-4">
-                                        {/* AI Summary Card */}
-                                        <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/5 rounded-xl border border-primary/20 p-4 shadow-sm relative overflow-hidden group">
-                                            <div className="flex items-center justify-between mb-3 relative z-10">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="material-icons-round text-primary text-lg">auto_awesome</span>
-                                                    <h3 className="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-widest">AI Case Summary</h3>
-                                                </div>
-                                                <button
-                                                    onClick={handleGenerateSummary}
-                                                    disabled={isLoadingSummary}
-                                                    className="p-1 text-primary hover:bg-primary/10 rounded transition-colors disabled:opacity-50"
-                                                    title="Regenerate"
-                                                >
-                                                    <span className={`material-icons-round text-sm ${isLoadingSummary ? 'animate-spin' : ''}`}>refresh</span>
-                                                </button>
-                                            </div>
-
-                                            {caseSummary ? (
-                                                <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed relative z-10">
-                                                    {caseSummary}
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-6 relative z-10">
-                                                    <p className="text-[10px] text-slate-500 mb-4">No AI summary generated yet.</p>
-                                                    <button
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide relative z-10">
+                                <AnimatePresence mode="wait">
+                                    {activeTab === 'summary' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-6"
+                                        >
+                                            {/* AI Summary Card */}
+                                            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-500">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
+                                                <div className="flex items-center justify-between mb-6 relative z-10">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 text-primary">
+                                                            <Zap size={14} fill="currentColor" />
+                                                        </div>
+                                                        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Neural Synopsis</h3>
+                                                    </div>
+                                                    <motion.button
+                                                        whileHover={{ rotate: 180 }}
                                                         onClick={handleGenerateSummary}
-                                                        className="px-4 py-2 bg-primary text-white text-[10px] font-bold rounded-lg shadow-md hover:bg-primary-hover transition-all"
+                                                        disabled={isLoadingSummary}
+                                                        className="p-2 text-slate-500 hover:text-primary transition-all disabled:opacity-30"
                                                     >
-                                                        Generate Summary
-                                                    </button>
+                                                        <span className={`material-icons-round text-sm ${isLoadingSummary ? 'animate-spin' : ''}`}>sync</span>
+                                                    </motion.button>
                                                 </div>
-                                            )}
 
-                                            {/* Decorative element */}
-                                            <div className="absolute -bottom-8 -right-8 text-primary/5 dark:text-primary/10 group-hover:scale-110 transition-transform">
-                                                <span className="material-icons-round text-8xl">auto_awesome</span>
-                                            </div>
-                                        </div>
+                                                {caseSummary ? (
+                                                    <div className="text-[11px] text-slate-400 font-medium leading-relaxed tracking-tightest relative z-10 mb-4 whitespace-pre-wrap">
+                                                        {caseSummary}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-10 relative z-10 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-6">No Logic Synthesis Found</p>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(37,99,235,0.3)" }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={handleGenerateSummary}
+                                                            className="px-6 py-3 bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-xl shadow-xl transition-all"
+                                                        >
+                                                            Initiate Synthesis
+                                                        </motion.button>
+                                                    </div>
+                                                )}
 
-                                        {/* Key Facts Card */}
-                                        <div className="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Info size={14} className="text-slate-400" />
-                                                <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Case Profile</h3>
+                                                <div className="pt-4 border-t border-white/5 flex items-center justify-between relative z-10">
+                                                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Confidence Index</span>
+                                                    <span className="text-[10px] font-black text-emerald-400">98.4%</span>
+                                                </div>
                                             </div>
+
+                                            {/* Details Section */}
                                             <div className="space-y-4">
-                                                <div>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase">Client Name</div>
-                                                    <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{caseData?.client || 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase">Created On</div>
-                                                    <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{caseData ? new Date(caseData.createdAt).toLocaleDateString() : 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase">Description</div>
-                                                    <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mt-1">{caseData?.description || 'No description provided.'}</div>
+                                                <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">System Metadata</h4>
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {[
+                                                        { label: 'Date Matrix', val: format(new Date(caseData?.createdAt || Date.now()), 'MMM d, yyyy'), icon: Clock },
+                                                        { label: 'Practice Domain', val: caseData?.practiceArea || 'General', icon: Shield },
+                                                        { label: 'Node Priority', val: 'Level Alpha', icon: Zap }
+                                                    ].map((it, idx) => (
+                                                        <div key={idx} className="flex items-center justify-between p-4 premium-glass border border-white/5 rounded-2xl shadow-lg">
+                                                            <div className="flex items-center gap-3">
+                                                                <it.icon size={12} className="text-slate-500" />
+                                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{it.label}</span>
+                                                            </div>
+                                                            <span className="text-[10px] font-black text-white uppercase tracking-tightest">{it.val}</span>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
+                                        </motion.div>
+                                    )}
 
-                                {activeTab === 'search' && (
-                                    <div className="space-y-4">
-                                        <div className="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-700 p-6 text-center">
-                                            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <span className="material-icons-round text-2xl">check_circle</span>
+                                    {activeTab === 'search' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-6"
+                                        >
+                                            <div className="premium-glass border border-white/10 rounded-[2rem] p-8 text-center shadow-2xl relative overflow-hidden group">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-6 relative z-10">
+                                                    <CheckCircle size={32} />
+                                                </div>
+                                                <h3 className="text-[11px] font-black text-white mb-2 uppercase tracking-[0.3em] relative z-10">Neural Readiness</h3>
+                                                <p className="text-[9px] font-black text-slate-500 mb-8 uppercase tracking-widest relative z-10 leading-relaxed">
+                                                    {files.length > 0 ? `${files.length} Units Analyzed & Successfully Indexed` : 'Waiting for Data Ingestion...'}
+                                                </p>
+                                                <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden shadow-inner border border-white/5 p-0.5 relative z-10">
+                                                    <motion.div 
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: files.length > 0 ? '100%' : '0%' }}
+                                                        className="bg-gradient-to-r from-emerald-600 to-teal-400 h-full rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                                                    ></motion.div>
+                                                </div>
                                             </div>
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 uppercase tracking-wide">AI Readiness</h3>
-                                            <p className="text-xs text-slate-500 mb-4">{files.length > 0 ? `${files.length} documents analyzed & indexed` : 'Waiting for documents...'}</p>
-                                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                                <div className="bg-emerald-500 h-full rounded-full transition-all" style={{ width: files.length > 0 ? '100%' : '0%' }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </aside>
                     </div>

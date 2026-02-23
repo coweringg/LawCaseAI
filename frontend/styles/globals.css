@@ -86,4 +86,40 @@ input[type=number] {
   .container-stitch {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  .premium-glass {
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+
+  .mesh-gradient {
+    background-color: #0d121d;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(220,100%,15%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(210,100%,10%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(230,100%,15%,1) 0, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(220,100%,5%,1) 0, transparent 50%);
+  }
+
+  .animate-slow-glow {
+    animation: slow-glow 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes slow-glow {
+    0% { opacity: 0.3; filter: blur(100px); }
+    100% { opacity: 0.6; filter: blur(130px); }
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(10, 68, 184, 0.5);
+  }
+
+  .premium-border {
+    @apply relative overflow-hidden;
+  }
+
+  .premium-border::after {
+    content: '';
+    @apply absolute inset-0 rounded-[inherit] border border-white/10 pointer-events-none;
+    mask-image: linear-gradient(to bottom, black, transparent);
+  }
 }

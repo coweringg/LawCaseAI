@@ -8,6 +8,8 @@ import {
   Building,
   CreditCard,
   Shield,
+  ShieldCheck,
+  ShieldAlert,
   Bell,
   Lock,
   Eye,
@@ -18,6 +20,7 @@ import {
   LogOut,
   Settings as SettingsIcon
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -264,330 +267,353 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Header */}
-            <header className="bg-white shadow-law border-b border-law-charcoal-200">
-              <div className="px-8 py-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="heading-3 text-law-charcoal-900">Account Settings</h1>
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto bg-transparent relative">
+              <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+              
+              {/* Header */}
+              <header className="px-8 py-10 border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
+                <div className="flex flex-col relative z-10">
+                  <h1 className="text-4xl font-black text-white tracking-tightest font-display leading-tight">Configuration Matrix</h1>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">System Preferences &bull; Identity Synchronization Active</p>
+                  </div>
                 </div>
-              </div>
-            </header>
-
-            <main className="p-8">
-              {/* Tabs */}
-              <div className="mb-8">
-                <div className="border-b border-law-charcoal-200">
-                  <nav className="-mb-px flex space-x-8">
+              </header>
+  
+              <main className="p-8 max-w-6xl mx-auto">
+                {/* Tabs */}
+                <div className="mb-12">
+                  <div className="premium-glass p-1.5 rounded-[2rem] border border-white/10 shadow-2xl inline-flex flex-wrap gap-2">
                     {[
-                      { id: 'profile', label: 'Profile', icon: User },
-                      { id: 'security', label: 'Security', icon: Shield },
-                      { id: 'notifications', label: 'Notifications', icon: Bell },
-                      { id: 'billing', label: 'Billing', icon: CreditCard }
+                      { id: 'profile', label: 'Identity', icon: User },
+                      { id: 'security', label: 'Security Crypt', icon: Shield },
+                      { id: 'notifications', label: 'Transmission', icon: Bell },
+                      { id: 'billing', label: 'Treasury', icon: CreditCard }
                     ].map((tab) => (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors duration-200 ${activeTab === tab.id
-                          ? 'border-law-blue-500 text-law-blue-600'
-                          : 'border-transparent text-law-charcoal-500 hover:text-law-charcoal-700 hover:border-law-charcoal-300'
+                        className={`py-3 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 ${activeTab === tab.id
+                          ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20'
+                          : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent'
                           }`}
                       >
-                        <tab.icon className="w-4 h-4" />
+                        <tab.icon size={14} className={activeTab === tab.id ? 'animate-pulse' : ''} />
                         <span>{tab.label}</span>
                       </button>
                     ))}
-                  </nav>
+                  </div>
                 </div>
-              </div>
-
-              {/* Alert */}
-              {message.text && (
-                <div className={`alert alert-${message.type as 'success' | 'error'} mb-8 animate-fade-in-up`}>
-                  {message.text}
-                </div>
-              )}
+  
+                {/* Alert */}
+                <AnimatePresence mode="wait">
+                  {message.text && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                      className={`mb-8 p-6 rounded-3xl border backdrop-blur-2xl shadow-2xl flex items-center gap-4 ${
+                        message.type === 'success' 
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                          : 'bg-red-500/10 border-red-500/30 text-red-400'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+                        {message.type === 'success' ? <Shield size={18} /> : <ShieldAlert size={18} />}
+                      </div>
+                      <p className="text-[11px] font-black uppercase tracking-widest">{message.text}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
               {/* Tab Content */}
               <div className="max-w-3xl">
                 {activeTab === 'profile' && (
-                  <div className="card-premium">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="heading-4">Profile Information</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handleProfileUpdate} className="space-y-6">
-                        <div className="form-group">
-                          <Input
-                            label="Full Name"
-                            name="name"
-                            type="text"
-                            value={profileForm.name}
-                            onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
-                            leftIcon={<User className="w-5 h-5 text-law-charcoal-400" />}
-                            className="input-field"
-                            required
-                          />
-                        </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500">
+                        <User size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Core Identity</h3>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Personnel Matrix Synchronization</p>
+                      </div>
+                    </div>
 
-                        <div className="form-group">
-                          <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            value={profileForm.email}
-                            onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
-                            leftIcon={<Mail className="w-5 h-5 text-law-charcoal-400" />}
-                            className="input-field"
-                            required
-                          />
-                        </div>
+                    <form onSubmit={handleProfileUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Name</label>
+                        <Input
+                          name="name"
+                          type="text"
+                          value={profileForm.name}
+                          onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                          leftIcon={<User className="w-5 h-5 text-primary/50" />}
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          required
+                        />
+                      </div>
 
-                        <div className="form-group">
-                          <Input
-                            label="Law Firm"
-                            name="lawFirm"
-                            type="text"
-                            value={profileForm.lawFirm}
-                            onChange={(e) => setProfileForm(prev => ({ ...prev, lawFirm: e.target.value }))}
-                            leftIcon={<Building className="w-5 h-5 text-law-charcoal-400" />}
-                            className="input-field"
-                          />
-                        </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Neural Mailbox</label>
+                        <Input
+                          name="email"
+                          type="email"
+                          value={profileForm.email}
+                          onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
+                          leftIcon={<Mail className="w-5 h-5 text-primary/50" />}
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          required
+                        />
+                      </div>
 
-                        <div className="pt-6">
-                          <Button type="submit" className="btn-primary">
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Changes
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Consortium / Law Firm</label>
+                        <Input
+                          name="lawFirm"
+                          type="text"
+                          value={profileForm.lawFirm}
+                          onChange={(e) => setProfileForm(prev => ({ ...prev, lawFirm: e.target.value }))}
+                          leftIcon={<Building className="w-5 h-5 text-primary/50" />}
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2 pt-6">
+                        <motion.button
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
+                          whileTap={{ scale: 0.98 }}
+                          type="submit"
+                          className="w-full h-14 bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
+                        >
+                          <Save size={18} />
+                          Synchronize Identity
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
                 )}
 
                 {activeTab === 'security' && (
-                  <div className="card-premium">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="heading-4">Change Password</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handlePasswordUpdate} className="space-y-6">
-                        <div className="form-group">
-                          <Input
-                            label="Current Password"
-                            name="currentPassword"
-                            type={showCurrentPassword ? 'text' : 'password'}
-                            value={passwordForm.currentPassword}
-                            onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
-                            leftIcon={<Lock className="w-5 h-5 text-law-charcoal-400" />}
-                            rightIcon={
-                              <button
-                                type="button"
-                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className="text-law-charcoal-400 hover:text-law-charcoal-600 transition-colors"
-                              >
-                                {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                              </button>
-                            }
-                            className="input-field"
-                            required
-                          />
-                        </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl group"
+                  >
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-500">
+                        <Lock size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Security Protocols</h3>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Access Credential Re-Authorization</p>
+                      </div>
+                    </div>
 
-                        <div className="form-group">
+                    <form onSubmit={handlePasswordUpdate} className="space-y-8">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Cipher</label>
+                        <Input
+                          name="currentPassword"
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={passwordForm.currentPassword}
+                          onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          leftIcon={<Lock className="w-5 h-5 text-primary/50" />}
+                          rightIcon={
+                            <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="text-slate-500 hover:text-white transition-colors">
+                              {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          }
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">New Hash Pattern</label>
                           <Input
-                            label="New Password"
                             name="newPassword"
                             type={showNewPassword ? 'text' : 'password'}
                             value={passwordForm.newPassword}
                             onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                            leftIcon={<Lock className="w-5 h-5 text-law-charcoal-400" />}
+                            leftIcon={<Shield size={18} className="text-primary/50" />}
                             rightIcon={
-                              <button
-                                type="button"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                                className="text-law-charcoal-400 hover:text-law-charcoal-600 transition-colors"
-                              >
-                                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="text-slate-500 hover:text-white transition-colors">
+                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             }
-                            className="input-field"
+                            className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
                             required
                           />
                         </div>
-
-                        <div className="form-group">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Verify Hash</label>
                           <Input
-                            label="Confirm New Password"
                             name="confirmPassword"
                             type={showPassword ? 'text' : 'password'}
                             value={passwordForm.confirmPassword}
                             onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                            leftIcon={<Lock className="w-5 h-5 text-law-charcoal-400" />}
+                            leftIcon={<ShieldCheck size={18} className="text-primary/50" />}
                             rightIcon={
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="text-law-charcoal-400 hover:text-law-charcoal-600 transition-colors"
-                              >
-                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-slate-500 hover:text-white transition-colors">
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             }
-                            className="input-field"
+                            className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
                             required
                           />
                         </div>
+                      </div>
 
-                        <div className="pt-6">
-                          <Button type="submit" className="btn-primary">
-                            <Save className="w-4 h-4 mr-2" />
-                            Update Password
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </div>
+                      <div className="pt-6">
+                        <motion.button
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(245,158,11,0.4)" }}
+                          whileTap={{ scale: 0.98 }}
+                          type="submit"
+                          className="w-full h-14 bg-gradient-to-r from-amber-600 to-orange-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
+                        >
+                          <Save size={18} />
+                          Upgrade Security Layers
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
                 )}
 
                 {activeTab === 'notifications' && (
-                  <div className="card-premium">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="heading-4">Notification Preferences</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handleNotificationUpdate} className="space-y-6">
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between p-4 border border-law-charcoal-200 rounded-law-lg hover:bg-law-charcoal-50 transition-colors duration-200">
-                            <div>
-                              <p className="font-medium text-law-charcoal-900">Email Notifications</p>
-                              <p className="text-sm text-law-charcoal-500">Receive email updates about your account</p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notifications.emailNotifications}
-                              onChange={(e) => setNotifications(prev => ({ ...prev, emailNotifications: e.target.checked }))}
-                              className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
-                            />
-                          </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl group"
+                  >
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform duration-500">
+                        <Bell size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Neural Transmission</h3>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Data Flow & Notification Matrix</p>
+                      </div>
+                    </div>
 
-                          <div className="flex items-center justify-between p-4 border border-law-charcoal-200 rounded-law-lg hover:bg-law-charcoal-50 transition-colors duration-200">
+                    <form onSubmit={handleNotificationUpdate} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                          { id: 'emailNotifications', label: 'Email Relay', desc: 'Secure asynchronous data delivery' },
+                          { id: 'caseUpdates', label: 'Case Synchronization', desc: 'Real-time repository change alerts' },
+                          { id: 'aiResponses', label: 'Cognitive Insights', desc: 'Neural processing completion pings' },
+                          { id: 'marketingEmails', label: 'Strategic Intel', desc: 'Consortium updates and releases' }
+                        ].map((item) => (
+                          <div key={item.id} className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-500 flex items-center justify-between group/item">
                             <div>
-                              <p className="font-medium text-law-charcoal-900">Case Updates</p>
-                              <p className="text-sm text-law-charcoal-500">Get notified when cases are updated</p>
+                              <p className="text-[11px] font-black text-white uppercase tracking-wider mb-1 group-hover/item:text-primary transition-colors">{item.label}</p>
+                              <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{item.desc}</p>
                             </div>
-                            <input
-                              type="checkbox"
-                              checked={notifications.caseUpdates}
-                              onChange={(e) => setNotifications(prev => ({ ...prev, caseUpdates: e.target.checked }))}
-                              className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between p-4 border border-law-charcoal-200 rounded-law-lg hover:bg-law-charcoal-50 transition-colors duration-200">
-                            <div>
-                              <p className="font-medium text-law-charcoal-900">AI Responses</p>
-                              <p className="text-sm text-law-charcoal-500">Receive notifications when AI responds</p>
+                            <div 
+                              onClick={() => setNotifications(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof prev] }))}
+                              className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all duration-500 relative ${notifications[item.id as keyof typeof notifications] ? 'bg-primary' : 'bg-slate-800'}`}
+                            >
+                              <div className={`w-4 h-4 rounded-full bg-white shadow-xl transition-all duration-500 transform ${notifications[item.id as keyof typeof notifications] ? 'translate-x-6' : 'translate-x-0'}`}></div>
                             </div>
-                            <input
-                              type="checkbox"
-                              checked={notifications.aiResponses}
-                              onChange={(e) => setNotifications(prev => ({ ...prev, aiResponses: e.target.checked }))}
-                              className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
-                            />
                           </div>
+                        ))}
+                      </div>
 
-                          <div className="flex items-center justify-between p-4 border border-law-charcoal-200 rounded-law-lg hover:bg-law-charcoal-50 transition-colors duration-200">
-                            <div>
-                              <p className="font-medium text-law-charcoal-900">Marketing Emails</p>
-                              <p className="text-sm text-law-charcoal-500">Receive product updates and offers</p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notifications.marketingEmails}
-                              onChange={(e) => setNotifications(prev => ({ ...prev, marketingEmails: e.target.checked }))}
-                              className="h-4 w-4 text-law-blue-600 focus:ring-law-blue-500 border-law-charcoal-300 rounded"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="pt-6">
-                          <Button type="submit" className="btn-primary">
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Preferences
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </div>
+                      <div className="pt-8">
+                        <motion.button
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(99,102,241,0.4)" }}
+                          whileTap={{ scale: 0.98 }}
+                          type="submit"
+                          className="w-full h-14 bg-gradient-to-r from-indigo-600 to-blue-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
+                        >
+                          <Save size={18} />
+                          Calibrate Data Stream
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
                 )}
 
                 {activeTab === 'billing' && (
-                  <div className="space-y-8">
-                    <div className="card-premium">
-                      <CardHeader className="pb-4">
-                        <CardTitle className="heading-4">Current Plan</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center justify-between mb-6">
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="space-y-8"
+                  >
+                    <div className="premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] to-transparent pointer-events-none"></div>
+                      <div className="flex items-center justify-between mb-12 relative z-10">
+                        <div className="flex items-center gap-4">
+                          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform duration-500">
+                            <CreditCard size={24} />
+                          </div>
                           <div>
-                            <span className={`badge ${planInfo.color}`}>
-                              {planInfo.name} Plan
-                            </span>
-                            <p className="mt-3 text-3xl font-bold text-law-charcoal-900">{planInfo.price}/month</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-law-charcoal-500">Cases Used</p>
-                            <p className="text-2xl font-semibold text-law-charcoal-900">
-                              {user.currentCases} / {user.planLimit >= 100000 ? '∞' : user.planLimit}
-                            </p>
+                            <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Subscription Core</h3>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Resource Allocation Tier: {planInfo.name}</p>
                           </div>
                         </div>
-                        {user.planLimit < 100000 && (
-                          <div className="progress-bar">
-                            <div
-                              className="progress-fill"
-                              style={{ width: `${(user.currentCases / user.planLimit) * 100}%` }}
-                            ></div>
+                        <div className="text-right">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Monthly Tribute</p>
+                          <p className="text-3xl font-black text-white font-display">{planInfo.price}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-end relative z-10">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Neural Capacity</span>
+                            <span className="text-[11px] font-black text-emerald-400 font-display">{user.currentCases} / {user.planLimit >= 100000 ? '∞' : user.planLimit}</span>
                           </div>
-                        )}
-                      </CardContent>
+                          <div className="h-3 bg-white/5 rounded-full overflow-hidden shadow-inner border border-white/5 p-0.5">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((user.currentCases / (user.planLimit || 1)) * 100, 100)}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                            ></motion.div>
+                          </div>
+                        </div>
+                        <Link href="/dashboard/upgrade">
+                          <motion.button
+                            whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full h-14 bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-white/10 hover:border-emerald-500/40 transition-all flex items-center justify-center gap-3"
+                          >
+                            <CreditCard size={18} />
+                            Expand Resources
+                          </motion.button>
+                        </Link>
+                      </div>
                     </div>
 
-                    <div className="card-premium">
-                      <CardHeader className="pb-4">
-                        <CardTitle className="heading-4">Upgrade Plan</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-6">
-                          <p className="text-law-charcoal-600 leading-relaxed">
-                            Need more cases? Upgrade your plan to unlock additional features and higher limits.
-                          </p>
-                          <Link href="/dashboard/upgrade">
-                            <Button className="btn-primary">
-                              <CreditCard className="w-4 h-4 mr-2" />
-                              Upgrade Plan
-                            </Button>
-                          </Link>
+                    <div className="premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-2xl group opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400">
+                          <FileText size={20} />
                         </div>
-                      </CardContent>
-                    </div>
-
-                    <div className="card-premium">
-                      <CardHeader className="pb-4">
-                        <CardTitle className="heading-4">Billing History</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-center py-12">
-                          <div className="w-16 h-16 bg-law-charcoal-100 rounded-law-lg flex items-center justify-center mx-auto mb-6">
-                            <CreditCard className="w-8 h-8 text-law-charcoal-400" />
-                          </div>
-                          <p className="text-law-charcoal-600">No billing history available</p>
+                        <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Transaction Ledger</h3>
+                      </div>
+                      <div className="text-center py-16 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <CreditCard className="w-8 h-8 text-slate-700" />
                         </div>
-                      </CardContent>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">No Historical Ledger Entries Found</p>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </div>
             </main>

@@ -122,7 +122,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                         <div className="flex-1 p-6 bg-white/[0.02] rounded-[2rem] border border-white/5">
                             <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-2">Firm Integrity</h4>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-relaxed">
-                                All members registered with this code automatically inherit ELITE level benefits and firm-wide SOC2 Type II compliance.
+                                All members registered with this code automatically inherit Enterprise level benefits and firm-wide SOC2 Type II compliance.
                             </p>
                         </div>
                         <div className="flex-1 p-6 bg-white/[0.02] rounded-[2rem] border border-white/5">

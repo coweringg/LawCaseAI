@@ -30,7 +30,15 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col relative">
+        <div className="bg-background-light dark:bg-[#060910] text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col relative overflow-hidden">
+            {/* Premium Background Layer */}
+            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 mesh-gradient opacity-40 dark:opacity-100" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full animate-slow-glow" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-600/10 rounded-full animate-slow-glow" style={{ animationDelay: '-5s' }} />
+            </div>
+
+            <div className="relative z-10 flex flex-col min-h-screen">
             {/* Navigation */}
             <nav className="fixed w-full z-50 top-0 start-0 border-b border-primary/10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-4 py-3">
@@ -118,5 +126,6 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 </div>
             </footer>
         </div>
-    );
+    </div>
+  );
 }

@@ -11,8 +11,17 @@ import {
   AlertTriangle,
   Info,
   CheckCircle,
-  Radio
+  Radio,
+  Cpu,
+  Globe,
+  Database,
+  Lock,
+  Command,
+  Terminal,
+  ShieldCheck,
+  Clock
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -129,147 +138,201 @@ export default function SystemCommandCenter() {
   return (
     <DashboardLayout>
       <Head>
-        <title>System Command | LawCaseAI Admin</title>
+        <title>Elite System Command | LawCaseAI</title>
       </Head>
 
-      <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-              <ShieldAlert className="w-8 h-8 text-error-500" />
-              System Command Center
+      <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
+        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+        
+        {/* Header Area */}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-error-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">System Authorization Level: Alpha-Zero</span>
+            </div>
+            <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic bg-gradient-to-r from-white via-white to-white/20 bg-clip-text text-transparent">
+              System Command
             </h1>
-            <p className="text-slate-400 mt-1">Global controls for platform integrity and communication</p>
+            <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
+              <ShieldCheck size={14} className="text-error-500" /> Platform Integrity & Network Communications
+            </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-             <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse"></div>
-             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">System Online</span>
+
+          <div className="flex gap-4">
+             <div className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse"></div>
+                Mainframe Status: Active
+             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
             {/* Maintenance Control */}
-            <Card variant="glass" className={cn(
-                "border-2 transition-all duration-500",
-                systemStatus.maintenanceMode ? "border-error-500 bg-error-500/10" : "border-white/10"
-            )}>
-              <CardContent className="p-8 flex flex-col items-center text-center space-y-6">
-                <div className={cn(
-                    "p-6 rounded-full transition-all duration-500",
-                    systemStatus.maintenanceMode ? "bg-error-500/20 text-error-500" : "bg-white/5 text-slate-500"
-                )}>
-                   <Power className="w-12 h-12" />
-                </div>
-                
-                <div>
-                   <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Maintenance Mode</h2>
-                   <p className="text-slate-400 text-sm max-w-xs mx-auto">
-                     {systemStatus.maintenanceMode 
-                       ? "Platform is currently LOCKED. Only admins can access." 
-                       : "Platform is operational. Standard user access is enabled."}
-                   </p>
-                </div>
-
-                <div className="w-full pt-4">
-                  <Button
-                    onClick={handleToggleMaintenance}
-                    disabled={isTogglingMaintenance}
-                    className={cn(
-                        "w-full py-6 text-sm font-black uppercase tracking-[0.2em] transition-all",
-                        systemStatus.maintenanceMode 
-                          ? "bg-slate-700 hover:bg-slate-600 text-white" 
-                          : "bg-error-600 hover:bg-error-500 text-white shadow-lg shadow-error-500/20"
-                    )}
-                  >
-                     {isTogglingMaintenance 
-                       ? "Switching Protocol..." 
-                       : (systemStatus.maintenanceMode ? "Deactivate Maintenance" : "Activate Maintenance Protocol")}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Broadcast System */}
-            <Card variant="glass" className="border-white/10">
-               <CardContent className="p-8 space-y-6">
-                  <div className="flex items-center gap-4 mb-4">
-                     <div className="p-3 bg-primary/20 rounded-xl text-primary">
-                        <Radio className="w-6 h-6" />
-                     </div>
-                     <div>
-                        <h2 className="text-xl font-bold text-white">Global Broadcast</h2>
-                        <p className="text-[11px] text-slate-500 uppercase tracking-wider">Send alerts to all active connected users</p>
-                     </div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Card variant="glass" className={cn(
+                  "premium-glass border-white/10 overflow-hidden transition-all duration-700 h-full",
+                  systemStatus.maintenanceMode ? "ring-2 ring-error-500/40 bg-error-500/5 shadow-[0_0_50px_rgba(239,68,68,0.1)]" : "shadow-2xl"
+              )}>
+                <div className="absolute inset-0 mesh-gradient opacity-[0.05] pointer-events-none"></div>
+                <CardContent className="p-12 flex flex-col items-center text-center space-y-8 relative z-10">
+                  <div className={cn(
+                      "w-32 h-32 rounded-[2.5rem] flex items-center justify-center transition-all duration-700",
+                      systemStatus.maintenanceMode 
+                        ? "bg-error-500/20 text-error-500 border-2 border-error-500/20 shadow-[0_0_40px_rgba(239,68,68,0.2)]" 
+                        : "bg-white/5 text-slate-500 border-2 border-white/5"
+                  )}>
+                     <Power className={cn("w-16 h-16", systemStatus.maintenanceMode && "animate-pulse")} />
+                  </div>
+                  
+                  <div className="space-y-4">
+                     <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Maintenance Protocol</h2>
+                     <p className="text-slate-400 text-[13px] font-medium leading-relaxed max-w-sm mx-auto">
+                       {systemStatus.maintenanceMode 
+                         ? "CRITICAL: The mainframe is currently in LOCKDOWN mode. All external user uplink streams are terminated. Access restricted to Admin Keys only." 
+                         : "Standard operational parameters detected. All user identity streams are currently receiving data packets. Access open to all verified network users."}
+                     </p>
                   </div>
 
-                  {systemStatus.globalAlert ? (
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
-                          <div className="flex items-center justify-between">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Active Broadcast</span>
-                             <span className={cn(
-                                 "px-2 py-0.5 rounded text-[9px] font-black uppercase",
-                                 `bg-${systemStatus.globalAlert.type === 'error' ? 'error' : systemStatus.globalAlert.type === 'success' ? 'success' : systemStatus.globalAlert.type === 'warning' ? 'warning' : 'primary'}-500/20 text-${systemStatus.globalAlert.type === 'error' ? 'error' : systemStatus.globalAlert.type === 'success' ? 'success' : systemStatus.globalAlert.type === 'warning' ? 'warning' : 'primary'}-500`
-                             )}>
-                                 {systemStatus.globalAlert.type}
-                             </span>
-                          </div>
-                          <p className="text-white font-medium text-sm">"{systemStatus.globalAlert.message}"</p>
-                          <div className="text-[10px] text-slate-600 font-mono">
-                              Sent: {formatDate(systemStatus.globalAlert.timestamp)}
-                          </div>
-                          <Button 
-                            onClick={handleClearBroadcast}
-                            disabled={isBroadcasting}
-                            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold uppercase tracking-widest mt-2"
+                  <div className="w-full pt-6">
+                    <Button
+                      variant="none"
+                      onClick={handleToggleMaintenance}
+                      disabled={isTogglingMaintenance}
+                      className={cn(
+                          "w-full h-20 rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-500 border-2",
+                          systemStatus.maintenanceMode 
+                            ? "bg-white/5 hover:bg-white/10 text-white border-white/20" 
+                            : "bg-error-600 hover:bg-error-500 text-white border-error-500 shadow-xl shadow-error-500/20"
+                      )}
+                    >
+                       {isTogglingMaintenance 
+                         ? "Syncing Central Core..." 
+                         : (systemStatus.maintenanceMode ? "Deactivate Lockdown" : "Initiate System Lockdown")}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Broadcast System */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Card variant="glass" className="premium-glass border-white/10 shadow-2xl h-full overflow-hidden">
+                 <div className="absolute inset-0 mesh-gradient opacity-[0.03] pointer-events-none"></div>
+                 <CardContent className="p-12 space-y-8 relative z-10">
+                    <div className="flex items-center gap-6">
+                       <div className="p-5 bg-primary/10 rounded-3xl border border-primary/20 text-primary shadow-xl shadow-primary/10">
+                          <Radio className="w-10 h-10" />
+                       </div>
+                       <div>
+                          <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">Global Pulse Broadcast</h2>
+                          <p className="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mt-1">Inter-Network Communication Channel</p>
+                       </div>
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                      {systemStatus.globalAlert ? (
+                          <motion.div 
+                            key="active-alert"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-6 shadow-2xl"
                           >
-                             Clear Broadcast
-                          </Button>
-                      </div>
-                  ) : (
-                      <form onSubmit={handleSendBroadcast} className="space-y-4">
-                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Message Content</label>
-                            <Input
-                               value={broadcastMessage}
-                               onChange={(e) => setBroadcastMessage(e.target.value)}
-                               placeholder="e.g., Scheduled maintenance in 10 minutes..."
-                               className="bg-black/40 border-white/10 text-white py-3"
-                               required
-                            />
-                         </div>
-                         
-                         <div className="grid grid-cols-4 gap-2">
-                            {(['info', 'success', 'warning', 'error'] as const).map(type => (
-                                <button
-                                   key={type}
-                                   type="button"
-                                   onClick={() => setBroadcastType(type)}
-                                   className={cn(
-                                       "py-2 rounded-lg border text-[10px] font-bold uppercase transition-all",
-                                       broadcastType === type 
-                                         ? `border-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500 bg-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500/20 text-white`
-                                         : "border-transparent bg-white/5 text-slate-500 hover:bg-white/10"
-                                   )}
-                                >
-                                    {type}
-                                </button>
-                            ))}
-                         </div>
-
-                         <Button 
-                           type="submit"
-                           disabled={isBroadcasting || !broadcastMessage.trim()}
-                           className="w-full bg-primary hover:bg-primary/80 text-white py-4 font-black uppercase tracking-widest text-xs"
-                         >
-                            {isBroadcasting ? "Broadcasting..." : "Transmit Alert"}
-                         </Button>
-                      </form>
-                  )}
-               </CardContent>
-            </Card>
-
+                              <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-2">
+                                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 italic">Transmitting...</span>
+                                 </div>
+                                 <span className={cn(
+                                     "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                                     systemStatus.globalAlert.type === 'error' ? 'bg-error-500/20 text-error-500 border-error-500/20' : 
+                                     systemStatus.globalAlert.type === 'success' ? 'bg-success-500/20 text-success-500 border-success-500/20' : 
+                                     systemStatus.globalAlert.type === 'warning' ? 'bg-warning-500/20 text-warning-500 border-warning-500/20' : 
+                                     'bg-primary/20 text-primary border-primary/20'
+                                 )}>
+                                     {systemStatus.globalAlert.type} Signal
+                                 </span>
+                              </div>
+                              <p className="text-white font-bold text-lg leading-tight tracking-tight italic">&quot;{systemStatus.globalAlert.message}&quot;</p>
+                              <div className="flex items-center justify-between border-t border-white/5 pt-6 mt-2">
+                                  <div className="flex items-center gap-2">
+                                    <Clock size={12} className="text-slate-600" />
+                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                      Timestamp: {formatDate(systemStatus.globalAlert.timestamp)}
+                                    </span>
+                                  </div>
+                                  <Button 
+                                    variant="none"
+                                    onClick={handleClearBroadcast}
+                                    disabled={isBroadcasting}
+                                    className="bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-xl transition-all border border-white/10 h-10"
+                                  >
+                                     Terminate Signal
+                                  </Button>
+                              </div>
+                          </motion.div>
+                      ) : (
+                          <motion.form 
+                            key="new-alert"
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            onSubmit={handleSendBroadcast} 
+                            className="space-y-6"
+                          >
+                             <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Message Payload</label>
+                                <textarea
+                                   value={broadcastMessage}
+                                   onChange={(e) => setBroadcastMessage(e.target.value)}
+                                   placeholder="Initiate communication protocol. Enter packet message..."
+                                   className="w-full h-32 bg-black/40 border border-white/5 text-white p-6 rounded-[2rem] text-sm font-bold placeholder-slate-700 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-black/60 transition-all resize-none shadow-inner"
+                                   required
+                                />
+                             </div>
+                             
+                             <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Signal Spectrum</label>
+                                <div className="grid grid-cols-4 gap-3">
+                                   {(['info', 'success', 'warning', 'error'] as const).map(type => (
+                                       <button
+                                          key={type}
+                                          type="button"
+                                          onClick={() => setBroadcastType(type)}
+                                          className={cn(
+                                              "py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                                              broadcastType === type 
+                                                ? `bg-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500 text-white shadow-xl shadow-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500/20 border-white/20`
+                                                : "border-white/5 bg-white/5 text-slate-500 hover:bg-white/10 hover:border-white/10"
+                                          )}
+                                       >
+                                           {type}
+                                       </button>
+                                   ))}
+                                </div>
+                             </div>
+    
+                             <Button 
+                               variant="none"
+                               type="submit"
+                               disabled={isBroadcasting || !broadcastMessage.trim()}
+                               className="w-full bg-primary hover:bg-primary/80 text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.4em] text-[11px] shadow-2xl shadow-primary/20 transition-all mt-4 border border-white/10"
+                             >
+                                <Radio size={16} className={cn("mr-3", isBroadcasting && "animate-pulse")} />
+                                {isBroadcasting ? "Encoding Packets..." : "Broadcast Signal"}
+                             </Button>
+                          </motion.form>
+                      )}
+                    </AnimatePresence>
+                 </CardContent>
+              </Card>
+            </motion.div>
         </div>
       </div>
     </DashboardLayout>

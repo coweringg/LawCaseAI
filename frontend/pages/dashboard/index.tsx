@@ -94,101 +94,107 @@ export default function Dashboard() {
         >
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <motion.div variants={itemVariants} className="glass p-6 rounded-2xl border border-white/10 shadow-xl transition-all hover:border-primary/30 group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
-                  <span className="material-icons-round">auto_awesome</span>
-                </div>
-                {(dashboardData?.hoursSaved?.today || 0) > 0 && (
-                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full border border-primary/20">
-                    +{dashboardData!.hoursSaved.today}h today
-                  </span>
-                )}
-              </div>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Hours Saved by AI</p>
-              <h3 className="text-3xl font-black text-white mt-2 font-display">
-                {dashboardData?.hoursSaved?.total || '0.0'} <span className="text-lg font-medium text-slate-500">hrs</span>
-              </h3>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="glass p-6 rounded-2xl border border-white/10 shadow-xl transition-all hover:border-primary/30 group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Briefcase size={20} />
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 border border-white/5 px-2 py-1 rounded-full">
-                  {dashboardData?.cases?.active || 0} / {(dashboardData?.cases?.limit || 0) >= 500 ? '∞' : (dashboardData?.cases?.limit || 0)} Active
-                </span>
-              </div>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Active Cases</p>
-              <div className="flex items-end gap-3 mt-2">
-                <h3 className="text-3xl font-black text-white font-display">
-                  {(dashboardData?.cases?.limit || 0) >= 500 
-                    ? '∞' 
-                    : (dashboardData?.cases?.limit || 0) === 0 
-                      ? 'None' 
-                      : `${dashboardData?.cases?.usagePercentage || 0}%`}
-                </h3>
-                {(dashboardData?.cases?.limit || 0) < 500 && (
-                  <div className="mb-2 flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="bg-gradient-to-r from-primary to-blue-500 h-full rounded-full"
-                    ></motion.div>
+            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-primary/40 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                    <span className="material-icons-round text-2xl">auto_awesome</span>
                   </div>
-                )}
-                {(dashboardData?.cases?.limit || 0) >= 500 && (
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 italic">
-                    Unlimited Infrastructure
-                  </p>
-                )}
-                {(dashboardData?.cases?.limit || 0) === 0 && (
-                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-1 italic">
-                    Upgrade to Start
-                  </p>
-                )}
+                  {(dashboardData?.hoursSaved?.today || 0) > 0 && (
+                    <span className="text-[9px] font-black text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20 uppercase tracking-widest shadow-lg backdrop-blur-md">
+                      +{dashboardData!.hoursSaved.today}h today
+                    </span>
+                  )}
+                </div>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Cognitive Time Saved</p>
+                <h3 className="text-4xl font-black text-white mt-3 font-display tracking-tightest">
+                  {dashboardData?.hoursSaved?.total || '0.0'} <span className="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Hrs</span>
+                </h3>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="glass p-6 rounded-2xl border border-white/10 shadow-xl transition-all hover:border-primary/30 group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                  <AlertCircle size={20} />
+            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/40 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                    <Briefcase size={22} />
+                  </div>
+                  <span className="text-[9px] font-black text-slate-400 border border-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest bg-white/5 backdrop-blur-md">
+                    {dashboardData?.cases?.active || 0} / {(dashboardData?.cases?.limit || 0) >= 500 ? '∞' : (dashboardData?.cases?.limit || 0)} Units
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20">
-                  {isLoading ? 'Syncing...' : 'Live'}
-                </span>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Capacity Utilization</p>
+                <div className="flex items-end gap-4 mt-3">
+                  <h3 className="text-4xl font-black text-white font-display tracking-tightest">
+                    {(dashboardData?.cases?.limit || 0) >= 500 
+                      ? '∞' 
+                      : (dashboardData?.cases?.limit || 0) === 0 
+                        ? '0%' 
+                        : `${dashboardData?.cases?.usagePercentage || 0}%`}
+                  </h3>
+                  {(dashboardData?.cases?.limit || 0) < 500 && (
+                    <div className="mb-3 flex-1 h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="bg-gradient-to-r from-primary via-blue-500 to-indigo-500 h-full rounded-full shadow-[0_0_15px_rgba(10,68,184,0.5)]"
+                      ></motion.div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Total Documents</p>
-              <h3 className="text-3xl font-black text-white mt-2 font-display">
-                {dashboardData?.documents?.total || 0}
-              </h3>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="glass p-6 rounded-2xl border border-white/10 shadow-xl transition-all hover:border-primary/30 group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                  <Gavel size={20} />
+            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-amber-500/40 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                    <AlertCircle size={22} />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Live Sync</span>
+                  </div>
                 </div>
-                <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-full border border-indigo-500/20">
-                  {(dashboardData?.cases?.closed || 0) > 0 ? 'Updated' : 'Active'}
-                </span>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Indexed Intelligence</p>
+                <h3 className="text-4xl font-black text-white mt-3 font-display tracking-tightest">
+                  {dashboardData?.documents?.total || 0} <span className="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Docs</span>
+                </h3>
               </div>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Closed Cases</p>
-              <h3 className="text-3xl font-black text-white mt-2 font-display">
-                {(dashboardData?.cases?.closed || 0).toString().padStart(2, '0')}
-              </h3>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-indigo-500/40 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                    <Gavel size={22} />
+                  </div>
+                </div>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Resolved Assertions</p>
+                <h3 className="text-4xl font-black text-white mt-3 font-display tracking-tightest">
+                  {(dashboardData?.cases?.closed || 0).toString().padStart(2, '0')} <span className="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Closed</span>
+                </h3>
+              </div>
             </motion.div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
-              <div className="glass rounded-2xl border border-white/10 shadow-xl overflow-hidden transition-all hover:border-primary/20">
-                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                  <h3 className="text-lg font-black text-white font-display">Recent Case Activity</h3>
-                  <Link href="/cases" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-white transition-colors">View repository</Link>
+            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
+              <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-500 hover:border-primary/20 backdrop-blur-3xl">
+                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                  <div>
+                    <h3 className="text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
+                  </div>
+                  <Link href="/cases" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black text-primary uppercase tracking-widest transition-all border border-white/5">
+                    Terminal View
+                    <span className="material-icons-round text-sm">open_in_new</span>
+                  </Link>
                 </div>
                 <div className="overflow-x-auto">
                   {isLoading ? (
@@ -214,29 +220,33 @@ export default function Dashboard() {
                             role="button"
                             aria-label={`View case ${c.name}`}
                           >
-                            <td className="px-6 py-5">
-                              <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20 uppercase">
+                            <td className="px-8 py-6">
+                              <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-500">
                                   {c.name.substring(0, 2)}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">{c.name}</p>
-                                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-0.5">{c.practiceArea || 'General Legal'}</p>
+                                  <p className="text-[15px] font-black text-white group-hover:text-primary transition-colors tracking-tight">{c.name}</p>
+                                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1 opacity-70">{c.practiceArea || 'General Legal'}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-5">
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-tighter">
+                            <td className="px-8 py-6">
+                              <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest shadow-lg backdrop-blur-md">
                                 {c.status}
                               </span>
                             </td>
-                            <td className="px-6 py-5">
-                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                <Sparkles size={12} className="text-primary" />
-                                {c.fileCount > 0 ? 'Analysis Ready' : 'Data Required'}
+                            <td className="px-8 py-6">
+                              <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                                <Sparkles size={14} className="text-primary animate-pulse" />
+                                {c.fileCount > 0 ? 'Analysis Active' : 'Waiting Layer'}
                               </div>
                             </td>
-                            <td className="px-6 py-5 text-right text-[10px] text-slate-500 font-bold uppercase tracking-tighter">{new Date(c.updatedAt).toLocaleDateString()}</td>
+                            <td className="px-8 py-6 text-right">
+                              <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest opacity-60">
+                                {new Date(c.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </div>
+                            </td>
                           </tr>
                         ))}
                         {(!dashboardData?.recentCases || dashboardData.recentCases.length === 0) && (
@@ -252,10 +262,11 @@ export default function Dashboard() {
             </motion.div>
 
             <div className="space-y-8">
-              <motion.div variants={itemVariants} className="glass rounded-2xl border border-white/10 shadow-xl p-6 transition-all hover:border-red-500/30">
-                <h3 className="text-[10px] font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-                  <span className="material-icons-round text-red-500 text-lg">priority_high</span>
-                  Critical Deadlines
+              <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl p-8 transition-all hover:border-red-500/30 group backdrop-blur-3xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.02] to-transparent pointer-events-none" />
+                <h3 className="text-[10px] font-black text-white mb-8 uppercase tracking-[0.3em] flex items-center gap-3 relative z-10">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,1)]" />
+                  Critical Vectors
                 </h3>
                 <div className="space-y-4">
                   {(dashboardData?.upcomingDeadlines && dashboardData.upcomingDeadlines.length > 0) ? (
@@ -302,28 +313,31 @@ export default function Dashboard() {
                 </Link>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-blue-700 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden group border border-white/20">
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.1] scale-150 rotate-12 z-0"></div>
+              <motion.div variants={itemVariants} className="bg-gradient-to-br from-[#0a44b8] via-[#0d6efd] to-[#4f46e5] rounded-[2rem] p-8 text-white shadow-[0_20px_50px_rgba(10,68,184,0.3)] relative overflow-hidden group border border-white/20">
+                <div className="absolute inset-0 crystallography-pattern opacity-[0.15] scale-150 rotate-12 z-0"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-                      <span className="material-icons-round text-white">smart_toy</span>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-xl flex items-center justify-center border border-white/10">
+                      <span className="material-icons-round text-white text-2xl">psychology</span>
                     </div>
-                    <h4 className="font-black text-[10px] tracking-widest uppercase">AI Intelligence Core</h4>
+                    <div>
+                        <h4 className="font-black text-[10px] tracking-[0.3em] uppercase opacity-90">Cognitive Neural Core</h4>
+                        <p className="text-[9px] text-white/60 font-black uppercase mt-1">Status: Operational</p>
+                    </div>
                   </div>
-                  <div className="space-y-4">
-                    <p className="text-[12px] text-blue-50 leading-relaxed font-medium">
+                  <div className="space-y-6">
+                    <p className="text-[13px] text-blue-50 leading-relaxed font-medium opacity-90">
                       {(dashboardData?.documents?.total || 0) > 0
-                        ? `Intelligence unit has indexed ${dashboardData!.documents.total} documents. Semantic analysis is available for audit.`
-                        : "Ready for ingestion. Upload case files to synchronize with the AI core and generate immediate insights."}
+                        ? `Neural engine has indexed ${dashboardData!.documents.total} intelligence units. Semantic cross-reference matrix is live.`
+                        : "System idle. Inject case documentation to initialize the neural processing layer and execute immediate analytics."}
                     </p>
                     <div className="pt-2">
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full py-2.5 bg-white text-primary text-[11px] font-black uppercase tracking-widest rounded-xl hover:shadow-2xl transition-all shadow-lg"
+                        className="w-full py-3.5 bg-white text-primary text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-50 transition-all shadow-xl"
                       >
-                        Initialize Quick Audit
+                        Deep Audit Command
                       </motion.button>
                     </div>
                   </div>

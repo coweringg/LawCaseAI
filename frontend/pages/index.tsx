@@ -294,62 +294,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Plans Comparison Section */}
-      <section className="py-24 bg-slate-50 dark:bg-[#0d121d]">
-        <div className="container-stitch">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl font-bold mb-4 font-display">Choose Your Edge</h2>
-            <p className="text-slate-600 dark:text-slate-400">Scale your firm with the most advanced legal intelligence on the market.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Standard Plan */}
-            <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-500 mb-2 uppercase tracking-widest">Growth</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold dark:text-white">$49</span>
-                <span className="text-slate-500">/mo</span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-8">Perfect for solo practitioners and small boutique firms.</p>
-              <ul className="space-y-4 mb-10">
-                {['100 Priority Cases', 'Standard Discovery AI', 'Core Research Tool', 'SOC2 Compliance'].map((feat, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-700 dark:text-slate-300">
-                    <Check size={18} className="text-primary flex-shrink-0" /> {feat}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register">
-                <button className="w-full py-3 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                  Get Started
-                </button>
-              </Link>
-            </div>
-
-            {/* Professional Plan */}
-            <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border-2 border-primary shadow-2xl shadow-primary/10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest">Most Popular</div>
-              <h3 className="text-lg font-bold text-primary mb-2 uppercase tracking-widest">Professional</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold dark:text-white">$149</span>
-                <span className="text-slate-500">/mo</span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-8">Integrated intelligence for high-volume litigation firms.</p>
-              <ul className="space-y-4 mb-10">
-                {['Unlimited Priority Cases', 'Advanced AI Insights', 'Elite Jurisprudence Bank', 'HIPAA compliant storage', 'Team collaboration portal'].map((feat, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-700 dark:text-slate-300">
-                    <Check size={18} className="text-primary flex-shrink-0" /> {feat}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register">
-                <button className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all shadow-lg shadow-primary/25">
-                  Go Professional
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden bg-background-dark">
@@ -363,7 +307,7 @@ export default function Home() {
           >
             <h2 className="text-4xl h-auto md:text-5xl font-bold text-white mb-8 font-display">Upgrade to Modern Legal Management</h2>
             <p className="text-xl text-slate-400 mb-12">
-              Secure your firm's competitive edge with the most advanced AI case management system on the market.
+              Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market.
             </p>
             <Link href="/register">
               <button className="px-12 py-4 bg-primary text-white font-bold rounded-xl shadow-2xl shadow-primary/40 hover:scale-105 transition-all text-lg">

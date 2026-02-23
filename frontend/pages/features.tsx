@@ -9,6 +9,18 @@ export default function Features() {
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         setMounted(true);
+        // Handle anchor links
+        const hash = window.location.hash.replace('#', '');
+        if (hash === 'insights' || hash === 'research' || hash === 'chronology') {
+            setActiveTab(hash);
+            // Smooth scroll to demo section after a short delay to allow for rendering
+            setTimeout(() => {
+                const element = document.getElementById('feature-demos');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
     }, []);
 
     const fadeInUp = {
@@ -74,7 +86,7 @@ export default function Features() {
             </section>
 
             {/* Feature Demos */}
-            <section className="py-24 bg-[#0d121d] min-h-[80vh]">
+            <section id="feature-demos" className="py-24 bg-[#0d121d] min-h-[80vh]">
                 <div className="container-stitch">
                     <AnimatePresence mode="wait">
                         {activeTab === 'insights' && <InsightsDemo key="insights" />}
@@ -121,7 +133,7 @@ function InsightsDemo() {
             <div className="space-y-8">
                 <h2 className="text-4xl font-bold text-white font-display">AI Document Insights</h2>
                 <p className="text-lg text-slate-400">
-                    Traditional OCR isn't enough. Our AI performs <span className="text-primary font-bold">Deep Contextual Scanning</span> to identify risk points, missing clauses, and conflicting testimonies.
+                    Traditional OCR isn&apos;t enough. Our AI performs <span className="text-primary font-bold">Deep Contextual Scanning</span> to identify risk points, missing clauses, and conflicting testimonies.
                 </p>
                 <ul className="space-y-4">
                     {[
@@ -138,16 +150,16 @@ function InsightsDemo() {
             <div className="relative glass border-white/10 rounded-2xl p-8 aspect-square flex flex-col items-center justify-center overflow-hidden">
                 <div className="w-full h-full bg-slate-900 shadow-inner rounded-xl p-6 font-mono text-[10px] leading-relaxed text-slate-500 overflow-hidden relative">
                     <p className="mb-4 text-slate-400">AGREEMENT OF SERVICES - SECTION 4.2</p>
-                    <p className="mb-2">"...the Provider shall not be held liable for any damages resulting from system downtime..."</p>
+                    <p className="mb-2">&quot;...the Provider shall not be held liable for any damages resulting from system downtime...&quot;</p>
                     <motion.span
                         initial={{ backgroundColor: "transparent" }}
                         animate={{ backgroundColor: "rgba(10, 68, 184, 0.3)" }}
                         transition={{ delay: 1, duration: 1 }}
                         className="px-1 border-b border-primary text-blue-300"
                     >
-                        "resulting from system downtime exceeding 48 hours consecutively"
+                        &quot;resulting from system downtime exceeding 48 hours consecutively&quot;
                     </motion.span>
-                    <p className="mt-2">"...unless such downtime is caused by gross negligence or intentional misconduct..."</p>
+                    <p className="mt-2">&quot;...unless such downtime is caused by gross negligence or intentional misconduct...&quot;</p>
 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 10 }}

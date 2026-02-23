@@ -29,7 +29,7 @@ import {
 
 export default function NewCase() {
     const router = useRouter();
-    const { token, user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({

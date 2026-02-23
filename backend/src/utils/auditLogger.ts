@@ -1,5 +1,8 @@
 import { AuditLog } from '../models'
 import { Types } from 'mongoose'
+import logger from '../utils/logger'
+
+const auditLoggerInstance = logger.child({ module: 'audit' })
 
 interface LogOptions {
   adminId: Types.ObjectId
@@ -34,8 +37,7 @@ export const logAction = async (options: LogOptions): Promise<void> => {
       }
     })
   } catch (error) {
-    console.error('Failed to create audit log:', error)
+    auditLoggerInstance.error({ err: error, action: options.action, targetId: options.targetId }, 'Failed to create audit log')
     // We don't throw error here to avoid breaking the main request flow
-    // but in a production app we might want a more robust queuing system
   }
 }

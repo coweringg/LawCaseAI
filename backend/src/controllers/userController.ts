@@ -2,6 +2,9 @@ import { Response } from 'express'
 import { User, SupportRequest } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
+import logger from '../utils/logger'
+
+const controllerLogger = logger.child({ module: 'user-controller' })
 
 export const getProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
@@ -38,7 +41,7 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] getProfile error:', error)
+    controllerLogger.error({ err: error }, 'getProfile error')
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve profile'
@@ -134,7 +137,7 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] updateProfile error:', error)
+    controllerLogger.error({ err: error }, 'updateProfile error')
     res.status(500).json({
       success: false,
       message: 'Failed to update profile'
@@ -196,7 +199,7 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
       message: 'Password changed successfully'
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] changePassword error:', error)
+    controllerLogger.error({ err: error }, 'changePassword error')
     res.status(500).json({
       success: false,
       message: 'Failed to change password'
@@ -259,7 +262,7 @@ export const updateNotifications = async (req: IAuthRequest, res: Response): Pro
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] updateNotifications error:', error)
+    controllerLogger.error({ err: error }, 'updateNotifications error')
     res.status(500).json({
       success: false,
       message: 'Failed to update notification preferences'
@@ -296,7 +299,7 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       data: billingInfo
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] getBillingInfo error:', error)
+    controllerLogger.error({ err: error }, 'getBillingInfo error')
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve billing info'
@@ -355,7 +358,7 @@ export const submitSupportRequest = async (req: IAuthRequest, res: Response): Pr
       data: supportRequest
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] submitSupportRequest error:', error)
+    controllerLogger.error({ err: error }, 'submitSupportRequest error')
     res.status(500).json({
       success: false,
       message: 'Failed to submit support request'
@@ -412,7 +415,7 @@ export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promis
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] addPaymentMethod error:', error)
+    controllerLogger.error({ err: error }, 'addPaymentMethod error')
     res.status(500).json({ success: false, message: 'Failed to add payment method' } as IApiResponse)
   }
 }
@@ -457,7 +460,7 @@ export const removePaymentMethod = async (req: IAuthRequest, res: Response): Pro
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] removePaymentMethod error:', error)
+    controllerLogger.error({ err: error }, 'removePaymentMethod error')
     res.status(500).json({ success: false, message: 'Failed to remove payment method' } as IApiResponse)
   }
 }
@@ -489,7 +492,7 @@ export const setDefaultPaymentMethod = async (req: IAuthRequest, res: Response):
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[UserController] setDefaultPaymentMethod error:', error)
+    controllerLogger.error({ err: error }, 'setDefaultPaymentMethod error')
     res.status(500).json({ success: false, message: 'Failed to set default payment method' } as IApiResponse)
   }
 }

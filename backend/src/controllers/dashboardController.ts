@@ -2,6 +2,9 @@ import { Response } from 'express'
 import { Case, User, CaseFile, Event } from '../models'
 import { IApiResponse, IAuthRequest } from '../types'
 import config from '../config'
+import logger from '../utils/logger'
+
+const controllerLogger = logger.child({ module: 'dashboard-controller' })
 
 // Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
@@ -104,7 +107,7 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             data: dashboardData
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[DashboardController] getDashboardStats error:', error)
+        controllerLogger.error({ err: error }, 'getDashboardStats error')
         res.status(500).json({ success: false, message: 'Failed to fetch dashboard stats' } as IApiResponse)
     }
 }
@@ -177,7 +180,7 @@ export const searchGlobal = async (req: IAuthRequest, res: Response): Promise<vo
             }
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[DashboardController] searchGlobal error:', error)
+        controllerLogger.error({ err: error }, 'searchGlobal error')
         res.status(500).json({ success: false, message: 'Search failed' } as IApiResponse)
     }
 }

@@ -107,6 +107,7 @@ export interface IUser extends Document {
   lastLogin: Date
   lastActivity: Date
   tokenVersion: number
+  totalTokensConsumed: number
   paymentMethods: IPaymentMethod[]
   defaultPaymentMethodId?: string
   billingInterval?: 'monthly' | 'annual'
@@ -152,6 +153,8 @@ export interface IChatMessage extends Document {
     model?: string
     tokens?: number
     responseTime?: number
+    promptTokens?: number
+    completionTokens?: number
   }
 }
 

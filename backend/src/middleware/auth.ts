@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken'
 import { User } from '../models'
 import { IAuthRequest, IJWTPayload, UserRole, UserStatus } from '../types'
 import config from '../config'
+import logger from '../utils/logger'
+
+const authLogger = logger.child({ module: 'auth' })
 
 export const authenticate = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -11,7 +14,10 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     const token = authHeader?.replace('Bearer ', '') || cookieToken;
 
     if (!token) {
-      console.warn(`[AUTH] No token for ${req.method} ${req.url}. Header: ${authHeader ? 'Y' : 'N'}, Cookie: ${cookieToken ? 'Y' : 'N'}`);
+      authLogger.warn(
+        { method: req.method, url: req.url, hasHeader: !!authHeader, hasCookie: !!cookieToken },
+        'No token provided'
+      )
       res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'
@@ -51,8 +57,8 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     // Update last activity (heartbeat) - Don't await to keep it fast
     // Skip heartbeat for critical write routes (like confirm-purchase) to avoid WriteConflict during transactions
     if (!req.url.includes('/confirm-purchase')) {
-      User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err => 
-        console.error('[AUTH] Failed to update lastActivity:', err)
+      User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err =>
+        authLogger.error({ err, userId: user._id }, 'Failed to update lastActivity')
       )
     }
 

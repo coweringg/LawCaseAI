@@ -5,6 +5,9 @@ import { logAction } from '../utils/auditLogger'
 import { validateLuhn } from '../utils/cardValidator'
 import mongoose from 'mongoose'
 import crypto from 'crypto'
+import logger from '../utils/logger'
+
+const controllerLogger = logger.child({ module: 'payment-controller' })
 
 // Plan pricing lookup (Monthly)
 const PLAN_PRICES: Record<string, number> = {
@@ -39,7 +42,7 @@ export const getTransactionHistory = async (req: IAuthRequest, res: Response): P
             data: transactions
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[PaymentController] getTransactionHistory error:', error)
+        controllerLogger.error({ err: error }, 'getTransactionHistory error')
         res.status(500).json({ success: false, message: 'Failed to retrieve history' } as IApiResponse)
     }
 }
@@ -72,7 +75,7 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
             }
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[PaymentController] createCheckoutSession error:', error)
+        controllerLogger.error({ err: error }, 'createCheckoutSession error')
         res.status(500).json({ success: false, message: 'Checkout failed' } as IApiResponse)
     }
 }
@@ -109,7 +112,7 @@ export const confirmPayment = async (req: IAuthRequest, res: Response): Promise<
             }
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[PaymentController] confirmPayment error:', error)
+        controllerLogger.error({ err: error }, 'confirmPayment error')
         res.status(500).json({ success: false, message: 'Payment initialization failed' } as IApiResponse)
     }
 }
@@ -121,12 +124,12 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
     try {
         session.startTransaction()
     } catch (error) {
-        console.warn('[PaymentController] Transactions not supported by this MongoDB deployment. Proceeding without atomicity.')
+        controllerLogger.warn('Transactions not supported by this MongoDB deployment. Proceeding without atomicity.')
         isTransactional = false
     }
 
     try {
-        const { plan, seats, cardNumber, firmName, interval = 'monthly' } = req.body
+        const { plan, seats, paymentMethodId, firmName, interval = 'monthly' } = req.body
         const userId = req.user?._id
 
         if (!userId) {
@@ -145,11 +148,11 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             return
         }
 
-        // Validate card using Luhn algorithm
-        if (!cardNumber || !validateLuhn(cardNumber)) {
+        // Validate payment tokenized method
+        if (!paymentMethodId || !paymentMethodId.startsWith('pm_')) {
             await session.abortTransaction()
             session.endSession()
-            res.status(400).json({ success: false, message: 'Invalid card details. Please check your card number.' } as IApiResponse)
+            res.status(400).json({ success: false, message: 'Invalid payment method authorization. Please re-enter your details.' } as IApiResponse)
             return
         }
 
@@ -275,7 +278,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         session.endSession()
         
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        console.error('[PaymentController] confirmPurchase error:', error)
+        controllerLogger.error({ err: error }, 'confirmPurchase error')
         
         res.status(500).json({ 
             success: false, 
@@ -358,7 +361,7 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
         } as IApiResponse)
 
     } catch (error: unknown) {
-        console.error('[PaymentController] purchaseBusinessPlan error:', error)
+        controllerLogger.error({ err: error }, 'purchaseBusinessPlan error')
         res.status(500).json({ success: false, message: 'Failed to purchase business plan' } as IApiResponse)
     }
 }
@@ -399,14 +402,14 @@ export const getOrganizationDetails = async (req: IAuthRequest, res: Response): 
         } as IApiResponse)
 
     } catch (error: unknown) {
-        console.error('[PaymentController] getOrganizationDetails error:', error)
+        controllerLogger.error({ err: error }, 'getOrganizationDetails error')
         res.status(500).json({ success: false, message: 'Failed to retrieve organization details' } as IApiResponse)
     }
 }
 
 export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
-        const { additionalSeats, cardNumber } = req.body
+        const { additionalSeats, paymentMethodId } = req.body
         const userId = req.user?._id
 
         if (!userId) {
@@ -419,8 +422,8 @@ export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<v
             return
         }
 
-        if (!cardNumber || !validateLuhn(cardNumber)) {
-            res.status(400).json({ success: false, message: 'Invalid card details.' } as IApiResponse)
+        if (!paymentMethodId || !paymentMethodId.startsWith('pm_')) {
+            res.status(400).json({ success: false, message: 'Invalid payment method token.' } as IApiResponse)
             return
         }
 
@@ -454,7 +457,7 @@ export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<v
         } as IApiResponse)
 
     } catch (error) {
-        console.error('[PaymentController] increaseSeats error:', error)
+        controllerLogger.error({ err: error }, 'increaseSeats error')
         res.status(500).json({ success: false, message: 'Failed to increase capacity' } as IApiResponse)
     }
 }
@@ -527,7 +530,7 @@ export const removeMember = async (req: IAuthRequest, res: Response): Promise<vo
         } as IApiResponse)
 
     } catch (error) {
-        console.error('[PaymentController] removeMember error:', error)
+        controllerLogger.error({ err: error }, 'removeMember error')
         res.status(500).json({ success: false, message: 'Failed to remove member' } as IApiResponse)
     }
 }

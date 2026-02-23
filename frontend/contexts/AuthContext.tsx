@@ -5,7 +5,6 @@ import { User } from '@/types'
 
 interface AuthContextType {
   user: User | null
-  token: string | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; message: string; error?: any }>
   register: (userData: any) => Promise<{ success: boolean; message: string; error?: any }>
@@ -24,7 +23,6 @@ const restrictedRoutes = ['/pricing', '/about', '/features', '/login']
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
@@ -50,11 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('token')
-      if (storedToken) {
-        setToken(storedToken)
-        await fetchProfile()
-      }
+      // In cookie-based auth, we simply try to fetch the profile.
+      // If the cookie is present and valid, the backend will return the user.
+      await fetchProfile()
       setIsLoading(false)
     }
 
@@ -103,9 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { data, message } = response.data
 
-      setToken(data.token)
       setUser(data.user)
-      localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       return { success: true, message: message || 'Login successful' }
     } catch (error: any) {
@@ -128,9 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { data, message } = response.data
 
-      setToken(data.token)
       setUser(data.user)
-      localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       return { success: true, message: message || 'Registration successful' }
     } catch (error: any) {
@@ -145,8 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     api.post('/auth/logout').finally(() => {
       setUser(null)
-      setToken(null)
-      localStorage.removeItem('token')
       localStorage.removeItem('user')
       router.push('/login')
     })
@@ -184,7 +174,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user,
-      token, // Kept for interface compatibility but null
       isLoading,
       login,
       register,

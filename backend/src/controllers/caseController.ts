@@ -4,6 +4,9 @@ import { Response } from 'express'
 import { Case, User } from '../models'
 import { IApiResponse, CaseStatus, IAuthRequest, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
+import logger from '../utils/logger'
+
+const controllerLogger = logger.child({ module: 'case-controller' })
 
 export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
@@ -71,7 +74,7 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       data: newCase
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[CaseController] createCase error:', error)
+    controllerLogger.error({ err: error }, 'createCase error')
     res.status(500).json({ success: false, message: 'Failed to create case' } as IApiResponse)
   }
 }
@@ -116,7 +119,7 @@ export const getCases = async (req: IAuthRequest, res: Response): Promise<void> 
       }
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[CaseController] getCases error:', error)
+    controllerLogger.error({ err: error }, 'getCases error')
     res.status(500).json({ success: false, message: 'Failed to fetch cases' } as IApiResponse)
   }
 }
@@ -184,7 +187,7 @@ export const getCaseById = async (req: IAuthRequest, res: Response): Promise<voi
       data: caseData
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[CaseController] getCaseById error:', error)
+    controllerLogger.error({ err: error }, 'getCaseById error')
     res.status(500).json({ success: false, message: 'Failed to fetch case' } as IApiResponse)
   }
 }
@@ -279,7 +282,7 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       data: updatedCase
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[CaseController] updateCase error:', error)
+    controllerLogger.error({ err: error }, 'updateCase error')
     res.status(500).json({ success: false, message: 'Failed to update case' } as IApiResponse)
   }
 }
@@ -331,7 +334,7 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       message: 'Case deleted successfully'
     } as IApiResponse)
   } catch (error: unknown) {
-    console.error('[CaseController] deleteCase error:', error)
+    controllerLogger.error({ err: error }, 'deleteCase error')
     res.status(500).json({ success: false, message: 'Failed to delete case' } as IApiResponse)
   }
 }

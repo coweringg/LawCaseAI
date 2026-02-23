@@ -12,6 +12,19 @@ interface EventModalProps {
     cases: any[];
 }
 
+const initialState = {
+    title: '',
+    description: '',
+    start: '',
+    startTime: '09:00',
+    type: 'deadline',
+    priority: 'medium',
+    caseId: '',
+    location: '',
+    isAllDay: false,
+    status: 'active'
+};
+
 export default function EventModal({
     isOpen,
     onClose,
@@ -20,18 +33,6 @@ export default function EventModal({
     event,
     cases
 }: EventModalProps) {
-    const initialState = {
-        title: '',
-        description: '',
-        start: '',
-        startTime: '09:00',
-        type: 'deadline',
-        priority: 'medium',
-        caseId: '',
-        location: '',
-        isAllDay: false,
-        status: 'active'
-    };
 
     const [formData, setFormData] = useState(initialState);
     const [isSaving, setIsSaving] = useState(false);
@@ -103,8 +104,13 @@ export default function EventModal({
         setIsSaving(true);
         try {
             const startDateTime = new Date(`${formData.start}T${formData.isAllDay ? '00:00' : formData.startTime}`);
+            const submissionData = { ...formData };
+            if (!submissionData.caseId || submissionData.caseId === '') {
+                delete (submissionData as any).caseId;
+            }
+
             await onSave({
-                ...formData,
+                ...submissionData,
                 start: startDateTime.toISOString(),
             });
             onClose();

@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken'
 import { SystemSetting, User } from '../models'
 import { UserRole, IJWTPayload } from '../types'
 import config from '../config'
+import logger from '../utils/logger'
+
+const maintenanceLogger = logger.child({ module: 'maintenance' })
 
 /**
  * Maintenance Mode Middleware
@@ -58,7 +61,8 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
     })
 
   } catch (error) {
-    console.error('Maintenance check failed:', error)
+    maintenanceLogger.error({ err: error }, 'Maintenance check failed')
     next() // Fail open to avoid blocking valid traffic on DB error
   }
 }
+

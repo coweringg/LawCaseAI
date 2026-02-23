@@ -119,6 +119,11 @@ const userSchema = new Schema<IUser>({
   defaultPaymentMethodId: {
     type: String
   },
+  totalTokensConsumed: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   billingInterval: {
     type: String,
     enum: ['monthly', 'annual'],

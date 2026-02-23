@@ -21,7 +21,7 @@ export default function Pricing() {
     transition: { duration: 0.6 }
   };
 
-  const businessPrice = seats * 300;
+  const businessPrice = seats * (billingInterval === 'annual' ? 249 : 300);
 
   if (!mounted) {
     return (
@@ -75,23 +75,21 @@ export default function Pricing() {
                 : 'Corporate solutions with centralized billing. Empower your entire team with unlimited Elite access.'}
             </p>
 
-            {pricingType === 'personal' && (
-              <div className="flex justify-center items-center gap-6 mb-16">
-                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
-                <button
-                  role="switch"
-                  aria-checked={billingInterval === 'annual'}
-                  onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-                  className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
-                >
-                  <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
-                </button>
-                <div className="flex flex-col items-start">
-                  <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
-                  <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
-                </div>
+            <div className="flex justify-center items-center gap-6 mb-16">
+              <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
+              <button
+                role="switch"
+                aria-checked={billingInterval === 'annual'}
+                onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
+              >
+                <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
+              </button>
+              <div className="flex flex-col items-start leading-none">
+                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
+                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
               </div>
-            )}
+            </div>
           </motion.div>
 
           {pricingType === 'personal' ? (
@@ -214,7 +212,20 @@ export default function Pricing() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-end">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Number of Lawyers</span>
-                          <span className="text-2xl font-black text-primary">{seats} Seats</span>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="number"
+                              min="5"
+                              max="200"
+                              value={seats}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value);
+                                if (!isNaN(val)) setSeats(Math.max(5, Math.min(val, 200)));
+                              }}
+                              className="w-20 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-primary font-black text-xl outline-none focus:border-primary/50 transition-all text-center"
+                            />
+                            <span className="text-xl font-black text-primary">Seats</span>
+                          </div>
                         </div>
                         <input 
                           type="range" 
@@ -226,7 +237,7 @@ export default function Pricing() {
                         />
                         <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest">
                           <span>5 Users</span>
-                          <span>200+ Users</span>
+                          <span>200 Users</span>
                         </div>
                       </div>
                     </div>

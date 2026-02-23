@@ -41,7 +41,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 export default function Calendar() {
-    const { token } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -107,12 +107,12 @@ export default function Calendar() {
 
     useEffect(() => {
         const now = Date.now();
-        if (token && now - lastFetch.current > 1000) {
+        if (isAuthenticated && now - lastFetch.current > 1000) {
             lastFetch.current = now;
             fetchEvents();
             fetchCases();
         }
-    }, [fetchEvents, fetchCases, token]);
+    }, [fetchEvents, fetchCases, isAuthenticated]);
 
     // Real-time event status updater
 
@@ -188,8 +188,8 @@ export default function Calendar() {
         if (status === 'closed') return 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800/50 dark:text-slate-500 line-through opacity-60';
         switch (priority) {
             case 'critical': return 'bg-red-100 text-red-700 border-red-500 dark:bg-red-900/30 dark:text-red-400';
-            case 'high': return 'bg-amber-100 text-amber-700 border-amber-500 dark:bg-amber-900/30 dark:text-amber-400';
-            case 'medium': return 'bg-primary/10 text-primary border-primary';
+            case 'high': return 'bg-orange-100 text-orange-700 border-orange-500 dark:bg-orange-900/30 dark:text-orange-400';
+            case 'medium': return 'bg-amber-100 text-amber-700 border-amber-500 dark:bg-amber-900/30 dark:text-amber-400';
             case 'low': return 'bg-emerald-100 text-emerald-700 border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400';
             default: return 'bg-slate-100 text-slate-700 border-slate-500 dark:bg-slate-800 dark:text-slate-300';
         }
@@ -630,8 +630,9 @@ export default function Calendar() {
                                                                 {event.status === 'closed' ? 'Archived' : 'Active'}
                                                             </div>
                                                             <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${event.priority === 'critical' ? 'bg-red-500 text-white shadow-red-500/20' :
-                                                                event.priority === 'high' ? 'bg-amber-500 text-white shadow-amber-500/20' :
-                                                                    'bg-primary text-white shadow-primary/20'
+                                                                event.priority === 'high' ? 'bg-orange-500 text-white shadow-orange-500/20' :
+                                                                    event.priority === 'medium' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+                                                                        'bg-emerald-500 text-white shadow-emerald-500/20'
                                                                 }`}>
                                                                 {event.priority}
                                                             </div>

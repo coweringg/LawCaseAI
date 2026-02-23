@@ -3,6 +3,9 @@ import { IAuthRequest } from '../types'
 import AIService from '@/utils/aiService'
 import { Case, CaseFile } from '@/models'
 import { logAction } from '@/utils/auditLogger'
+import logger from '@/utils/logger'
+
+const controllerLogger = logger.child({ module: 'ai-controller' })
 
 const aiService = AIService.getInstance()
 
@@ -11,7 +14,7 @@ const aiService = AIService.getInstance()
  * @route   POST /api/ai/chat
  * @access  Private
  */
-export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any> => {
+export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { message, caseId } = req.body
 
@@ -39,7 +42,7 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
 
         const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n${filesContext}`
 
-        const aiRes = await aiService.generateResponse(message, caseContext)
+        const aiRes = await aiService.generateResponse(message, caseContext, req.user?._id?.toString())
 
         // Log the action
         await logAction({
@@ -57,8 +60,8 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
             success: true,
             data: aiRes
         })
-    } catch (error: any) {
-        console.error('AI Chat Controller Error:', error)
+    } catch (error: unknown) {
+        controllerLogger.error({ err: error }, 'AI Chat Controller Error')
         return res.status(500).json({
             success: false,
             message: 'An unexpected error occurred while communicating with the AI. Please try again in a moment.'
@@ -71,7 +74,7 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<any>
  * @route   POST /api/ai/analyze/:fileId
  * @access  Private
  */
-export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise<any> => {
+export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { fileId } = req.params
 
@@ -88,7 +91,7 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
         // In a real app, we'd fetch the file from R2 and extract text.
 
         const mockContent = `Document: ${file.name}. Type: ${file.type}. Size: ${file.size} bytes.`
-        const analysis = await aiService.analyzeDocument(mockContent)
+        const analysis = await aiService.analyzeDocument(mockContent, req.user?._id?.toString())
 
         // Log the action
         await logAction({
@@ -106,8 +109,8 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             success: true,
             data: analysis
         })
-    } catch (error: any) {
-        console.error('AI Analysis Controller Error:', error)
+    } catch (error: unknown) {
+        controllerLogger.error({ err: error }, 'AI Analysis Controller Error')
         return res.status(500).json({
             success: false,
             message: 'Server error during file analysis'
@@ -120,7 +123,7 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
  * @route   GET /api/ai/summary/:caseId
  * @access  Private
  */
-export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<any> => {
+export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { caseId } = req.params
 
@@ -138,7 +141,7 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
 
         const prompt = "Please provide a high-level executive summary of this case based on the provided metadata. Highlight potential legal challenges and suggest next steps."
 
-        const aiRes = await aiService.generateResponse(prompt, context)
+        const aiRes = await aiService.generateResponse(prompt, context, req.user?._id?.toString())
 
         return res.status(200).json({
             success: true,
@@ -147,8 +150,8 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
                 lastUpdated: new Date()
             }
         })
-    } catch (error: any) {
-        console.error('AI Case Summary Controller Error:', error)
+    } catch (error: unknown) {
+        controllerLogger.error({ err: error }, 'AI Case Summary Controller Error')
         return res.status(500).json({
             success: false,
             message: 'Server error during case summary generation'

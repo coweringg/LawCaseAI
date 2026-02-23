@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 export default function CaseDocuments() {
     const router = useRouter();
     const { id } = router.query;
-    const { token } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -23,7 +23,7 @@ export default function CaseDocuments() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchFiles = async () => {
-        if (!id || !token) return;
+        if (!id || !isAuthenticated) return;
         setIsLoading(true);
         try {
             const response = await api.get(`/files/case/${id}`);
@@ -36,14 +36,13 @@ export default function CaseDocuments() {
             setIsLoading(false);
         }
     };
-
     useEffect(() => {
         fetchFiles();
-    }, [id, token]);
+    }, [id, isAuthenticated]);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !id || !token) return;
+        if (!file || !id || !isAuthenticated) return;
 
         setIsUploading(true);
         const formData = new FormData();

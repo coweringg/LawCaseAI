@@ -1,6 +1,9 @@
 import { Response } from 'express'
 import { Event } from '../models'
 import { IApiResponse, IAuthRequest, EventType, EventPriority } from '../types'
+import logger from '../utils/logger'
+
+const controllerLogger = logger.child({ module: 'event-controller' })
 
 // Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
@@ -38,7 +41,7 @@ export const getEvents = async (req: IAuthRequest, res: Response): Promise<void>
             data: eventsWithStatus
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[EventController] getEvents error:', error)
+        controllerLogger.error({ err: error }, 'getEvents error')
         res.status(500).json({ success: false, message: 'Failed to fetch events' } as IApiResponse)
     }
 }
@@ -91,7 +94,7 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             data: event
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[EventController] createEvent error:', error)
+        controllerLogger.error({ err: error }, 'createEvent error')
         res.status(500).json({ success: false, message: 'Failed to create event' } as IApiResponse)
     }
 }
@@ -153,7 +156,7 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
             data: updatedEvent
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[EventController] updateEvent error:', error)
+        controllerLogger.error({ err: error }, 'updateEvent error')
         res.status(500).json({ success: false, message: 'Failed to update event' } as IApiResponse)
     }
 }
@@ -175,7 +178,7 @@ export const deleteEvent = async (req: IAuthRequest, res: Response): Promise<voi
             message: 'Event deleted successfully'
         } as IApiResponse)
     } catch (error: unknown) {
-        console.error('[EventController] deleteEvent error:', error)
+        controllerLogger.error({ err: error }, 'deleteEvent error')
         res.status(500).json({ success: false, message: 'Failed to delete event' } as IApiResponse)
     }
 }

@@ -10,13 +10,9 @@ const api = axios.create({
     withCredentials: true, // Required for HttpOnly Cookies
 });
 
-// Request interceptor to attach auth token
+// Request interceptor: we no longer manually attach the token
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
         return config;
     },
     (error) => {
@@ -57,8 +53,7 @@ api.interceptors.response.use(
             // Check if we are already on the login page to avoid loops
             if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
                 console.warn('Unauthorized access detected. Redirecting to login.');
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+                localStorage.removeItem('user'); // Only remove non-sensitive data
                 window.location.href = '/login';
             }
         }

@@ -1,7 +1,10 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
+import logger from '../utils/logger'
 
 dotenv.config()
+
+const dbLogger = logger.child({ module: 'database' })
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/lawcaseai'
 const MONGODB_TEST_URI = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/lawcaseai_test'
@@ -18,23 +21,23 @@ export const connectDatabase = async (): Promise<void> => {
 
     await mongoose.connect(mongoUri, options)
     
-    console.log(`✅ MongoDB connected: ${mongoUri}`)
+    dbLogger.info({ uri: mongoUri.replace(/\/\/.*@/, '//<credentials>@') }, '✅ MongoDB connected')
     
     // Handle connection events
     mongoose.connection.on('error', (error) => {
-      console.error('❌ MongoDB connection error:', error)
+      dbLogger.error({ err: error }, '❌ MongoDB connection error')
     })
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️ MongoDB disconnected')
+      dbLogger.warn('⚠️ MongoDB disconnected')
     })
 
     mongoose.connection.on('reconnected', () => {
-      console.log('✅ MongoDB reconnected')
+      dbLogger.info('✅ MongoDB reconnected')
     })
 
   } catch (error) {
-    console.error('❌ Failed to connect to MongoDB:', error)
+    dbLogger.fatal({ err: error }, '❌ Failed to connect to MongoDB')
     process.exit(1)
   }
 }
@@ -42,9 +45,9 @@ export const connectDatabase = async (): Promise<void> => {
 export const disconnectDatabase = async (): Promise<void> => {
   try {
     await mongoose.disconnect()
-    console.log('✅ MongoDB disconnected')
+    dbLogger.info('✅ MongoDB disconnected')
   } catch (error) {
-    console.error('❌ Error disconnecting from MongoDB:', error)
+    dbLogger.error({ err: error }, '❌ Error disconnecting from MongoDB')
   }
 }
 
@@ -59,21 +62,11 @@ export const clearDatabase = async (): Promise<void> => {
       const collection = collections[key]
       await collection.deleteMany({})
     }
-    console.log('✅ Test database cleared')
+    dbLogger.info('✅ Test database cleared')
   } catch (error) {
-    console.error('❌ Error clearing test database:', error)
+    dbLogger.error({ err: error }, '❌ Error clearing test database')
   }
 }
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\n🔄 SIGINT received. Shutting down gracefully...')
-  await disconnectDatabase()
-  process.exit(0)
-})
-
-process.on('SIGTERM', async () => {
-  console.log('\n🔄 SIGTERM received. Shutting down gracefully...')
-  await disconnectDatabase()
-  process.exit(0)
-})
+// Note: Graceful shutdown is handled centrally in server.ts
+// These handlers are removed to avoid duplicate SIGINT/SIGTERM listeners

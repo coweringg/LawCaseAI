@@ -2,42 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Chrome/Safari/Edge/Opera arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide Firefox arrows */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 @layer base {
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
     @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased;
   }
-  
-  h1, h2, h3, h4, .font-display {
-    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: "Outfit", "Inter", system-ui, sans-serif;
   }
 
   /* Custom scrollbar for better aesthetics */
   ::-webkit-scrollbar {
-      width: 8px;
+    width: 8px;
   }
   ::-webkit-scrollbar-track {
-      background: transparent;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-      background-color: #cbd5e1;
-      border-radius: 20px;
+    background-color: #cbd5e1;
+    border-radius: 20px;
   }
   .dark ::-webkit-scrollbar-thumb {
-      background-color: #334155;
+    background-color: #334155;
   }
 }
 
 .crystallography-pattern {
-  background-image: 
-    linear-gradient(30deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
-    linear-gradient(150deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
-    linear-gradient(30deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
-    linear-gradient(150deg, #0a44b8 12%, transparent 12.5%, transparent 87%, #0a44b8 87.5%, #0a44b8),
-    linear-gradient(60deg, #0a44b877 25%, transparent 25.5%, transparent 75%, #0a44b877 75%, #0a44b877),
-    linear-gradient(60deg, #0a44b877 25%, transparent 25.5%, transparent 75%, #0a44b877 75%, #0a44b877);
+  background-image:
+    linear-gradient(
+      30deg,
+      #0a44b8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #0a44b8 87.5%,
+      #0a44b8
+    ),
+    linear-gradient(
+      150deg,
+      #0a44b8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #0a44b8 87.5%,
+      #0a44b8
+    );
   background-size: 80px 140px;
-  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+  background-position:
+    0 0,
+    40px 70px;
+  will-change: transform;
 }
 
 .glass {
@@ -52,7 +81,7 @@
   .btn-secondary {
     @apply inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus:ring-4 focus:ring-slate-100 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700 transition-all;
   }
-  
+
   /* Container utility */
   .container-stitch {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;

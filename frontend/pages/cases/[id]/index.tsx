@@ -12,7 +12,7 @@ import ConfirmModal from '@/components/modals/ConfirmModal';
 export default function CaseWorkspace() {
     const router = useRouter();
     const { id } = router.query;
-    const { token } = useAuth();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<'summary' | 'search' | 'notes'>('summary');
     const [caseData, setCaseData] = useState<any>(null);
     const [files, setFiles] = useState<any[]>([]);
@@ -26,7 +26,7 @@ export default function CaseWorkspace() {
 
     useEffect(() => {
         const fetchCaseData = async () => {
-            if (!id || !token) return;
+            if (!id || !isAuthenticated) return;
             try {
                 const [caseRes, filesRes] = await Promise.all([
                     api.get(`/cases/${id}`),
@@ -53,10 +53,10 @@ export default function CaseWorkspace() {
         };
 
         fetchCaseData();
-    }, [id, token]);
+    }, [id, isAuthenticated]);
 
     const handleSendMessage = async () => {
-        if (!userInput.trim() || isSending || !id || !token) return;
+        if (!userInput.trim() || isSending || !id || !isAuthenticated) return;
 
         const userMessage = { role: 'user', content: userInput, timestamp: new Date() };
         setChatMessages(prev => [...prev, userMessage]);
@@ -89,7 +89,7 @@ export default function CaseWorkspace() {
     };
 
     const handleGenerateSummary = async () => {
-        if (!id || !token) return;
+        if (!id || !isAuthenticated) return;
         setIsLoadingSummary(true);
         try {
             const response = await api.get(`/ai/summary/${id}`);
@@ -106,7 +106,7 @@ export default function CaseWorkspace() {
     };
 
     const handleCloseCase = async () => {
-        if (!id || !token) return;
+        if (!id || !isAuthenticated) return;
 
         try {
             const response = await api.put(`/cases/${id}`, { status: 'closed' });
@@ -248,13 +248,13 @@ export default function CaseWorkspace() {
                                                 onClick={() => { setUserInput('Summarize this case'); handleSendMessage(); }}
                                                 className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-600 hover:border-primary transition-all"
                                             >
-                                                "Summarize this case"
+                                                &quot;Summarize this case&quot;
                                             </button>
                                             <button
                                                 onClick={() => { setUserInput('Check for deadlines'); handleSendMessage(); }}
                                                 className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-600 hover:border-primary transition-all"
                                             >
-                                                "Check for deadlines"
+                                                &quot;Check for deadlines&quot;
                                             </button>
                                         </div>
                                     </div>

@@ -39,7 +39,7 @@ TimeDisplay.displayName = 'TimeDisplay';
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
-    const { user, token, logout } = useAuth();
+    const { user, isAuthenticated, logout } = useAuth();
     const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
     const [mounted, setMounted] = useState(false);
@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     useEffect(() => {
         const fetchUsageStats = async () => {
-            if (!token || !user) return;
+            if (!isAuthenticated || !user) return;
             try {
                 // Check if user has already dismissed the banner for this session/limit
                 const dismissed = localStorage.getItem(`dismiss_usage_banner_${user.id}`);
@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         };
 
         const checkSystemStatus = () => {
-            if (!token) return;
+            if (!isAuthenticated) return;
             // Poll for global system status (public endpoint, available to all users)
             api.get('/system/status').then(res => {
                 if (res.data.success && res.data.data) {
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         // Heartbeat to keep user online even when idle
         // Increased interval from 30 seconds to 5 minutes to prevent 429 Too Many Requests
         const heartbeatInterval = setInterval(() => {
-            if (token && user) {
+            if (isAuthenticated && user) {
                 api.get('/user/profile').catch(() => {});
                 checkSystemStatus();
             }
@@ -108,7 +108,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         return () => {
             clearInterval(heartbeatInterval);
         };
-    }, [token, user]);
+    }, [isAuthenticated, user]);
 
     // Global Search Debounce
     useEffect(() => {
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery, token]);
+    }, [searchQuery, isAuthenticated]);
 
     // Strict Role-Based Redirection
     useEffect(() => {
@@ -222,7 +222,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         opacity: [0.03, 0.05, 0.03]
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px]"
+                    className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-primary/20 rounded-full blur-[80px]"
+                    style={{ willChange: 'transform, opacity' }}
                 ></motion.div>
                 <motion.div
                     animate={{
@@ -231,7 +232,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         opacity: [0.02, 0.04, 0.02]
                     }}
                     transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[100px]"
+                    className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[80px]"
+                    style={{ willChange: 'transform, opacity' }}
                 ></motion.div>
             </div>
             {/* Global Usage Warning */}

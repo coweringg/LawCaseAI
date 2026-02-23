@@ -13,7 +13,7 @@ import { DashboardStats } from '@/types';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -40,8 +40,8 @@ export default function Dashboard() {
       }
     };
 
-    if (token) fetchDashboardData();
-  }, [token]);
+    if (isAuthenticated) fetchDashboardData();
+  }, [isAuthenticated]);
 
   if (!mounted) return null;
 
@@ -58,6 +58,26 @@ export default function Dashboard() {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]';
+      case 'high': return 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]';
+      case 'medium': return 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]';
+      case 'low': return 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]';
+      default: return 'bg-slate-500 shadow-[0_0_10px_rgba(100,116,139,0.5)]';
+    }
+  };
+
+  const getPriorityBadgeStyles = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      case 'high': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
+      case 'medium': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+      case 'low': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+      default: return 'bg-slate-500/10 text-slate-500 border-slate-500/20';
+    }
   };
 
   return (
@@ -250,7 +270,7 @@ export default function Dashboard() {
                         aria-label={`View deadline: ${deadline.title}`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-1 h-8 rounded-full ${deadline.priority === 'critical' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'}`}></div>
+                          <div className={`w-1 h-8 rounded-full ${getPriorityColor(deadline.priority)}`}></div>
                           <div>
                             <p className="text-[11px] font-bold text-white group-hover:text-primary transition-colors">{deadline.title}</p>
                             <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold flex items-center gap-1 mt-1">
@@ -266,8 +286,7 @@ export default function Dashboard() {
                             </p>
                           </div>
                         </div>
-                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${deadline.priority === 'critical' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                          }`}>
+                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${getPriorityBadgeStyles(deadline.priority)}`}>
                           {deadline.priority}
                         </span>
                       </div>

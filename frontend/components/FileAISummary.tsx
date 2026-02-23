@@ -11,13 +11,13 @@ interface FileAISummaryProps {
 }
 
 export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
-    const { token } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [analysis, setAnalysis] = useState<any>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     useEffect(() => {
         const analyzeFile = async () => {
-            if (!file?._id || !token) return;
+            if (!file?._id || !isAuthenticated) return;
             setIsAnalyzing(true);
             setAnalysis(null);
             try {
@@ -37,7 +37,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
         };
 
         analyzeFile();
-    }, [file?._id, token]);
+    }, [file?._id, isAuthenticated]);
 
     if (!file) return null;
 

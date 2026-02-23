@@ -25,7 +25,7 @@ const getAreaColor = (area: string) => {
 };
 
 export default function MyCases() {
-    const { token } = useAuth();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const [cases, setCases] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
@@ -49,10 +49,12 @@ export default function MyCases() {
             }
         };
 
-        if (token) {
+        if (isAuthenticated) {
             fetchCases();
+        } else if (!isAuthLoading) {
+            setIsLoading(false);
         }
-    }, [token]);
+    }, [isAuthenticated, isAuthLoading]);
 
     const filteredCases = cases.filter(c => {
         if (statusFilter === 'all') return true;

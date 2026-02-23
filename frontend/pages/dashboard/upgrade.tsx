@@ -11,7 +11,7 @@ import api from '@/utils/api'
 import toast from 'react-hot-toast'
 
 export default function Upgrade() {
-  const { user, token, updateUser } = useAuth()
+  const { user, updateUser } = useAuth()
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)

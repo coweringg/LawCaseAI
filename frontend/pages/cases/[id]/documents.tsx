@@ -94,7 +94,7 @@ export default function CaseDocuments() {
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="flex flex-col h-[calc(100vh-theme(spacing.20))] -m-8">
+                <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 relative z-10 overflow-hidden">
                     {/* Header */}
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>

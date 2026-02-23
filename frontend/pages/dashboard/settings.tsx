@@ -21,6 +21,8 @@ import {
   Settings as SettingsIcon
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Head from 'next/head'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -224,69 +226,34 @@ export default function Settings() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-law-charcoal-50">
-        <div className="flex">
-          {/* Sidebar */}
-          <div className="sidebar w-64">
-            <div className="p-6">
-              <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
-                <Image src="/logo.png" alt="LawCaseAI" width={32} height={32} className="object-contain" />
-                <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
-              </Link>
+      <Head>
+        <title>LawCaseAI - Settings</title>
+      </Head>
+      <DashboardLayout>
+        <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
+          <div className="flex-1 overflow-hidden bg-transparent relative">
 
-              <nav className="space-y-2">
-                <Link href="/dashboard" className="sidebar-item sidebar-item-inactive">
-                  <FileText className="w-5 h-5 mr-3" />
-                  Cases
-                </Link>
-                <Link href="/dashboard/settings" className="sidebar-item sidebar-item-active">
-                  <SettingsIcon className="w-5 h-5 mr-3" />
-                  Settings
-                </Link>
-              </nav>
-            </div>
-
-            <div className="absolute bottom-0 w-64 p-6 border-t border-law-charcoal-200">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-law-charcoal-200 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-law-charcoal-600" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-law-charcoal-900">{user.name}</p>
-                  <p className="text-xs text-law-charcoal-500">{user.email}</p>
-                </div>
-              </div>
-              <Button
-                className="btn-secondary w-full justify-start"
-                size="sm"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
 
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto bg-transparent relative">
+
               <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
               
               {/* Header */}
-              <header className="px-8 py-10 border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
+              <header className="px-6 py-4 border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
                 <div className="flex flex-col relative z-10">
-                  <h1 className="text-4xl font-black text-white tracking-tightest font-display leading-tight">Configuration Matrix</h1>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">System Preferences &bull; Identity Synchronization Active</p>
+                  <h1 className="text-2xl font-black text-white tracking-tightest font-display leading-tight">Configuration Matrix</h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="w-1.2 h-1.2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">System Preferences &bull; Identity Synchronization Active</p>
                   </div>
                 </div>
               </header>
   
-              <main className="p-8 max-w-6xl mx-auto">
+              <main className="p-4 max-w-6xl mx-auto">
                 {/* Tabs */}
-                <div className="mb-12">
-                  <div className="premium-glass p-1.5 rounded-[2rem] border border-white/10 shadow-2xl inline-flex flex-wrap gap-2">
+                <div className="mb-4">
+                  <div className="premium-glass p-1 rounded-[2rem] border border-white/10 shadow-2xl inline-flex flex-wrap gap-1.5">
                     {[
                       { id: 'profile', label: 'Identity', icon: User },
                       { id: 'security', label: 'Security Crypt', icon: Shield },
@@ -296,12 +263,12 @@ export default function Settings() {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`py-3 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 ${activeTab === tab.id
+                        className={`py-2 px-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 ${activeTab === tab.id
                           ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20'
                           : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent'
                           }`}
                       >
-                        <tab.icon size={14} className={activeTab === tab.id ? 'animate-pulse' : ''} />
+                        <tab.icon size={12} className={activeTab === tab.id ? 'animate-pulse' : ''} />
                         <span>{tab.label}</span>
                       </button>
                     ))}
@@ -315,16 +282,16 @@ export default function Settings() {
                       initial={{ opacity: 0, y: -20, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                      className={`mb-8 p-6 rounded-3xl border backdrop-blur-2xl shadow-2xl flex items-center gap-4 ${
+                      className={`mb-4 p-4 rounded-3xl border backdrop-blur-2xl shadow-2xl flex items-center gap-4 ${
                         message.type === 'success' 
                           ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
                           : 'bg-red-500/10 border-red-500/30 text-red-400'
                       }`}
                     >
                       <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
-                        {message.type === 'success' ? <Shield size={18} /> : <ShieldAlert size={18} />}
+                        {message.type === 'success' ? <Shield size={16} /> : <ShieldAlert size={16} />}
                       </div>
-                      <p className="text-[11px] font-black uppercase tracking-widest">{message.text}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest">{message.text}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -336,16 +303,16 @@ export default function Settings() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group"
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-                    <div className="flex items-center gap-4 mb-10">
-                      <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500">
-                        <User size={24} />
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500">
+                        <User size={20} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Core Identity</h3>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Personnel Matrix Synchronization</p>
+                        <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Core Identity</h3>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Personnel Matrix Synchronization</p>
                       </div>
                     </div>
 
@@ -371,7 +338,7 @@ export default function Settings() {
                           value={profileForm.email}
                           onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
                           leftIcon={<Mail className="w-5 h-5 text-primary/50" />}
-                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-3 h-12"
                           required
                         />
                       </div>
@@ -384,18 +351,18 @@ export default function Settings() {
                           value={profileForm.lawFirm}
                           onChange={(e) => setProfileForm(prev => ({ ...prev, lawFirm: e.target.value }))}
                           leftIcon={<Building className="w-5 h-5 text-primary/50" />}
-                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-3 h-12"
                         />
                       </div>
 
-                      <div className="md:col-span-2 pt-6">
+                      <div className="md:col-span-2 pt-4">
                         <motion.button
                           whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
-                          className="w-full h-14 bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
+                          className="w-full h-12 bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
                         >
-                          <Save size={18} />
+                          <Save size={16} />
                           Synchronize Identity
                         </motion.button>
                       </div>
@@ -408,19 +375,19 @@ export default function Settings() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl group"
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl group"
                   >
-                    <div className="flex items-center gap-4 mb-10">
-                      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-500">
-                        <Lock size={24} />
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-500">
+                        <Lock size={20} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Security Protocols</h3>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Access Credential Re-Authorization</p>
+                        <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Security Protocols</h3>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Access Credential Re-Authorization</p>
                       </div>
                     </div>
 
-                    <form onSubmit={handlePasswordUpdate} className="space-y-8">
+                    <form onSubmit={handlePasswordUpdate} className="space-y-4">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Cipher</label>
                         <Input
@@ -434,12 +401,12 @@ export default function Settings() {
                               {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                           }
-                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                          className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-3 h-12"
                           required
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">New Hash Pattern</label>
                           <Input
@@ -470,20 +437,20 @@ export default function Settings() {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             }
-                            className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-4 h-14"
+                            className="premium-glass bg-white/[0.03] border-white/10 text-white rounded-2xl p-3 h-12"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="pt-6">
+                      <div className="pt-4">
                         <motion.button
                           whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(245,158,11,0.4)" }}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
-                          className="w-full h-14 bg-gradient-to-r from-amber-600 to-orange-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
+                          className="w-full h-12 bg-gradient-to-r from-amber-600 to-orange-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
                         >
-                          <Save size={18} />
+                          <Save size={16} />
                           Upgrade Security Layers
                         </motion.button>
                       </div>
@@ -496,19 +463,19 @@ export default function Settings() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="premium-glass border border-white/10 rounded-[2.5rem] p-8 shadow-2xl group"
+                    className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl group"
                   >
-                    <div className="flex items-center gap-4 mb-10">
-                      <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform duration-500">
-                        <Bell size={24} />
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform duration-500">
+                        <Bell size={20} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Neural Transmission</h3>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Data Flow & Notification Matrix</p>
+                        <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Neural Transmission</h3>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Data Flow & Notification Matrix</p>
                       </div>
                     </div>
 
-                    <form onSubmit={handleNotificationUpdate} className="space-y-6">
+                    <form onSubmit={handleNotificationUpdate} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {[
                           { id: 'emailNotifications', label: 'Email Relay', desc: 'Secure asynchronous data delivery' },
@@ -516,7 +483,7 @@ export default function Settings() {
                           { id: 'aiResponses', label: 'Cognitive Insights', desc: 'Neural processing completion pings' },
                           { id: 'marketingEmails', label: 'Strategic Intel', desc: 'Consortium updates and releases' }
                         ].map((item) => (
-                          <div key={item.id} className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-500 flex items-center justify-between group/item">
+                          <div key={item.id} className="p-4 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-500 flex items-center justify-between group/item">
                             <div>
                               <p className="text-[11px] font-black text-white uppercase tracking-wider mb-1 group-hover/item:text-primary transition-colors">{item.label}</p>
                               <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{item.desc}</p>
@@ -553,73 +520,75 @@ export default function Settings() {
                     transition={{ duration: 0.5 }}
                     className="space-y-8"
                   >
-                    <div className="premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] to-transparent pointer-events-none"></div>
-                      <div className="flex items-center justify-between mb-12 relative z-10">
-                        <div className="flex items-center gap-4">
-                          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform duration-500">
-                            <CreditCard size={24} />
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="premium-glass border border-white/10 rounded-[2.5rem] p-4 shadow-2xl relative overflow-hidden group">
+                          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] to-transparent pointer-events-none"></div>
+                          <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div className="flex items-center gap-3">
+                              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform duration-500">
+                                <CreditCard size={20} />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Subscription Core</h3>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Resource Allocation Tier: {planInfo.name}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Monthly Tribute</p>
+                              <p className="text-2xl font-black text-white font-display">{planInfo.price}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-xl font-black text-white font-display tracking-tightest uppercase">Subscription Core</h3>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Resource Allocation Tier: {planInfo.name}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Monthly Tribute</p>
-                          <p className="text-3xl font-black text-white font-display">{planInfo.price}</p>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-end relative z-10">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Neural Capacity</span>
-                            <span className="text-[11px] font-black text-emerald-400 font-display">{user.currentCases} / {user.planLimit >= 100000 ? '∞' : user.planLimit}</span>
-                          </div>
-                          <div className="h-3 bg-white/5 rounded-full overflow-hidden shadow-inner border border-white/5 p-0.5">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${Math.min((user.currentCases / (user.planLimit || 1)) * 100, 100)}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
-                              className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                            ></motion.div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end relative z-10">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Neural Capacity</span>
+                                <span className="text-[11px] font-black text-emerald-400 font-display">{user.currentCases} / {user.planLimit >= 100000 ? '∞' : user.planLimit}</span>
+                              </div>
+                              <div className="h-3 bg-white/5 rounded-full overflow-hidden shadow-inner border border-white/5 p-0.5">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${Math.min((user.currentCases / (user.planLimit || 1)) * 100, 100)}%` }}
+                                  transition={{ duration: 1.5, ease: "circOut" }}
+                                  className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                                ></motion.div>
+                              </div>
+                            </div>
+                            <Link href="/dashboard/upgrade">
+                              <motion.button
+                                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full h-12 bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-white/10 hover:border-emerald-500/40 transition-all flex items-center justify-center gap-3"
+                              >
+                                <CreditCard size={16} />
+                                Expand Resources
+                              </motion.button>
+                            </Link>
                           </div>
                         </div>
-                        <Link href="/dashboard/upgrade">
-                          <motion.button
-                            whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full h-14 bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-white/10 hover:border-emerald-500/40 transition-all flex items-center justify-center gap-3"
-                          >
-                            <CreditCard size={18} />
-                            Expand Resources
-                          </motion.button>
-                        </Link>
-                      </div>
-                    </div>
 
-                    <div className="premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-2xl group opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
-                      <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400">
-                          <FileText size={20} />
+                        <div className="premium-glass border border-white/10 rounded-[2.5rem] p-4 shadow-2xl group opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-slate-400">
+                              <FileText size={18} />
+                            </div>
+                            <h3 className="text-md font-black text-white font-display tracking-tightest uppercase">Transaction Ledger</h3>
+                          </div>
+                          <div className="text-center py-10 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <CreditCard className="w-6 h-6 text-slate-700" />
+                            </div>
+                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">No Historical Ledger Entries Found</p>
+                          </div>
                         </div>
-                        <h3 className="text-lg font-black text-white font-display tracking-tightest uppercase">Transaction Ledger</h3>
                       </div>
-                      <div className="text-center py-16 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <CreditCard className="w-8 h-8 text-slate-700" />
-                        </div>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">No Historical Ledger Entries Found</p>
-                      </div>
-                    </div>
                   </motion.div>
                 )}
               </div>
             </main>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }

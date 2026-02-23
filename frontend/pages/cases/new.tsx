@@ -76,9 +76,9 @@ export default function NewCase() {
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="bg-white dark:bg-surface-dark w-full max-w-6xl rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-slate-200 dark:border-slate-800 min-h-[600px]">
-                    {/* Left Sidebar: Progress & Context */}
-                    <div className="w-full md:w-1/3 bg-slate-50 dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-10 relative overflow-hidden">
+                <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-surface-dark w-full max-w-6xl rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-slate-200 dark:border-slate-800 mx-auto">
+                    <div className="w-full md:w-1/3 bg-slate-50 dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-6 relative overflow-hidden">
                         {/* Rich Decorative Background */}
                         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                             <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
@@ -87,7 +87,7 @@ export default function NewCase() {
                         </div>
 
                         <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-16">
+                            <div className="flex items-center gap-3 mb-10">
                                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20 ring-4 ring-primary/10">L</div>
                                 <div className="flex flex-col">
                                     <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white leading-none">LawCaseAI</span>
@@ -96,7 +96,7 @@ export default function NewCase() {
                             </div>
 
                             {/* Enhanced Stepper */}
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {[
                                     { id: 1, label: 'Case Basics', sub: 'Naming & Client', icon: <FileText className="w-4 h-4" /> },
                                     { id: 2, label: 'Classification', sub: 'Area & Status', icon: <Briefcase className="w-4 h-4" /> },
@@ -131,7 +131,7 @@ export default function NewCase() {
 
                         {/* Premium AI Context Card */}
                         <div className="relative z-10 mt-auto hidden lg:block">
-                            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white dark:border-slate-700 shadow-xl border-b-primary/30">
+                            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-2xl p-4 border border-white dark:border-slate-700 shadow-xl border-b-primary/30">
                                 <div className="flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
                                         <Sparkles className="w-5 h-5" />
@@ -149,12 +149,12 @@ export default function NewCase() {
 
                     {/* Right Side: Form Content */}
                     <div className="w-full md:w-2/3 flex flex-col h-full bg-white dark:bg-surface-dark relative">
-                        <div className="px-10 py-10 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/30 dark:bg-black/10 backdrop-blur-sm">
+                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/30 dark:bg-black/10 backdrop-blur-sm">
                             <div>
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-extrabold uppercase tracking-widest leading-none">Step {step} of 4</span>
                                 </div>
-                                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                     {step === 1 && 'Case Basics'}
                                     {step === 2 && 'Classification'}
                                     {step === 3 && 'Jurisdiction'}
@@ -169,7 +169,7 @@ export default function NewCase() {
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8">
+                        <div className="flex-1 overflow-y-auto p-6">
                             {user && user.planLimit > 0 && user.currentCases >= user.planLimit && (
                                 <div className="max-w-2xl mx-auto mb-6 p-4 bg-error-500/10 border border-error-500/20 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
                                     <AlertCircle className="w-6 h-6 text-error-500 flex-shrink-0" />
@@ -206,7 +206,7 @@ export default function NewCase() {
                                 </div>
                             )}
 
-                            <form className="space-y-6 max-w-2xl mx-auto">
+                            <form className="space-y-4 max-w-2xl mx-auto">
                                 {step === 1 && (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="group">
@@ -460,7 +460,7 @@ export default function NewCase() {
                             </form>
                         </div>
 
-                        <div className="px-10 py-8 bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <div className="px-8 py-6 bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <button
                                 onClick={step === 1 ? () => router.push('/dashboard') : handleBack}
                                 className="px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2"
@@ -484,7 +484,8 @@ export default function NewCase() {
                         </div>
                     </div>
                 </div>
-            </DashboardLayout>
-        </ProtectedRoute>
+            </div>
+        </DashboardLayout>
+    </ProtectedRoute>
     );
 }

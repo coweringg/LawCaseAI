@@ -159,7 +159,7 @@ export default function CaseWorkspace() {
     return (
         <ProtectedRoute>
             <DashboardLayout>
-                <div className="flex flex-col h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative">
+                <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
                     
                     {/* Case Specific Header */}
@@ -214,10 +214,10 @@ export default function CaseWorkspace() {
                     {/* Main Content Areas */}
                     <div className="flex-1 flex overflow-hidden relative z-10">
                         {/* LEFT PANE: Quick Files */}
-                        <aside className="w-80 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative">
+                        <aside className="w-64 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative">
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/sidebar:scale-[1.6] transition-transform duration-1000"></div>
                             
-                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02] relative z-10">
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/[0.02] relative z-10">
                                 <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Intelligence Repository</h2>
                                 <motion.button 
                                     whileHover={{ rotate: 180 }}
@@ -228,7 +228,7 @@ export default function CaseWorkspace() {
                                 </motion.button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8 relative z-10 scrollbar-hide">
+                            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6 relative z-10 scrollbar-hide">
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between px-2">
                                         <div className="flex items-center gap-3">
@@ -268,7 +268,7 @@ export default function CaseWorkspace() {
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-white/10 bg-white/[0.02] relative z-10">
+                            <div className="p-4 border-t border-white/10 bg-white/[0.02] relative z-10">
                                 <Link href={`/cases/${id}/documents`}>
                                     <motion.button
                                         whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
@@ -301,7 +301,7 @@ export default function CaseWorkspace() {
                             </div>
 
                             {/* Chat Area */}
-                            <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide relative z-10">
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide relative z-10">
                                 <AnimatePresence mode="popLayout">
                                     {chatMessages.length === 0 ? (
                                         <motion.div 
@@ -393,7 +393,7 @@ export default function CaseWorkspace() {
                             </div>
 
                             {/* Input Area */}
-                            <div className="p-8 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
+                            <div className="p-6 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
                                 <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-500 group/input">
                                     <textarea
                                         className="w-full bg-transparent text-[11px] font-black uppercase tracking-wider text-white placeholder-slate-600 border-none focus:ring-0 resize-none pt-4 pb-16 px-6 outline-none scrollbar-hide"
@@ -434,10 +434,10 @@ export default function CaseWorkspace() {
                         </section>
 
                         {/* RIGHT PANE: Summary & Info */}
-                        <aside className="w-80 flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
+                        <aside className="w-64 flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/right:scale-[1.6] transition-transform duration-1000"></div>
                             
-                            <div className="grid grid-cols-2 bg-white/[0.02] border-b border-white/10 p-1.5 m-4 rounded-[1.5rem] premium-glass relative z-10">
+                            <div className="grid grid-cols-2 bg-white/[0.02] border-b border-white/10 p-1.5 m-3 rounded-[1.5rem] premium-glass relative z-10">
                                 <button
                                     onClick={() => setActiveTab('summary')}
                                     className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
@@ -454,7 +454,7 @@ export default function CaseWorkspace() {
                                 </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide relative z-10">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide relative z-10">
                                 <AnimatePresence mode="wait">
                                     {activeTab === 'summary' && (
                                         <motion.div 
@@ -464,7 +464,7 @@ export default function CaseWorkspace() {
                                             className="space-y-6"
                                         >
                                             {/* AI Summary Card */}
-                                            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-500">
+                                            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-4 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-500">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center justify-between mb-6 relative z-10">
                                                     <div className="flex items-center gap-3">

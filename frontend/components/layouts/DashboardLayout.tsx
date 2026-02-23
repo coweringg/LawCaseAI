@@ -285,12 +285,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar */}
-                <aside className="w-72 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden">
+                <aside className="w-64 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden">
                     <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
-                            <div className="h-20 flex items-center px-6 mb-4">
+                            <div className="h-16 flex items-center px-6 mb-4">
                                 <Link href={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard'} className="flex items-center gap-2 text-primary dark:text-white">
                                     <span className="material-icons-round text-3xl text-primary">gavel</span>
                                     <span className="text-xl font-extrabold tracking-tight">LawCase<span className="text-primary">AI</span></span>
@@ -385,7 +385,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Main Content Area */}
                 <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                     {/* Header */}
-                    <header className="h-24 bg-transparent border-b border-white/5 flex items-center justify-between px-10 flex-shrink-0 z-20 relative overflow-hidden">
+                    <header className="h-20 bg-transparent border-b border-white/5 flex items-center justify-between px-8 flex-shrink-0 z-20 relative overflow-hidden">
                         <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
                         <div className="relative z-10 flex items-center justify-between w-full">
                             <div className="flex items-center gap-6">
@@ -405,7 +405,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <div className="relative group hidden lg:block">
                                         <span className="absolute left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-xl group-focus-within:text-primary transition-all duration-500">search</span>
                                         <input
-                                            className="pl-16 pr-8 py-3.5 w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black uppercase tracking-[0.2em] shadow-inner shadow-black/20"
+                                            className="pl-16 pr-8 py-3 w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black uppercase tracking-[0.2em] shadow-inner shadow-black/20"
                                             placeholder="Audit Core Intelligence..."
                                             type="text"
                                             value={searchQuery}
@@ -485,7 +485,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             <motion.button
                                                 whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)" }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
+                                                className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
                                             >
                                                 <span className="material-icons-round text-lg">add</span>
                                                 <span>Initialize Case</span>
@@ -498,8 +498,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </header>
 
                     {/* Scrollable Page Content */}
-                    <div className="flex-1 overflow-y-auto p-8 relative z-10">
-                        <div className="max-w-[1400px] mx-auto min-h-full">
+                    <div className="flex-1 overflow-y-auto p-6 relative z-10">
+                        <div className="w-full mx-auto min-h-full">
                             {children}
                         </div>
                     </div>

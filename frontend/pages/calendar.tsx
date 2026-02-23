@@ -203,11 +203,11 @@ export default function Calendar() {
                 <title>LawCaseAI - Calendar</title>
             </Head>
             <DashboardLayout>
-                <div className="flex bg-transparent h-[calc(100vh-theme(spacing.20))] -m-8 overflow-hidden relative z-10">
+                <div className="flex bg-transparent h-[calc(100vh-5rem)] -m-6 overflow-hidden relative z-10">
                     {/* Sidebar */}
-                    <aside className="w-80 premium-glass border-r border-white/10 hidden md:flex flex-col overflow-y-auto relative">
+                    <aside className="w-64 premium-glass border-r border-white/10 hidden md:flex flex-col overflow-y-auto relative">
                         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
-                        <div className="relative z-10 p-6">
+                        <div className="relative z-10 p-4">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -220,15 +220,15 @@ export default function Calendar() {
                         </div>
 
                         {/* Mini Calendar */}
-                        <div className="p-8 border-b border-white/10 relative z-10 bg-white/[0.01]">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="p-6 border-b border-white/10 relative z-10 bg-white/[0.01]">
+                            <div className="flex items-center justify-between mb-4">
                                 <span className="font-black text-[11px] uppercase tracking-[0.3em] text-white font-display">{format(currentDate, 'MMMM yyyy')}</span>
                                 <div className="flex gap-1">
                                     <button onClick={prevDate} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-500 hover:text-white hover:scale-110 active:scale-90"><ChevronLeft size={16} /></button>
                                     <button onClick={nextDate} className="p-2 hover:bg-white/10 rounded-xl transition-all text-slate-500 hover:text-white hover:scale-110 active:scale-90"><ChevronRight size={16} /></button>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-7 gap-1 text-[8px] text-center font-black text-slate-600 mb-6 tracking-[0.2em]">
+                            <div className="grid grid-cols-7 gap-1 text-[8px] text-center font-black text-slate-600 mb-4 tracking-[0.2em]">
                                 {days.map(d => <div key={d}>{d}</div>)}
                             </div>
                             <div className="grid grid-cols-7 gap-1.5 text-[10px] text-center">
@@ -260,8 +260,8 @@ export default function Calendar() {
                         </div>
 
                         {/* Upcoming Deadlines */}
-                        <div className="p-6 flex-1 relative z-10">
-                            <div className="flex items-center justify-between mb-6">
+                        <div className="p-4 flex-1 relative z-10">
+                            <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Master Timeline</h3>
                                 <div className="flex h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
                             </div>
@@ -318,9 +318,9 @@ export default function Calendar() {
                     {/* Main Calendar Area */}
                     <main className="flex-1 overflow-hidden flex flex-col bg-transparent backdrop-blur-3xl">
                         {/* Calendar Header */}
-                        <div className="p-8 flex flex-wrap items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
+                        <div className="p-6 flex flex-wrap items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
-                            <div className="flex items-center gap-10 relative z-10">
+                            <div className="flex items-center gap-6 relative z-10">
                                 <div className="flex flex-col">
                                     <h2 className="text-4xl font-black text-white tracking-tightest font-display leading-tight">{format(currentDate, 'MMMM yyyy')}</h2>
                                     <div className="flex items-center gap-2 mt-2">
@@ -703,7 +703,7 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor 
     const isPast = isBefore(date, startOfDay(new Date()));
 
     return (
-        <div className={`min-h-[150px] p-5 relative group transition-all duration-500 hover:z-20 hover:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border-r border-b border-white/10 overflow-hidden
+        <div className={`min-h-[120px] p-4 relative group transition-all duration-500 hover:z-20 hover:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border-r border-b border-white/10 overflow-hidden
             ${!isCurrentMonth ? 'bg-black/60 opacity-10' :
                 isPast ? 'bg-black/30 grayscale-[0.8] opacity-50' : 'bg-white/[0.02] hover:bg-white/[0.05]'}`}>
             <div className="flex justify-between items-start relative z-10">

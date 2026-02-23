@@ -148,6 +148,8 @@ export default function AdminDashboard() {
   const [supportStatusFilter, setSupportStatusFilter] = useState('')
   const [supportPage, setSupportPage] = useState(1)
   const [totalSupportRequests, setTotalSupportRequests] = useState(0)
+  const [selectedSupportRequest, setSelectedSupportRequest] = useState<SupportRequest | null>(null)
+  const [showSupportDetailModal, setShowSupportDetailModal] = useState(false)
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -852,6 +854,17 @@ export default function AdminDashboard() {
       title: 'Action',
       render: (v: string, item: SupportRequest) => (
         <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSelectedSupportRequest(item)
+              setShowSupportDetailModal(true)
+            }}
+            className="text-primary hover:text-white bg-primary/10 hover:bg-primary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-primary/20"
+          >
+            Details
+          </Button>
           {item.status === 'pending' && (
             <Button
               variant="ghost"
@@ -1790,6 +1803,142 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        </Modal>
+        {/* Support Detail Modal */}
+        <Modal
+          isOpen={showSupportDetailModal}
+          onClose={() => {
+            setShowSupportDetailModal(false)
+            setSelectedSupportRequest(null)
+          }}
+          title="Signal Interference Detail"
+          variant="glass"
+          size="lg"
+        >
+          {selectedSupportRequest && (
+            <div className="max-h-[75vh] overflow-y-auto pr-4 -mr-4 scrollbar-hide">
+              <div className="space-y-8 animate-in fade-in duration-500">
+                {/* Signal Header */}
+                <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="relative z-10 flex items-center gap-5">
+                    <div className={cn(
+                      "p-4 rounded-2xl border",
+                      selectedSupportRequest.type === 'system_error' 
+                        ? "bg-error-500/10 border-error-500/20 text-error-500" 
+                        : "bg-primary/10 border-primary/20 text-primary"
+                    )}>
+                      {selectedSupportRequest.type === 'system_error' ? <AlertCircle size={24} /> : <Zap size={24} />}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Packet Type</p>
+                      <h3 className="text-xl font-black text-white tracking-tight uppercase">
+                        {selectedSupportRequest.type === 'system_error' ? 'System Integrity Breach' : 'Feature Uplink Request'}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="text-right relative z-10">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Timestamp</p>
+                    <p className="text-sm text-slate-300 font-bold uppercase">{formatDate(selectedSupportRequest.createdAt)}</p>
+                  </div>
+                </div>
+
+                {/* Identity & Metadata */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <User size={16} className="text-primary" />
+                      <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Logic Stream Origin</h4>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subject Identity</p>
+                      <p className="text-white font-bold text-lg">{selectedSupportRequest.userName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Encrypted Beacon</p>
+                      <p className="text-primary font-bold">{selectedSupportRequest.userEmail}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Database size={16} className="text-secondary" />
+                      <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-widest">System Parameters</h4>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Transmission Status</p>
+                      <span className={cn(
+                        "inline-flex items-center px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full mt-1",
+                        selectedSupportRequest.status === 'resolved' ? "bg-success-500/20 text-success-500" : "bg-warning-500/20 text-warning-500"
+                      )}>
+                        {selectedSupportRequest.status === 'resolved' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
+                        {selectedSupportRequest.status}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Reference Hash</p>
+                      <p className="text-slate-400 font-mono text-xs truncate uppercase tracking-tighter">{selectedSupportRequest._id}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message Content */}
+                <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/10 space-y-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Terminal size={120} className="text-primary" />
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-4">
+                      <History size={18} className="text-primary" />
+                      <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Transmission Payload</h4>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-2 underline decoration-primary/30">Header Subject</p>
+                        <p className="text-white font-black text-xl italic tracking-tight">{selectedSupportRequest.subject}</p>
+                      </div>
+                      
+                      <div className="p-6 rounded-2xl bg-black/40 border border-white/5 min-h-[120px]">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 underline decoration-slate-800">Decoded Sequence</p>
+                        <p className="text-slate-200 text-sm leading-relaxed font-medium">
+                          {selectedSupportRequest.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
+                  <Button
+                    variant="none"
+                    onClick={() => {
+                      setShowSupportDetailModal(false)
+                      setSelectedSupportRequest(null)
+                    }}
+                    className="text-slate-400 hover:text-white hover:bg-white/5 px-6 py-3 rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all"
+                  >
+                    Close Signal
+                  </Button>
+                  {selectedSupportRequest.status === 'pending' && (
+                    <Button
+                      variant="none"
+                      onClick={() => {
+                        handleResolveSupport(selectedSupportRequest._id)
+                        setShowSupportDetailModal(false)
+                      }}
+                      className="bg-success-500 hover:bg-success-600 text-white px-8 py-3 rounded-xl shadow-lg shadow-success-500/20 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle size={14} />
+                      Resolve Anomaly
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </Modal>
     </DashboardLayout>
   )

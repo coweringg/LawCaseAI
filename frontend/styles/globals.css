@@ -122,4 +122,12 @@ input[type=number] {
     @apply absolute inset-0 rounded-[inherit] border border-white/10 pointer-events-none;
     mask-image: linear-gradient(to bottom, black, transparent);
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

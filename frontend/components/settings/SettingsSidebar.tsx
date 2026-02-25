@@ -20,7 +20,7 @@ interface SettingsSidebarProps {
 export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTab, setActiveTab, user, onLogout, onOpenSupport }) => {
     return (
         <div className="md:col-span-1 space-y-4">
-            <div className="glass-dark border border-white/10 rounded-[32px] p-4 sticky top-32 overflow-hidden">
+            <div className="glass-dark border border-white/10 rounded-[32px] p-3 sticky top-32 overflow-hidden">
                 <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
                 <div className="relative z-10 space-y-2">
                     {tabs
@@ -31,7 +31,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                                 whileHover={{ x: 4 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-4 px-6 py-5 rounded-2xl transition-all relative group ${activeTab === tab.id
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all relative group ${activeTab === tab.id
                                         ? 'bg-primary text-white shadow-xl shadow-primary/20'
                                         : 'text-slate-500 hover:text-white hover:bg-white/5'
                                     }`}
@@ -58,10 +58,10 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-white/5 px-4">
-                    <div className="p-6 bg-white/[0.02] border border-white/5 rounded-[2rem] space-y-4 relative overflow-hidden group/support">
+                    <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-2 relative overflow-hidden group/support">
                         <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover/support:bg-primary/20 transition-all duration-700"></div>
                         <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="flex items-center gap-2 mb-1">
                                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Priority Auth</span>
                             </div>
@@ -79,9 +79,9 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                     </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-white/5 px-4 pb-4">
-                    <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-3">
+                <div className="mt-2 pt-2 border-t border-white/5 px-2 pb-2">
+                    <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <div className="flex items-center gap-2 mb-1">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Protocol Active</span>
                         </div>
@@ -96,7 +96,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                         whileHover={{ x: 4, backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
                         whileTap={{ scale: 0.98 }}
                         onClick={onLogout}
-                        className="w-full flex items-center gap-4 px-6 py-5 rounded-2xl transition-all text-red-500 hover:text-red-600"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-red-500 hover:text-red-600"
                     >
                         <span className="material-icons-round text-xl">logout</span>
                         <span className="text-[11px] font-black uppercase tracking-[0.2em]">Terminate Session</span>

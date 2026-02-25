@@ -32,7 +32,8 @@ import {
   Terminal,
   ShieldCheck,
   LayoutDashboard,
-  Calendar
+  Calendar,
+  Headphones
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '@/utils/api'
@@ -145,7 +146,7 @@ export default function AdminDashboard() {
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([])
   const [isSupportLoading, setIsSupportLoading] = useState(false)
-  const [supportTypeFilter, setSupportTypeFilter] = useState<'system_error' | 'feature_uplink' | 'login_issue'>('login_issue')
+  const [supportTypeFilter, setSupportTypeFilter] = useState<'all' | 'system_error' | 'feature_uplink' | 'login_issue'>('all')
   const [supportStatusFilter, setSupportStatusFilter] = useState('')
   const [signalSubTab, setSignalSubTab] = useState<'public' | 'user'>('public')
   const [publicSubjectFilter, setPublicSubjectFilter] = useState('')
@@ -821,16 +822,30 @@ export default function AdminDashboard() {
     {
       key: 'type' as keyof SupportRequest,
       title: 'Category',
-      render: (v: string) => (
-        <span className={cn(
-          "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
-          v === 'system_error' ? "bg-error-500/20 text-error-500" : 
-          v === 'login_issue' ? "bg-orange-500/20 text-orange-400" :
-          "bg-primary/20 text-primary"
-        )}>
-          {v === 'system_error' ? 'System Error' : v === 'login_issue' ? 'Login Issue' : 'Feature Uplink'}
-        </span>
-      )
+      render: (v: string, item: SupportRequest) => {
+        if (v === 'login_issue') {
+          const subject = item.subject || 'Login Issue'
+          const subjectColor = 
+            subject === 'Login Error' ? 'bg-orange-500/20 text-orange-400' :
+            subject === 'Forgot Password' ? 'bg-violet-500/20 text-violet-400' :
+            subject === 'Account Locked' ? 'bg-rose-500/20 text-rose-400' :
+            subject === 'Other Issue' ? 'bg-cyan-500/20 text-cyan-400' :
+            'bg-orange-500/20 text-orange-400'
+          return (
+            <span className={cn("px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest", subjectColor)}>
+              {subject}
+            </span>
+          )
+        }
+        return (
+          <span className={cn(
+            "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
+            v === 'system_error' ? "bg-error-500/20 text-error-500" : "bg-emerald-500/20 text-emerald-400"
+          )}>
+            {v === 'system_error' ? 'System Error' : 'Feature Uplink'}
+          </span>
+        )
+      }
     },
     {
       key: 'subject' as keyof SupportRequest,
@@ -1203,11 +1218,11 @@ export default function AdminDashboard() {
 
                     <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5 flex-wrap">
                       {[
-                        { id: '', label: 'All', color: 'orange' },
-                        { id: 'Login Error', label: 'Login Error', color: 'orange' },
-                        { id: 'Forgot Password', label: 'Forgot Password', color: 'orange' },
-                        { id: 'Account Locked', label: 'Account Locked', color: 'orange' },
-                        { id: 'Other Issue', label: 'Other Issue', color: 'orange' }
+                        { id: '', label: 'All', activeClass: 'bg-slate-500/20 text-slate-300 border border-slate-500/20 shadow-lg' },
+                        { id: 'Login Error', label: 'Login Error', activeClass: 'bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10' },
+                        { id: 'Forgot Password', label: 'Forgot Password', activeClass: 'bg-violet-500/20 text-violet-400 border border-violet-500/20 shadow-lg shadow-violet-500/10' },
+                        { id: 'Account Locked', label: 'Account Locked', activeClass: 'bg-rose-500/20 text-rose-400 border border-rose-500/20 shadow-lg shadow-rose-500/10' },
+                        { id: 'Other Issue', label: 'Other Issue', activeClass: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 shadow-lg shadow-cyan-500/10' }
                       ].map(s => (
                         <button
                           key={s.id}
@@ -1215,7 +1230,7 @@ export default function AdminDashboard() {
                           className={cn(
                             "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                             publicSubjectFilter === s.id
-                              ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg"
+                              ? s.activeClass
                               : "text-slate-500 hover:text-slate-300"
                           )}
                         >
@@ -1287,8 +1302,8 @@ export default function AdminDashboard() {
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                      <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
-                        <Bell size={18} className="text-primary" />
+                      <div className="p-2.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                        <Headphones size={18} className="text-indigo-400" />
                       </div>
                       <div>
                         <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">User Signals</h3>
@@ -1298,8 +1313,9 @@ export default function AdminDashboard() {
 
                     <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5">
                       {[
-                        { id: 'system_error', label: 'System Errors', color: 'error' },
-                        { id: 'feature_uplink', label: 'Feature Uplinks', color: 'primary' }
+                        { id: 'all', label: 'All', activeClass: 'bg-slate-500/20 text-slate-300 border border-slate-500/20 shadow-lg' },
+                        { id: 'system_error', label: 'System Errors', activeClass: 'bg-error-500/20 text-error-500 border border-error-500/20 shadow-lg shadow-error-500/10' },
+                        { id: 'feature_uplink', label: 'Feature Uplinks', activeClass: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' }
                       ].map(sType => (
                         <button
                           key={sType.id}
@@ -1307,7 +1323,7 @@ export default function AdminDashboard() {
                           className={cn(
                             "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                             supportTypeFilter === sType.id 
-                              ? `bg-${sType.color}-500/20 text-${sType.color}-500 border border-${sType.color}-500/20 shadow-lg` 
+                              ? sType.activeClass
                               : "text-slate-500 hover:text-slate-300"
                           )}
                         >

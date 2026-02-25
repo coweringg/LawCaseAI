@@ -48,13 +48,13 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
         >
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
                 <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
-                <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                <div className="p-5 border-b border-white/5 bg-white/[0.02]">
                     <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
                         <Shield className="text-primary" size={20} />
                         Security Protocols
                     </h2>
                 </div>
-                <form onSubmit={handlePasswordSubmit} className="p-10 space-y-8 relative z-10">
+                <form onSubmit={handlePasswordSubmit} className="p-6 space-y-6 relative z-10">
                     <div className="space-y-4">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Current Password</label>
                         <div className="relative group">
@@ -66,7 +66,7 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                                 type={showPasswords.current ? 'text' : 'password'}
                                 value={passwordData.currentPassword}
                                 onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                className="relative w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-red-500/50 transition-all text-white font-bold"
+                                className="relative w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-red-500/50 transition-all text-white font-bold"
                                 placeholder="••••••••"
                                 required
                             />
@@ -80,7 +80,7 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">New Password</label>
                             <div className="relative group">
@@ -91,7 +91,7 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                                     type={showPasswords.new ? 'text' : 'password'}
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
+                                    className="w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -114,7 +114,7 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                                     type={showPasswords.confirm ? 'text' : 'password'}
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    className="w-full pl-16 pr-16 py-4 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
+                                    className="w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -135,7 +135,7 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={isSubmitting}
-                            className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
+                            className="inline-flex items-center justify-center px-8 py-3 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
                         >
                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={18} />}
                             Update Password

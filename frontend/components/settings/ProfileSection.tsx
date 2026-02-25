@@ -36,14 +36,14 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
         >
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
                 <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
-                <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+                <div className="p-5 border-b border-white/5 bg-white/[0.02]">
                     <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
                         <User className="text-primary" size={20} />
                         Identity Profile
                     </h2>
                 </div>
-                <form onSubmit={handleProfileSubmit} className="p-10 space-y-10 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <form onSubmit={handleProfileSubmit} className="p-6 space-y-6 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Legal Name</label>
                             <div className="relative group">
@@ -52,7 +52,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                     type="text"
                                     value={profileData.name}
                                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                    className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                    className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="John Doe"
                                     required
                                 />
@@ -66,7 +66,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                     type="email"
                                     value={profileData.email}
                                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                    className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                    className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="john@example.com"
                                     required
                                 />
@@ -80,7 +80,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                     type="text"
                                     value={profileData.lawFirm}
                                     onChange={(e) => setProfileData({ ...profileData, lawFirm: e.target.value })}
-                                    className="relative w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                    className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="Doe & Associates"
                                 />
                             </div>
@@ -93,7 +93,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={isSubmitting}
-                            className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
+                            className="inline-flex items-center justify-center px-8 py-3 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
                         >
                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={18} />}
                             Commit Changes

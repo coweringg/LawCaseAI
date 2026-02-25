@@ -5,7 +5,7 @@ const supportRequestSchema = new Schema<ISupportRequest>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   userEmail: {
     type: String,
@@ -14,6 +14,12 @@ const supportRequestSchema = new Schema<ISupportRequest>({
   userName: {
     type: String,
     required: true
+  },
+  lawFirm: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: 100
   },
   type: {
     type: String,

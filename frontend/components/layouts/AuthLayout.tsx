@@ -119,7 +119,7 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
 
                     {/* Footer Terms */}
                     <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                        By continuing, you agree to LawCaseAI's
+                        By continuing, you agree to LawCaseAI&apos;s
                         <Link href="/terms" className="underline hover:text-slate-600 dark:hover:text-slate-300 ml-1">Terms of Service</Link>
                         and
                         <Link href="/privacy" className="underline hover:text-slate-600 dark:hover:text-slate-300 ml-1">Privacy Policy</Link>.

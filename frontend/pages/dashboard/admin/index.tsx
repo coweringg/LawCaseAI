@@ -108,7 +108,8 @@ interface SupportRequest {
   userId: string
   userEmail: string
   userName: string
-  type: 'system_error' | 'feature_uplink'
+  lawFirm?: string
+  type: 'system_error' | 'feature_uplink' | 'login_issue'
   subject: string
   description: string
   status: 'pending' | 'resolved'
@@ -144,8 +145,10 @@ export default function AdminDashboard() {
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([])
   const [isSupportLoading, setIsSupportLoading] = useState(false)
-  const [supportTypeFilter, setSupportTypeFilter] = useState<'system_error' | 'feature_uplink'>('system_error')
+  const [supportTypeFilter, setSupportTypeFilter] = useState<'system_error' | 'feature_uplink' | 'login_issue'>('login_issue')
   const [supportStatusFilter, setSupportStatusFilter] = useState('')
+  const [signalSubTab, setSignalSubTab] = useState<'public' | 'user'>('public')
+  const [publicSubjectFilter, setPublicSubjectFilter] = useState('')
   const [supportPage, setSupportPage] = useState(1)
   const [totalSupportRequests, setTotalSupportRequests] = useState(0)
   const [selectedSupportRequest, setSelectedSupportRequest] = useState<SupportRequest | null>(null)
@@ -216,8 +219,7 @@ export default function AdminDashboard() {
     try {
       const query = new URLSearchParams({
         page: supportPage.toString(),
-        limit: '20',
-        ...(supportTypeFilter ? { type: supportTypeFilter } : {}),
+        limit: '100',
         ...(supportStatusFilter ? { status: supportStatusFilter } : {})
       })
       const response = await api.get(`/admin/support?${query.toString()}`)
@@ -230,7 +232,8 @@ export default function AdminDashboard() {
     } finally {
       setIsSupportLoading(false)
     }
-  }, [supportPage, supportTypeFilter, supportStatusFilter])
+  }, [supportPage, supportStatusFilter])
+
 
   useEffect(() => {
     const initDashboard = async () => {
@@ -265,7 +268,7 @@ export default function AdminDashboard() {
     } else if (activeTab === 'support' && user?.role === 'admin') {
       fetchSupportRequests()
     }
-  }, [activeTab, activeHistoryTab, supportTypeFilter, user?.role, fetchAuditLogs, fetchSupportRequests])
+  }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs, fetchSupportRequests])
 
   // Auto-refresh removed to prevent 429 Too Many Requests errors.
   // We now rely on explicit manual refresh via the UI.
@@ -515,7 +518,7 @@ export default function AdminDashboard() {
   }
 
   const handleClearSupport = async () => {
-    const categoryName = supportTypeFilter === 'system_error' ? 'System Errors' : 'Feature Uplinks'
+    const categoryName = supportTypeFilter === 'system_error' ? 'System Errors' : supportTypeFilter === 'feature_uplink' ? 'Feature Uplinks' : 'Login Issues'
     setConfirmConfig({
       isOpen: true,
       title: 'Signal Cleanup',
@@ -811,6 +814,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col">
           <span className="text-white font-bold tracking-tight">{v}</span>
           <span className="text-[10px] text-slate-500 font-medium">{item.userEmail}</span>
+          {item.lawFirm && <span className="text-[9px] text-indigo-400 font-black uppercase tracking-widest mt-0.5">{item.lawFirm}</span>}
         </div>
       )
     },
@@ -820,9 +824,11 @@ export default function AdminDashboard() {
       render: (v: string) => (
         <span className={cn(
           "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
-          v === 'system_error' ? "bg-error-500/20 text-error-500" : "bg-primary/20 text-primary"
+          v === 'system_error' ? "bg-error-500/20 text-error-500" : 
+          v === 'login_issue' ? "bg-orange-500/20 text-orange-400" :
+          "bg-primary/20 text-primary"
         )}>
-          {v === 'system_error' ? 'System Error' : 'Feature Uplink'}
+          {v === 'system_error' ? 'System Error' : v === 'login_issue' ? 'Login Issue' : 'Feature Uplink'}
         </span>
       )
     },
@@ -1138,6 +1144,7 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, scale: 0.98 }}
               className="space-y-8 relative z-10"
             >
+              {/* ═══ SUB-TAB SWITCHER ═══ */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
@@ -1150,71 +1157,217 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5">
-                  {[
-                    { id: 'system_error', label: 'System Errors', color: 'error' },
-                    { id: 'feature_uplink', label: 'Feature Uplinks', color: 'primary' }
-                  ].map(sType => (
-                    <button
-                      key={sType.id}
-                      onClick={() => setSupportTypeFilter(sType.id as any)}
-                      className={cn(
-                        "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                        supportTypeFilter === sType.id 
-                          ? `bg-${sType.color}-500/20 text-${sType.color}-500 border border-${sType.color}-500/20 shadow-lg` 
-                          : "text-slate-500 hover:text-slate-300"
-                      )}
-                    >
-                      {sType.label}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => setSignalSubTab('public')}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                      signalSubTab === 'public'
+                        ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Public Signals
+                  </button>
+                  <button
+                    onClick={() => setSignalSubTab('user')}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                      signalSubTab === 'user'
+                        ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    User Signals
+                  </button>
                 </div>
+              </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="relative group">
-                    <select
-                      value={supportStatusFilter}
-                      onChange={(e) => setSupportStatusFilter(e.target.value)}
-                      className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
-                    >
-                      <option value="" className="bg-slate-900">All Nodes</option>
-                      <option value="pending" className="bg-slate-900">Pending</option>
-                      <option value="resolved" className="bg-slate-900">Resolved</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
-                        <Filter size={12} />
+              {/* ═══ PUBLIC SIGNALS PANEL ═══ */}
+              {signalSubTab === 'public' && (
+                <motion.div
+                  key="public-signals"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 bg-orange-500/10 rounded-xl border border-orange-500/20">
+                        <Bell size={18} className="text-orange-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Public Signals</h3>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Login & Access Issues • Unauthenticated Users</p>
+                      </div>
+                    </div>
+
+                    <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5 flex-wrap">
+                      {[
+                        { id: '', label: 'All', color: 'orange' },
+                        { id: 'Login Error', label: 'Login Error', color: 'orange' },
+                        { id: 'Forgot Password', label: 'Forgot Password', color: 'orange' },
+                        { id: 'Account Locked', label: 'Account Locked', color: 'orange' },
+                        { id: 'Other Issue', label: 'Other Issue', color: 'orange' }
+                      ].map(s => (
+                        <button
+                          key={s.id}
+                          onClick={() => setPublicSubjectFilter(s.id)}
+                          className={cn(
+                            "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            publicSubjectFilter === s.id
+                              ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg"
+                              : "text-slate-500 hover:text-slate-300"
+                          )}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="relative group">
+                        <select
+                          value={supportStatusFilter}
+                          onChange={(e) => setSupportStatusFilter(e.target.value)}
+                          className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
+                        >
+                          <option value="" className="bg-slate-900">All Nodes</option>
+                          <option value="pending" className="bg-slate-900">Pending</option>
+                          <option value="resolved" className="bg-slate-900">Resolved</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
+                            <Filter size={12} />
+                        </div>
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={fetchSupportRequests}
+                        disabled={isSupportLoading}
+                        className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
+                      >
+                        <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { setSupportTypeFilter('login_issue'); handleClearSupport(); }}
+                        className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
+                      >
+                        <Trash2 size={14} />
+                        Wipe Signals
+                      </motion.button>
                     </div>
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={fetchSupportRequests}
-                    disabled={isSupportLoading}
-                    className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
-                  >
-                    <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
-                  </motion.button>
+                  <div className="premium-glass border border-orange-500/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[400px]">
+                    <Table 
+                      data={supportRequests.filter(r => {
+                        if (r.type !== 'login_issue') return false
+                        if (publicSubjectFilter && r.subject !== publicSubjectFilter) return false
+                        return true
+                      })}
+                      columns={supportColumns}
+                      loading={isSupportLoading}
+                      emptyMessage="No public login signals detected."
+                    />
+                  </div>
+                </motion.div>
+              )}
 
-                  <motion.button
-                    whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleClearSupport}
-                    className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
-                  >
-                    <Trash2 size={14} />
-                    Wipe Signals
-                  </motion.button>
-                </div>
-              </div>
+              {/* ═══ USER SIGNALS PANEL ═══ */}
+              {signalSubTab === 'user' && (
+                <motion.div
+                  key="user-signals"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
+                        <Bell size={18} className="text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">User Signals</h3>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">System Errors & Feature Requests • Authenticated Users</p>
+                      </div>
+                    </div>
 
-              <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[500px]">
-                <Table 
-                  data={supportRequests}
-                  columns={supportColumns}
-                  loading={isSupportLoading}
-                  emptyMessage="No logical signals detected in current spectrum."
-                />
-              </div>
+                    <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5">
+                      {[
+                        { id: 'system_error', label: 'System Errors', color: 'error' },
+                        { id: 'feature_uplink', label: 'Feature Uplinks', color: 'primary' }
+                      ].map(sType => (
+                        <button
+                          key={sType.id}
+                          onClick={() => setSupportTypeFilter(sType.id as any)}
+                          className={cn(
+                            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            supportTypeFilter === sType.id 
+                              ? `bg-${sType.color}-500/20 text-${sType.color}-500 border border-${sType.color}-500/20 shadow-lg` 
+                              : "text-slate-500 hover:text-slate-300"
+                          )}
+                        >
+                          {sType.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="relative group">
+                        <select
+                          value={supportStatusFilter}
+                          onChange={(e) => setSupportStatusFilter(e.target.value)}
+                          className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
+                        >
+                          <option value="" className="bg-slate-900">All Nodes</option>
+                          <option value="pending" className="bg-slate-900">Pending</option>
+                          <option value="resolved" className="bg-slate-900">Resolved</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
+                            <Filter size={12} />
+                        </div>
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={fetchSupportRequests}
+                        disabled={isSupportLoading}
+                        className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
+                      >
+                        <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleClearSupport}
+                        className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
+                      >
+                        <Trash2 size={14} />
+                        Wipe Signals
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[400px]">
+                    <Table 
+                      data={supportRequests.filter(r => {
+                        if (supportTypeFilter === 'system_error') return r.type === 'system_error'
+                        if (supportTypeFilter === 'feature_uplink') return r.type === 'feature_uplink'
+                        return r.type !== 'login_issue'
+                      })}
+                      columns={supportColumns}
+                      loading={isSupportLoading}
+                      emptyMessage="No user signals detected in current spectrum."
+                    />
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
           ) : (
             <motion.div 

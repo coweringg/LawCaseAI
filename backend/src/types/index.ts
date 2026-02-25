@@ -53,7 +53,8 @@ export enum EventStatus {
 
 export enum SupportRequestType {
   SYSTEM_ERROR = 'system_error',
-  FEATURE_UPLINK = 'feature_uplink'
+  FEATURE_UPLINK = 'feature_uplink',
+  LOGIN_ISSUE = 'login_issue'
 }
 
 export enum SupportRequestStatus {
@@ -177,9 +178,10 @@ export interface IEvent extends Document {
 
 export interface ISupportRequest extends Document {
   _id: Types.ObjectId
-  userId: Types.ObjectId
+  userId?: Types.ObjectId | null
   userEmail: string
   userName: string
+  lawFirm?: string
   type: SupportRequestType
   subject: string
   description: string

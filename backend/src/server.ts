@@ -47,6 +47,7 @@ import aiRoutes from './routes/ai'
 import dashboardRoutes from './routes/dashboard'
 import eventRoutes from './routes/event'
 import systemRoutes from './routes/system'
+import supportRoutes from './routes/support.routes'
 import { planRateLimiter } from './middleware/rateLimiter'
 
 const app = express()
@@ -157,6 +158,7 @@ app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/system', systemRoutes)
+app.use('/api/support', supportRoutes)
 
 // 404 handler
 app.use('*', (req: express.Request, res: express.Response) => {

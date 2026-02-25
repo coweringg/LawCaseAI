@@ -110,7 +110,7 @@ export default function Pricing() {
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["8 Active AI Matters", "Automated Chronology Suite", "Knowledge Base Search", "SOC2 Type II Security", "Standard AI Discovery"].map((f, i) => (
+                  {["8 Active AI Matters", "10 Document Uploads / Matter", "Unlimited AI Case Queries", "Automated Chronology Suite", "SOC2 Type II Security"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -142,7 +142,7 @@ export default function Pricing() {
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["18 Active AI Matters", "Advanced AI Jurisprudence", "Team Collaboration Portal", "Premium Matter Analytics", "Priority GPU Allocation", "HIPAA & GDPR Compliance"].map((f, i) => (
+                  {["18 Active AI Matters", "50 Document Uploads / Matter", "Unlimited AI Deep-Context", "Team Collaboration Portal", "HIPAA & GDPR Compliance"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-300 text-sm font-medium">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -176,7 +176,7 @@ export default function Pricing() {
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["Unlimited Active Matters", "Cross-Matter AI Intelligence", "Dedicated Success Manager", "Bulk Neural Transcription", "Firm-wide Knowledge Bank", "White-label Client Portals"].map((f, i) => (
+                  {["∞ Unlimited Active Matters", "∞ Unlimited Document Vault", "Unlimited Cross-Matter Insight", "Dedicated Success Manager", "White-label Client Portals"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -271,6 +271,50 @@ export default function Pricing() {
               </div>
             </motion.div>
           )}
+        </div>
+      </section>
+
+      {/* ROI / Value-Based Section */}
+      <section className="py-24 relative overflow-hidden bg-white/5 border-y border-white/10">
+        <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+        <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+        
+        <div className="container-stitch max-w-5xl text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="p-12 md:p-16 rounded-[3rem] premium-glass relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors duration-700"></div>
+            
+            <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-6 relative z-10 leading-[1.3] pb-2">
+              What is <span className="inline-block text-primary italic underline decoration-primary/30 decoration-4 underline-offset-8 mb-4">one hour</span> of your time worth?
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-slate-300 font-medium mb-10 max-w-3xl mx-auto relative z-10 leading-relaxed">
+              If LawCaseAI saves you from manually reading just <strong className="text-white">one 200-page deposition</strong> this month, your subscription has already paid for itself ten times over. 
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-6 relative z-10">
+              {[
+                { label: "Manual Analysis", val: "14 Hours", color: "text-slate-500", icon: "🔴" },
+                { label: "LawCaseAI", val: "12 Seconds", color: "text-emerald-400", icon: "⚡" },
+                { label: "Your ROI", val: "11,600%", color: "text-primary font-black", icon: "📈" }
+              ].map((stat, idx) => (
+                <div key={idx} className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/5">
+                  <span className="text-2xl mb-2 block">{stat.icon}</span>
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">{stat.label}</div>
+                  <div className={`text-3xl tracking-tighter ${stat.color}`}>{stat.val}</div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-12 relative z-10">
+              <p className="text-sm font-black text-primary uppercase tracking-[0.3em] mb-2">Stop billing for reading.</p>
+              <p className="text-white font-black text-xl italic">Start billing for strategy.</p>
+            </div>
+          </motion.div>
         </div>
       </section>
 

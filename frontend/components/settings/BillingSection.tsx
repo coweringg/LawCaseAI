@@ -1,5 +1,5 @@
-import React from 'react';
-import { CreditCard, Loader2, Sparkles, Layers, Share2 } from 'lucide-react';
+import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
 
 interface BillingSectionProps {
@@ -13,6 +13,157 @@ interface BillingSectionProps {
     onRemoveCard: (id: string) => void;
     formatDate: (date: string) => string;
 }
+
+const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
+    const doc = new jsPDF();
+    const primaryColor = '#2563eb'; // Deep Blue
+    const secondaryColor = '#4f46e5'; // Indigo
+    const accentColor = '#0ea5e9'; // Sky Blue
+    const textColor = '#1e293b'; // Dark Slate
+    const slateColor = '#64748b'; // Slate
+    const white = '#ffffff';
+
+    // Header Background - Modern Gradient Block
+    doc.setFillColor(37, 99, 235); // primaryColor
+    doc.rect(0, 0, 210, 60, 'F');
+
+    // Title & Logo Area
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(28);
+    doc.text('LAWCASEAI', 20, 35);
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const systemText = 'ELITE NEURAL JURISPRUDENCE INFRASTRUCTURE';
+    doc.text(systemText, 20, 43);
+
+    // Invoice Label box
+    doc.setFillColor(255, 255, 255, 0.2);
+    doc.roundedRect(140, 20, 50, 25, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INVOICE', 145, 30);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`#TXN-${tx._id.slice(-6).toUpperCase()}`, 145, 38);
+
+    // separator line in header
+    doc.setDrawColor(255, 255, 255);
+    doc.setGState(new (doc as any).GState({ opacity: 0.3 }));
+    doc.line(20, 50, 190, 50);
+    doc.setGState(new (doc as any).GState({ opacity: 1 }));
+
+    // --- Content Section (White background style) ---
+    doc.setFillColor(255, 255, 255);
+    
+    // Address Section
+    doc.setTextColor(primaryColor);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ISSUED BY:', 20, 80);
+    
+    doc.setTextColor(textColor);
+    doc.text('BILLED TO:', 110, 80);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(slateColor);
+    doc.text('LawCaseAI Intelligence HQ', 20, 88);
+
+    doc.setTextColor(textColor);
+    doc.setFont('helvetica', 'bold');
+    doc.text(orgData?.name || 'Individual User Account', 110, 88);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(slateColor);
+    doc.setFontSize(9);
+    doc.text(`Identification: ${orgData?.firmCode || 'Individual'}`, 110, 95);
+    doc.text(`Contact: ${billingInfo?.email || 'N/A'}`, 110, 100);
+    doc.text(`Date of Issue: ${new Date(tx.date).toLocaleDateString()}`, 110, 105);
+
+    // Transaction Details Table Header
+    doc.setFillColor(248, 250, 252); // Very light slate
+    doc.rect(20, 120, 170, 12, 'F');
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.line(20, 120, 190, 120);
+    doc.line(20, 132, 190, 132);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(primaryColor);
+    doc.text('ACCESS PROTOCOL', 25, 127.5);
+    doc.text('UNITS', 130, 127.5);
+    doc.text('TOTAL', 170, 127.5);
+
+    // Transaction Row
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(textColor);
+    doc.setFontSize(10);
+    doc.text(`${tx.plan.toUpperCase()} Neural Access`, 25, 145);
+    doc.text(tx.plan === 'enterprise' ? `${orgData?.totalSeats || 1} Licenses` : '1 License', 130, 145);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`$${tx.amount.toLocaleString()}`, 170, 145);
+
+    // Divider
+    doc.setDrawColor(226, 232, 240);
+    doc.line(20, 155, 190, 155);
+
+    // Summary Area
+    const summaryX = 130;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(slateColor);
+    doc.text('Subtotal:', summaryX, 170);
+    doc.text('Tax (0%):', summaryX, 178);
+    
+    doc.setTextColor(textColor);
+    doc.text(`$${tx.amount.toLocaleString()}`, 170, 170);
+    doc.text(`$0.00`, 170, 178);
+
+    // Final Total Box
+    doc.setFillColor(37, 99, 235);
+    doc.roundedRect(summaryX - 5, 185, 65, 15, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('GRAND TOTAL', summaryX, 194.5);
+    doc.text(`$${tx.amount.toLocaleString()}`, 170, 194.5);
+
+    // Payment method info (Refined)
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(20, 170, 100, 30, 2, 2, 'D');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(primaryColor);
+    doc.text('PAYMENT VERIFICATION', 25, 178);
+    
+    const pm = billingInfo?.paymentMethods?.find((p: any) => p.id === billingInfo.defaultPaymentMethodId) || tx.paymentMethod;
+    const cardLast4 = typeof pm === 'string' ? pm.slice(-4) : pm?.last4 || '4242';
+    
+    doc.setTextColor(textColor);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Authentication: Credit Card (**** **** **** ${cardLast4})`, 25, 185);
+    doc.setTextColor(accentColor);
+    doc.text('Status: Transaction Succeeded & Secured', 25, 192);
+
+    // Footer - Clean & Professional
+    doc.setDrawColor(primaryColor);
+    doc.setLineWidth(1);
+    doc.line(20, 275, 50, 275);
+    
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(slateColor);
+    doc.text('Thank you for choosing LawCaseAI for your legal intelligence infrastructure.', 20, 282);
+    doc.text(`Validation Signature: ${tx.stripePaymentIntentId || 'SECURE-AUTH-' + tx._id.slice(0, 8)}`, 20, 287);
+
+    doc.setTextColor(primaryColor);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SYSTEM AUTHENTICATED', 160, 282);
+
+    doc.save(`LawCaseAI_Statement_${tx._id.slice(-6).toUpperCase()}.pdf`);
+};
 
 export const BillingSection: React.FC<BillingSectionProps> = ({
     billingInfo,
@@ -234,10 +385,13 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <a href={item.invoiceUrl} className="inline-flex items-center gap-2 text-slate-500 hover:text-white text-xs font-black uppercase tracking-widest transition-colors">
-                                                <Share2 size={12} />
+                                            <button 
+                                                onClick={() => generateInvoicePDF(item, billingInfo, orgData)}
+                                                className="inline-flex items-center gap-2 text-slate-500 hover:text-white text-xs font-black uppercase tracking-widest transition-colors"
+                                            >
+                                                <DownloadCloud size={12} />
                                                 PDF
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

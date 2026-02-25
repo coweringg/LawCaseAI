@@ -925,7 +925,7 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout>
       <Head>
-        <title>Elite Command Center | LawCaseAI</title>
+        <title>Command Center | LawCaseAI</title>
       </Head>
 
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">

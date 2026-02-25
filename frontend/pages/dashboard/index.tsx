@@ -93,8 +93,8 @@ export default function Dashboard() {
           className="flex flex-col gap-8 relative z-10"
         >
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-primary/40 group relative overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-primary/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
@@ -114,7 +114,7 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
@@ -148,7 +148,7 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-amber-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-amber-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
@@ -167,7 +167,7 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-7 rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-indigo-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-indigo-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
@@ -186,27 +186,27 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
               <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-500 hover:border-primary/20 backdrop-blur-3xl">
-                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                <div className="p-4 lg:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                   <div>
-                    <h3 className="text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
+                    <h3 className="text-lg lg:text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
+                    <p className="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
                   </div>
-                  <Link href="/cases" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black text-primary uppercase tracking-widest transition-all border border-white/5">
+                  <Link href="/cases" className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] lg:text-[10px] font-black text-primary uppercase tracking-widest transition-all border border-white/5">
                     Terminal View
-                    <span className="material-icons-round text-sm">open_in_new</span>
+                    <span className="material-icons-round text-xs lg:text-sm">open_in_new</span>
                   </Link>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbar-hide">
                   {isLoading ? (
                     <div className="p-12 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
                   ) : (
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[600px]">
                       <thead>
-                        <tr className="bg-white/5 text-[10px] uppercase font-bold tracking-widest text-slate-500 border-b border-white/5">
-                          <th className="px-6 py-4">Case Details</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4">AI Audit</th>
-                          <th className="px-6 py-4 text-right">Last Sync</th>
+                        <tr className="bg-white/5 text-[9px] lg:text-[10px] uppercase font-bold tracking-widest text-slate-500 border-b border-white/5">
+                          <th className="px-4 lg:px-6 py-4">Case Details</th>
+                          <th className="px-4 lg:px-6 py-4">Status</th>
+                          <th className="px-4 lg:px-6 py-4">AI Audit</th>
+                          <th className="px-4 lg:px-6 py-4 text-right">Last Sync</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
@@ -220,31 +220,31 @@ export default function Dashboard() {
                             role="button"
                             aria-label={`View case ${c.name}`}
                           >
-                            <td className="px-8 py-6">
-                              <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-500">
+                            <td className="px-4 lg:px-8 py-4 lg:py-6">
+                              <div className="flex items-center gap-3 lg:gap-5">
+                                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-base lg:text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-500 shrink-0">
                                   {c.name.substring(0, 2)}
                                 </div>
-                                <div>
-                                  <p className="text-[15px] font-black text-white group-hover:text-primary transition-colors tracking-tight">{c.name}</p>
-                                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1 opacity-70">{c.practiceArea || 'General Legal'}</p>
+                                <div className="min-w-0">
+                                  <p className="text-[13px] lg:text-[15px] font-black text-white group-hover:text-primary transition-colors tracking-tight truncate">{c.name}</p>
+                                  <p className="text-[8px] lg:text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1 opacity-70 truncate">{c.practiceArea || 'General Legal'}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-8 py-6">
-                              <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest shadow-lg backdrop-blur-md">
+                            <td className="px-4 lg:px-8 py-4 lg:py-6">
+                              <span className="inline-flex items-center px-3 py-1 lg:px-4 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest shadow-lg backdrop-blur-md">
                                 {c.status}
                               </span>
                             </td>
-                            <td className="px-8 py-6">
-                              <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                                <Sparkles size={14} className="text-primary animate-pulse" />
-                                {c.fileCount > 0 ? 'Analysis Active' : 'Waiting Layer'}
+                            <td className="px-4 lg:px-8 py-4 lg:py-6 whitespace-nowrap">
+                              <div className="flex items-center gap-2 text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                                <Sparkles size={12} className="text-primary animate-pulse" />
+                                <span className="hidden sm:inline">{c.fileCount > 0 ? 'Analysis Active' : 'Waiting Layer'}</span>
                               </div>
                             </td>
-                            <td className="px-8 py-6 text-right">
-                              <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest opacity-60">
-                                {new Date(c.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            <td className="px-4 lg:px-8 py-4 lg:py-6 text-right whitespace-nowrap">
+                              <div className="text-[8px] lg:text-[10px] text-slate-500 font-black uppercase tracking-widest opacity-60">
+                                {new Date(c.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                               </div>
                             </td>
                           </tr>

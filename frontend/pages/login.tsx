@@ -20,12 +20,15 @@ export default function Login() {
   const [mounted, setMounted] = useState(false)
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const { login, savedAccounts = [], loginWithSavedAccount, removeSavedAccount } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+    if (router.query.support === 'true') {
+      setIsSupportModalOpen(true)
+    }
+  }, [router.query.support])
 
   if (!mounted) {
     return (

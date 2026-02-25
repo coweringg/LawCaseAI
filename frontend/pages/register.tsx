@@ -411,7 +411,9 @@ export default function Register() {
             />
           </div>
           <label htmlFor="terms" className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal cursor-pointer select-none">
-            I have read and agree to the <Link href="/terms" className="text-primary font-bold hover:underline">Terms of Service</Link> and the <Link href="/privacy" className="text-primary font-bold hover:underline">Privacy Policy</Link> of LawCaseAI.
+            I have read and agree to the <Link href="/terms" className="text-primary font-bold hover:underline">Terms of Service</Link>
+            {' '}and the{' '}
+            <Link href="/privacy" className="text-primary font-bold hover:underline">Privacy Policy</Link> of LawCaseAI.
           </label>
         </div>
 

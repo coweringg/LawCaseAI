@@ -53,9 +53,9 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="mb-12"
+                        className="mb-6 xl:mb-12"
                     >
-                        <h1 className="text-4xl xl:text-6xl font-black text-white leading-tight mb-8 font-display tracking-tightest">
+                        <h1 className="text-4xl xl:text-6xl font-black text-white leading-tight mb-4 xl:mb-8 font-display tracking-tightest">
                             Command the <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Digital Twin</span> <br />
                             of Your Firm.
@@ -102,7 +102,7 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
             </div>
 
             {/* Right Side: Secure Form (Full width mobile, 55% desktop) */}
-            <div className="w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center lg:justify-start lg:pt-12 xl:justify-center xl:pt-0 relative overflow-y-auto">
+            <div className="w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-y-auto scrollbar-hide">
                 {/* Mobile Logo (Visible only on small screens) */}
                 <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">
@@ -114,15 +114,15 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                 </div>
 
                 {/* Content Children */}
-                <div className="w-full max-w-md px-6 py-8 sm:px-8">
+                <div className="w-full max-w-md py-8 sm:py-12">
                     {children}
 
                     {/* Footer Terms */}
                     <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                        By continuing, you agree to LawCaseAI&apos;s
-                        <Link href="/terms" className="underline hover:text-slate-600 dark:hover:text-slate-300 ml-1">Terms of Service</Link>
-                        and
-                        <Link href="/privacy" className="underline hover:text-slate-600 dark:hover:text-slate-300 ml-1">Privacy Policy</Link>.
+                        By continuing, you agree to LawCaseAI&apos;s{' '}
+                        <Link href="/terms" className="underline hover:text-slate-600 dark:hover:text-slate-300">Terms of Service</Link>
+                        {' '}and{' '}
+                        <Link href="/privacy" className="underline hover:text-slate-600 dark:hover:text-slate-300">Privacy Policy</Link>.
                     </p>
                 </div>
             </div>

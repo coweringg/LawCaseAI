@@ -138,7 +138,7 @@ export default function SystemCommandCenter() {
   return (
     <DashboardLayout>
       <Head>
-        <title>Elite System Command | LawCaseAI</title>
+        <title>System Command | LawCaseAI</title>
       </Head>
 
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">

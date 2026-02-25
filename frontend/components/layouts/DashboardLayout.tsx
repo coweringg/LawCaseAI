@@ -45,6 +45,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [mounted, setMounted] = useState(false);
     const [globalAlert, setGlobalAlert] = useState<{message: string, type: string} | null>(null);
     const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -284,8 +285,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
-                {/* Sidebar */}
-                <aside className="w-64 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden">
+                {/* Sidebar - Desktop */}
+                <aside className={`w-64 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-300`}>
                     <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
@@ -382,16 +383,90 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                 </aside>
 
+                {/* Mobile Sidebar Overlay */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
+                            />
+                            <motion.aside
+                                initial={{ x: '-100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '-100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                className="fixed left-0 top-0 bottom-0 w-72 bg-[#060910] border-r border-white/10 z-[70] lg:hidden flex flex-col"
+                            >
+                                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+                                <div className="relative z-10 flex flex-col h-full">
+                                    <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-icons-round text-3xl text-primary">gavel</span>
+                                            <span className="text-xl font-extrabold tracking-tight text-white">LawCaseAI</span>
+                                        </div>
+                                        <button onClick={() => setIsMobileMenuOpen(false)} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400">
+                                            <span className="material-icons-round">close</span>
+                                        </button>
+                                    </div>
+                                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                                        {(user?.role === 'admin' ? [
+                                            { href: '/dashboard/admin', label: 'Overview', icon: 'admin_panel_settings', exact: true },
+                                            { href: '/dashboard/admin/analytics', label: 'AI Analytics', icon: 'psychology', exact: false },
+                                            { href: '/dashboard/admin/treasury', label: 'Treasury', icon: 'account_balance', exact: false },
+                                            { href: '/dashboard/admin/system', label: 'System Command', icon: 'security', exact: false }
+                                        ] : [
+                                            { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+                                            { href: '/cases', label: 'My Cases', icon: 'folder_open' },
+                                            { href: '/calendar', label: 'Calendar', icon: 'calendar_today' },
+                                            { href: '/settings', label: 'Settings', icon: 'settings' }
+                                        ]).map((item) => (
+                                            <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
+                                                <div className={`flex items-center gap-4 p-4 rounded-xl font-bold border transition-all ${isActive(item.href, (item as any).exact) ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500 border-transparent hover:bg-white/5'}`}>
+                                                    <span className="material-icons-round text-2xl">{item.icon}</span>
+                                                    <span className="text-xs uppercase tracking-[0.2em]">{item.label}</span>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </nav>
+                                    <div className="p-6 border-t border-white/5">
+                                        <button onClick={logout} className="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-red-500/10 text-red-500 font-bold uppercase text-[10px] tracking-widest border border-red-500/20">
+                                            <span className="material-icons-round text-lg">logout</span>
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.aside>
+                        </>
+                    )}
+                </AnimatePresence>
+
                 {/* Main Content Area */}
                 <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                     {/* Header */}
-                    <header className="h-20 bg-transparent border-b border-white/5 flex items-center justify-between px-8 flex-shrink-0 z-20 relative overflow-hidden">
+                    <header className="h-16 lg:h-20 bg-transparent border-b border-white/5 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-20 relative overflow-hidden">
                         <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
+                        
+                        {/* Mobile Menu Button */}
+                        <button 
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 relative z-10"
+                        >
+                            <span className="material-icons-round">menu</span>
+                        </button>
                         <div className="relative z-10 flex items-center justify-between w-full">
-                            <div className="flex items-center gap-6">
-                                <TimeDisplay />
+                            <div className="flex items-center gap-3 lg:gap-6">
+                                <div className="hidden sm:block">
+                                    <TimeDisplay />
+                                </div>
+                                <div className="lg:hidden">
+                                     <span className="text-lg font-black text-white tracking-tight">LawCase<span className="text-primary">AI</span></span>
+                                </div>
                                 {user?.role !== 'admin' && (
-                                    <div>
+                                    <div className="hidden xl:block">
                                         <h2 className="text-xl font-black text-white leading-tight font-display tracking-tightest">Operational Command</h2>
                                         <div className="flex items-center gap-2">
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
@@ -400,12 +475,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     </div>
                                 )}
                             </div>
-                            <div className="flex items-center gap-10">
+                            <div className="flex items-center gap-4 lg:gap-10">
                                 {user?.role !== 'admin' && (
-                                    <div className="relative group hidden lg:block">
-                                        <span className="absolute left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-xl group-focus-within:text-primary transition-all duration-500">search</span>
+                                    <div className="relative group hidden md:block">
+                                        <span className="absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-lg lg:text-xl group-focus-within:text-primary transition-all duration-500">search</span>
                                         <input
-                                            className="pl-16 pr-8 py-3 w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black uppercase tracking-[0.2em] shadow-inner shadow-black/20"
+                                            className="pl-12 lg:pl-16 pr-4 lg:pr-8 py-2.5 lg:py-3 w-[180px] lg:w-[350px] xl:w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[10px] lg:text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black uppercase tracking-[0.2em] shadow-inner shadow-black/20"
                                             placeholder="Audit Core Intelligence..."
                                             type="text"
                                             value={searchQuery}
@@ -413,24 +488,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                                             onFocus={() => searchQuery.length > 1 && setShowSearchDropdown(true)}
                                         />
-
-                                        {/* Search Dropdown */}
+                                        
+                                        {/* Search Dropdown - Positioned relatively to the container */}
                                         <AnimatePresence>
                                             {showSearchDropdown && (
                                                 <motion.div
                                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute top-full left-0 right-0 mt-3 glass-dark border border-white/10 rounded-3xl shadow-2xl z-50 max-h-[480px] overflow-hidden backdrop-blur-3xl"
+                                                    className="absolute top-full left-0 right-0 mt-3 glass-dark border border-white/10 rounded-3xl shadow-2xl z-50 max-h-[400px] overflow-hidden backdrop-blur-3xl"
                                                 >
-                                                    <div className="p-2 overflow-y-auto max-h-[470px]">
+                                                    <div className="p-2 overflow-y-auto max-h-[390px]">
                                                         {isSearching ? (
-                                                            <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                                                            <div className="p-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2">
                                                                 <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                                                 Searching...
                                                             </div>
                                                         ) : searchQuery.length > 1 && searchResults.cases.length === 0 && searchResults.files.length === 0 ? (
-                                                            <div className="p-6 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No results found</div>
+                                                            <div className="p-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">No results found</div>
                                                         ) : (
                                                             <div className="py-2">
                                                                 {searchResults.cases.length > 0 && (
@@ -485,10 +560,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             <motion.button
                                                 whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)" }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
+                                                className="flex items-center gap-2 lg:gap-3 px-4 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
                                             >
-                                                <span className="material-icons-round text-lg">add</span>
-                                                <span>Initialize Case</span>
+                                                <span className="material-icons-round text-base lg:text-lg">add</span>
+                                                <span className="hidden sm:inline">Initialize Case</span>
+                                                <span className="sm:hidden">Case</span>
                                             </motion.button>
                                         </Link>
                                     </div>
@@ -498,7 +574,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </header>
 
                     {/* Scrollable Page Content */}
-                    <div className="flex-1 overflow-y-auto p-6 relative z-10">
+                    <div className="flex-1 overflow-y-auto p-4 lg:p-6 relative z-10 scrollbar-hide">
                         <div className="w-full mx-auto min-h-full">
                             {children}
                         </div>

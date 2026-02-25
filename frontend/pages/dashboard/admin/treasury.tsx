@@ -29,7 +29,8 @@ import {
   ShieldCheck,
   Activity,
   ArrowUpRight,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '@/utils/api'
@@ -46,6 +47,8 @@ export default function TreasuryDashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
+  const [range, setRange] = useState('month')
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     if (!isAuthLoading && (!user || user.role !== 'admin')) {
@@ -56,7 +59,7 @@ export default function TreasuryDashboard() {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const res = await api.get('/admin/treasury')
+        const res = await api.get(`/admin/treasury?range=${range}`)
         if (res.data.success) {
           setData(res.data.data)
         }
@@ -70,7 +73,27 @@ export default function TreasuryDashboard() {
     if (user?.role === 'admin') {
       fetchData()
     }
-  }, [user, isAuthLoading, router])
+  }, [user, isAuthLoading, router, range])
+
+  const handleExportCSV = async () => {
+    setIsExporting(true)
+    try {
+      const response = await api.get('/admin/treasury/export', {
+        responseType: 'blob'
+      })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'treasury_ledger.csv')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('Failed to export CSV', error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (loading || !data) {
     return (
@@ -88,7 +111,7 @@ export default function TreasuryDashboard() {
   return (
     <DashboardLayout>
       <Head>
-        <title>Elite Treasury Vault | LawCaseAI</title>
+        <title>Treasury Vault | LawCaseAI</title>
       </Head>
 
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
@@ -112,10 +135,12 @@ export default function TreasuryDashboard() {
           <div className="flex gap-4">
              <Button 
                 variant="none" 
-                className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/5 transition-all flex items-center gap-3"
+                onClick={handleExportCSV}
+                disabled={isExporting}
+                className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/5 transition-all flex items-center gap-3 disabled:opacity-50"
              >
-                <Download size={18} className="text-success-500" />
-                Export Ledger .CSV
+                {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} className="text-success-500" />}
+                {isExporting ? 'Exporting...' : 'Export Ledger .CSV'}
              </Button>
           </div>
         </div>
@@ -132,7 +157,7 @@ export default function TreasuryDashboard() {
                 border: 'border-success-500/20' 
             },
             { 
-                label: 'Monthly Recurring (MRR)', 
+                label: range === 'week' ? 'Weekly Revenue' : range === 'month' ? 'Monthly Revenue (MRR)' : range === 'year' ? 'Yearly Revenue' : 'Total Filtered Revenue', 
                 value: `$${data.kpi.mrr.toLocaleString()}`, 
                 icon: TrendingUp, 
                 color: 'text-primary', 
@@ -192,12 +217,25 @@ export default function TreasuryDashboard() {
                    </div>
                    <div>
                      <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Revenue Stream Analysis</h3>
-                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">30-Day Financial Trajectory</p>
+                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{range.toUpperCase()} Financial Trajectory</p>
                    </div>
                  </div>
-                 <div className="flex gap-2">
-                    <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-tighter">Daily Aggregation</div>
-                 </div>
+                 <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">
+                    {['week', 'month', 'year', 'all'].map((r) => (
+                      <button
+                        key={r}
+                        onClick={() => setRange(r)}
+                        className={cn(
+                          "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all",
+                          range === r 
+                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                            : "text-slate-500 hover:text-white"
+                        )}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
                </div>
                <div className="flex-1 p-8 min-h-0">
                  <ResponsiveContainer width="100%" height="100%">

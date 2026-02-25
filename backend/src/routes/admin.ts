@@ -26,7 +26,8 @@ import {
   getAiStats 
 } from '../controllers/analyticsController'
 import { 
-  getTreasuryStats 
+  getTreasuryStats,
+  exportTreasuryCSV
 } from '../controllers/treasuryController'
 import { 
   getSystemStatus, 
@@ -99,6 +100,7 @@ router.get('/analytics/ai', getAiStats)
 
 // 2. Financial Treasury
 router.get('/treasury', getTreasuryStats)
+router.get('/treasury/export', exportTreasuryCSV)
 
 // 3. System Command Center
 router.get('/system/status', getSystemStatus)

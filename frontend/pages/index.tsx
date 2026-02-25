@@ -39,7 +39,7 @@ export default function Home() {
       </Head>
 
       {/* Premium Hero Section */}
-      <section className="relative min-h-[95vh] flex items-center overflow-hidden py-20">
+      <section className="relative min-h-[90vh] lg:min-h-[95vh] flex items-center overflow-hidden py-12 lg:py-20">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12"></div>
@@ -64,7 +64,7 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 container-stitch">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <motion.div
               initial="initial"
               animate="animate"
@@ -81,7 +81,7 @@ export default function Home() {
 
               <motion.h1
                 variants={fadeInUp}
-                className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-8 leading-[1.1] font-display"
+                className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 lg:mb-8 leading-[1.1] font-display"
               >
                 The Standard for <br />
                 <TypewriterText
@@ -126,7 +126,7 @@ export default function Home() {
               {/* Trust badges */}
               <motion.div
                 variants={fadeInUp}
-                className="mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-10 items-center"
+                className="mt-10 lg:mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-6 lg:gap-10 items-center"
               >
                 <div className="flex flex-col gap-1 w-full mb-2">
                     <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary/60">Compliance & Trust</p>
@@ -205,10 +205,10 @@ export default function Home() {
       </section>
 
       {/* Features Preview */}
-      <section className="py-32 relative overflow-hidden">
+      <section className="py-20 lg:py-32 relative overflow-hidden">
         <div className="container-stitch">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 font-display tracking-tightest">
+          <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-20 px-4">
+            <h2 className="text-3xl md:text-6xl font-black text-white mb-6 font-display tracking-tightest">
                 Professional <span className="text-primary">Infrastructure</span>
             </h2>
             <p className="text-lg text-slate-400 leading-relaxed font-medium">
@@ -267,7 +267,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-32 bg-background-dark/50 relative border-y border-white/5">
+      <section className="py-20 lg:py-32 bg-background-dark/50 relative border-y border-white/5">
         <div className="container-stitch">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4 font-display tracking-tight">Trusted by <span className="text-primary">Elite</span> Partners</h2>
@@ -316,7 +316,7 @@ export default function Home() {
 
 
       {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden">
+      <section className="py-20 lg:py-32 relative overflow-hidden">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] pointer-events-none"></div>
         
@@ -325,12 +325,12 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto premium-glass p-16 rounded-[3rem] border border-white/10 shadow-2xl relative"
+            className="max-w-4xl mx-auto premium-glass p-8 sm:p-12 lg:p-16 rounded-2xl lg:rounded-[3rem] border border-white/10 shadow-2xl relative"
           >
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/50">
                 <Zap size={32} fill="currentColor" />
             </div>
-            <h2 className="text-4xl h-auto md:text-6xl font-black text-white mb-8 font-display tracking-tightest leading-tight">
+            <h2 className="text-3xl md:text-6xl font-black text-white mb-8 font-display tracking-tightest leading-tight">
                 Ready to Upgrade your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Legal Intelligence?</span>
             </h2>

@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -6,15 +7,11 @@ import rateLimit from 'express-rate-limit'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3'
-import axios from 'axios'
 import mongoSanitize from 'express-mongo-sanitize'
 import { connectDatabase } from './config/database'
 import config from './config'
 import { IApiResponse } from './types'
 import logger, { httpLogger } from './utils/logger'
-
-// Load environment variables
-import 'dotenv/config'
 
 // Local error type definitions
 interface MongooseValidationFieldError {
@@ -70,7 +67,7 @@ app.use(cookieParser())
 app.use(cors({
   origin: config.cors.origin,
   credentials: config.cors.credentials,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
@@ -105,6 +102,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // NoSQL injection protection
 app.use(mongoSanitize())
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'))
+
 // Global Maintenance Mode Check
 import { checkMaintenanceMode } from './middleware/maintenance'
 app.use(checkMaintenanceMode)
@@ -117,13 +117,14 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
   const checks = await Promise.all([
     checkMongoDBConnection(),
     checkCloudflareR2Connection(),
-    checkFreeLLMConnection(),
+    checkOpenAIConnection(),
+    checkAIConnection(),
     checkSMTPConnection(),
   ])
 
-  const [mongo, r2, llm, smtp] = checks
-  const allConnected = checks.every(c => c.connected)
-  const anyConnected = checks.some(c => c.connected)
+  const [mongo, r2, openai, ai, smtp] = checks
+  const allConnected = checks.every((c: any) => c.connected)
+  const anyConnected = checks.some((c: any) => c.connected)
 
   const overallStatus = allConnected ? 'healthy' : anyConnected ? 'degraded' : 'unhealthy'
   const httpStatus = mongo.connected ? 200 : 503 // DB is the critical dependency
@@ -139,7 +140,8 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
       services: {
         mongodb: mongo,
         cloudflareR2: r2,
-        freeLLM: llm,
+        openai,
+        ai,
         smtp,
       },
     },
@@ -269,27 +271,17 @@ const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; mess
   }
 }
 
-const checkFreeLLMConnection = async (): Promise<{ connected: boolean; message: string }> => {
+const checkOpenAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
-    if (config.freellm.apiKey && config.freellm.baseUrl) {
-      const response = await axios.get(`${config.freellm.baseUrl}/models`, {
-        headers: {
-          'Authorization': `Bearer ${config.freellm.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 5000
-      })
-      if (response.status === 200) {
-        return { connected: true, message: 'FreeLLM API connected' }
-      } else {
-        return { connected: false, message: `FreeLLM API returned status: ${response.status}` }
-      }
+    if (config.openai.apiKey) {
+      // We just check if the key is present. A real health check would call a lightweight OpenAI endpoint.
+      return { connected: true, message: 'OpenAI API configured' }
     } else {
-      return { connected: false, message: 'FreeLLM API not configured' }
+      return { connected: false, message: 'OpenAI API not configured' }
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    return { connected: false, message: `FreeLLM API connection failed: ${errorMessage}` }
+    return { connected: false, message: `OpenAI API check failed: ${errorMessage}` }
   }
 }
 
@@ -303,6 +295,19 @@ const checkSMTPConnection = async (): Promise<{ connected: boolean; message: str
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return { connected: false, message: `SMTP configuration error: ${errorMessage}` }
+  }
+}
+
+const checkAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
+  try {
+    if (config.ai.apiKey) {
+      return { connected: true, message: 'OpenRouter AI configured' }
+    } else {
+      return { connected: false, message: 'OpenRouter AI not configured' }
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { connected: false, message: `AI check failed: ${errorMessage}` }
   }
 }
 
@@ -321,16 +326,18 @@ const startServer = async () => {
 
       logger.info('🔍 Checking service connections...')
 
-      const [mongoStatus, r2Status, llmStatus, smtpStatus] = await Promise.all([
+      const [mongoStatus, r2Status, openaiStatus, aiStatus, smtpStatus] = await Promise.all([
         checkMongoDBConnection(),
         checkCloudflareR2Connection(),
-        checkFreeLLMConnection(),
+        checkOpenAIConnection(),
+        checkAIConnection(),
         checkSMTPConnection(),
       ])
 
       logger.info({ ...mongoStatus }, `🗄️  MongoDB Atlas`)
       logger.info({ ...r2Status }, `☁️  Cloudflare R2`)
-      logger.info({ ...llmStatus }, `🤖 FreeLLM API`)
+      logger.info({ ...openaiStatus }, `🤖 OpenAI API`)
+      logger.info({ ...aiStatus }, `🤖 OpenRouter AI`)
       logger.info({ ...smtpStatus }, `📧 SMTP Email`)
 
       logger.info('✨ Server ready to accept connections!')

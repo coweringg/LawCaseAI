@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { Check, Star, Shield, Zap, Info } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Pricing() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
@@ -11,9 +12,34 @@ export default function Pricing() {
   const [seats, setSeats] = useState(10);
   const [mounted, setMounted] = useState(false);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const PLAN_PRICES: Record<string, number> = {
+    basic: 100,
+    professional: 199,
+    elite: 300,
+    enterprise: 300
+  };
+
+  const ANNUAL_PRICES: Record<string, number> = {
+    basic: 79,
+    professional: 159,
+    elite: 249,
+    enterprise: 249
+  };
+
+  const currentPlanCost = (user?.plan && user.plan !== 'none') 
+    ? (user.billingInterval === 'annual' ? ANNUAL_PRICES[user.plan] : PLAN_PRICES[user.plan]) 
+    : 0;
+
+  const getProratedPrice = (basePrice: number) => {
+    if (!user?.plan || user.plan === 'none') return basePrice;
+    return Math.max(0, basePrice - currentPlanCost);
+  };
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -103,14 +129,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Growth</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '79' : '99'}</span>
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 : 100) && (
+                      <span className="text-2xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '79' : '100'}</span>
+                    )}
+                    <span className="text-5xl font-bold text-white">${getProratedPrice(billingInterval === 'annual' ? 79 : 100)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-medium text-sm">/mo</span>
                     </div>
                   </div>
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 : 100) && (
+                    <div className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Upgrade Proration Applied</div>
+                  )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["8 Active AI Matters", "10 Document Uploads / Matter", "Unlimited AI Case Queries", "Automated Chronology Suite", "SOC2 Type II Security"].map((f, i) => (
+                  {["8 Active AI Matters", "20 Documents per Case", "15MB max File Size", "50MB Total Storage", "Unlimited AI Queries (4o-mini)", "SOC2 Type II Security"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -135,14 +167,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-4">Professional</h3>
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '159' : '199'}</span>
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 : 199) && (
+                      <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '159' : '199'}</span>
+                    )}
+                    <span className="text-6xl font-black text-white tracking-tighter">${getProratedPrice(billingInterval === 'annual' ? 159 : 199)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 : 199) && (
+                    <div className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Upgrade Proration Applied</div>
+                  )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["18 Active AI Matters", "50 Document Uploads / Matter", "Unlimited AI Deep-Context", "Team Collaboration Portal", "HIPAA & GDPR Compliance"].map((f, i) => (
+                  {["18 Active AI Matters", "50 Documents per Case", "25MB max File Size", "500MB Total Storage", "Unlimited Deep Context", "HIPAA & GDPR Compliance"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-300 text-sm font-medium">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -166,17 +204,23 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Elite</h3>
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '249' : '300'}</span>
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 : 300) && (
+                      <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '249' : '300'}</span>
+                    )}
+                    <span className="text-6xl font-black text-white tracking-tighter">${getProratedPrice(billingInterval === 'annual' ? 249 : 300)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 : 300) && (
+                    <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1 mb-3">Upgrade Proration Applied</div>
+                  )}
                   <div className="text-[11px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                     <span className="text-2xl">∞</span> Active Matters
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["∞ Unlimited Active Matters", "∞ Unlimited Document Vault", "Unlimited Cross-Matter Insight", "Dedicated Success Manager", "White-label Client Portals"].map((f, i) => (
+                  {["∞ Unlimited Active Matters", "∞ Unlimited Documents", "50MB max File Size", "50GB Total Storage", "Dedicated Success Manager", "White-label Client Portals"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>

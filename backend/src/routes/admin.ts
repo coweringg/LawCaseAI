@@ -19,6 +19,7 @@ import {
   updateOrganizationCode
 } from '../controllers/adminController'
 import { authenticate, authorize } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { UserRole } from '../types'
 import { handleValidationErrors } from '../middleware/validation'
 
@@ -39,6 +40,7 @@ const router = Router()
 
 // Protect all admin routes
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 router.use(authorize(UserRole.ADMIN))
 
 // --- User Management ---

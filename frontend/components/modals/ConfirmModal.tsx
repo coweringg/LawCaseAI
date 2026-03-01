@@ -9,6 +9,7 @@ interface ConfirmModalProps {
     confirmLabel?: string;
     cancelLabel?: string;
     isDestructive?: boolean;
+    children?: React.ReactNode;
 }
 
 export default function ConfirmModal({
@@ -19,7 +20,8 @@ export default function ConfirmModal({
     message,
     confirmLabel = 'Confirm',
     cancelLabel = 'Cancel',
-    isDestructive = false
+    isDestructive = false,
+    children
 }: ConfirmModalProps) {
     if (!isOpen) return null;
 
@@ -46,6 +48,8 @@ export default function ConfirmModal({
                     <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 leading-relaxed">
                         {message}
                     </p>
+
+                    {children}
 
                     {/* Actions */}
                     <div className="flex gap-3">

@@ -338,3 +338,76 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
     res.status(500).json({ success: false, message: 'Failed to delete case' } as IApiResponse)
   }
 }
+
+export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+      return
+    }
+
+    const currentCase = await Case.findOne({ _id: id, userId })
+    if (!currentCase) {
+      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
+      return
+    }
+
+    if (currentCase.status !== CaseStatus.CLOSED) {
+      res.status(400).json({ success: false, message: 'Only closed cases can be reactivated.' } as IApiResponse)
+      return
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+      return
+    }
+
+    if (user.plan === UserPlan.NONE) {
+      res.status(403).json({ success: false, message: 'Subscribe to a plan to reactivate cases.' } as IApiResponse)
+      return
+    }
+
+    // Dynamic config check for limits is safer, but planLimit works as a fallback based on your current setup.
+    // user.maxCases is the virtual from PLAN_LIMITS
+    const maxAllowedCases = user.maxCases || user.planLimit
+    if (user.currentCases >= maxAllowedCases) {
+      res.status(403).json({
+        success: false,
+        message: `Case limit reached for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade to reactivate more.`
+      } as IApiResponse)
+      return
+    }
+
+    // Reactivate and increment
+    currentCase.status = CaseStatus.ACTIVE
+    currentCase.closedAt = undefined
+    await currentCase.save()
+
+    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: currentCase._id,
+      targetName: currentCase.name,
+      targetType: 'case',
+      category: 'platform',
+      action: 'STATUS_CHANGE',
+      after: { status: CaseStatus.ACTIVE, email: user.email },
+      description: `User ${user.email} reactivated case: "${currentCase.name}"`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Case reactivated successfully',
+      data: currentCase
+    } as IApiResponse)
+  } catch (error: unknown) {
+    controllerLogger.error({ err: error }, 'reactivateCase error')
+    res.status(500).json({ success: false, message: 'Failed to reactivate case' } as IApiResponse)
+  }
+}

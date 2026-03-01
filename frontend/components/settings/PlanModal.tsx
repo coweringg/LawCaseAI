@@ -43,6 +43,25 @@ export const PlanModal: React.FC<PlanModalProps> = ({
     billingInfo,
     user
 }) => {
+    const PLAN_PRICES: Record<string, number> = { basic: 99, professional: 199, elite: 300, enterprise: 300 };
+    const ANNUAL_PRICES: Record<string, number> = { basic: 79, professional: 159, elite: 249, enterprise: 249 };
+
+    const currentUserPlan = user?.plan || billingInfo?.plan;
+    const currentUserInterval = user?.billingInterval || 'monthly';
+    const currentPlanCost = (currentUserPlan && currentUserPlan !== 'none')
+        ? (currentUserInterval === 'annual' ? (ANNUAL_PRICES[currentUserPlan] || 0) : (PLAN_PRICES[currentUserPlan] || 0))
+        : 0;
+
+    const getProratedPrice = (planId: string) => {
+        const basePrice = interval === 'annual' ? (ANNUAL_PRICES[planId] || 0) : (PLAN_PRICES[planId] || 0);
+        if (!currentUserPlan || currentUserPlan === 'none' || currentPlanCost >= basePrice) return basePrice;
+        return Math.max(0, basePrice - currentPlanCost);
+    };
+
+    const hasProratedDiscount = (planId: string) => {
+        const basePrice = interval === 'annual' ? (ANNUAL_PRICES[planId] || 0) : (PLAN_PRICES[planId] || 0);
+        return currentUserPlan && currentUserPlan !== 'none' && currentPlanCost > 0 && currentPlanCost < basePrice;
+    };
     return (
         <AnimatePresence>
             {isOpen && (
@@ -116,14 +135,22 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                             <div className="flex justify-center items-center gap-6">
                                                 <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${interval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly Billing</span>
                                                 <button
-                                                    onClick={() => setInterval(interval === 'monthly' ? 'annual' : 'monthly')}
-                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${interval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
+                                                    onClick={() => {
+                                                        if (currentUserPlan && currentUserPlan !== 'none') return;
+                                                        setInterval(interval === 'monthly' ? 'annual' : 'monthly');
+                                                    }}
+                                                    disabled={!!(currentUserPlan && currentUserPlan !== 'none')}
+                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${interval === 'annual' ? 'bg-primary' : 'bg-slate-800'} ${currentUserPlan && currentUserPlan !== 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
                                                     <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${interval === 'annual' ? 'translate-x-6' : 'translate-x-1'}`}></div>
                                                 </button>
                                                 <div className="flex flex-col items-start leading-none">
                                                     <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${interval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual Selection</span>
-                                                    <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Save 20%</span>
+                                                    {currentUserPlan && currentUserPlan !== 'none' ? (
+                                                        <span className="text-[8px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Locked to {currentUserInterval}</span>
+                                                    ) : (
+                                                        <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Save 20%</span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -139,7 +166,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                         key={tier.id}
                                                         onClick={() => {
                                                             setSelectedPlanId(tier.id);
-                                                            setPlanSeats(1);
+                                                            setPlanSeats(5);
                                                             setStep('checkout');
                                                         }}
                                                         disabled={billingInfo?.plan === tier.id}
@@ -158,10 +185,17 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                                 )}
                                                             </div>
                                                             <h4 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{tier.name}</h4>
-                                                            <div className="flex items-baseline gap-1 mb-6">
-                                                                <span className="text-3xl font-black text-white">{tier.price}</span>
+                                                            <div className="flex items-baseline gap-1 mb-1">
+                                                                {hasProratedDiscount(tier.id) && (
+                                                                    <span className="text-lg font-bold text-slate-500 line-through mr-1">{tier.price}</span>
+                                                                )}
+                                                                <span className="text-3xl font-black text-white">${getProratedPrice(tier.id)}</span>
                                                                 <span className="text-xs text-slate-500 font-bold">/mo</span>
                                                             </div>
+                                                            {hasProratedDiscount(tier.id) && (
+                                                                <div className="text-[8px] font-black text-primary uppercase tracking-widest mb-4">Upgrade Credit Applied</div>
+                                                            )}
+                                                            {!hasProratedDiscount(tier.id) && <div className="mb-6" />}
                                                             <div className="space-y-3 mb-8 flex-1">
                                                                 {tier.features.map((f, i) => (
                                                                     <div key={i} className="flex items-center gap-2 text-slate-500">
@@ -259,11 +293,18 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                 <h4 className="text-xl font-black text-white uppercase tracking-tight">{selectedPlanId?.toUpperCase()} Protocol</h4>
                                             </div>
                                             <div className="px-6 py-3 bg-primary/10 border border-primary/20 rounded-2xl text-xs font-black text-primary uppercase">
-                                                Total Commitment: ${selectedPlanId === 'enterprise'
+                                                {hasProratedDiscount(selectedPlanId || '') && (
+                                                  <span className="text-slate-500 line-through mr-2">
+                                                    ${selectedPlanId === 'enterprise'
+                                                        ? (planSeats * (interval === 'annual' ? 249 : 300)).toLocaleString()
+                                                        : selectedPlanId === 'basic' ? (interval === 'annual' ? '79' : '99')
+                                                            : selectedPlanId === 'professional' ? (interval === 'annual' ? '159' : '199')
+                                                                : (interval === 'annual' ? '249' : '300')}
+                                                  </span>
+                                                )}
+                                                Total: ${selectedPlanId === 'enterprise'
                                                     ? (planSeats * (interval === 'annual' ? 249 : 300)).toLocaleString()
-                                                    : selectedPlanId === 'basic' ? (interval === 'annual' ? '79' : '99')
-                                                        : selectedPlanId === 'professional' ? (interval === 'annual' ? '159' : '199')
-                                                            : (interval === 'annual' ? '249' : '300')}
+                                                    : getProratedPrice(selectedPlanId || '')}
                                             </div>
                                         </div>
 

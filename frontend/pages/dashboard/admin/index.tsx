@@ -8,6 +8,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Brain,
   User,
   FileText,
   Clock,
@@ -102,6 +103,13 @@ interface UserHistory {
     totalSeats: number
     usedSeats: number
   }
+  aiUsage?: {
+    totalTokensConsumed: number
+    totalStorageUsed: number
+    plan: string
+    maxTokens: number
+    maxTotalStorage: number
+  }
 }
 
 interface SupportRequest {
@@ -135,7 +143,7 @@ export default function AdminDashboard() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [activeTab, setActiveTab] = useState<'users' | 'history' | 'support'>('users')
   const [activeHistoryTab, setActiveHistoryTab] = useState<'admin' | 'platform'>('admin')
-  const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity' | 'members'>('overview')
+  const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity' | 'members' | 'ia'>('overview')
   const [adminLogs, setAdminLogs] = useState<AuditLogEntry[]>([])
   const [platformLogs, setPlatformLogs] = useState<AuditLogEntry[]>([])
   const [isLogsLoading, setIsLogsLoading] = useState(false)
@@ -1427,6 +1435,7 @@ export default function AdminDashboard() {
                   { id: 'cases', label: 'Cases', icon: FileText },
                   { id: 'payments', label: 'Payments', icon: CreditCard },
                   { id: 'activity', label: 'Activity', icon: History },
+                  { id: 'ia', label: 'IA', icon: Brain },
                   ...(userHistory.orgMembers && userHistory.orgMembers.length > 0 
                     ? [{ id: 'members', label: 'Firm Members', icon: Users }] 
                     : [])
@@ -1744,6 +1753,101 @@ export default function AdminDashboard() {
                         No additional firm members identified
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {activeDetailTab === 'ia' && (
+                <div className="space-y-8 animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Token Usage */}
+                    {(!userHistory.aiUsage?.plan || !['elite', 'enterprise'].includes(userHistory.aiUsage?.plan.toLowerCase())) && (
+                    <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Neural Tokens</p>
+                          <h3 className="text-3xl font-black text-white tracking-tightest">
+                            {userHistory.aiUsage?.totalTokensConsumed.toLocaleString() || 0}
+                          </h3>
+                        </div>
+                        <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20">
+                          <Zap size={20} className="text-primary" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          <span>Usage Spectrum</span>
+                          <span>{Math.round(((userHistory.aiUsage?.totalTokensConsumed || 0) / (userHistory.aiUsage?.maxTokens || 1)) * 100)}%</span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min(100, ((userHistory.aiUsage?.totalTokensConsumed || 0) / (userHistory.aiUsage?.maxTokens || 1)) * 100)}%` }}
+                             className={cn(
+                               "h-full rounded-full transition-all duration-1000",
+                               ((userHistory.aiUsage?.totalTokensConsumed || 0) / (userHistory.aiUsage?.maxTokens || 1)) > 0.9 ? 'bg-error-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' :
+                               ((userHistory.aiUsage?.totalTokensConsumed || 0) / (userHistory.aiUsage?.maxTokens || 1)) > 0.7 ? 'bg-warning-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]' :
+                               'bg-primary shadow-[0_0_15px_rgba(37,99,235,0.5)]'
+                             )}
+                          />
+                        </div>
+                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest text-right">
+                          Limit: {userHistory.aiUsage?.maxTokens.toLocaleString() || 0} Tokens
+                        </p>
+                      </div>
+                    </div>
+                    )}
+
+                    {/* Storage Usage */}
+                    <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Vault Storage</p>
+                          <h3 className="text-3xl font-black text-white tracking-tightest">
+                            {((userHistory.aiUsage?.totalStorageUsed || 0) / (1024 * 1024)).toFixed(2)} MB
+                          </h3>
+                        </div>
+                        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                          <Database size={20} className="text-emerald-500" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          <span>Data Density</span>
+                          <span>{Math.round(((userHistory.aiUsage?.totalStorageUsed || 0) / (userHistory.aiUsage?.maxTotalStorage || 1)) * 100)}%</span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min(100, ((userHistory.aiUsage?.totalStorageUsed || 0) / (userHistory.aiUsage?.maxTotalStorage || 1)) * 100)}%` }}
+                             className={cn(
+                               "h-full rounded-full transition-all duration-1000",
+                               ((userHistory.aiUsage?.totalStorageUsed || 0) / (userHistory.aiUsage?.maxTotalStorage || 1)) > 0.9 ? 'bg-error-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' :
+                               'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
+                             )}
+                          />
+                        </div>
+                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest text-right">
+                          Limit: {((userHistory.aiUsage?.maxTotalStorage || 0) / (1024 * 1024 * 1024)).toFixed(1)} GB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                     <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                            <Cpu size={14} className="text-primary" />
+                        </div>
+                        <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Usage Insight</h4>
+                     </div>
+                     <p className="text-xs text-slate-400 leading-relaxed italic">
+                        &quot;This user is currently operating under the <span className="text-white font-bold uppercase">{userHistory.aiUsage?.plan}</span> high-performance protocol. AI consumption is monitored across all case interactions and document processing cycles.&quot;
+                     </p>
                   </div>
                 </div>
               )}

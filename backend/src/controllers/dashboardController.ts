@@ -75,18 +75,18 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
         // Build response
         const dashboardData = {
             hoursSaved: {
-                total: user.hoursSavedByAI || 0,
-                today: user.hoursSavedToday || 0
+                total: Math.round((user.hoursSavedByAI || 0) * 10) / 10,
+                today: Math.round((user.hoursSavedToday || 0) * 10) / 10
             },
             cases: {
                 active: formattedCaseStats.active,
                 closed: formattedCaseStats.closed,
                 archived: formattedCaseStats.archived,
                 total: formattedCaseStats.total,
-                usagePercentage: (config.planLimits as Record<string, number>)[user.plan] > 0 
-                    ? Math.round((user.currentCases / (config.planLimits as Record<string, number>)[user.plan]) * 100) 
+                usagePercentage: (config.planLimits as any)[user.plan]?.maxCases > 0 
+                    ? Math.round((user.currentCases / (config.planLimits as any)[user.plan].maxCases) * 100) 
                     : 0,
-                limit: (config.planLimits as Record<string, number>)[user.plan],
+                limit: (config.planLimits as any)[user.plan]?.maxCases || 0,
                 current: user.currentCases
             },
             documents: {

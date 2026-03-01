@@ -109,11 +109,23 @@ export interface IUser extends Document {
   lastActivity: Date
   tokenVersion: number
   totalTokensConsumed: number
+  totalStorageUsed: number
   paymentMethods: IPaymentMethod[]
   defaultPaymentMethodId?: string
   billingInterval?: 'monthly' | 'annual'
+  currentPeriodStart?: Date
+  currentPeriodEnd?: Date
+  maxCases: number
+  maxTokens: number
+  maxTotalStorage: number
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
+  // Virtuals
+  isAtPlanLimit: boolean
+  planUsagePercentage: number
+  remainingCases: number
+  remainingTokens: number
+  remainingStorage: number
 }
 
 export interface ICase extends Document {
@@ -140,6 +152,9 @@ export interface ICaseFile extends Document {
   userId: Types.ObjectId
   url: string
   key: string
+  isStarred?: boolean
+  extractedText?: string
+  isTemporary?: boolean
   uploadedAt: Date
 }
 
@@ -156,6 +171,8 @@ export interface IChatMessage extends Document {
     responseTime?: number
     promptTokens?: number
     completionTokens?: number
+    suggestsSaving?: boolean
+    relatedFileType?: string
   }
 }
 
@@ -267,12 +284,20 @@ export interface INotificationSettings {
   marketingEmails: boolean
 }
 
+export interface IPlanDetails {
+  maxCases: number
+  maxFilesPerCase: number
+  maxFileSize: number
+  maxTotalStorage: number
+  maxTokens: number
+}
+
 export interface IPlanLimits {
-  none: number
-  basic: number
-  professional: number
-  elite: number
-  enterprise: number
+  none: IPlanDetails
+  basic: IPlanDetails
+  professional: IPlanDetails
+  elite: IPlanDetails
+  enterprise: IPlanDetails
 }
 
 export interface IValidationRule {
@@ -293,11 +318,11 @@ export interface IMiddlewareError extends Error {
 }
 
 export const PLAN_LIMITS: IPlanLimits = {
-  none: 0,
-  basic: 8,
-  professional: 18,
-  elite: 100000,
-  enterprise: 100000
+  none: { maxCases: 0, maxFilesPerCase: 0, maxFileSize: 0, maxTotalStorage: 0, maxTokens: 0 },
+  basic: { maxCases: 8, maxFilesPerCase: 20, maxFileSize: 15 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024, maxTokens: 2000000 },
+  professional: { maxCases: 18, maxFilesPerCase: 50, maxFileSize: 25 * 1024 * 1024, maxTotalStorage: 500 * 1024 * 1024, maxTokens: 10000000 },
+  elite: { maxCases: 100000, maxFilesPerCase: 100000, maxFileSize: 50 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024 * 1024, maxTokens: 1000000000 },
+  enterprise: { maxCases: 100000, maxFilesPerCase: 100000, maxFileSize: 50 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024 * 1024, maxTokens: 1000000000 }
 }
 
 export const ALLOWED_FILE_TYPES = [
@@ -307,7 +332,14 @@ export const ALLOWED_FILE_TYPES = [
   'text/plain',
   'image/jpeg',
   'image/png',
-  'image/jpg'
+  'image/jpg',
+  'video/mp4',
+  'video/mpeg',
+  'video/quicktime',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/mp3',
+  'audio/x-m4a'
 ]
 
-export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB

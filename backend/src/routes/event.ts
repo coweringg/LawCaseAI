@@ -2,12 +2,14 @@ import { Router } from 'express'
 import { body, param } from 'express-validator'
 import * as eventController from '../controllers/eventController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
 // All routes require authentication
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 
 // GET /api/events
 router.get('/', eventController.getEvents)

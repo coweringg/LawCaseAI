@@ -12,12 +12,14 @@ import {
   setDefaultPaymentMethod
 } from '../controllers/userController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
 // All user routes require authentication
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 
 // GET /api/user/profile
 router.get('/profile', getProfile)

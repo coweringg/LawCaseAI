@@ -9,6 +9,7 @@ import {
   logout
 } from '../controllers/authController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors, validateRequest } from '../middleware/validation'
 
 const router = Router()
@@ -66,7 +67,7 @@ router.post('/login', authLimiter, [
   handleValidationErrors
 ], login)
 
-router.post('/refresh', authenticate, refreshToken)
-router.post('/logout', authenticate, logout)
+router.post('/refresh', authenticate, checkAndResetQuotas, refreshToken)
+router.post('/logout', authenticate, checkAndResetQuotas, logout)
 
 export default router

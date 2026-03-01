@@ -67,6 +67,22 @@ export default function MyCases() {
         return 0;
     });
 
+    const handleReactivateCase = async (e: React.MouseEvent, caseId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            const response = await api.put(`/cases/${caseId}/reactivate`);
+            if (response.data.success) {
+                setCases(cases.map(c => c._id === caseId ? { ...c, status: 'active' } : c));
+            } else {
+                alert(response.data.message || 'Failed to reactivate case');
+            }
+        } catch (error: any) {
+            console.error('Error reactivating case:', error);
+            alert(error.response?.data?.message || 'Failed to reactivate case. Please check your plan limits.');
+        }
+    };
+
     if (!mounted) return null;
 
     const containerVariants = {
@@ -185,6 +201,14 @@ export default function MyCases() {
                                                     <span className="w-1.5 h-1.5 bg-white/5 rounded-full"></span>
                                                     <span className="text-[10px] font-black text-primary/70 uppercase tracking-widest">{c.practiceArea || 'General Legal'}</span>
                                                 </div>
+                                                {c.status === 'closed' && (
+                                                    <button 
+                                                        onClick={(e) => handleReactivateCase(e, c._id)}
+                                                        className="mt-2 text-[10px] font-black uppercase tracking-widest bg-primary/20 hover:bg-primary/40 text-primary px-4 py-2 rounded-xl transition-all duration-300 border border-primary/30"
+                                                    >
+                                                        Reactivate Case
+                                                    </button>
+                                                )}
                                             </div>
 
                                             <div className="mt-6 relative z-10 border-t border-white/5 pt-6">

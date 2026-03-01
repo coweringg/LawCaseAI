@@ -12,12 +12,14 @@ import {
   removeMember
 } from '../controllers/paymentController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
 // All payment routes require authentication
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 
 // GET /api/payments/history
 router.get('/history', getTransactionHistory)

@@ -39,6 +39,14 @@ const chatMessageSchema = new Schema<IChatMessage>({
     responseTime: {
       type: Number,
       min: 0
+    },
+    suggestsSaving: {
+      type: Boolean,
+      default: false
+    },
+    relatedFileType: {
+      type: String,
+      default: null
     }
   }
 }, {

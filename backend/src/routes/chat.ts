@@ -1,29 +1,32 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 import { param } from 'express-validator'
+import { getChatHistory, clearChatHistory } from '../controllers/chatController'
+import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-// Placeholder routes - will be implemented
+// All chat routes are protected
+router.use(authenticate)
+router.use(checkAndResetQuotas)
+
+/**
+ * @route   GET /api/chat/case/:caseId
+ * @desc    Get chat history for a case
+ */
 router.get('/case/:caseId', [
   param('caseId').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors
-], (req: Request, res: Response) => {
-  res.json({ success: false, message: 'Get chat messages endpoint - coming soon' })
-})
+], getChatHistory)
 
-router.post('/case/:caseId', [
-  param('caseId').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], (req: Request, res: Response) => {
-  res.json({ success: false, message: 'Send message endpoint - coming soon' })
-})
-
+/**
+ * @route   DELETE /api/chat/case/:caseId
+ * @desc    Clear chat history for a case
+ */
 router.delete('/case/:caseId', [
   param('caseId').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors
-], (req: Request, res: Response) => {
-  res.json({ success: false, message: 'Clear chat endpoint - coming soon' })
-})
+], clearChatHistory)
 
 export default router

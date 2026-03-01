@@ -427,7 +427,15 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
         payments,
         auditLogs,
         orgMembers,
-        organizationData
+        organizationData,
+        aiUsage: {
+          totalTokensConsumed: user.totalTokensConsumed,
+          totalStorageUsed: user.totalStorageUsed,
+          plan: user.plan,
+          // Calculated limits for easier frontend consumption
+          maxTokens: user.maxTokens,
+          maxTotalStorage: user.maxTotalStorage
+        }
       }
     } as IApiResponse)
   } catch (error: unknown) {

@@ -1,13 +1,15 @@
 import { Router } from 'express'
 import { body, param } from 'express-validator'
-import { createCase, getCases, getCaseStats, getCaseById, updateCase, deleteCase } from '../controllers/caseController'
+import { createCase, getCases, getCaseStats, getCaseById, updateCase, deleteCase, reactivateCase } from '../controllers/caseController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
 // All case routes require authentication
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 
 // GET /api/cases
 router.get('/', getCases)
@@ -62,6 +64,12 @@ router.put('/:id', [
     .isIn(['active', 'closed', 'archived']).withMessage('Invalid case status'),
   handleValidationErrors
 ], updateCase)
+
+// PUT /api/cases/:id/reactivate
+router.put('/:id/reactivate', [
+  param('id').isMongoId().withMessage('Invalid case ID'),
+  handleValidationErrors
+], reactivateCase)
 
 // DELETE /api/cases/:id
 router.delete('/:id', [

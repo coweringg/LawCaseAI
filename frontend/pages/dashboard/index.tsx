@@ -103,13 +103,13 @@ export default function Dashboard() {
                   </div>
                   {(dashboardData?.hoursSaved?.today || 0) > 0 && (
                     <span className="text-[9px] font-black text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20 uppercase tracking-widest shadow-lg backdrop-blur-md">
-                      +{dashboardData!.hoursSaved.today}h today
+                      +{dashboardData!.hoursSaved.today.toFixed(1)}h today
                     </span>
                   )}
                 </div>
                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Cognitive Time Saved</p>
                 <h3 className="text-4xl font-black text-white mt-3 font-display tracking-tightest">
-                  {dashboardData?.hoursSaved?.total || '0.0'} <span className="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Hrs</span>
+                  {dashboardData?.hoursSaved?.total?.toFixed(1) || '0.0'} <span className="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Hrs</span>
                 </h3>
               </div>
             </motion.div>

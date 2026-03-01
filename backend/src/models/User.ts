@@ -49,7 +49,7 @@ const userSchema = new Schema<IUser>({
   },
   planLimit: {
     type: Number,
-    default: config.planLimits.basic
+    default: 100000 // Moving towards dynamic config-based checks
   },
   currentCases: {
     type: Number,
@@ -124,10 +124,21 @@ const userSchema = new Schema<IUser>({
     default: 0,
     min: 0
   },
+  totalStorageUsed: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   billingInterval: {
     type: String,
     enum: ['monthly', 'annual'],
     default: 'monthly'
+  },
+  currentPeriodStart: {
+    type: Date
+  },
+  currentPeriodEnd: {
+    type: Date
   }
 }, {
   timestamps: true,
@@ -154,11 +165,8 @@ userSchema.pre('save', async function (next) {
   }
 })
 
-// Pre-save middleware to set plan limit based on plan
+// Pre-save middleware to set plan limit based on plan (Removed: handled dynamically via config)
 userSchema.pre('save', function (next) {
-  if (this.isModified('plan')) {
-    this.planLimit = (config.planLimits as Record<string, number>)[this.plan as string]
-  }
   next()
 })
 
@@ -200,16 +208,55 @@ userSchema.statics.updateLastLogin = function (userId: string) {
 }
 
 // Virtuals
+// User virtual for checking overall plan limits across all metrics
 userSchema.virtual('isAtPlanLimit').get(function () {
-  return this.currentCases >= this.planLimit
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return (
+    this.currentCases >= limits.maxCases ||
+    this.totalTokensConsumed >= limits.maxTokens ||
+    this.totalStorageUsed >= limits.maxTotalStorage
+  )
 })
 
 userSchema.virtual('planUsagePercentage').get(function () {
-  return Math.round((this.currentCases / this.planLimit) * 100)
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  
+  const caseUsage = (this.currentCases / limits.maxCases) * 100
+  const tokenUsage = (this.totalTokensConsumed / limits.maxTokens) * 100
+  const storageUsage = (this.totalStorageUsed / limits.maxTotalStorage) * 100
+  
+  // Return the highest usage percentage
+  return Math.round(Math.max(caseUsage, tokenUsage, storageUsage))
 })
 
 userSchema.virtual('remainingCases').get(function () {
-  return Math.max(0, this.planLimit - this.currentCases)
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return Math.max(0, limits.maxCases - this.currentCases)
+})
+
+userSchema.virtual('remainingTokens').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return Math.max(0, limits.maxTokens - this.totalTokensConsumed)
+})
+
+userSchema.virtual('remainingStorage').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return Math.max(0, limits.maxTotalStorage - this.totalStorageUsed)
+})
+
+userSchema.virtual('maxCases').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return limits.maxCases
+})
+
+userSchema.virtual('maxTokens').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return limits.maxTokens
+})
+
+userSchema.virtual('maxTotalStorage').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return limits.maxTotalStorage
 })
 
 const User = mongoose.model<IUser, IUserModel>('User', userSchema)

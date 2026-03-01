@@ -95,9 +95,9 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
       }
     ])
 
-    // Mock cost calculation (replace with actual pricing if available)
-    // Assuming approx $0.03 per 1k tokens (example blended rate)
-    const estimatedCost = (stats[0]?.totalTokens || 0) / 1000 * 0.03
+    // Unified calculation for AI cost
+    // Gemini 2.0 Flash blended rate approx $0.00015 per 1k tokens
+    const estimatedCost = (stats[0]?.totalTokens || 0) / 1000 * 0.00015
 
     res.status(200).json({
       success: true,

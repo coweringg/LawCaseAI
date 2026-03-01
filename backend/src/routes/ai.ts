@@ -2,12 +2,14 @@ import { Router } from 'express'
 import { body, param } from 'express-validator'
 import { chatWithAI, analyzeCaseFile, getCaseSummary } from '../controllers/aiController'
 import { authenticate } from '../middleware/auth'
+import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
 // All AI routes are protected
 router.use(authenticate)
+router.use(checkAndResetQuotas)
 
 /**
  * @route   POST /api/ai/chat

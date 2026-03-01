@@ -76,9 +76,9 @@ export default function Settings() {
   );
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">(
-    "monthly",
+    (user?.billingInterval as "monthly" | "annual") || "monthly",
   );
-  const [planSeats, setPlanSeats] = useState(1);
+  const [planSeats, setPlanSeats] = useState(5);
   const [paymentData, setPaymentData] = useState({
     cardNumber: "",
     expiry: "",

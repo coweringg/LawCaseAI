@@ -4,7 +4,7 @@ export interface User {
   name: string
   lawFirm?: string
   role: 'lawyer' | 'admin'
-  plan: 'basic' | 'professional' | 'elite' | 'enterprise'
+  plan: 'none' | 'basic' | 'professional' | 'elite' | 'enterprise'
   planLimit: number
   currentCases: number
   createdAt: string
@@ -12,6 +12,11 @@ export interface User {
   lastLogin?: string
   organizationId?: string
   isOrgAdmin?: boolean
+  totalTokensConsumed?: number
+  totalStorageUsed?: number
+  maxTokens?: number
+  maxTotalStorage?: number
+  billingInterval?: 'monthly' | 'annual'
 }
 
 export interface IOrganization {

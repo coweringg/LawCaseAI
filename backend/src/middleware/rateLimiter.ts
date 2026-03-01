@@ -8,23 +8,22 @@ import { IApiResponse } from '../types';
  * Applies different limits based on the user's subscription tier.
  */
 export const planRateLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 8 * 60 * 1000, // 8 minutes
     limit: (req: Request) => {
         const authReq = req as IAuthRequest;
         const user = authReq.user;
 
-        if (!user) return 60; // Anonymous or unauthenticated users
+        if (!user) return 200; // Anonymous or unauthenticated users
 
         switch (user.plan) {
             case UserPlan.ENTERPRISE:
             case UserPlan.ELITE:
-                return 1000;
             case UserPlan.PROFESSIONAL:
-                return 200;
+                return 5000;
             case UserPlan.BASIC:
-                return 100;
+                return 1000;
             default:
-                return 60;
+                return 500;
         }
     },
     message: {

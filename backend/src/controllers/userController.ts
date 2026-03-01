@@ -3,6 +3,7 @@ import { User, SupportRequest } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus } from '../types'
 import { logAction } from '../utils/auditLogger'
 import logger from '../utils/logger'
+import config from '../config'
 
 const controllerLogger = logger.child({ module: 'user-controller' })
 
@@ -37,7 +38,12 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
         organizationId: user.organizationId,
         isOrgAdmin: user.isOrgAdmin,
         createdAt: user.createdAt,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
+        totalTokensConsumed: user.totalTokensConsumed,
+        totalStorageUsed: user.totalStorageUsed,
+        maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
+        maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
+        billingInterval: user.billingInterval || 'monthly'
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -133,7 +139,11 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
         organizationId: updatedUser.organizationId,
         isOrgAdmin: updatedUser.isOrgAdmin,
         createdAt: updatedUser.createdAt,
-        lastLogin: updatedUser.lastLogin
+        lastLogin: updatedUser.lastLogin,
+        totalTokensConsumed: updatedUser.totalTokensConsumed,
+        totalStorageUsed: updatedUser.totalStorageUsed,
+        maxTokens: (config.planLimits as any)[updatedUser.plan]?.maxTokens || 0,
+        maxTotalStorage: (config.planLimits as any)[updatedUser.plan]?.maxTotalStorage || 0
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -290,7 +300,11 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       isAtPlanLimit: user.currentCases >= user.planLimit,
       paymentMethods: user.paymentMethods || [],
       defaultPaymentMethodId: user.defaultPaymentMethodId || (user.paymentMethods.length > 0 ? user.paymentMethods[0].id : null),
-      interval: user.billingInterval || 'monthly'
+      interval: user.billingInterval || 'monthly',
+      totalTokensConsumed: user.totalTokensConsumed,
+      maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
+      totalStorageUsed: user.totalStorageUsed,
+      maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0
     }
 
     res.status(200).json({

@@ -164,8 +164,14 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             return
         }
 
-        const priceTable = interval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
-        let transactionAmount = priceTable[plan] || 0
+        const newPriceTable = interval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
+        const oldPriceTable = user.billingInterval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
+        
+        // Calculate Proration if user is upgrading
+        const currentPlanCost = (user.plan && oldPriceTable[user.plan]) ? oldPriceTable[user.plan] : 0
+        const newPlanCost = newPriceTable[plan] || 0
+        let transactionAmount = Math.max(0, newPlanCost - currentPlanCost) // Ensure no negative charges
+        
         let organizationId = user.organizationId
         let orgFirmCode: string | undefined = undefined
 
@@ -201,11 +207,27 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             user.organizationId = organizationId
         }
 
-        // Update user plan
+        // Update user plan and billing cycle
         user.plan = plan
         if (interval === 'monthly' || interval === 'annual') {
             user.billingInterval = interval
         }
+        
+        // Initialize billing cycle length
+        const now = new Date();
+        user.currentPeriodStart = now;
+        
+        const nextPeriod = new Date(now);
+        if (interval === 'annual') {
+            nextPeriod.setFullYear(nextPeriod.getFullYear() + 1);
+        } else {
+            nextPeriod.setMonth(nextPeriod.getMonth() + 1);
+        }
+        user.currentPeriodEnd = nextPeriod;
+        
+        // Ensure starting fresh immediately upon purchase
+        user.totalTokensConsumed = 0;
+        user.currentCases = 0;
         await user.save(isTransactional ? { session } : {})
 
         // Record Transaction
@@ -319,6 +341,11 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             isActive: true
         })
 
+        // Calculate billing cycle for Business Elite plan (defaulting to monthly for the example, unless specified)
+        const now = new Date()
+        const nextPeriod = new Date(now)
+        nextPeriod.setMonth(nextPeriod.getMonth() + 1) // Business signup defaults to monthly for this flow unless we add a toggle
+
         // Upgrade user to Org Admin
         const user = await User.findById(userId)
         if (user) {
@@ -326,6 +353,10 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             user.isOrgAdmin = true
             user.plan = UserPlan.ELITE
             user.lawFirm = firmName
+            user.currentPeriodStart = now
+            user.currentPeriodEnd = nextPeriod
+            user.totalTokensConsumed = 0
+            user.currentCases = 0
             await user.save()
         }
 
@@ -335,7 +366,7 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             amount: seats * 300,
             plan: UserPlan.ELITE,
             status: 'succeeded',
-            date: new Date()
+            date: now
         })
 
         // Log action

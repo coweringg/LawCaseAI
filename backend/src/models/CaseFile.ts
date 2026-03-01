@@ -41,6 +41,18 @@ const caseFileSchema = new Schema<ICaseFile>({
     required: [true, 'File key is required'],
     unique: true
   },
+  extractedText: {
+    type: String,
+    default: ''
+  },
+  isTemporary: {
+    type: Boolean,
+    default: false
+  },
+  isStarred: {
+    type: Boolean,
+    default: false
+  },
   uploadedAt: {
     type: Date,
     default: Date.now
@@ -69,7 +81,7 @@ caseFileSchema.pre('deleteOne', { document: true, query: false }, async function
 
 // Static methods
 caseFileSchema.statics.findByCase = function(caseId: string) {
-  return this.find({ caseId }).sort({ uploadedAt: -1 })
+  return this.find({ caseId, $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] }).sort({ uploadedAt: -1 })
 }
 
 caseFileSchema.statics.findByUser = function(userId: string) {

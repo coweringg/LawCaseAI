@@ -114,7 +114,7 @@ export default function SmartSearch() {
                                     <span className="text-primary">Global Smart Search</span>
                                 </nav>
                                 <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                    Showing 18 results for <span className="text-primary italic">"{query}"</span>
+                                    Showing 18 results for <span className="text-primary italic">&quot;{query}&quot;</span>
                                 </h1>
                             </div>
                         </div>
@@ -152,7 +152,7 @@ export default function SmartSearch() {
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
                                     <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                        "...Under standard protocol, the failure to review the preoperative labs constitutes a clear instance of <span className="bg-primary/10 text-primary px-0.5 rounded font-bold">medical malpractice</span>. Dr. Vance testified that the deviation from the standard of care was egregious..."
+                                        &quot;...Under standard protocol, the failure to review the preoperative labs constitutes a clear instance of <span className="bg-primary/10 text-primary px-0.5 rounded font-bold">medical malpractice</span>. Dr. Vance testified that the deviation from the standard of care was egregious...&quot;
                                     </p>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@ export default function SmartSearch() {
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
                                     <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                        "...we must assess whether the plaintiff’s history of prior surgery complicates our defense against the <span className="bg-primary/10 text-primary px-0.5 rounded font-bold">medical malpractice</span> claim..."
+                                        &quot;...we must assess whether the plaintiff&apos;s history of prior surgery complicates our defense against the <span className="bg-primary/10 text-primary px-0.5 rounded font-bold">medical malpractice</span> claim...&quot;
                                     </p>
                                 </div>
                             </div>
@@ -193,7 +193,7 @@ export default function SmartSearch() {
                                     <span className="text-xs font-bold uppercase tracking-wider">Pattern Detected</span>
                                 </div>
                                 <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                                    The term <span className="font-bold">"medical malpractice"</span> appears most frequently in relation to <strong>post-operative care failures</strong> across 3 active cases.
+                                    The term <span className="font-bold">&quot;medical malpractice&quot;</span> appears most frequently in relation to <strong>post-operative care failures</strong> across 3 active cases.
                                 </p>
                                 <button className="mt-4 w-full bg-primary text-white text-[10px] font-bold py-2 rounded-lg uppercase tracking-widest hover:bg-primary-hover transition-colors shadow-sm">Draft Summary</button>
                             </div>

@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { IAuthRequest, UserPlan } from '../types';
 import { IApiResponse } from '../types';
 

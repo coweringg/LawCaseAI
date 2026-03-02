@@ -28,7 +28,7 @@ export default function Onboarding() {
                                 <span className="material-icons-round text-white text-3xl">check</span>
                             </div>
                             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
-                                Payment Confirmed. Let's Set Up Your First Case.
+                                Payment Confirmed. Let&apos;s Set Up Your First Case.
                             </h1>
                             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                                 Welcome to LawCaseAI. Your subscription is active. Follow these three quick steps to begin automating your legal workflow.

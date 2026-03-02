@@ -631,6 +631,7 @@ export const clearSupportRequests = async (req: IAuthRequest, res: Response): Pr
     const query: Record<string, unknown> = {}
     
     if (type === 'all') {
+      // no filter needed
     } else if (type === 'user_all') {
       query.type = { $ne: SupportRequestType.LOGIN_ISSUE }
     } else if (type) {

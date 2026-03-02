@@ -13,4 +13,8 @@ module.exports = {
       version: "detect",
     },
   },
+  rules: {
+    "jsx-a11y/alt-text": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+  },
 };

@@ -92,7 +92,7 @@ export default function CaseNotesEditor() {
                                 </p>
                                 <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg mb-6 group relative">
                                     <p className="italic text-slate-600 dark:text-slate-400">
-                                        "The defendant owed a duty of care to the plaintiff to maintain premises in a reasonably safe condition..."
+                                        &quot;The defendant owed a duty of care to the plaintiff to maintain premises in a reasonably safe condition...&quot;
                                     </p>
                                     <button className="absolute -right-3 top-2 p-1.5 bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 rounded-full text-primary hover:scale-110 transition-transform opacity-0 group-hover:opacity-100 flex items-center justify-center">
                                         <span className="material-icons-round text-sm">auto_awesome</span>
@@ -135,7 +135,7 @@ export default function CaseNotesEditor() {
                                 <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700 relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/5 via-primary/20 to-primary/5"></div>
                                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                        "Consider citing the 2021 amendment to Civil Code § 1714 for more specific liability definitions."
+                                        &quot;Consider citing the 2021 amendment to Civil Code § 1714 for more specific liability definitions.&quot;
                                     </p>
                                     <button className="mt-3 text-[10px] font-bold text-primary flex items-center gap-1 hover:underline">
                                         <span>APPLY SUGGESTION</span>

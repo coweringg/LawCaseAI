@@ -75,7 +75,7 @@ export default function Success() {
                         </div>
 
                         <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">
-                            Need help setting up your firm's profile?
+                            Need help setting up your firm&apos;s profile?
                             <a className="text-primary hover:underline font-semibold ml-1" href="#">Visit our Onboarding Guide</a>
                         </p>
                     </div>

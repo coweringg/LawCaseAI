@@ -38,7 +38,8 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
             if (user && user.role === UserRole.ADMIN) {
                 return next()
             }
-        } catch (err) {
+        } catch {
+          // token invalid, treat as non-admin
         }
     }
 

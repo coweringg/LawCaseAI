@@ -107,7 +107,7 @@ export default function CaseArchive() {
                                             <span className="text-xs text-slate-400">10:42 AM</span>
                                         </div>
                                         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm leading-relaxed shadow-sm">
-                                            <p>I've analyzed the deposition transcripts from the plaintiff. There are three key inconsistencies regarding the timeline of events on July 14th.</p>
+                                            <p>I&apos;ve analyzed the deposition transcripts from the plaintiff. There are three key inconsistencies regarding the timeline of events on July 14th.</p>
                                             <ul className="list-disc ml-4 mt-2 space-y-1">
                                                 <li>Contradiction in arrival time at the property.</li>
                                                 <li>Discrepancy regarding witness presence.</li>
@@ -126,7 +126,7 @@ export default function CaseArchive() {
                                             <span className="text-sm font-bold text-slate-800 dark:text-slate-100">Sarah Jenkins</span>
                                         </div>
                                         <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-2xl rounded-tr-none border border-primary/20 text-slate-800 dark:text-slate-200 text-sm leading-relaxed text-left inline-block shadow-sm">
-                                            <p>Yes, please draft the summary. Focus specifically on the witness discrepancy as that's our strongest point for the dismissal.</p>
+                                            <p>Yes, please draft the summary. Focus specifically on the witness discrepancy as that&apos;s our strongest point for the dismissal.</p>
                                         </div>
                                     </div>
                                 </div>

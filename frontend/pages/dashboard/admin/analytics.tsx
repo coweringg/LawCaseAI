@@ -73,7 +73,6 @@ export default function AnalyticsDashboard() {
   const handleDeepAudit = async () => {
     toast.loading('Initiating Deep System Audit...', { id: 'audit' })
     try {
-      // Re-fetch data to simulate an audit/refresh
       const res = await api.get(`/admin/analytics/ai?range=${range}`)
       if (res.data.success) {
         setData(res.data.data)
@@ -105,7 +104,6 @@ export default function AnalyticsDashboard() {
       </Head>
 
       <div className="p-8 md:p-12 max-w-7xl mx-auto space-y-12 relative z-10">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
@@ -140,7 +138,6 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
-        {/* KPI Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             { label: 'Total Tokens', value: data.totals.tokens.toLocaleString(), icon: Zap, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' },
@@ -173,9 +170,7 @@ export default function AnalyticsDashboard() {
           ))}
         </div>
 
-        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Main Trend Chart */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -237,7 +232,6 @@ export default function AnalyticsDashboard() {
                </div>
           </motion.div>
 
-          {/* Power Users List */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

@@ -14,14 +14,12 @@ export default function PrivacyPolicy() {
         <meta name="description" content="LawCaseAI Privacy Policy - How we protect your legal data and intellectual property." />
       </Head>
 
-      {/* Decorative Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px]" />
         <div className="absolute inset-0 crystallography-pattern opacity-[0.02]" />
       </div>
 
-      {/* Navigation Header */}
       <nav className="fixed top-0 inset-x-0 h-20 border-b border-white/5 bg-black/20 backdrop-blur-xl z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -41,7 +39,6 @@ export default function PrivacyPolicy() {
 
       <main className="relative z-10 pt-32 pb-24 px-6">
         <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -64,7 +61,6 @@ export default function PrivacyPolicy() {
             </div>
           </motion.div>
 
-          {/* Quick Links / TOC */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
             {[
               { icon: Database, title: 'Data Collection', desc: 'What points we analyze' },
@@ -85,10 +81,8 @@ export default function PrivacyPolicy() {
             ))}
           </div>
 
-          {/* Policy Content */}
           <div className="premium-glass rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
             <div className="p-12 space-y-12">
-              {/* section 1 */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">01</span>
@@ -115,7 +109,6 @@ export default function PrivacyPolicy() {
                 </ul>
               </section>
 
-              {/* section 2 */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">02</span>
@@ -133,7 +126,6 @@ export default function PrivacyPolicy() {
                 </div>
               </section>
 
-              {/* section 3 */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">03</span>
@@ -144,7 +136,6 @@ export default function PrivacyPolicy() {
                 </p>
               </section>
 
-              {/* section 4 */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">04</span>
@@ -164,14 +155,12 @@ export default function PrivacyPolicy() {
               </section>
             </div>
 
-            {/* Content Footer */}
             <div className="p-8 bg-white/[0.02] border-t border-white/5 text-center">
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Request Compliance Review</p>
               <a href="mailto:privacy@lawcaseai.io" className="text-primary font-bold hover:underline">legal-compliance@lawcaseai.io</a>
             </div>
           </div>
 
-          {/* Bottom CTA */}
           <div className="mt-16 text-center">
             <Link href="/terms" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">
               <FileText size={14} />
@@ -182,7 +171,6 @@ export default function PrivacyPolicy() {
         </div>
       </main>
 
-      {/* Modern Footer */}
       <footer className="border-t border-white/5 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-4">

@@ -52,21 +52,18 @@ export default function Settings() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
 
-  // Profile form state
   const [profileForm, setProfileForm] = useState({
     name: '',
     email: '',
     lawFirm: ''
   })
 
-  // Password form state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   })
 
-  // Notification settings
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
     caseUpdates: true,
@@ -93,10 +90,7 @@ export default function Settings() {
       return
     }
 
-    // Check if name is being changed
     if (user && profileForm.name !== user.name) {
-      // For now, we'll let the backend handle this validation
-      // In a real app with more users, you might want to check this on the frontend too
     }
 
     try {
@@ -105,7 +99,6 @@ export default function Settings() {
       if (response.status === 200) {
         const data = response.data
         updateUser(data.data)
-        // Update the form with the new data from the server
         setProfileForm({
           name: data.data.name,
           email: data.data.email,
@@ -143,7 +136,6 @@ export default function Settings() {
       return
     }
 
-    // Check if new password is the same as current password
     if (passwordForm.currentPassword === passwordForm.newPassword) {
       setMessage({ type: 'error', text: 'New password must be different from your current password' })
       return
@@ -233,12 +225,8 @@ export default function Settings() {
         <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
           <div className="flex-1 overflow-hidden bg-transparent relative">
 
-
-            {/* Main Content */}
-
               <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
               
-              {/* Header */}
               <header className="px-6 py-4 border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
                 <div className="flex flex-col relative z-10">
@@ -251,7 +239,6 @@ export default function Settings() {
               </header>
   
               <main className="p-4 max-w-6xl mx-auto">
-                {/* Tabs */}
                 <div className="mb-4">
                   <div className="premium-glass p-1 rounded-[2rem] border border-white/10 shadow-2xl inline-flex flex-wrap gap-1.5">
                     {[
@@ -275,7 +262,6 @@ export default function Settings() {
                   </div>
                 </div>
   
-                {/* Alert */}
                 <AnimatePresence mode="wait">
                   {message.text && (
                     <motion.div
@@ -296,7 +282,6 @@ export default function Settings() {
                   )}
                 </AnimatePresence>
 
-              {/* Tab Content */}
               <div className="max-w-3xl">
                 {activeTab === 'profile' && (
                   <motion.div

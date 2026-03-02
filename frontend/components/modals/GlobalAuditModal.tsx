@@ -68,10 +68,8 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
         exit={{ opacity: 0, scale: 0.95 }}
         className="relative w-full max-w-5xl max-h-[80vh] bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col pointer-events-auto shadow-primary/10"
       >
-        {/* Background Pattern */}
         <div className="absolute inset-0 crystallography-pattern opacity-[0.05] pointer-events-none" />
 
-        {/* Header */}
         <div className="p-5 lg:p-6 border-b border-white/5 flex items-center justify-between relative z-10 bg-white/[0.02]">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/20">
@@ -90,7 +88,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 lg:p-6 relative z-10 custom-scrollbar">
           <AnimatePresence mode="wait">
             {loading ? (
@@ -111,7 +108,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                   <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Constructing semantic relationship matrix</p>
                 </div>
                 
-                {/* Simulated progress bars */}
                 <div className="w-full max-w-xs mt-10 space-y-4">
                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div 
@@ -184,7 +180,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                 animate={{ opacity: 1 }}
                 className="space-y-8 pb-10"
               >
-                {/* Insights Section */}
                 <section>
                   <div className="flex items-center gap-3 mb-6">
                     <TrendingUp className="text-emerald-400" size={20} />
@@ -206,7 +201,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                   </div>
                 </section>
 
-                {/* Patterns Section */}
                 <section>
                   <div className="flex items-center gap-3 mb-6">
                     <Puzzle className="text-primary" size={20} />
@@ -231,7 +225,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                   </div>
                 </section>
 
-                {/* Risks Section */}
                 <section>
                   <div className="flex items-center gap-3 mb-6">
                     <ShieldAlert className="text-red-500" size={20} />
@@ -259,7 +252,6 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
           </AnimatePresence>
         </div>
 
-        {/* Footer */}
         <div className="p-4 lg:p-5 bg-slate-950/50 border-t border-white/5 flex items-center justify-between relative z-10">
            <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />

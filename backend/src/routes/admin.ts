@@ -38,12 +38,10 @@ import {
 
 const router = Router()
 
-// Protect all admin routes
 router.use(authenticate)
 router.use(checkAndResetQuotas)
 router.use(authorize(UserRole.ADMIN))
 
-// --- User Management ---
 router.get('/stats', getStats)
 router.get('/audit-logs', getAuditLogs)
 router.get('/users', getUsers)
@@ -87,7 +85,6 @@ router.post('/users/:id/logout', [
   handleValidationErrors
 ], logoutUser)
 
-// Audit Log Management
 router.delete('/audit-logs/:id', [
   param('id').isMongoId().withMessage('Invalid audit log ID'),
   handleValidationErrors
@@ -95,16 +92,11 @@ router.delete('/audit-logs/:id', [
 
 router.delete('/audit-logs', clearAuditLogs)
 
-// --- NEW MODULES ---
-
-// 1. AI Analytics
 router.get('/analytics/ai', getAiStats)
 
-// 2. Financial Treasury
 router.get('/treasury', getTreasuryStats)
 router.get('/treasury/export', exportTreasuryCSV)
 
-// 3. System Command Center
 router.get('/system/status', getSystemStatus)
 
 router.post('/system/maintenance', [
@@ -128,7 +120,6 @@ router.put('/organizations/:id/code', [
   handleValidationErrors
 ], updateOrganizationCode)
 
-// 4. Support Notifications
 router.get('/support', getSupportRequests)
 
 router.put('/support/:id/status', [

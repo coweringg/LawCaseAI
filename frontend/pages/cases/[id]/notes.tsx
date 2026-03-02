@@ -10,7 +10,6 @@ export default function CaseNotesEditor() {
     return (
         <ProtectedRoute>
             <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen flex flex-col font-display">
-                {/* Top Navigation Bar */}
                 <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard" className="flex items-center gap-2 text-primary font-bold text-xl hover:opacity-80 transition-opacity">
@@ -48,7 +47,6 @@ export default function CaseNotesEditor() {
                 </header>
 
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Editor Sidebar (Outline/Thumbnails) */}
                     <aside className="w-16 flex flex-col items-center py-6 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark hidden md:flex">
                         <button className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6 transition-colors">
                             <span className="material-icons-round text-xl">description</span>
@@ -66,9 +64,7 @@ export default function CaseNotesEditor() {
                         </div>
                     </aside>
 
-                    {/* Main Editor Area */}
                     <main className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark/50 flex flex-col items-center pt-8 pb-20 px-4 md:px-0 scrollbar-hide">
-                        {/* Formatting Toolbar (Floating) */}
                         <div className="mb-8 flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 sticky top-4 z-10 transition-colors">
                             <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors"><span className="material-icons-round">format_bold</span></button>
                             <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors"><span className="material-icons-round">format_italic</span></button>
@@ -80,7 +76,6 @@ export default function CaseNotesEditor() {
                             <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-primary bg-primary/10 transition-colors"><span className="material-icons-round">auto_awesome</span></button>
                         </div>
 
-                        {/* Page Canvas */}
                         <div className="w-full max-w-[850px] bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl min-h-[800px] p-8 md:p-16 relative transition-colors">
                             <div className="flex items-center gap-2 mb-8">
                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">Draft</span>
@@ -113,7 +108,6 @@ export default function CaseNotesEditor() {
                         </div>
                     </main>
 
-                    {/* AI Assistant Sidebar */}
                     <aside className="w-80 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col hidden xl:flex">
                         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -124,7 +118,6 @@ export default function CaseNotesEditor() {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-                            {/* Action Cards */}
                             <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-primary/30 transition-all cursor-pointer group">
                                 <div className="flex items-center gap-3 mb-2">
                                     <span className="material-icons-round text-primary text-xl">auto_fix_high</span>
@@ -137,7 +130,6 @@ export default function CaseNotesEditor() {
                                 </div>
                             </div>
 
-                            {/* AI Suggestions Feed */}
                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Contextual Insight</span>
                                 <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700 relative overflow-hidden">

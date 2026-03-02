@@ -6,7 +6,6 @@ export default function Onboarding() {
     return (
         <ProtectedRoute>
             <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display transition-colors duration-300">
-                {/* Navigation Bar */}
                 <nav className="w-full py-6 px-8 flex justify-between items-center bg-white dark:bg-background-dark border-b border-primary/10">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -24,7 +23,6 @@ export default function Onboarding() {
 
                 <main className="flex-grow flex items-center justify-center p-6">
                     <div className="max-w-4xl w-full bg-white dark:bg-slate-900 rounded-xl shadow-xl shadow-primary/5 overflow-hidden border border-primary/5">
-                        {/* Success Header */}
                         <div className="bg-primary/5 dark:bg-primary/10 p-10 text-center border-b border-primary/10">
                             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-6">
                                 <span className="material-icons-round text-white text-3xl">check</span>
@@ -37,10 +35,8 @@ export default function Onboarding() {
                             </p>
                         </div>
 
-                        {/* Onboarding Steps */}
                         <div className="p-10">
                             <div className="grid md:grid-cols-3 gap-8">
-                                {/* Step 1 */}
                                 <div className="flex flex-col items-center text-center group">
                                     <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">create_new_folder</span>
@@ -50,7 +46,6 @@ export default function Onboarding() {
                                         Enter case names, client details, and jurisdictions to build your workspace.
                                     </p>
                                 </div>
-                                {/* Step 2 */}
                                 <div className="flex flex-col items-center text-center group">
                                     <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">cloud_upload</span>
@@ -60,7 +55,6 @@ export default function Onboarding() {
                                         Securely upload PDFs, transcripts, and discovery files for processing.
                                     </p>
                                 </div>
-                                {/* Step 3 */}
                                 <div className="flex flex-col items-center text-center group">
                                     <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">auto_awesome</span>
@@ -72,7 +66,6 @@ export default function Onboarding() {
                                 </div>
                             </div>
 
-                            {/* Main CTA */}
                             <div className="mt-12 flex flex-col items-center">
                                 <Link href="/dashboard" className="bg-primary hover:bg-primary-hover text-white font-bold py-4 px-12 rounded-lg text-lg shadow-lg shadow-primary/25 transform transition active:scale-95 flex items-center gap-2">
                                     Start Managing Cases
@@ -92,7 +85,6 @@ export default function Onboarding() {
                             </div>
                         </div>
 
-                        {/* Security Footer */}
                         <div className="bg-slate-50 dark:bg-slate-800/50 py-4 px-10 flex flex-wrap justify-center gap-8 border-t border-primary/5">
                             <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
                                 <span className="material-icons-round text-primary text-sm">security</span>

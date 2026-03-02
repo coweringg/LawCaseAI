@@ -23,7 +23,6 @@ export const connectDatabase = async (): Promise<void> => {
     
     dbLogger.info({ uri: mongoUri.replace(/\/\/.*@/, '//<credentials>@') }, '✅ MongoDB connected')
     
-    // Handle connection events
     mongoose.connection.on('error', (error) => {
       dbLogger.error({ err: error }, '❌ MongoDB connection error')
     })
@@ -67,6 +66,3 @@ export const clearDatabase = async (): Promise<void> => {
     dbLogger.error({ err: error }, '❌ Error clearing test database')
   }
 }
-
-// Note: Graceful shutdown is handled centrally in server.ts
-// These handlers are removed to avoid duplicate SIGINT/SIGTERM listeners

@@ -13,7 +13,6 @@ import config from './config'
 import { IApiResponse } from './types'
 import logger, { httpLogger } from './utils/logger'
 
-// Local error type definitions
 interface MongooseValidationFieldError {
   path: string
   message: string
@@ -32,7 +31,6 @@ interface CustomError extends Error {
   statusCode?: number
 }
 
-// Import routes
 import authRoutes from './routes/auth'
 import userRoutes from './routes/user'
 import caseRoutes from './routes/case'
@@ -49,7 +47,6 @@ import { planRateLimiter } from './middleware/rateLimiter'
 
 const app = express()
 
-// Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -63,7 +60,6 @@ app.use(helmet({
 
 app.use(cookieParser())
 
-// CORS configuration
 app.use(cors({
   origin: config.cors.origin,
   credentials: config.cors.credentials,
@@ -71,7 +67,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.maxRequests,
@@ -85,34 +80,25 @@ const limiter = rateLimit({
 
 app.use('/api', limiter)
 
-// Apply more granular plan-aware rate limiting to core API routes
-// This runs after the global limiter but uses the authenticated user context
 app.use('/api', planRateLimiter)
 
-// Compression
 app.use(compression())
 
-// Body parsing middleware
 app.use(express.json({ 
   limit: '10mb',
   type: ['application/json', 'text/plain']
 }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// NoSQL injection protection
 app.use(mongoSanitize())
 
-// Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'))
 
-// Global Maintenance Mode Check
 import { checkMaintenanceMode } from './middleware/maintenance'
 app.use(checkMaintenanceMode)
 
-// Structured HTTP logging (replaces Morgan)
 app.use(httpLogger)
 
-// ─── Health check endpoint (enhanced) ─────────────────────────────────────────
 app.get('/health', async (req: express.Request, res: express.Response) => {
   const checks = await Promise.all([
     checkMongoDBConnection(),
@@ -127,7 +113,7 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
   const anyConnected = checks.some((c: any) => c.connected)
 
   const overallStatus = allConnected ? 'healthy' : anyConnected ? 'degraded' : 'unhealthy'
-  const httpStatus = mongo.connected ? 200 : 503 // DB is the critical dependency
+  const httpStatus = mongo.connected ? 200 : 503
 
   res.status(httpStatus).json({
     success: mongo.connected,
@@ -148,7 +134,6 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
   } as IApiResponse)
 })
 
-// API routes
 app.use('/api/auth', authRoutes)
 app.use('/api/cases', caseRoutes)
 app.use('/api/payments', paymentRoutes)
@@ -162,7 +147,6 @@ app.use('/api/user', userRoutes)
 app.use('/api/system', systemRoutes)
 app.use('/api/support', supportRoutes)
 
-// 404 handler
 app.use('*', (req: express.Request, res: express.Response) => {
   res.status(404).json({
     success: false,
@@ -170,13 +154,9 @@ app.use('*', (req: express.Request, res: express.Response) => {
   } as IApiResponse)
 })
 
-// Global error handler
 app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction): void => {
   void _next
-
   logger.error({ err: error, method: req.method, url: req.url }, 'Unhandled error')
-
-  // Mongoose validation error
   if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
     const validationError = error as MongooseValidationError
     const errors = Object.values(validationError.errors).map((err: MongooseValidationFieldError) => ({
@@ -192,7 +172,6 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
     return
   }
 
-  // JWT error
   if (error && typeof error === 'object' && 'name' in error && error.name === 'JsonWebTokenError') {
     res.status(401).json({
       success: false,
@@ -201,7 +180,6 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
     return
   }
 
-  // Multer error
   if (error && typeof error === 'object' && 'code' in error) {
     const multerError = error as MulterError
     if (multerError.code === 'LIMIT_FILE_SIZE') {
@@ -221,7 +199,6 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
     }
   }
 
-  // Default error
   const customError = error as CustomError
   const errorMessage = error instanceof Error ? error.message : 'Unknown error'
   const statusCode = customError.statusCode || 500
@@ -231,8 +208,6 @@ app.use((error: unknown, req: express.Request, res: express.Response, _next: exp
     message: errorMessage
   } as IApiResponse)
 })
-
-// ─── Connection verification functions ────────────────────────────────────────
 
 const checkMongoDBConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
@@ -274,7 +249,6 @@ const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; mess
 const checkOpenAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
     if (config.openai.apiKey) {
-      // We just check if the key is present. A real health check would call a lightweight OpenAI endpoint.
       return { connected: true, message: 'OpenAI API configured' }
     } else {
       return { connected: false, message: 'OpenAI API not configured' }
@@ -311,8 +285,6 @@ const checkAIConnection = async (): Promise<{ connected: boolean; message: strin
   }
 }
 
-// ─── Server startup ───────────────────────────────────────────────────────────
-
 const PORT = config.port
 let server: ReturnType<typeof app.listen> | null = null
 
@@ -348,14 +320,11 @@ const startServer = async () => {
   }
 }
 
-// ─── Graceful shutdown ────────────────────────────────────────────────────────
-
 const SHUTDOWN_TIMEOUT_MS = 10_000
 
 const gracefulShutdown = async (signal: string) => {
   logger.info({ signal }, `🔄 ${signal} received. Starting graceful shutdown...`)
 
-  // Force exit after timeout
   const forceExitTimer = setTimeout(() => {
     logger.error('⚠️ Shutdown timeout reached. Forcing exit.')
     process.exit(1)
@@ -363,7 +332,6 @@ const gracefulShutdown = async (signal: string) => {
   forceExitTimer.unref()
 
   try {
-    // 1. Stop accepting new connections
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server!.close((err) => {
@@ -374,7 +342,6 @@ const gracefulShutdown = async (signal: string) => {
       logger.info('✅ HTTP server closed (no new connections)')
     }
 
-    // 2. Close MongoDB connection
     if (mongoose.connection.readyState === 1) {
       await mongoose.connection.close()
       logger.info('✅ MongoDB connection closed')
@@ -388,18 +355,15 @@ const gracefulShutdown = async (signal: string) => {
   }
 }
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
   logger.error({ reason, promise: String(promise) }, 'Unhandled Rejection')
 })
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (error: Error) => {
   logger.fatal({ err: error }, 'Uncaught Exception — shutting down')
   process.exit(1)
 })
 
-// Graceful shutdown signals
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 

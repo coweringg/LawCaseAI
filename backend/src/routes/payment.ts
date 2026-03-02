@@ -17,17 +17,13 @@ import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-// All payment routes require authentication
 router.use(authenticate)
 router.use(checkAndResetQuotas)
 
-// GET /api/payments/history
 router.get('/history', getTransactionHistory)
 
-// GET /api/payments/organization
 router.get('/organization', getOrganizationDetails)
 
-// POST /api/payments/checkout
 router.post('/checkout', [
   body('plan')
     .notEmpty().withMessage('Plan is required')
@@ -38,7 +34,6 @@ router.post('/checkout', [
   handleValidationErrors
 ], createCheckoutSession)
 
-// POST /api/payments/confirm
 router.post('/confirm', [
   body('paymentId')
     .optional()
@@ -46,7 +41,6 @@ router.post('/confirm', [
   handleValidationErrors
 ], confirmPayment)
 
-// POST /api/payments/confirm-purchase
 router.post('/confirm-purchase', [
   body('plan')
     .notEmpty().withMessage('Plan is required')
@@ -54,7 +48,6 @@ router.post('/confirm-purchase', [
   handleValidationErrors
 ], confirmPurchase)
 
-// POST /api/payments/purchase-business
 router.post('/purchase-business', [
   body('seats')
     .optional()
@@ -62,7 +55,6 @@ router.post('/purchase-business', [
   handleValidationErrors
 ], purchaseBusinessPlan)
 
-// POST /api/payments/increase-seats
 router.post('/increase-seats', [
   body('additionalSeats')
     .notEmpty().withMessage('Additional seats is required')
@@ -70,10 +62,8 @@ router.post('/increase-seats', [
   handleValidationErrors
 ], increaseSeats)
 
-// GET /api/payments/members
 router.get('/members', getOrganizationMembers)
 
-// DELETE /api/payments/members/:memberId
 router.delete('/members/:memberId', [
   param('memberId').isMongoId().withMessage('Invalid member ID'),
   handleValidationErrors

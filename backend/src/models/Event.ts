@@ -56,7 +56,6 @@ const eventSchema = new Schema<IEvent>({
     timestamps: true
 })
 
-// Indexes
 eventSchema.index({ userId: 1 })
 eventSchema.index({ userId: 1, start: 1 })
 eventSchema.index({ userId: 1, status: 1, start: 1 })

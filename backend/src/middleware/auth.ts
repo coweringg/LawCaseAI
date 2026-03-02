@@ -45,7 +45,6 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
       return
     }
 
-    // Check token version (for remote logout)
     if (decoded.version !== undefined && decoded.version !== user.tokenVersion) {
       res.status(401).json({
         success: false,
@@ -54,8 +53,6 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
       return
     }
 
-    // Update last activity (heartbeat) - Don't await to keep it fast
-    // Skip heartbeat for critical write routes (like confirm-purchase) to avoid WriteConflict during transactions
     if (!req.url.includes('/confirm-purchase')) {
       User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err =>
         authLogger.error({ err, userId: user._id }, 'Failed to update lastActivity')
@@ -154,7 +151,6 @@ export const optionalAuth = async (req: IAuthRequest, res: Response, next: NextF
 
     next()
   } catch (error) {
-    // Continue without authentication for optional routes
     next()
   }
 }

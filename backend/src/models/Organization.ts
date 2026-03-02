@@ -41,8 +41,6 @@ const organizationSchema = new Schema<IOrganization>({
   timestamps: true
 })
 
-// Indexing already handled by unique: true on firmCode field
-
 const Organization = mongoose.model<IOrganization>('Organization', organizationSchema)
 
 export default Organization

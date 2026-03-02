@@ -2,10 +2,6 @@ import { Request, Response } from 'express'
 import { SystemSetting } from '../models'
 import { IApiResponse } from '../types'
 
-/**
- * Get Current System Status
- * Returns global configuration like maintenance mode.
- */
 export const getSystemStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const maintenanceModeObj = await SystemSetting.findOne({ key: 'maintenanceMode' })
@@ -26,9 +22,6 @@ export const getSystemStatus = async (req: Request, res: Response): Promise<void
   }
 }
 
-/**
- * Toggle Maintenance Mode
- */
 export const toggleMaintenance = async (req: Request, res: Response): Promise<void> => {
   try {
     const { active } = req.body
@@ -38,12 +31,9 @@ export const toggleMaintenance = async (req: Request, res: Response): Promise<vo
       { 
         value: active,
         lastUpdated: new Date()
-        // updatedBy field would be set here if we had user context in req
       },
       { upsert: true, new: true }
     )
-
-    // TODO: Ideally, we would emit a socket event here to instant-lock users
 
     res.status(200).json({
       success: true,
@@ -57,9 +47,6 @@ export const toggleMaintenance = async (req: Request, res: Response): Promise<vo
   }
 }
 
-/**
- * Update Global Alert (Broadcast)
- */
 export const updateGlobalAlert = async (req: Request, res: Response): Promise<void> => {
   try {
     const { message, type = 'info', active = true } = req.body

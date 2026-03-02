@@ -32,7 +32,6 @@ export default function Dashboard() {
           setDashboardData(response.data.data);
         }
       } catch (error: any) {
-        // Ignore 503 errors as they are handled by the maintenance overlay
         if (error.response && error.response.status === 503) {
             return;
         }
@@ -94,7 +93,6 @@ export default function Dashboard() {
           variants={containerVariants}
           className="flex flex-col gap-8 relative z-10 pt-6 lg:pt-12 pb-10"
         >
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-primary/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

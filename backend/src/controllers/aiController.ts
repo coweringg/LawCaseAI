@@ -10,11 +10,6 @@ const controllerLogger = logger.child({ module: 'ai-controller' })
 
 const aiService = AIService.getInstance()
 
-/**
- * @desc    Chat with AI about a specific case
- * @route   POST /api/ai/chat
- * @access  Private
- */
 export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { message, caseId, temporaryFileId } = req.body
@@ -26,24 +21,20 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
             })
         }
 
-        // Check if case exists and belongs to user
         const currentCase = await Case.findOne({ _id: caseId, userId: req.user?._id })
         if (!currentCase) {
              controllerLogger.warn({ caseId, userId: req.user?._id }, 'AI Chat: Case not found or unauthorized access')
              return res.status(404).json({ success: false, message: 'This case could not be found, or you do not have permission to access it.' })
         }
 
-        // Fetch files context 
         let filesContext = 'No files uploaded yet.'
         const filesToInclude = []
 
         let tempFile = null
         if (temporaryFileId) {
-            // Prioritize the explicitly attached temporary file
             tempFile = await CaseFile.findOne({ _id: temporaryFileId, userId: req.user?._id })
             if (tempFile) filesToInclude.push(tempFile)
         } else {
-            // Otherwise get recent permanent files
             const recentFiles = await CaseFile.find({ caseId, isTemporary: false })
                 .sort({ createdAt: -1 })
                 .select('name extractedText type')
@@ -63,13 +54,11 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
 
         const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}`
 
-        // Fetch recent chat history (last 30 messages)
         const recentHistory = await ChatMessage.find({ caseId })
             .sort({ timestamp: -1 })
             .limit(30)
             .select('sender content')
 
-        // Format history for AI (reverse because we fetched -1)
         const history = recentHistory.reverse().map(m => ({
             role: m.sender === 'user' ? 'user' : 'assistant',
             content: m.content
@@ -77,27 +66,21 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
 
         const aiRes = await aiService.generateResponse(message, caseContext, req.user?._id?.toString(), history)
 
-        // Determine if we should suggest saving this response
         const summaryKeywords = /resum|summar|analyz|analiz|explay|detall|expand|key takeaway|puntos clave|commit to repository/i;
         const isSummaryRequest = summaryKeywords.test(message) || summaryKeywords.test(aiRes.response);
         
-        // We have context if a file is currently attached, IF the AI found files to talk about, 
-        // OR if there are ANY temporary files in this case (from previous history)
         const hasAnyFiles = await CaseFile.countDocuments({ caseId }) > 0;
         const shouldSuggestSaving = hasAnyFiles && isSummaryRequest && aiRes.response.length > 300;
         
         let relatedType = tempFile?.type || (filesToInclude.length > 0 ? filesToInclude[0].type : 'text/markdown');
 
-        // If this is a substantial summary/analysis, we prefer saving as PDF (Neural Analysis Unit)
-        // rather than raw markdown, unless the related document is already a Word file.
         if (shouldSuggestSaving && !relatedType.includes('pdf') && !relatedType.includes('word')) {
             relatedType = 'application/pdf';
         }
 
-        // Persist messages to Database
         try {
             const userTimestamp = new Date()
-            const aiTimestamp = new Date(userTimestamp.getTime() + 500) // 500ms later to ensure order
+            const aiTimestamp = new Date(userTimestamp.getTime() + 500)
 
             await ChatMessage.create([
                 {
@@ -124,12 +107,10 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
             ])
         } catch (dbErr) {
             controllerLogger.error({ err: dbErr, caseId: currentCase._id }, 'Failed to persist chat messages')
-            // Don't fail the request if chat persistence fails, but log it
         }
 
-        // Update Cognitive Time Saved (Intelligent calculation: 1h per 10k tokens)
         try {
-            const tokensProcessed = aiRes.tokens || (message.length / 4); // Fallback estimate
+            const tokensProcessed = aiRes.tokens || (message.length / 4);
             const hoursToInc = Math.max(0.1, Math.round((tokensProcessed / 10000) * 10) / 10);
             
             await User.findByIdAndUpdate(req.user?._id, {
@@ -142,7 +123,6 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
             controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user hours saved')
         }
 
-        // Log the action
         await logAction({
             adminId: req.user?._id as any,
             adminName: req.user?.name || 'User',
@@ -171,11 +151,6 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
     }
 }
 
-/**
- * @desc    Analyze a specific file
- * @route   POST /api/ai/analyze/:fileId
- * @access  Private
- */
 export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { fileId } = req.params
@@ -188,11 +163,9 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             })
         }
 
-        // Use extracted text for real analysis
         const content = file.extractedText || `Filename: ${file.name}. (No text could be extracted from this file for analysis).`
         const analysis = await aiService.analyzeDocument(content, req.user?._id?.toString())
 
-        // Persist to ChatMessage for analytics tracking
         try {
             await ChatMessage.create({
                 content: `[AI ANALYSIS REQUEST] Document: ${file.name}`,
@@ -210,8 +183,8 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
                 timestamp: new Date(),
                 metadata: {
                     model: config.ai.model,
-                    tokens: Math.ceil(content.length / 4) + 500, // Estimate tokens if not returned directly from analysis call
-                    responseTime: 0, // Not explicitly tracked here yet
+                    tokens: Math.ceil(content.length / 4) + 500,
+                    responseTime: 0,
                     suggestsSaving: false,
                     relatedFileType: file.type
                 }
@@ -220,7 +193,6 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             controllerLogger.error({ err: dbErr, fileId }, 'Failed to persist analysis chat messages')
         }
 
-        // Update Cognitive Time Saved (1h per 10k content tokens estimated by chars)
         try {
             const charCount = content.length;
             const estimatedTokens = charCount / 4;
@@ -236,7 +208,6 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user hours saved during analysis')
         }
 
-        // Log the action
         await logAction({
             adminId: req.user?._id as any,
             adminName: req.user?.name || 'User',
@@ -265,11 +236,6 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
     }
 }
 
-/**
- * @desc    Get an overall AI summary of the case
- * @route   GET /api/ai/summary/:caseId
- * @access  Private
- */
 export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const { caseId } = req.params
@@ -306,16 +272,10 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
     }
 }
 
-/**
- * @desc    Perform a global intelligence audit across all cases
- * @route   POST /api/ai/global-audit
- * @access  Private
- */
 export const globalAudit = async (req: IAuthRequest, res: Response): Promise<Response> => {
     try {
         const userId = req.user?._id
 
-        // Fetch all active cases
         const cases = await Case.find({ userId, status: 'active' })
         
         if (cases.length === 0) {
@@ -330,14 +290,11 @@ export const globalAudit = async (req: IAuthRequest, res: Response): Promise<Res
             })
         }
 
-        // Fetch document metadata/extracted text for context
-        // We limit the number of files and characters per file to prevent hitting token limits
         const files = await CaseFile.find({ userId, isTemporary: false })
             .select('name extractedText caseId')
             .limit(15)
             .sort({ createdAt: -1 })
 
-        // Construct global context
         const caseSummaries = cases.map(c => `[CASE: ${c.name}] Area: ${c.practiceArea || 'General'}. Description: ${c.description || 'N/A'}`).join('\n')
         const fileContext = files.map(f => {
             const fileName = f.name

@@ -4,15 +4,12 @@ import { User, Case, Transaction, AuditLog, SupportRequest, Organization, Event 
 import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus, EventStatus, SupportRequestType } from '../types'
 import { logAction } from '../utils/auditLogger'
 
-/**
- * Get all users with searching and pagination.
- */
 export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { search, page = 1, limit = 10 } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
-    const query: Record<string, unknown> = { status: { $ne: UserStatus.DELETED } } // Exclude deleted users from main list
+    const query: Record<string, unknown> = { status: { $ne: UserStatus.DELETED } }
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -27,7 +24,6 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
       .limit(Number(limit))
       .lean()
 
-    // Enrich users with organization code if they belong to an organization
     const enrichedUsers = await Promise.all(users.map(async (u) => {
       const userObj = { ...u, id: u._id.toString() }
       if (u.organizationId) {
@@ -57,14 +53,10 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
   }
 }
 
-/**
- * Get administrative statistics.
- */
 export const getStats = async (_req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const totalUsers = await User.countDocuments({ status: { $ne: UserStatus.DELETED } })
     const activeUsers = await User.countDocuments({ status: UserStatus.ACTIVE })
-    // Sync: ensure cases of deleted users are also marked as deleted (handles existing data)
     await Case.updateMany(
       { userId: { $in: await User.find({ status: UserStatus.DELETED }).distinct('_id') }, status: { $ne: CaseStatus.DELETED } },
       { $set: { status: CaseStatus.DELETED } }
@@ -72,7 +64,6 @@ export const getStats = async (_req: IAuthRequest, res: Response): Promise<void>
 
     const totalCases = await Case.countDocuments({ status: { $ne: CaseStatus.DELETED } })
     
-    // Revenue placeholders
     const totalRevenue = totalUsers * 49 
     const monthlyRevenue = activeUsers * 29 
     
@@ -104,9 +95,6 @@ export const getStats = async (_req: IAuthRequest, res: Response): Promise<void>
   }
 }
 
-/**
- * Update user details (email, role, status, etc.)
- */
 export const updateUser = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -128,7 +116,6 @@ export const updateUser = async (req: IAuthRequest, res: Response): Promise<void
       plan: user.plan
     }
 
-    // Update fields if provided
     if (name) user.name = name
     if (email) user.email = email
     if (role) user.role = role as UserRole
@@ -142,7 +129,6 @@ export const updateUser = async (req: IAuthRequest, res: Response): Promise<void
 
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: admin._id,
       adminName: admin.name,
@@ -180,9 +166,6 @@ export const updateUser = async (req: IAuthRequest, res: Response): Promise<void
   }
 }
 
-/**
- * Delete a user (Soft Delete).
- */
 export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -201,21 +184,17 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
     const admin = req.user!
     const oldStatus = user.status
     
-    // Soft delete user and release email for future use
     const originalEmail = user.email
     user.email = `deleted_${Date.now()}_${originalEmail}`
     user.status = UserStatus.DELETED
     await user.save()
 
-    // CASCADE LOGIC: If deleting an Enterprise Admin, handle firm-wide reset
     if (user.plan === UserPlan.ENTERPRISE && user.isOrgAdmin && user.organizationId) {
       const orgId = user.organizationId
       
-      // 1. Find all members of this organization
       const members = await User.find({ organizationId: orgId })
       const memberIds = members.map(m => m._id)
 
-      // 2. Reset all members to 'none' plan and 0 cases, unlink from org
       await User.updateMany(
         { organizationId: orgId },
         { 
@@ -228,29 +207,24 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
         }
       )
 
-      // 3. Close all cases for all members
       await Case.updateMany(
         { userId: { $in: memberIds }, status: CaseStatus.ACTIVE },
         { $set: { status: CaseStatus.CLOSED, closedAt: new Date() } }
       )
 
-      // 4. Close all calendar events for all members
       await Event.updateMany(
         { userId: { $in: memberIds }, status: EventStatus.ACTIVE },
         { $set: { status: EventStatus.CLOSED } }
       )
 
-      // 5. Deactivate the organization
       await Organization.findByIdAndUpdate(orgId, { isActive: false })
     }
 
-    // Cascade soft delete to all user's cases (standard for any user)
     await Case.updateMany(
       { userId: user._id, status: { $ne: CaseStatus.DELETED } },
       { $set: { status: CaseStatus.DELETED } }
     )
 
-    // Log the action
     await logAction({
       adminId: admin._id,
       adminName: admin.name,
@@ -273,9 +247,6 @@ export const deleteUser = async (req: IAuthRequest, res: Response): Promise<void
   }
 }
 
-/**
- * Update user status
- */
 export const updateUserStatus = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -297,7 +268,6 @@ export const updateUserStatus = async (req: IAuthRequest, res: Response): Promis
     user.status = status as UserStatus
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: admin._id,
       adminName: admin.name,
@@ -324,9 +294,6 @@ export const updateUserStatus = async (req: IAuthRequest, res: Response): Promis
   }
 }
 
-/**
- * Update user plan
- */
 export const updateUserPlan = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -348,7 +315,6 @@ export const updateUserPlan = async (req: IAuthRequest, res: Response): Promise<
     user.plan = plan as UserPlan
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: admin._id,
       adminName: admin.name,
@@ -373,9 +339,6 @@ export const updateUserPlan = async (req: IAuthRequest, res: Response): Promise<
   }
 }
 
-/**
- * Get detailed user history (cases, payments, audit logs)
- */
 export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -388,7 +351,6 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
 
     const cases = await Case.find({ userId: id }).sort({ createdAt: -1 })
     const payments = await Transaction.find({ userId: id }).sort({ date: -1 })
-    // Fetch logs where user is either the target OR the actor
     const auditLogs = await AuditLog.find({ 
       $or: [
         { targetId: id },
@@ -396,7 +358,6 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
       ]
     }).sort({ timestamp: -1 })
 
-    // If user is part of an organization, fetch other members and org data
     let orgMembers: Record<string, unknown>[] = []
     let organizationData: Record<string, unknown> | null = null
     
@@ -432,7 +393,6 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
           totalTokensConsumed: user.totalTokensConsumed,
           totalStorageUsed: user.totalStorageUsed,
           plan: user.plan,
-          // Calculated limits for easier frontend consumption
           maxTokens: user.maxTokens,
           maxTotalStorage: user.maxTotalStorage
         }
@@ -444,9 +404,6 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
   }
 }
 
-/**
- * Get platform-wide audit logs with searching and specific categories.
- */
 export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { page = 1, limit = 50, category, search, startDate, endDate } = req.query
@@ -499,9 +456,6 @@ export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<vo
   }
 }
 
-/**
- * Delete a single audit log entry.
- */
 export const deleteAuditLog = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -522,9 +476,6 @@ export const deleteAuditLog = async (req: IAuthRequest, res: Response): Promise<
   }
 }
 
-/**
- * Clear all audit logs for a specific category.
- */
 export const clearAuditLogs = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { category } = req.query
@@ -546,9 +497,6 @@ export const clearAuditLogs = async (req: IAuthRequest, res: Response): Promise<
   }
 }
 
-/**
- * Force logout a user by incrementing their tokenVersion.
- */
 export const logoutUser = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -560,7 +508,6 @@ export const logoutUser = async (req: IAuthRequest, res: Response): Promise<void
     }
 
     user.tokenVersion = (user.tokenVersion || 0) + 1
-    // Clear activity status immediately on force logout
     await User.findByIdAndUpdate(id, { 
       $set: { tokenVersion: user.tokenVersion },
       $unset: { lastActivity: 1 } 
@@ -576,9 +523,6 @@ export const logoutUser = async (req: IAuthRequest, res: Response): Promise<void
   }
 }
 
-/**
- * Get support requests with filtering and pagination.
- */
 export const getSupportRequests = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { type, status, page = 1, limit = 20 } = req.query
@@ -611,9 +555,6 @@ export const getSupportRequests = async (req: IAuthRequest, res: Response): Prom
   }
 }
 
-/**
- * Update support request status (e.g., mark as RESOLVED).
- */
 export const updateSupportRequestStatus = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -630,7 +571,6 @@ export const updateSupportRequestStatus = async (req: IAuthRequest, res: Respons
       return
     }
 
-    // Log the action
     await logAction({
       adminId: req.user!._id,
       adminName: req.user!.name,
@@ -654,9 +594,6 @@ export const updateSupportRequestStatus = async (req: IAuthRequest, res: Respons
   }
 }
 
-/**
- * Delete a specific support request.
- */
 export const deleteSupportRequest = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -667,7 +604,6 @@ export const deleteSupportRequest = async (req: IAuthRequest, res: Response): Pr
       return
     }
 
-    // Log the action
     await logAction({
       adminId: req.user!._id,
       adminName: req.user!.name,
@@ -689,32 +625,24 @@ export const deleteSupportRequest = async (req: IAuthRequest, res: Response): Pr
   }
 }
 
-/**
- * Clear support requests (optionally filtered by type).
- */
 export const clearSupportRequests = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
     const { type } = req.query
     const query: Record<string, unknown> = {}
     
-    // Handle special type filters
     if (type === 'all') {
-      // Delete everything (no filter)
     } else if (type === 'user_all') {
-      // Delete everything except login issues
       query.type = { $ne: SupportRequestType.LOGIN_ISSUE }
     } else if (type) {
-      // Delete specific type
       query.type = type
     }
 
     const result = await SupportRequest.deleteMany(query)
 
-    // Log the action
     await logAction({
       adminId: req.user!._id,
       adminName: req.user!.name,
-      targetId: new Types.ObjectId(), // Virtual ID for bulk action
+      targetId: new Types.ObjectId(),
       targetName: type === 'system_error' ? 'All System Errors' : type === 'feature_uplink' ? 'All Feature Uplinks' : 'All support requests',
       targetType: 'support',
       category: 'admin',
@@ -733,12 +661,9 @@ export const clearSupportRequests = async (req: IAuthRequest, res: Response): Pr
   }
 }
 
-/**
- * Update organization firm code (Admin only)
- */
 export const updateOrganizationCode = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params // Organization ID
+    const { id } = req.params
     const { firmCode } = req.body
 
     if (!firmCode) {
@@ -756,7 +681,6 @@ export const updateOrganizationCode = async (req: IAuthRequest, res: Response): 
     org.firmCode = firmCode.toUpperCase()
     await org.save()
 
-    // Log the action
     await logAction({
       adminId: req.user!._id,
       adminName: req.user!.name,

@@ -5,7 +5,6 @@ import logger from '../utils/logger'
 
 const controllerLogger = logger.child({ module: 'event-controller' })
 
-// Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -18,7 +17,6 @@ export const getEvents = async (req: IAuthRequest, res: Response): Promise<void>
         const query: Record<string, unknown> = { userId }
         if (caseId) query.caseId = caseId
 
-        // If searching, we search globally (ignoring date bounds)
         if (search && typeof search === 'string' && search.trim().length > 0) {
             query.title = { $regex: escapeRegex(search.trim()), $options: 'i' }
         } else if (start && end) {
@@ -27,7 +25,6 @@ export const getEvents = async (req: IAuthRequest, res: Response): Promise<void>
 
         const events = await Event.find(query).sort({ start: 1 }).lean()
 
-        // Mark past events as closed in the response (without mutating DB on every GET)
         const now = new Date()
         const eventsWithStatus = events.map(event => ({
             ...event,
@@ -54,10 +51,8 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             return
         }
 
-        // Whitelist allowed fields to prevent NoSQL injection
         const { title, description, start, end, type, priority, caseId, location, isAllDay, status } = req.body
 
-        // Validate required fields
         if (!title || !start) {
             res.status(400).json({ success: false, message: 'Title and start date are required' } as IApiResponse)
             return
@@ -72,7 +67,6 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
             return
         }
 
-        // Build safe event data from whitelisted fields
         const safeEventData: Record<string, unknown> = {
             title,
             start: eventDate,
@@ -105,7 +99,6 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         const { id } = req.params
         const userId = req.user?._id
 
-        // Whitelist allowed fields to prevent NoSQL injection
         const { title, description, start, end, type, priority, caseId, location, isAllDay, status } = req.body
 
         const allowedUpdates: Record<string, unknown> = {}
@@ -113,7 +106,6 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         if (description !== undefined) allowedUpdates.description = description
         if (start !== undefined) {
             const eventDate = new Date(start)
-            // Allow updates even if past, as long as it's an existing valid date
             allowedUpdates.start = eventDate
         }
         if (end !== undefined) allowedUpdates.end = new Date(end)

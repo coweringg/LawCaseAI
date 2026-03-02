@@ -61,13 +61,11 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   return (
     <div className="fixed inset-0 z-[200] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center">
-        {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"
           onClick={onClose}
         />
 
-        {/* Modal Content */}
         <div className="relative inline-block w-full max-w-md transform overflow-hidden rounded-[40px] glass-dark border border-white/20 p-8 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] transition-all">
           <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
           
@@ -79,7 +77,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </button>
 
           <div className="flex flex-col items-center text-center space-y-6 pt-4">
-            {/* Icon Container */}
             <div className={cn(
               "p-5 rounded-3xl border-2 shadow-2xl transition-all duration-500",
               activeVariant.bg,

@@ -62,7 +62,6 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
         <aside className="w-full flex flex-col overflow-hidden h-full relative">
             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
             
-            {/* Header */}
             <div className="p-8 border-b border-white/10 bg-white/[0.02] relative z-10">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex flex-col gap-1">
@@ -129,7 +128,6 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
                 </div>
             </div>
 
-            {/* AI Summary Section */}
             <div className="flex-1 overflow-y-auto p-8 relative z-10 scrollbar-hide">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">

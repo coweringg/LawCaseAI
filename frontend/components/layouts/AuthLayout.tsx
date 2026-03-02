@@ -10,14 +10,11 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
     return (
         <div className="bg-[#060910] text-slate-100 antialiased h-screen w-full flex overflow-hidden font-display transition-colors duration-200">
-            {/* Left Side: Branding & Visuals (45% width on large screens) */}
             <div className="hidden lg:flex w-[45%] bg-[#060910] relative flex-col justify-between overflow-hidden border-r border-white/5 shadow-2xl">
-                {/* Premium Background Layer */}
                 <div className="absolute inset-0 z-0 overflow-hidden">
                     <div className="absolute inset-0 mesh-gradient opacity-60"></div>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 rotate-12"></div>
 
-                    {/* Animated Depth Blobs */}
                     <motion.div
                         animate={{
                             scale: [1, 1.2, 1],
@@ -38,9 +35,7 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                     ></motion.div>
                 </div>
 
-                {/* Content Container */}
                 <div className="relative z-10 px-12 py-12 h-full flex flex-col justify-between">
-                    {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
                             <span className="material-icons-round text-xl">gavel</span>
@@ -48,7 +43,6 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         <span className="text-white font-bold text-2xl tracking-tight font-display group-hover:text-primary transition-colors duration-300">LawCaseAI</span>
                     </Link>
 
-                    {/* Main Branding Text */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -65,7 +59,6 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         </p>
                     </motion.div>
 
-                    {/* Testimonial / Social Proof */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -94,16 +87,13 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         </div>
                     </motion.div>
 
-                    {/* Footer Copyright */}
                     <div className="mt-8 text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
                         © 2026 LawCaseAI Infrastructure
                     </div>
                 </div>
             </div>
 
-            {/* Right Side: Secure Form (Full width mobile, 55% desktop) */}
             <div className="w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-y-auto scrollbar-hide">
-                {/* Mobile Logo (Visible only on small screens) */}
                 <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center">
@@ -113,11 +103,9 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                     </Link>
                 </div>
 
-                {/* Content Children */}
                 <div className="w-full max-w-md py-8 sm:py-12">
                     {children}
 
-                    {/* Footer Terms */}
                     <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500">
                         By continuing, you agree to LawCaseAI&apos;s{' '}
                         <Link href="/terms" className="underline hover:text-slate-600 dark:hover:text-slate-300">Terms of Service</Link>

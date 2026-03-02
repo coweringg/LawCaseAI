@@ -27,7 +27,6 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 }
 
 export const validateRequest = (req: Request, res: Response, next: NextFunction): void => {
-  // Check for malformed JSON
   if (req.is('application/json') && req.body && typeof req.body !== 'object') {
     res.status(400).json({
       success: false,
@@ -36,7 +35,6 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
     return
   }
 
-  // Check for empty request body
   if (!req.body || Object.keys(req.body).length === 0) {
     res.status(400).json({
       success: false,
@@ -48,12 +46,6 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
   next()
 }
 
-/**
- * Basic input sanitization middleware.
- * Note: express-mongo-sanitize is applied at the app level in server.ts
- * for comprehensive NoSQL injection protection. This middleware handles
- * basic string trimming for request body fields.
- */
 export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
   if (req.body && typeof req.body === 'object') {
     Object.keys(req.body).forEach(key => {

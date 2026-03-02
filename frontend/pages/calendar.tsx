@@ -114,9 +114,6 @@ export default function Calendar() {
         }
     }, [fetchEvents, fetchCases, isAuthenticated]);
 
-    // Real-time event status updater
-
-
     useEffect(() => {
         if (isSearchModalOpen && searchQuery.trim().length > 0) {
             const timer = setTimeout(() => {
@@ -204,7 +201,6 @@ export default function Calendar() {
             </Head>
             <DashboardLayout>
                 <div className="flex bg-transparent h-[calc(100vh-5rem)] -m-6 overflow-hidden relative z-10">
-                    {/* Sidebar */}
                     <aside className="w-64 premium-glass border-r border-white/10 hidden md:flex flex-col overflow-y-auto relative">
                         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                         <div className="relative z-10 p-4">
@@ -219,7 +215,6 @@ export default function Calendar() {
                             </motion.button>
                         </div>
 
-                        {/* Mini Calendar */}
                         <div className="p-6 border-b border-white/10 relative z-10 bg-white/[0.01]">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="font-black text-[11px] uppercase tracking-[0.3em] text-white font-display">{format(currentDate, 'MMMM yyyy')}</span>
@@ -259,7 +254,6 @@ export default function Calendar() {
                             </div>
                         </div>
 
-                        {/* Upcoming Deadlines */}
                         <div className="p-4 flex-1 relative z-10">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Master Timeline</h3>
@@ -315,9 +309,7 @@ export default function Calendar() {
                         </div>
                     </aside>
 
-                    {/* Main Calendar Area */}
                     <main className="flex-1 overflow-hidden flex flex-col bg-transparent backdrop-blur-3xl">
-                        {/* Calendar Header */}
                         <div className="p-6 flex flex-wrap items-center justify-between border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl relative overflow-hidden">
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent pointer-events-none"></div>
                             <div className="flex items-center gap-6 relative z-10">
@@ -361,7 +353,6 @@ export default function Calendar() {
                             </div>
                         </div>
 
-                        {/* Conditional Rendering based on View */}
                         <div className="flex-1 overflow-auto bg-slate-100 dark:bg-white/5">
                             {view === 'Month' && (
                                 <div className="grid grid-cols-7 gap-[1px]">
@@ -552,7 +543,6 @@ export default function Calendar() {
                         cases={cases}
                     />
 
-                    {/* Centralized Global Search Modal */}
                     <AnimatePresence>
                         {isSearchModalOpen && (
                             <div className="fixed inset-0 z-[100000] flex items-start justify-center pt-[15vh] px-4">
@@ -570,7 +560,6 @@ export default function Calendar() {
                                     exit={{ opacity: 0, y: 30, scale: 0.95 }}
                                     className="relative w-full max-w-2xl glass-dark rounded-[32px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
                                 >
-                                    {/* Search Header */}
                                     <div className="p-8 border-b border-white/10 flex items-center gap-6 bg-white/5">
                                         <div className="p-4 bg-primary/20 text-primary rounded-2xl shadow-inner">
                                             <Search size={28} />
@@ -594,7 +583,6 @@ export default function Calendar() {
                                         </button>
                                     </div>
 
-                                    {/* Search Results */}
                                     <div className="max-h-[60vh] overflow-y-auto p-6 space-y-3 bg-transparent">
                                         {isSearching ? (
                                             <div className="py-24 text-center">
@@ -671,7 +659,6 @@ export default function Calendar() {
                                         )}
                                     </div>
 
-                                    {/* Footer */}
                                     <div className="p-5 bg-white/5 border-t border-white/10 text-center">
                                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
                                             LAW CASE AI INTELLIGENCE
@@ -687,7 +674,6 @@ export default function Calendar() {
     );
 }
 
-// Sub-component for clarity
 function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor }: any) {
     const dayEvents = events.filter((e: any) => {
         try {

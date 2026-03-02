@@ -189,11 +189,9 @@ export default function CaseDocuments() {
     };
 
     const filteredFiles = files.filter(f => {
-        // Search filter
         const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!matchesSearch) return false;
 
-        // Sidebar filters
         if (activeFilter === 'all') return true;
         
         if (activeFilter === 'recent') {
@@ -203,10 +201,8 @@ export default function CaseDocuments() {
         }
 
         if (activeFilter === 'starred') {
-            // Mock starred for now or check property if it exists
             return f.isStarred || false;
         }
-
 
         if (activeFilter === 'pdf') {
             return f.type.includes('pdf');
@@ -232,8 +228,7 @@ export default function CaseDocuments() {
     });
 
     const totalSize = user?.totalStorageUsed || files.reduce((acc, f) => acc + (f.size || 0), 0);
-    const storageLimit = user?.maxTotalStorage || 100 * 1024 * 1024; // Use real limit or fallback to 100MB
-    // Show decimal percentage for better resolution with small files
+    const storageLimit = user?.maxTotalStorage || 100 * 1024 * 1024;
     const calculatedPercent = (totalSize / storageLimit) * 100;
     const storagePercent = totalSize > 0 ? Math.min(100, Math.max(0.1, parseFloat(calculatedPercent.toFixed(1)))) : 0;
 
@@ -254,7 +249,6 @@ export default function CaseDocuments() {
         <ProtectedRoute>
             <DashboardLayout>
                 <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 relative z-10 overflow-hidden">
-                    {/* Header */}
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
                         <div className="flex items-center gap-6 relative z-10">
@@ -272,7 +266,6 @@ export default function CaseDocuments() {
                             </div>
                         </div>
 
-                        {/* Search */}
                         <div className="flex-1 max-w-lg px-12 hidden md:block">
                             <div className="relative group">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={18} />
@@ -287,9 +280,7 @@ export default function CaseDocuments() {
                         </div>
                     </header>
 
-                    {/* Main Content */}
                     <div className="flex-1 flex overflow-hidden">
-                        {/* Sidebar: Folder Tree */}
                         <aside className="w-80 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden relative group/sidebar">
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/sidebar:scale-[1.6] transition-transform duration-1000"></div>
                             
@@ -300,7 +291,6 @@ export default function CaseDocuments() {
                             
                             <nav className="flex-1 overflow-y-auto px-4 py-6 relative z-10 scrollbar-hide">
                                 <div className="space-y-8">
-                                    {/* Smart Filters */}
                                     <div className="space-y-3">
                                         <div className="px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Smart Filters</div>
                                         <div className="space-y-1">
@@ -352,7 +342,6 @@ export default function CaseDocuments() {
                                         </div>
                                     </div>
 
-                                    {/* Categories */}
                                     <div className="space-y-3">
                                         <div className="px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Categories</div>
                                         <div className="space-y-1">
@@ -414,7 +403,6 @@ export default function CaseDocuments() {
                             </div>
                         </aside>
 
-                        {/* Main Workspace */}
                         <section className="flex-1 flex flex-col bg-transparent overflow-hidden relative">
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
                             
@@ -481,7 +469,6 @@ export default function CaseDocuments() {
 
                             </div>
 
-                            {/* Document List/Grid */}
                             <div className="flex-1 overflow-auto px-8 mt-4 relative z-10 scrollbar-hide">
                                 {isLoading ? (
                                     <div className="flex flex-col items-center justify-center py-32 gap-6">
@@ -618,7 +605,6 @@ export default function CaseDocuments() {
                             </div>
                         </section>
 
-                        {/* Right Panel: Context Details or AI Summary */}
                         <AnimatePresence mode="wait">
                             {selectedFile ? (
                                 <motion.div

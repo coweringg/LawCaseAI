@@ -51,13 +51,11 @@ const caseSchema = new Schema<ICase>({
   toObject: { virtuals: true }
 })
 
-// Indexes
 caseSchema.index({ userId: 1 })
 caseSchema.index({ userId: 1, status: 1 })
 caseSchema.index({ userId: 1, createdAt: -1 })
 caseSchema.index({ name: 'text', client: 'text', description: 'text' })
 
-// Static methods
 caseSchema.statics.findByUser = function (userId: string, options: { status?: CaseStatus; limit?: number; skip?: number } = {}) {
   const query: { userId: string; status?: CaseStatus } = { userId }
 
@@ -79,7 +77,6 @@ caseSchema.statics.countByUser = function (userId: string, status?: CaseStatus) 
   return this.countDocuments(query)
 }
 
-// Virtuals
 caseSchema.virtual('isActive').get(function (this: ICase & Document) {
   return this.status === CaseStatus.ACTIVE
 })

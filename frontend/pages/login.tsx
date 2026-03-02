@@ -59,7 +59,6 @@ export default function Login() {
         toast.error(result.message || 'Verification failed. Please check your credentials.')
       }
     } catch (error: any) {
-      // Display the specific error message from the server if available (e.g. rate limit)
       const msg = error?.response?.data?.message || 'An unexpected error occurred. Please try again.'
       toast.error(msg)
     } finally {
@@ -97,7 +96,6 @@ export default function Login() {
         <title>Login - LawCaseAI | Secure Workspace</title>
       </Head>
 
-      {/* Tab Switcher */}
       <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-white bg-primary shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">
           Sign In
@@ -163,7 +161,6 @@ export default function Login() {
         </div>
       )}
 
-      {/* Main Login Form */}
       {isFormVisible && (
         <>
           <div className="mb-8 text-center">
@@ -172,7 +169,6 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Email Field */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="email">Work Email</label>
               <div className="relative group">
@@ -190,7 +186,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="password">Password</label>
@@ -218,7 +213,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all group disabled:opacity-70 mt-4"
               type="submit"
@@ -266,7 +260,6 @@ export default function Login() {
 
     </AuthLayout>
 
-    {/* Support Modal - rendered outside AuthLayout to avoid overflow/transform issues */}
     <PublicSupportModal 
       isOpen={isSupportModalOpen} 
       onClose={() => setIsSupportModalOpen(false)} 

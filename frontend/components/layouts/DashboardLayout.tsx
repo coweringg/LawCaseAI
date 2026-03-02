@@ -51,7 +51,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setMounted(true);
     }, []);
 
-    // Search state
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<{ cases: Array<{ id: string; title: string; subtitle: string; status: string }>; files: Array<{ id: string; caseId: string; title: string; subtitle: string }> }>({ cases: [], files: [] });
     const [isSearching, setIsSearching] = useState(false);
@@ -61,7 +60,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         const fetchUsageStats = async () => {
             if (!isAuthenticated || !user) return;
             try {
-                // Check if user has already dismissed the banner for this session/limit
                 const dismissed = localStorage.getItem(`dismiss_usage_banner_${user.id}`);
                 if (dismissed === 'true') {
                     setIsBannerVisible(false);
@@ -78,27 +76,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         const checkSystemStatus = () => {
             if (!isAuthenticated) return;
-            // Poll for global system status (public endpoint, available to all users)
             api.get('/system/status').then(res => {
                 if (res.data.success && res.data.data) {
-                    // Handle Global Alert
                     setGlobalAlert(res.data.data.globalAlert || null);
 
-                    // Handle Maintenance Mode - block ALL non-admin users
                     const isMaintenance = !!res.data.data.maintenanceMode;
                     const isAdmin = user?.role === 'admin';
                     setIsMaintenanceMode(isMaintenance && !isAdmin);
                 }
-            }).catch(() => {}) // Silent fail
+            }).catch(() => {})
         };
 
         fetchUsageStats().catch(() => {});
 
-        // Run immediately on mount, then every 30 seconds
         checkSystemStatus();
 
-        // Heartbeat to keep user online even when idle
-        // Increased interval from 30 seconds to 5 minutes to prevent 429 Too Many Requests
         const heartbeatInterval = setInterval(() => {
             if (isAuthenticated && user) {
                 api.get('/user/profile').catch(() => {});
@@ -111,7 +103,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         };
     }, [isAuthenticated, user]);
 
-    // Global Search Debounce
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {
             if (searchQuery.trim().length > 1) {
@@ -136,7 +127,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery, isAuthenticated]);
 
-    // Strict Role-Based Redirection
     useEffect(() => {
         if (!mounted || !user) return;
 
@@ -169,7 +159,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     if (!mounted) return null;
 
-    // Maintenance Mode Overlay
     if (isMaintenanceMode) {
         return (
             <div className="bg-slate-900 text-white h-screen flex flex-col items-center justify-center relative overflow-hidden font-display">
@@ -214,12 +203,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     return (
         <div className="bg-[#05060a] text-slate-100 font-display h-screen w-full flex flex-col overflow-hidden relative">
-            {/* Immersive Elite Background */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 mesh-gradient opacity-60" />
                 <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12" />
                 
-                {/* Floating Depth Elements */}
                 <motion.div
                     animate={{ 
                         scale: [1, 1.2, 1],
@@ -239,7 +226,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     className="absolute -bottom-[10%] -left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]"
                 />
             </div>
-            {/* Global Usage Warning */}
             {showWarning && (
                 <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 py-2 px-4 flex items-center justify-between z-50 flex-shrink-0">
                     <div className="flex items-center justify-center gap-3 flex-1">
@@ -262,7 +248,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
             )}
 
-            {/* Global System Alert */}
             {globalAlert && (
                 <div className={`
                     border-b py-3 px-4 flex items-center justify-between z-50 flex-shrink-0 animate-in slide-in-from-top
@@ -285,7 +270,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
-                {/* Sidebar - Desktop */}
                 <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-300`}>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
@@ -382,7 +366,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                 </aside>
 
-                {/* Mobile Sidebar Overlay */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <>
@@ -443,12 +426,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     )}
                 </AnimatePresence>
 
-                {/* Main Content Area */}
                 <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-                    {/* Header */}
                     <header className="h-16 lg:h-20 premium-glass !bg-transparent !border-x-0 !border-t-0 border-b border-white/10 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-20 relative">
                         
-                        {/* Mobile Menu Button */}
                         <button 
                             onClick={() => setIsMobileMenuOpen(true)}
                             className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 relative z-10"
@@ -487,7 +467,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             onFocus={() => searchQuery.length > 1 && setShowSearchDropdown(true)}
                                         />
                                         
-                                        {/* Search Dropdown - Positioned relatively to the container */}
                                         <AnimatePresence>
                                             {showSearchDropdown && (
                                                 <motion.div
@@ -571,7 +550,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
                     </header>
 
-                    {/* Scrollable Page Content */}
                     <div className="flex-1 overflow-y-auto p-4 lg:p-6 relative z-10 scrollbar-hide">
                         <div className="w-full mx-auto min-h-full">
                             {children}

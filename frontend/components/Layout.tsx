@@ -21,7 +21,6 @@ export function Layout({ children }: LayoutProps) {
     setIsMobileMenuOpen(false);
   };
 
-  // Determine if the current page is public
   const isPublicPage = [
     "/",
     "/login",
@@ -34,7 +33,6 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      {/* Navigation */}
       {!isPublicPage && (
         <nav className="bg-white shadow-sm border-b border-secondary-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +52,6 @@ export function Layout({ children }: LayoutProps) {
                 </Link>
               </div>
 
-              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-4">
                 <Link
                   href="/dashboard"
@@ -78,7 +75,6 @@ export function Layout({ children }: LayoutProps) {
                 </div>
               </div>
 
-              {/* Mobile menu button */}
               <div className="md:hidden flex items-center">
                 <Button
                   variant="ghost"
@@ -94,7 +90,6 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
 
-            {/* Mobile Navigation */}
             {isMobileMenuOpen && (
               <div className="md:hidden border-t border-secondary-200">
                 <div className="px-2 pt-2 pb-3 space-y-1">
@@ -127,7 +122,6 @@ export function Layout({ children }: LayoutProps) {
         </nav>
       )}
 
-      {/* Public Navigation */}
       {isPublicPage && !isAuthenticated && (
         <nav className="bg-white shadow-sm border-b border-secondary-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -170,7 +164,6 @@ export function Layout({ children }: LayoutProps) {
                 </Link>
               </div>
 
-              {/* Mobile menu button */}
               <div className="md:hidden flex items-center">
                 <Button
                   variant="ghost"
@@ -186,7 +179,6 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
 
-            {/* Mobile Navigation */}
             {isMobileMenuOpen && (
               <div className="md:hidden border-t border-secondary-200">
                 <div className="px-2 pt-2 pb-3 space-y-1">
@@ -220,7 +212,6 @@ export function Layout({ children }: LayoutProps) {
         </nav>
       )}
 
-      {/* Main Content */}
       <main className={isPublicPage ? "" : "pt-0"}>{children}</main>
     </div>
   );

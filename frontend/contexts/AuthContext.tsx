@@ -69,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return null;
     } catch (error: any) {
-      // Silently fail — user is not authenticated
       if (error?.response?.status !== 401) {
         console.warn("Profile fetch failed:", error?.message);
       }
@@ -80,11 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      // In cookie-based auth, we simply try to fetch the profile.
-      // If the cookie is present and valid, the backend will return the user.
       await fetchProfile();
 
-      // Load saved accounts
       const stored = localStorage.getItem("lawcase_saved_accounts");
       if (stored) {
         try {
@@ -100,22 +96,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  // Global polling for state sync (membership changes, plan resets)
   useEffect(() => {
     if (!isAuthenticated || isLoading) return;
 
-    // Polling removed to prevent 429 Too Many Requests errors.
-    // Instead of polling every 10s, critical state updates should rely on explicit actions
-    // or WebSocket events in the future.
-
-    // Initial fetch to sync state on load
     fetchProfile();
   }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
     if (!isLoading) {
       const currentPath = router.pathname;
-      // Check auth state based on user presence
       const authenticated = !!user;
 
       if (authenticated && restrictedRoutes.includes(currentPath)) {
@@ -137,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.post("/auth/login", { email, password });
 
-      // Check for soft failures first (e.g. 429/503 resolved by interceptor)
       if (!response.data.success) {
         return {
           success: false,
@@ -150,7 +138,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Save to recent accounts for 1-click login
       saveAccountToLocal(data.user.name, email, password);
 
       return { success: true, message: message || "Login successful" };
@@ -169,7 +156,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.post("/auth/register", userData);
 
-      // Check for soft failures first (e.g. 429/503 resolved by interceptor)
       if (!response.data.success) {
         return {
           success: false,
@@ -182,7 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Save to recent accounts
       saveAccountToLocal(data.user.name, userData.email, userData.password);
 
       return { success: true, message: message || "Registration successful" };
@@ -199,22 +184,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api.post("/auth/logout").finally(() => {
       setUser(null);
       localStorage.removeItem("user");
-      // NOTE: We do NOT remove `lawcase_saved_accounts` here.
       router.push("/login");
     });
   };
 
-  // --- Saved Accounts Logic ---
   const saveAccountToLocal = (name: string, email: string, pass: string) => {
     try {
       const stored = localStorage.getItem("lawcase_saved_accounts");
       let accounts = stored ? JSON.parse(stored) : [];
 
-      // Remove if already exists to move to top
       accounts = accounts.filter((acc: any) => acc.email !== email);
 
-      // Add new, encoding credentials via base64 for extreme convenience UX
-      // (User accepted local device risk)
       accounts.unshift({
         name,
         email,
@@ -222,7 +202,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: btoa(`${email}:${pass}`),
       });
 
-      // Keep max 3 accounts
       if (accounts.length > 3) accounts = accounts.slice(0, 3);
 
       localStorage.setItem("lawcase_saved_accounts", JSON.stringify(accounts));

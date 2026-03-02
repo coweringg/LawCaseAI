@@ -7,17 +7,13 @@ import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-// All case routes require authentication
 router.use(authenticate)
 router.use(checkAndResetQuotas)
 
-// GET /api/cases
 router.get('/', getCases)
 
-// GET /api/cases/stats
 router.get('/stats', getCaseStats)
 
-// POST /api/cases
 router.post('/', [
   body('name')
     .trim()
@@ -38,13 +34,11 @@ router.post('/', [
   handleValidationErrors
 ], createCase)
 
-// GET /api/cases/:id
 router.get('/:id', [
   param('id').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors
 ], getCaseById)
 
-// PUT /api/cases/:id
 router.put('/:id', [
   param('id').isMongoId().withMessage('Invalid case ID'),
   body('name')
@@ -65,13 +59,11 @@ router.put('/:id', [
   handleValidationErrors
 ], updateCase)
 
-// PUT /api/cases/:id/reactivate
 router.put('/:id/reactivate', [
   param('id').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors
 ], reactivateCase)
 
-// DELETE /api/cases/:id
 router.delete('/:id', [
   param('id').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors

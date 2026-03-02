@@ -38,10 +38,8 @@ export default function SystemCommandCenter() {
   const [loading, setLoading] = useState(true)
   const [systemStatus, setSystemStatus] = useState<any>(null)
   
-  // Actions State
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
   
-  // Broadcast State
   const [broadcastMessage, setBroadcastMessage] = useState('')
   const [broadcastType, setBroadcastType] = useState<'info' | 'warning' | 'success' | 'error'>('info')
   const [isBroadcasting, setIsBroadcasting] = useState(false)
@@ -101,7 +99,7 @@ export default function SystemCommandCenter() {
       })
       if (res.data.success) {
         setBroadcastMessage('')
-        fetchSystemStatus() // Refresh to see active alert
+        fetchSystemStatus()
         toast.success('Pulse Signal Encoded & Transmitting')
       }
     } catch (error: any) {
@@ -150,7 +148,6 @@ export default function SystemCommandCenter() {
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
         
-        {/* Header Area */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -174,7 +171,6 @@ export default function SystemCommandCenter() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
-            {/* Maintenance Control */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -224,7 +220,6 @@ export default function SystemCommandCenter() {
               </Card>
             </motion.div>
 
-            {/* Broadcast System */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

@@ -67,13 +67,11 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
           style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         >
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-[#060910]/85 backdrop-blur-md"
             onClick={onClose}
           />
 
-          {/* Modal Container — centered by parent flexbox, no translate needed */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -81,7 +79,6 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
             transition={{ duration: 0.2 }}
             className="relative w-full max-w-lg premium-glass border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] overflow-hidden flex flex-col max-h-[90vh]"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-white/[0.02]">
               <div>
                 <h2 className="text-2xl font-black text-white font-display tracking-tight">Support & Help</h2>
@@ -95,11 +92,9 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
               </button>
             </div>
 
-            {/* Content Form */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
               <form onSubmit={handleSubmit} className="space-y-5">
                 
-                {/* Subject Selector */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Issue Type</label>
                   <select
@@ -182,7 +177,6 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
                   </div>
                 </div>
 
-                {/* Footer Buttons */}
                 <div className="pt-6 flex gap-4">
                   <button
                     type="button"

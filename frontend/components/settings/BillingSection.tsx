@@ -16,18 +16,16 @@ interface BillingSectionProps {
 
 const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     const doc = new jsPDF();
-    const primaryColor = '#2563eb'; // Deep Blue
-    const secondaryColor = '#4f46e5'; // Indigo
-    const accentColor = '#0ea5e9'; // Sky Blue
-    const textColor = '#1e293b'; // Dark Slate
-    const slateColor = '#64748b'; // Slate
+    const primaryColor = '#2563eb';
+    const secondaryColor = '#4f46e5';
+    const accentColor = '#0ea5e9';
+    const textColor = '#1e293b';
+    const slateColor = '#64748b';
     const white = '#ffffff';
 
-    // Header Background - Modern Gradient Block
-    doc.setFillColor(37, 99, 235); // primaryColor
+    doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 210, 60, 'F');
 
-    // Title & Logo Area
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(28);
@@ -38,7 +36,6 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     const systemText = 'ELITE NEURAL JURISPRUDENCE INFRASTRUCTURE';
     doc.text(systemText, 20, 43);
 
-    // Invoice Label box
     doc.setFillColor(255, 255, 255, 0.2);
     doc.roundedRect(140, 20, 50, 25, 3, 3, 'F');
     doc.setTextColor(255, 255, 255);
@@ -49,16 +46,13 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.setFont('helvetica', 'normal');
     doc.text(`#TXN-${tx._id.slice(-6).toUpperCase()}`, 145, 38);
 
-    // separator line in header
     doc.setDrawColor(255, 255, 255);
     doc.setGState(new (doc as any).GState({ opacity: 0.3 }));
     doc.line(20, 50, 190, 50);
     doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-    // --- Content Section (White background style) ---
     doc.setFillColor(255, 255, 255);
     
-    // Address Section
     doc.setTextColor(primaryColor);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -82,10 +76,9 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.text(`Contact: ${billingInfo?.email || 'N/A'}`, 110, 100);
     doc.text(`Date of Issue: ${new Date(tx.date).toLocaleDateString()}`, 110, 105);
 
-    // Transaction Details Table Header
-    doc.setFillColor(248, 250, 252); // Very light slate
+    doc.setFillColor(248, 250, 252);
     doc.rect(20, 120, 170, 12, 'F');
-    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.setDrawColor(226, 232, 240);
     doc.line(20, 120, 190, 120);
     doc.line(20, 132, 190, 132);
     
@@ -96,7 +89,6 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.text('UNITS', 130, 127.5);
     doc.text('TOTAL', 170, 127.5);
 
-    // Transaction Row
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(textColor);
     doc.setFontSize(10);
@@ -105,11 +97,9 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.setFont('helvetica', 'bold');
     doc.text(`$${tx.amount.toLocaleString()}`, 170, 145);
 
-    // Divider
     doc.setDrawColor(226, 232, 240);
     doc.line(20, 155, 190, 155);
 
-    // Summary Area
     const summaryX = 130;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -121,7 +111,6 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.text(`$${tx.amount.toLocaleString()}`, 170, 170);
     doc.text(`$0.00`, 170, 178);
 
-    // Final Total Box
     doc.setFillColor(37, 99, 235);
     doc.roundedRect(summaryX - 5, 185, 65, 15, 2, 2, 'F');
     doc.setTextColor(255, 255, 255);
@@ -130,7 +119,6 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.text('GRAND TOTAL', summaryX, 194.5);
     doc.text(`$${tx.amount.toLocaleString()}`, 170, 194.5);
 
-    // Payment method info (Refined)
     doc.setDrawColor(226, 232, 240);
     doc.roundedRect(20, 170, 100, 30, 2, 2, 'D');
     doc.setFont('helvetica', 'bold');
@@ -138,34 +126,28 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.setTextColor(primaryColor);
     doc.text('PAYMENT VERIFICATION', 25, 178);
     
-    // Payment verification info
     const savedPM = tx.paymentMethod;
-    let cardDetail = '4242'; // Improved default placeholder
+    let cardDetail = '4242';
     
     if (savedPM && savedPM !== 'N/A' && savedPM !== 'Credit Card') {
-        // If it's the full string like "Visa ending in 1234", extract the last 4
         if (savedPM.includes('ending in ')) {
             cardDetail = savedPM.split('ending in ')[1];
         } else {
-            // Try to take last 4 digits if they exist
             const digits = savedPM.match(/\d{4}$/);
             cardDetail = digits ? digits[0] : (savedPM.slice(-4) || '4242');
         }
     } else {
-        // Fallback to currently defined payment method in profile
         const currentPM = billingInfo?.paymentMethods?.find((p: any) => p.id === billingInfo.defaultPaymentMethodId);
         if (currentPM && currentPM.last4) cardDetail = currentPM.last4;
     }
     
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
-    // Ensure we don't show "Card" or other non-numeric text if possible
     const displaysAs = /^\d+$/.test(cardDetail) ? cardDetail : '4242';
     doc.text(`Authentication: Credit Card (**** **** **** ${displaysAs})`, 25, 185);
     doc.setTextColor(accentColor);
     doc.text('Status: Transaction Succeeded & Secured', 25, 192);
 
-    // Footer - Clean & Professional
     doc.setDrawColor(primaryColor);
     doc.setLineWidth(1);
     doc.line(20, 275, 50, 275);
@@ -201,7 +183,6 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
             className="space-y-6"
         >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Current Plan Card */}
                 <div className="md:col-span-2 glass-dark border border-white/10 rounded-[32px] overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
                     <div className="p-6 relative z-10">
@@ -355,7 +336,6 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                 </div>
             </div>
 
-            {/* Purchase History Section */}
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden">
                 <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                     <h3 className="text-lg font-black text-white uppercase tracking-widest flex items-center gap-3">

@@ -20,7 +20,6 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
             return
         }
 
-        // Verify case and user plan limits
         const lawyerCase = await Case.findOne({ _id: caseId, userId })
         if (!lawyerCase) {
             res.status(404).json({ success: false, message: 'The specified case could not be found for file association.' } as IApiResponse)
@@ -31,7 +30,6 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         const plan = user?.plan || 'none'
         const limits = (config.planLimits as any)[plan] || config.planLimits.basic
 
-        // Check document count limit only if not temporary
         if (!isTemporary && lawyerCase.fileCount >= limits.maxFilesPerCase) {
             res.status(403).json({ 
                 success: false, 
@@ -40,7 +38,6 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
             return
         }
 
-        // Check file size limit
         if (file.size > limits.maxFileSize) {
             res.status(403).json({ 
                 success: false, 
@@ -49,7 +46,6 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
             return
         }
 
-        // Check total storage limit
         if (!isTemporary && user && (user.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
             res.status(403).json({ 
                 success: false, 
@@ -61,7 +57,6 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         const key = generateFileKey(userId.toString(), caseId, file.originalname)
         const url = await saveFileToStorage(file, key)
 
-        // Extract text if it's a PDF or Plain Text
         let extractedText = ''
         if (file.mimetype === 'application/pdf') {
             const rawText = await extractTextFromPDF(file.buffer)
@@ -87,15 +82,12 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         await newCaseFile.save()
 
         if (!isTemporary) {
-            // Update case file count
             lawyerCase.fileCount += 1
             await lawyerCase.save()
 
-            // Update user total storage usage
             await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
         }
 
-        // Log the action only if not temporary
         if (!isTemporary) {
             await logAction({
                 adminId: userId,
@@ -162,20 +154,15 @@ export const deleteFile = async (req: IAuthRequest, res: Response): Promise<void
             return
         }
 
-        // Delete from storage
         await deleteFromStorage(file.key)
 
-        // Delete from DB
         await CaseFile.deleteOne({ _id: fileId })
 
-        // Update case file count only if it wasn't temporary
         if (!file.isTemporary) {
             await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1 } })
-            // Update user total storage usage
             await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -file.size } })
         }
 
-        // Log the action
         await logAction({
             adminId: userId,
             adminName: 'System', 
@@ -214,15 +201,12 @@ export const deleteMultipleFiles = async (req: IAuthRequest, res: Response): Pro
 
         const caseIds = [...new Set(files.map(f => f.caseId.toString()))]
 
-        // Delete from storage
         for (const file of files) {
             await deleteFromStorage(file.key)
         }
 
-        // Delete from DB
         await CaseFile.deleteMany({ _id: { $in: fileIds }, userId })
 
-        // Update case file counts and user total storage
         for (const cId of caseIds) {
             const caseFiles = files.filter(f => f.caseId.toString() === cId && !f.isTemporary)
             const count = caseFiles.length
@@ -234,7 +218,6 @@ export const deleteMultipleFiles = async (req: IAuthRequest, res: Response): Pro
             }
         }
 
-        // Log the action
         await logAction({
             adminId: userId,
             adminName: 'System',
@@ -275,7 +258,6 @@ export const renameFile = async (req: IAuthRequest, res: Response): Promise<void
         file.name = name
         await file.save()
 
-        // Log the action
         await logAction({
             adminId: userId,
             adminName: 'System',
@@ -375,10 +357,8 @@ export const commitFile = async (req: IAuthRequest, res: Response): Promise<void
         lawyerCase.fileCount += 1
         await lawyerCase.save()
 
-        // Update user total storage usage when committing a temporary file
         await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
 
-        // Log the action
         await logAction({
             adminId: userId,
             adminName: lawyerCase.name,
@@ -401,15 +381,10 @@ export const commitFile = async (req: IAuthRequest, res: Response): Promise<void
     }
 }
 
-/**
- * Clean AI content from technical markers and reminders
- */
 const cleanAIContent = (text: string): string => {
     return text
-        // Remove proactive reminders about saving or committing
         .replace(/\*\*Proactive Reminder:\*\*[\s\S]*?(?=\n\n|$)/gi, '')
         .replace(/\*Note: As an AI legal assistant, I provide general information[\s\S]*?(?=\n\n|$)/gi, '')
-        // Remove markdown artifacts if they are too prominent (optional, keeping basic ones for structure)
         .replace(/\*\*\*[\s\S]*?(?=\n\n|$)/gi, '')
         .trim();
 };
@@ -452,12 +427,10 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
             
             const cleanContent = cleanAIContent(content)
             
-            // Generate PDF using pdfkit
             const doc = new PDFDocument({ margin: 50 })
             const chunks: Buffer[] = []
             doc.on('data', (chunk) => chunks.push(chunk))
             
-            // Professional Header
             doc.fillColor('#2563eb')
                .fontSize(22)
                .text('LAWCASE AI', { align: 'left' })
@@ -474,14 +447,12 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
                .stroke()
                .moveDown(2)
 
-            // Document Title
             doc.fillColor('#1e293b')
                .fontSize(16)
                .font('Helvetica-Bold')
                .text(name.replace('.pdf', ''), { align: 'left' })
                .moveDown(1)
             
-            // Content
             doc.fillColor('#334155')
                .fontSize(11)
                .font('Helvetica')
@@ -500,7 +471,6 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
             finalMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             fileName = name.endsWith('.docx') ? name : `${name}.docx`
             
-            // Generate DOCX using docx lib
             const doc = new Document({
                 sections: [{
                     properties: {},
@@ -529,7 +499,6 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
             })
             finalBuffer = await Packer.toBuffer(doc)
         } else {
-            // Default to markdown/text
             finalMimeType = 'text/markdown'
             fileName = name.endsWith('.md') || name.endsWith('.txt') ? name : `${name}.md`
             finalBuffer = Buffer.from(content)
@@ -537,7 +506,6 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
 
         const key = generateFileKey(userId.toString(), caseId, fileName)
         
-        // Mock Multer file object for the storage utility
         const mockFile = {
             buffer: finalBuffer,
             originalname: fileName,
@@ -565,10 +533,8 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
         lawyerCase.fileCount += 1
         await lawyerCase.save()
 
-        // Update user total storage usage
         await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: finalBuffer.length } })
 
-        // Log the action
         await logAction({
             adminId: userId,
             adminName: lawyerCase.name,

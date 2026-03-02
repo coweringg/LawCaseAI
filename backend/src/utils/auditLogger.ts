@@ -17,9 +17,6 @@ interface LogOptions {
   description: string
 }
 
-/**
- * Utility to create an audit log entry
- */
 export const logAction = async (options: LogOptions): Promise<void> => {
   try {
     await AuditLog.create({
@@ -38,6 +35,5 @@ export const logAction = async (options: LogOptions): Promise<void> => {
     })
   } catch (error) {
     auditLoggerInstance.error({ err: error, action: options.action, targetId: options.targetId }, 'Failed to create audit log')
-    // We don't throw error here to avoid breaking the main request flow
   }
 }

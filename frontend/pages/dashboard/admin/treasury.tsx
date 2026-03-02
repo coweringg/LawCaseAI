@@ -117,7 +117,6 @@ export default function TreasuryDashboard() {
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
         
-        {/* Header Area */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -145,7 +144,6 @@ export default function TreasuryDashboard() {
           </div>
         </div>
 
-        {/* KPI Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
           {[
             { 
@@ -201,9 +199,7 @@ export default function TreasuryDashboard() {
           ))}
         </div>
 
-        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative z-10">
-          {/* Revenue Chart */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -284,7 +280,6 @@ export default function TreasuryDashboard() {
             </Card>
           </motion.div>
 
-          {/* Plan Distribution */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -328,7 +323,6 @@ export default function TreasuryDashboard() {
                       </div>
                    </div>
                    
-                   {/* Custom Legend */}
                    <div className="grid grid-cols-2 gap-4 px-8 pb-8">
                       {data.planDistribution.map((entry: any, index: number) => (
                         <div key={entry._id} className="flex flex-col gap-1">

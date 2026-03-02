@@ -27,17 +27,14 @@ export default function ConfirmModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal Backdrop */}
             <div
                 className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             ></div>
 
-            {/* Modal Container */}
             <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 relative z-10">
 
                 <div className="p-6 md:p-8 text-center">
-                    {/* Icon */}
                     <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 mx-auto ${isDestructive ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'}`}>
                         <span className="material-icons-round text-3xl">{isDestructive ? 'warning' : 'info'}</span>
                     </div>
@@ -51,7 +48,6 @@ export default function ConfirmModal({
 
                     {children}
 
-                    {/* Actions */}
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}

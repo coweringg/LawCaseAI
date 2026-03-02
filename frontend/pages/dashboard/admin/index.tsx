@@ -243,7 +243,6 @@ export default function AdminDashboard() {
     }
   }, [supportPage, supportStatusFilter])
 
-
   useEffect(() => {
     const initDashboard = async () => {
       if (!isAuthLoading) {
@@ -251,7 +250,6 @@ export default function AdminDashboard() {
           router.push('/dashboard')
         } else {
           try {
-            // Fetch everything and wait
             await Promise.all([
               fetchUsers(),
               fetchStats(),
@@ -278,20 +276,6 @@ export default function AdminDashboard() {
       fetchSupportRequests()
     }
   }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs, fetchSupportRequests])
-
-  // Auto-refresh removed to prevent 429 Too Many Requests errors.
-  // We now rely on explicit manual refresh via the UI.
-  /*
-  useEffect(() => {
-    if (user?.role === 'admin') {
-      const refreshInterval = setInterval(() => {
-        fetchUsers()
-        fetchStats()
-      }, 60000)
-      return () => clearInterval(refreshInterval)
-    }
-  }, [user?.role, fetchUsers, fetchStats])
-  */
 
   const handleDeleteLog = async (logId: string) => {
     setConfirmConfig({
@@ -432,7 +416,6 @@ export default function AdminDashboard() {
           const response = await api.post(`/admin/users/${userId}/logout`)
           if (response.data.success) {
             setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-            // Notificar mediante UI si hubiese un sistema de notificaciones global
           }
         } catch (error) {
           console.error('Failed to force logout:', error)
@@ -457,7 +440,6 @@ export default function AdminDashboard() {
       })
 
       if (response.status === 200 && response.data.success) {
-        // If firm code changed and user is org admin, update organization
         if (selectedUser.isOrgAdmin && selectedUser.organizationId && editData.firmCode !== selectedUser.firmCode) {
           try {
             await api.put(`/admin/organizations/${selectedUser.organizationId}/code`, { 
@@ -468,11 +450,11 @@ export default function AdminDashboard() {
             const errorMsg = orgError.response?.data?.message || 'Failed to update organization code'
             setEditError(errorMsg)
             setIsUpdating(false)
-            return // Stop here so modal stays open with the error visible
+            return
           }
         }
         
-        await fetchUsers() // Refresh list to get latest data
+        await fetchUsers()
         setShowEditModal(false)
         setSelectedUser(null)
         toast.success('User protocol updated successfully')
@@ -540,7 +522,6 @@ export default function AdminDashboard() {
         try {
           const response = await api.delete(`/admin/support?type=${finalType}`)
           if (response.data.success) {
-            // Re-fetch to sync data
             await fetchSupportRequests()
             setConfirmConfig(prev => ({ ...prev, isOpen: false }))
             toast.success(`Cleared all ${categoryName}`)
@@ -941,7 +922,6 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
         
-        {/* Header Area */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -967,7 +947,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Grid */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
             {[
@@ -994,7 +973,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Navigation Tabs */}
         <div className="relative z-10 flex flex-wrap gap-4 premium-glass p-2 rounded-3xl border border-white/10 shadow-2xl w-fit">
           {[
             { id: 'users', label: 'User Identity Nexus', icon: Users },
@@ -1028,7 +1006,6 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, scale: 0.98 }}
               className="space-y-8 relative z-10"
             >
-              {/* Search Control */}
               <div className="premium-glass p-4 rounded-3xl border border-white/10 shadow-2xl">
                 <div className="relative">
                   <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-500 w-6 h-6" />
@@ -1042,7 +1019,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Data Table */}
               <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[600px]">
                 <Table
                   data={filteredUsers}
@@ -1169,7 +1145,6 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, scale: 0.98 }}
               className="space-y-8 relative z-10"
             >
-              {/* ═══ SUB-TAB SWITCHER ═══ */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
@@ -1207,7 +1182,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* ═══ PUBLIC SIGNALS PANEL ═══ */}
               {signalSubTab === 'public' && (
                 <motion.div
                   key="public-signals"
@@ -1302,7 +1276,6 @@ export default function AdminDashboard() {
                 </motion.div>
               )}
 
-              {/* ═══ USER SIGNALS PANEL ═══ */}
               {signalSubTab === 'user' && (
                 <motion.div
                   key="user-signals"
@@ -1409,7 +1382,6 @@ export default function AdminDashboard() {
         </AnimatePresence>
       </div>
 
-        {/* User Details Modal */}
         <Modal
           isOpen={showHistoryModal}
           onClose={() => {
@@ -1430,7 +1402,6 @@ export default function AdminDashboard() {
             </div>
           ) : userHistory ? (
             <div className="space-y-6">
-              {/* Internal Tabs */}
               <div className="flex space-x-1 bg-white/5 p-1 rounded-2xl w-fit sticky top-0 z-20 backdrop-blur-md mb-6">
                 {[
                   { id: 'overview', label: 'Overview', icon: User },
@@ -1460,7 +1431,6 @@ export default function AdminDashboard() {
 
               {activeDetailTab === 'overview' && (
                 <div className="space-y-8 animate-in fade-in duration-300">
-                  {/* Summary Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-white/5 p-5 rounded-3xl border border-white/5">
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
@@ -1479,7 +1449,6 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Profile Info */}
                   <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-4">
                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-300">Identity Profile</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1515,7 +1484,6 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Security Actions */}
                   <div className="bg-error-500/5 p-6 rounded-3xl border border-error-500/20 space-y-4">
                     <h3 className="flex items-center text-xs font-black uppercase tracking-widest text-error-500">
                       <ShieldAlert className="w-4 h-4 mr-2" />
@@ -1583,7 +1551,6 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Case Specific History */}
                   <div className="space-y-4">
                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Case Activity Timeline</h3>
                     <div className="space-y-2">
@@ -1739,7 +1706,6 @@ export default function AdminDashboard() {
                               size="sm"
                               className="text-secondary bg-secondary/10 hover:bg-secondary/30 transition-all text-[10px] font-black uppercase tracking-widest h-8 px-4 w-full"
                               onClick={() => {
-                                // Close modal momentarily to update selection, or explicitly update it
                                 setSelectedUser({ ...item, id: item._id } as AdminUser)
                                 setActiveDetailTab('overview')
                                 fetchUserHistory(item._id)
@@ -1762,7 +1728,6 @@ export default function AdminDashboard() {
               {activeDetailTab === 'ia' && (
                 <div className="space-y-8 animate-in fade-in duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Token Usage */}
                     {(!userHistory.aiUsage?.plan || !['elite', 'enterprise'].includes(userHistory.aiUsage?.plan.toLowerCase())) && (
                     <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
@@ -1802,7 +1767,6 @@ export default function AdminDashboard() {
                     </div>
                     )}
 
-                    {/* Storage Usage */}
                     <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                       <div className="flex justify-between items-start mb-6">
@@ -1857,7 +1821,6 @@ export default function AdminDashboard() {
           ) : null}
         </Modal>
 
-        {/* Diff Modal */}
         <Modal
           isOpen={showDiffModal}
           onClose={() => {
@@ -1904,7 +1867,6 @@ export default function AdminDashboard() {
           )}
         </Modal>
 
-        {/* Edit User Modal */}
         <Modal
           isOpen={showEditModal}
           onClose={() => {
@@ -2007,7 +1969,6 @@ export default function AdminDashboard() {
           </form>
         </Modal>
 
-        {/* Confirmation Modal */}
         <ConfirmationModal
           isOpen={confirmConfig.isOpen}
           onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
@@ -2018,7 +1979,6 @@ export default function AdminDashboard() {
           variant={confirmConfig.confirmText === 'Proceed' ? 'info' : 'danger'}
         />
 
-        {/* Plan Selection Modal */}
         <Modal
           isOpen={showPlanModal}
           onClose={() => {
@@ -2079,7 +2039,6 @@ export default function AdminDashboard() {
             )}
           </div>
         </Modal>
-        {/* Support Detail Modal */}
         <Modal
           isOpen={showSupportDetailModal}
           onClose={() => {
@@ -2093,7 +2052,6 @@ export default function AdminDashboard() {
           {selectedSupportRequest && (
             <div className="max-h-[75vh] overflow-y-auto pr-4 -mr-4 scrollbar-hide">
               <div className="space-y-8 animate-in fade-in duration-500">
-                {/* Signal Header */}
                 <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                   <div className="relative z-10 flex items-center gap-5">
@@ -2118,7 +2076,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Identity & Metadata */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4">
                     <div className="flex items-center gap-3 mb-2">
@@ -2157,7 +2114,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Message Content */}
                 <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/10 space-y-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <Terminal size={120} className="text-primary" />
@@ -2185,7 +2141,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
                   <Button
                     variant="none"

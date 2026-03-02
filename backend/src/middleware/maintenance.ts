@@ -7,23 +7,14 @@ import logger from '../utils/logger'
 
 const maintenanceLogger = logger.child({ module: 'maintenance' })
 
-/**
- * Maintenance Mode Middleware
- * Checks if the system is in maintenance mode.
- * Allows access if:
- * 1. Maintenance mode is OFF
- * 2. User is authenticated AND is an ADMIN
- * 3. Route is explicitly whitelisted (e.g. login, health check)
- */
 export const checkMaintenanceMode = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Whitelist public routes that should always be accessible
     const whitelist = [
       '/api/auth/login', 
       '/api/auth/logout',
       '/api/admin/login',
-      '/api/system/status',         // Public endpoint for frontend maintenance polling
-      '/api/admin/system/status',   // Admin endpoint (kept for backward compat)
+      '/api/system/status',
+      '/api/admin/system/status',
     ]
     
     if (whitelist.some(path => req.path.startsWith(path))) {
@@ -37,8 +28,6 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
       return next()
     }
 
-    // If maintenance is active, we must identify if the requester is an ADMIN.
-    // Since this runs before global auth, we manually check the token.
     const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies?.auth_token
 
     if (token) {
@@ -50,7 +39,6 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
                 return next()
             }
         } catch (err) {
-            // Token invalid or user not found, fall through to block
         }
     }
 
@@ -62,7 +50,7 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
 
   } catch (error) {
     maintenanceLogger.error({ err: error }, 'Maintenance check failed')
-    next() // Fail open to avoid blocking valid traffic on DB error
+    next() 
   }
 }
 

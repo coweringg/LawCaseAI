@@ -17,14 +17,11 @@ import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-// All user routes require authentication
 router.use(authenticate)
 router.use(checkAndResetQuotas)
 
-// GET /api/user/profile
 router.get('/profile', getProfile)
 
-// PUT /api/user/profile
 router.put('/profile', [
   body('name')
     .optional()
@@ -42,7 +39,6 @@ router.put('/profile', [
   handleValidationErrors
 ], updateProfile)
 
-// PUT /api/user/password
 router.put('/password', [
   body('currentPassword')
     .notEmpty().withMessage('Current password is required'),
@@ -54,7 +50,6 @@ router.put('/password', [
   handleValidationErrors
 ], changePassword)
 
-// PUT /api/user/notifications
 router.put('/notifications', [
   body('emailNotifications').optional().isBoolean().withMessage('Must be a boolean'),
   body('caseUpdates').optional().isBoolean().withMessage('Must be a boolean'),
@@ -63,10 +58,8 @@ router.put('/notifications', [
   handleValidationErrors
 ], updateNotifications)
 
-// GET /api/user/billing
 router.get('/billing', getBillingInfo)
 
-// POST /api/user/payment-methods
 router.post('/payment-methods', [
   body('brand')
     .trim()
@@ -83,19 +76,16 @@ router.post('/payment-methods', [
   handleValidationErrors
 ], addPaymentMethod)
 
-// DELETE /api/user/payment-methods/:id
 router.delete('/payment-methods/:id', [
   param('id').notEmpty().withMessage('Payment method ID is required'),
   handleValidationErrors
 ], removePaymentMethod)
 
-// PATCH /api/user/payment-methods/:id/default
 router.patch('/payment-methods/:id/default', [
   param('id').notEmpty().withMessage('Payment method ID is required'),
   handleValidationErrors
 ], setDefaultPaymentMethod)
 
-// POST /api/user/support
 router.post('/support', [
   body('type')
     .notEmpty().withMessage('Request type is required')

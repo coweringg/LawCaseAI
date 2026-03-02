@@ -4,11 +4,6 @@ import logger from './logger'
 
 const pdfLogger = logger.child({ module: 'pdf-utils' })
 
-/**
- * Extracts raw text from a PDF buffer.
- * @param buffer - The PDF file buffer
- * @returns Promise<string> - The extracted text
- */
 export const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   try {
     pdfLogger.info({ bufferSize: buffer.length }, 'Starting PDF text extraction')
@@ -25,9 +20,6 @@ export const extractTextFromPDF = async (buffer: Buffer): Promise<string> => {
   }
 }
 
-/**
- * Extracts raw text from a plain text buffer.
- */
 export const extractTextFromPlainText = (buffer: Buffer): string => {
   try {
     return buffer.toString('utf8').substring(0, 50000)
@@ -37,15 +29,10 @@ export const extractTextFromPlainText = (buffer: Buffer): string => {
   }
 }
 
-/**
- * Truncates and cleans text for AI prompt safety.
- * Preserves Unicode characters (accented letters, etc.) while removing only
- * actual control characters (NUL, BEL, etc.)
- */
 export const cleanExtractedText = (text: string): string => {
   return text
-    .replace(/\s+/g, ' ')           // Replace multiple whitespace with single space
+    .replace(/\s+/g, ' ')
     // eslint-disable-next-line no-control-regex
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove only control chars, keep Unicode
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
     .trim()
 }

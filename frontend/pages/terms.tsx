@@ -14,14 +14,12 @@ export default function TermsOfService() {
         <meta name="description" content="LawCaseAI Terms of Service - The professional agreement for legal infrastructure usage." />
       </Head>
 
-      {/* Decorative Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px]" />
         <div className="absolute inset-0 crystallography-pattern opacity-[0.02]" />
       </div>
 
-      {/* Navigation Header */}
       <nav className="fixed top-0 inset-x-0 h-20 border-b border-white/5 bg-black/20 backdrop-blur-xl z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -41,7 +39,6 @@ export default function TermsOfService() {
 
       <main className="relative z-10 pt-32 pb-24 px-6">
         <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -64,7 +61,6 @@ export default function TermsOfService() {
             </div>
           </motion.div>
 
-          {/* Key Clauses Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
             {[
               { icon: Cpu, title: 'AI Usage', desc: 'Acceptable neural interaction' },
@@ -85,10 +81,8 @@ export default function TermsOfService() {
             ))}
           </div>
 
-          {/* Terms Content */}
           <div className="premium-glass rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
             <div className="p-12 space-y-12">
-              {/* Introduction */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">01</span>
@@ -105,7 +99,6 @@ export default function TermsOfService() {
                 </div>
               </section>
 
-              {/* Account Security */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">02</span>
@@ -116,7 +109,6 @@ export default function TermsOfService() {
                 </p>
               </section>
 
-              {/* Intellectual Property */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">03</span>
@@ -138,7 +130,6 @@ export default function TermsOfService() {
                 </div>
               </section>
 
-              {/* AI Disclaimer */}
               <section className="space-y-6 text-center py-8">
                 <div className="inline-flex items-center justify-center p-4 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 mb-2">
                   <AlertTriangle size={32} />
@@ -149,7 +140,6 @@ export default function TermsOfService() {
                 </p>
               </section>
 
-              {/* Payment Terms */}
               <section className="space-y-6">
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-black text-primary/20">04</span>
@@ -160,7 +150,6 @@ export default function TermsOfService() {
                 </p>
               </section>
 
-              {/* Termination */}
               <section className="space-y-6 border-t border-white/5 pt-8">
                 <h2 className="text-xl font-black text-white uppercase tracking-widest">Limitation of Liability</h2>
                 <p className="text-slate-500 text-sm leading-relaxed">
@@ -169,14 +158,12 @@ export default function TermsOfService() {
               </section>
             </div>
 
-            {/* Content Footer */}
             <div className="p-8 bg-white/[0.02] border-t border-white/5 text-center">
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Agreement Queries</p>
               <a href="mailto:legal@lawcaseai.io" className="text-primary font-bold hover:underline">legal-desk@lawcaseai.io</a>
             </div>
           </div>
 
-          {/* Bottom CTA */}
           <div className="mt-16 text-center">
             <Link href="/privacy" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">
               <Shield size={14} />
@@ -187,7 +174,6 @@ export default function TermsOfService() {
         </div>
       </main>
 
-      {/* Modern Footer */}
       <footer className="border-t border-white/5 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-4">

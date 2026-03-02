@@ -10,7 +10,6 @@ export default function CaseArchive() {
     return (
         <ProtectedRoute>
             <div className="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200 h-screen flex overflow-hidden">
-                {/* Sidebar Navigation (Collapsed for Archive View) */}
                 <aside className="w-20 lg:w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#151b2d] flex flex-col justify-between transition-all duration-300 hidden md:flex">
                     <div>
                         <div className="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-200 dark:border-slate-800">
@@ -47,9 +46,7 @@ export default function CaseArchive() {
                     </div>
                 </aside>
 
-                {/* Main Content */}
                 <main className="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark relative">
-                    {/* Global Archive Warning Banner */}
                     <div className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-2 flex items-center justify-between text-sm">
                         <div className="flex items-center text-slate-600 dark:text-slate-300 font-medium">
                             <span className="material-icons-round text-slate-500 mr-2 text-lg">lock</span>
@@ -61,7 +58,6 @@ export default function CaseArchive() {
                         </button>
                     </div>
 
-                    {/* Header */}
                     <header className="bg-white dark:bg-[#151b2d] border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shadow-sm z-10">
                         <div className="flex items-center gap-4">
                             <Link href="/dashboard" className="p-2 -ml-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -91,22 +87,16 @@ export default function CaseArchive() {
                         </div>
                     </header>
 
-                    {/* Content Split View */}
                     <div className="flex-1 flex overflow-hidden">
-                        {/* Left Panel: Chat History (Archived) */}
                         <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#151b2d] relative">
-                            {/* Watermark */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03]">
                                 <span className="text-6xl md:text-8xl font-black text-slate-900 rotate-[-15deg]">ARCHIVED</span>
                             </div>
 
-                            {/* Chat History */}
                             <div className="flex-1 overflow-y-auto p-6 space-y-6 z-10 scrollbar-hide">
-                                {/* Date Divider */}
                                 <div className="flex items-center justify-center">
                                     <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-medium text-slate-500 border border-slate-200 dark:border-slate-700">Jan 10, 2026</span>
                                 </div>
-                                {/* AI Message */}
                                 <div className="flex gap-4">
                                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-md">
                                         <span className="material-icons-round text-white text-sm">smart_toy</span>
@@ -126,7 +116,6 @@ export default function CaseArchive() {
                                         </div>
                                     </div>
                                 </div>
-                                {/* User Message */}
                                 <div className="flex gap-4 flex-row-reverse">
                                     <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">
                                         JS
@@ -142,11 +131,9 @@ export default function CaseArchive() {
                                     </div>
                                 </div>
 
-                                {/* Date Divider */}
                                 <div className="flex items-center justify-center mt-8">
                                     <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-medium text-slate-500 border border-slate-200 dark:border-slate-700">Feb 14, 2026</span>
                                 </div>
-                                {/* System Message */}
                                 <div className="flex justify-center my-4">
                                     <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                                         <span className="material-icons-round text-slate-400 text-sm">lock_clock</span>
@@ -155,7 +142,6 @@ export default function CaseArchive() {
                                 </div>
                             </div>
 
-                            {/* Disabled Input Area */}
                             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121726] z-20">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-slate-100/50 dark:bg-slate-900/50 rounded-xl z-10 cursor-not-allowed flex items-center justify-center backdrop-blur-[1px]">
@@ -177,9 +163,7 @@ export default function CaseArchive() {
                             </div>
                         </div>
 
-                        {/* Right Panel: Case Details & Files */}
                         <aside className="w-96 border-l border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark overflow-y-auto hidden xl:block">
-                            {/* Final Summary Card */}
                             <div className="p-6">
                                 <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Case Outcome Summary</h3>
                                 <div className="bg-white dark:bg-[#151b2d] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
@@ -198,7 +182,6 @@ export default function CaseArchive() {
                                 </div>
                             </div>
 
-                            {/* Archived Documents */}
                             <div className="px-6 pb-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Case Files (Read Only)</h3>

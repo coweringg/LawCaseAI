@@ -1,7 +1,6 @@
 import { Document, Types } from 'mongoose'
 import { Request } from 'express'
 
-// Enums (defined first to be available for interfaces)
 export enum UserRole {
   LAWYER = 'lawyer',
   ADMIN = 'admin',
@@ -120,7 +119,6 @@ export interface IUser extends Document {
   maxTotalStorage: number
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
-  // Virtuals
   isAtPlanLimit: boolean
   planUsagePercentage: number
   remainingCases: number
@@ -343,4 +341,4 @@ export const ALLOWED_FILE_TYPES = [
   'audio/x-m4a'
 ]
 
-export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024

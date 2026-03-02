@@ -63,12 +63,10 @@ const caseFileSchema = new Schema<ICaseFile>({
   toObject: { virtuals: true }
 })
 
-// Indexes
 caseFileSchema.index({ caseId: 1, userId: 1 })
 caseFileSchema.index({ userId: 1 })
 caseFileSchema.index({ uploadedAt: -1 })
 
-// Pre-remove middleware to update case file count
 caseFileSchema.pre('deleteOne', { document: true, query: false }, async function(this: ICaseFile & Document, next: (err?: Error) => void) {
   try {
     const Case = mongoose.model('Case')
@@ -79,7 +77,6 @@ caseFileSchema.pre('deleteOne', { document: true, query: false }, async function
   }
 })
 
-// Static methods
 caseFileSchema.statics.findByCase = function(caseId: string) {
   return this.find({ caseId, $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] }).sort({ uploadedAt: -1 })
 }
@@ -92,7 +89,6 @@ caseFileSchema.statics.countByCase = function(caseId: string) {
   return this.countDocuments({ caseId })
 }
 
-// Virtuals
 caseFileSchema.virtual('sizeFormatted').get(function(this: ICaseFile & Document) {
   const bytes = this.size
   if (bytes === 0) return '0 Bytes'

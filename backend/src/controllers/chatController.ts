@@ -5,11 +5,6 @@ import logger from '../utils/logger'
 
 const chatLogger = logger.child({ module: 'chat-controller' })
 
-/**
- * @desc    Get chat history for a case
- * @route   GET /api/chat/case/:caseId
- * @access  Private
- */
 export const getChatHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
         const { caseId } = req.params
@@ -38,11 +33,6 @@ export const getChatHistory = async (req: IAuthRequest, res: Response): Promise<
     }
 }
 
-/**
- * @desc    Clear chat history for a case
- * @route   DELETE /api/chat/case/:caseId
- * @access  Private
- */
 export const clearChatHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
         const { caseId } = req.params

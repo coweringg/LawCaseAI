@@ -47,7 +47,6 @@ const supportRequestSchema = new Schema<ISupportRequest>({
   timestamps: true
 })
 
-// Indexes
 supportRequestSchema.index({ userId: 1 })
 supportRequestSchema.index({ type: 1 })
 supportRequestSchema.index({ status: 1 })

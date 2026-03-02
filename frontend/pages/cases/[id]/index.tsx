@@ -57,11 +57,9 @@ export default function CaseWorkspace() {
     const [isDraggingSidebar, setIsDraggingSidebar] = useState(false);
     const initialLoadDone = React.useRef(false);
 
-    // Summary Saving State
     const [isSavingSummary, setIsSavingSummary] = useState(false);
     const [summaryToSave, setSummaryToSave] = useState<{ content: string, type: string } | null>(null);
 
-    // File Access Functions
     const getFullFileUrl = (url: string) => {
         if (url.startsWith('http')) return url;
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -89,7 +87,6 @@ export default function CaseWorkspace() {
         }
     };
 
-    // Auto-scroll to bottom
     const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
         chatEndRef.current?.scrollIntoView({ behavior });
     };
@@ -104,12 +101,10 @@ export default function CaseWorkspace() {
             }
         }
     }, [chatMessages, isSending]);
-    // Commit File Modal State
     const [commitModalOpen, setCommitModalOpen] = useState(false);
     const [fileToCommit, setFileToCommit] = useState<string | null>(null);
     const [commitFileName, setCommitFileName] = useState('');
 
-    // File Management States
     const [activeFileMenu, setActiveFileMenu] = useState<{ id: string, x: number, y: number } | null>(null);
     const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
     const [renameModalOpen, setRenameModalOpen] = useState(false);
@@ -134,7 +129,6 @@ export default function CaseWorkspace() {
 
                 if (cData.success) {
                     setCaseData(cData.data);
-                    // If case already has a summary in the DB, use it
                     if (cData.data.summary) {
                         setCaseSummary(cData.data.summary);
                     }
@@ -153,7 +147,6 @@ export default function CaseWorkspace() {
                 }
             } catch (error) {
                 console.error('Error fetching case workspace data:', error);
-                // Don't toast for chat history fails to avoid noise, but log it
             } finally {
                 setIsLoading(false);
             }
@@ -175,7 +168,7 @@ export default function CaseWorkspace() {
             setAttachingFile(file);
             setIsUploadingTemp(true);
         } else {
-            setIsLoading(true); // Reuse loading for sidebar
+            setIsLoading(true);
         }
 
         const formData = new FormData();
@@ -434,7 +427,6 @@ export default function CaseWorkspace() {
                 <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
                     
-                    {/* Case Specific Header */}
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
                         <div className="flex items-center gap-6 relative z-10">
@@ -483,9 +475,7 @@ export default function CaseWorkspace() {
                         </div>
                     </header>
 
-                    {/* Main Content Areas */}
                     <div className="flex-1 flex overflow-hidden relative z-10">
-                        {/* LEFT PANE: Quick Files */}
                         <aside 
                             className="w-64 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative"
                             onDragOver={(e) => handleDragOver(e, setIsDraggingSidebar)}
@@ -586,7 +576,6 @@ export default function CaseWorkspace() {
                             </div>
                         </aside>
 
-                        {/* MIDDLE PANE: AI Assistant & Context */}
                         <section 
                             className="flex-1 flex flex-col min-w-0 bg-transparent relative overflow-hidden"
                             onDragOver={(e) => handleDragOver(e, setIsDraggingChat)}
@@ -613,7 +602,6 @@ export default function CaseWorkspace() {
                             </AnimatePresence>
                             <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none"></div>
                             
-                            {/* Assistant Status Bar */}
                             <div className="h-14 border-b border-white/10 flex items-center px-8 justify-between bg-white/[0.02] backdrop-blur-2xl z-20 sticky top-0">
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
@@ -758,7 +746,6 @@ export default function CaseWorkspace() {
                                 </AnimatePresence>
                             </div>
 
-                            {/* Input Area */}
                             <div className="p-6 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
                                 <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-500 group/input flex flex-col">
                                     <AnimatePresence>
@@ -840,7 +827,6 @@ export default function CaseWorkspace() {
                             </div>
                         </section>
 
-                        {/* RIGHT PANE: Summary & Info */}
                         <aside className="w-64 flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
                             <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/right:scale-[1.6] transition-transform duration-1000"></div>
                             
@@ -870,7 +856,6 @@ export default function CaseWorkspace() {
                                             exit={{ opacity: 0, x: -20 }}
                                             className="space-y-6"
                                         >
-                                            {/* AI Summary Card */}
                                             <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-4 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-500">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center justify-between mb-6 relative z-10">
@@ -924,7 +909,6 @@ export default function CaseWorkspace() {
                                                 </div>
                                             </div>
 
-                                            {/* Details Section */}
                                             <div className="space-y-4">
                                                 <h4 className="text-[10px] font-bold text-slate-500 tracking-widest px-2">System Metadata</h4>
                                                 <div className="grid grid-cols-1 gap-3">
@@ -999,7 +983,6 @@ export default function CaseWorkspace() {
                         isDestructive={true}
                     />
 
-                    {/* Rename Modal */}
                     <AnimatePresence>
                         {renameModalOpen && (
                             <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
@@ -1059,7 +1042,6 @@ export default function CaseWorkspace() {
                         )}
                     </AnimatePresence>
 
-                    {/* Commit Modal */}
                     <AnimatePresence>
                         {commitModalOpen && (
                             <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
@@ -1133,7 +1115,6 @@ export default function CaseWorkspace() {
                         )}
                     </AnimatePresence>
 
-                    {/* File Dropdown Menu */}
                     <AnimatePresence>
                         {activeFileMenu && (
                             <>
@@ -1186,7 +1167,6 @@ export default function CaseWorkspace() {
                         )}
                     </AnimatePresence>
 
-                    {/* Summary Modal */}
                     <AnimatePresence>
                         {isSummaryModalOpen && (
                             <div className="fixed inset-0 z-[300] flex items-center justify-center px-4">

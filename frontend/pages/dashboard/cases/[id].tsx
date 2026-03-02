@@ -170,7 +170,6 @@ export default function CaseDetail() {
     setNewMessage('')
     setIsSending(true)
 
-    // Add typing indicator
     const typingMessage: ChatMessage = {
       id: 'typing',
       content: '',
@@ -185,7 +184,6 @@ export default function CaseDetail() {
 
       if (response.status === 200 || response.status === 201) {
         const data = response.data
-        // Remove typing indicator and add AI response
         setMessages(prev => {
           const filtered = prev.filter(msg => msg.id !== 'typing')
           return [...filtered, {
@@ -198,7 +196,6 @@ export default function CaseDetail() {
       }
     } catch (error) {
       console.error('Failed to send message:', error)
-      // Remove typing indicator on error
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'))
     } finally {
       setIsSending(false)
@@ -272,7 +269,6 @@ export default function CaseDetail() {
   return (
     <div className="min-h-screen bg-law-charcoal-50">
       <div className="flex">
-        {/* Sidebar */}
         <div className="sidebar w-64">
           <div className="p-6">
             <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
@@ -295,9 +291,7 @@ export default function CaseDetail() {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1">
-          {/* Header */}
           <header className="bg-white shadow-law border-b border-law-charcoal-200">
             <div className="px-8 py-6">
               <div className="flex items-center justify-between">
@@ -327,7 +321,6 @@ export default function CaseDetail() {
 
           <main className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Files Section */}
               <div className="lg:col-span-2">
                 <div className="card-premium">
                   <CardHeader className="pb-4">
@@ -340,7 +333,6 @@ export default function CaseDetail() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {/* Search */}
                     <div className="mb-6">
                       <Input
                         placeholder="Search documents..."
@@ -351,7 +343,6 @@ export default function CaseDetail() {
                       />
                     </div>
 
-                    {/* Files List */}
                     <div className="space-y-3">
                       {filteredFiles.length === 0 ? (
                         <div className="text-center py-12">
@@ -405,7 +396,6 @@ export default function CaseDetail() {
                 </div>
               </div>
 
-              {/* AI Chat Section */}
               <div className="lg:col-span-1">
                 <div className="card-premium h-[650px] flex flex-col">
                   <CardHeader className="pb-4">
@@ -415,7 +405,6 @@ export default function CaseDetail() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col">
-                    {/* Messages */}
                     <div className="flex-1 overflow-y-auto mb-6 space-y-4 scrollbar-hide">
                       {messages.length === 0 ? (
                         <div className="text-center py-12">
@@ -463,7 +452,6 @@ export default function CaseDetail() {
                       <div ref={chatEndRef} />
                     </div>
 
-                    {/* Message Input */}
                     <form onSubmit={handleSendMessage} className="flex space-x-3">
                       <div className="flex-1 relative">
                         <Input
@@ -487,7 +475,6 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      {/* Upload Modal */}
       <Modal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}

@@ -39,29 +39,11 @@ export default function Home() {
         <meta name="description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
       </Head>
 
-      {/* Premium Hero Section */}
-      <section className="relative min-h-[90vh] lg:min-h-[95vh] flex items-center overflow-hidden py-12 lg:py-20">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12"></div>
-          <motion.div
-            animate={{
-              scale: [1, 1.25, 1],
-              x: [0, 50, 0],
-              y: [0, 30, 0],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[10%] -right-[5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]"
-          />
-          <motion.div
-            animate={{
-              scale: [1.3, 1, 1.3],
-              x: [0, -40, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-[5%] -left-[10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px]"
-          />
+      <main className="flex-grow pt-24 font-sans text-slate-100 bg-background-dark min-h-screen relative overflow-hidden transition-colors duration-500">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-slow-glow"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[150px] animate-slow-glow" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px] animate-slow-glow" style={{ animationDelay: '4s' }}></div>
         </div>
 
         <div className="relative z-10 container-stitch">
@@ -124,7 +106,6 @@ export default function Home() {
                 </Link>
               </motion.div>
 
-              {/* Trust badges */}
               <motion.div
                 variants={fadeInUp}
                 className="mt-10 lg:mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-6 lg:gap-10 items-center"
@@ -203,15 +184,13 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Decorative elements */}
-              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/20 rounded-full blur-[60px] z-0 pointer-events-none"></div>
-              <div className="absolute bottom-[-30px] left-[-30px] w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] z-0 pointer-events-none"></div>
+              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/30 rounded-full blur-[80px] z-0 pointer-events-none"></div>
+              <div className="absolute bottom-[-30px] left-[-30px] w-64 h-64 bg-secondary/20 rounded-full blur-[100px] z-0 pointer-events-none"></div>
             </motion.div>
           </div>
         </div>
-      </section>
+      </main>
 
-      {/* Features Preview */}
       <section className="py-20 lg:py-32 relative overflow-hidden">
         <div className="container-stitch">
           <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-20 px-4">
@@ -273,7 +252,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-20 lg:py-32 bg-background-dark/50 relative border-y border-white/5">
         <div className="container-stitch">
           <div className="text-center mb-20">
@@ -321,9 +299,7 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* CTA Section */}
-      <section className="py-20 lg:py-32 relative overflow-hidden">
+      <section className="py-20 lg:py-32 relative overflow-hidden flex-grow-0">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] pointer-events-none"></div>
         
@@ -339,13 +315,13 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-6xl font-black text-white mb-8 font-display tracking-tightest leading-tight">
                 Ready to Upgrade your <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Legal Intelligence?</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Legal Intelligence?</span>
             </h2>
             <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
               Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market. Trusted by industry leaders.
             </p>
             <Link href="/register">
-              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(10,68,184,0.4)] hover:scale-105 hover:bg-primary-hover transition-all text-xl uppercase tracking-widest">
+              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(124,58,237,0.4)] hover:scale-105 hover:bg-primary-hover transition-all text-xl uppercase tracking-widest">
                 Get Started Now
               </button>
             </Link>

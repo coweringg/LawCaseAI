@@ -14,15 +14,12 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal Backdrop */}
             <div
                 className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             ></div>
 
-            {/* Modal Container */}
             <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 relative z-10">
-                {/* Close Icon */}
                 <div className="absolute top-4 right-4">
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                         <span className="material-icons-round">close</span>
@@ -30,7 +27,6 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                 </div>
 
                 <div className="p-8 md:p-10 text-center">
-                    {/* Header Icon & Title */}
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
                             <span className="material-icons-round text-primary text-3xl">account_balance_wallet</span>
@@ -43,7 +39,6 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                         </p>
                     </div>
 
-                    {/* Usage Progress Section */}
                     {!isUnlimited && (
                         <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 mb-8 border border-primary/10 text-left">
                             <div className="flex justify-between items-end mb-2">
@@ -72,7 +67,6 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                         </div>
                     )}
 
-                    {/* Benefits List */}
                     <div className="mb-10 text-left">
                         <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-5 uppercase tracking-widest flex items-center">
                             <span className="w-8 h-[1px] bg-primary/30 mr-3"></span>
@@ -104,7 +98,6 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                         </ul>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex flex-col gap-4">
                         <Link href="/settings?tab=billing" className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
                              <span>Upgrade to Partner</span>
@@ -115,7 +108,6 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                         </button>
                     </div>
 
-                    {/* Secure Checkout Badge */}
                     <div className="mt-8 flex items-center justify-center gap-6 opacity-60">
                         <div className="flex items-center gap-1 text-[10px] text-slate-500 uppercase tracking-tighter">
                             <span className="material-icons-round text-xs">lock</span>

@@ -45,7 +45,7 @@ export default function EventModal({
         };
 
         if (isOpen) {
-            setShowDeleteConfirm(false); // Reset delete confirm state when reopening
+            setShowDeleteConfirm(false);
 
             if (event) {
                 const startDate = parseSafely(event.start);
@@ -64,7 +64,6 @@ export default function EventModal({
             } else {
                 const startDate = parseSafely(initialDate);
 
-                // Smart Time: Set to next hour (e.g. 17:15 -> 18:00)
                 const now = new Date();
                 const nextHour = (now.getHours() + 1) % 24;
                 const startTimeString = `${nextHour.toString().padStart(2, '0')}:00`;
@@ -146,7 +145,6 @@ export default function EventModal({
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-                    {/* Time Validation Warning */}
                     {(() => {
                         if (!formData.start || formData.isAllDay) return null;
                         const isToday = isSameDay(new Date(formData.start + 'T00:00:00'), new Date());

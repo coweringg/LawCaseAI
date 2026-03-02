@@ -61,7 +61,6 @@ export default function NewCase() {
                 router.push('/dashboard');
             } else {
                 toast.error(data.message || 'Failed to create case');
-                // Suggest upgrade if limit reached
                 if (data.message?.toLowerCase().includes('limit')) {
                     toast.error('Consider upgrading your plan in Settings.', { duration: 5000 });
                 }
@@ -79,7 +78,6 @@ export default function NewCase() {
                 <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-surface-dark w-full max-w-6xl rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-slate-200 dark:border-slate-800 mx-auto">
                     <div className="w-full md:w-1/3 bg-slate-50 dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-6 relative overflow-hidden">
-                        {/* Rich Decorative Background */}
                         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                             <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px]"></div>
@@ -95,7 +93,6 @@ export default function NewCase() {
                                 </div>
                             </div>
 
-                            {/* Enhanced Stepper */}
                             <div className="space-y-3">
                                 {[
                                     { id: 1, label: 'Case Basics', sub: 'Naming & Client', icon: <FileText className="w-4 h-4" /> },
@@ -129,7 +126,6 @@ export default function NewCase() {
                             </div>
                         </div>
 
-                        {/* Premium AI Context Card */}
                         <div className="relative z-10 mt-auto hidden lg:block">
                             <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-2xl p-4 border border-white dark:border-slate-700 shadow-xl border-b-primary/30">
                                 <div className="flex items-start gap-4">
@@ -147,7 +143,6 @@ export default function NewCase() {
                         </div>
                     </div>
 
-                    {/* Right Side: Form Content */}
                     <div className="w-full md:w-2/3 flex flex-col h-full bg-white dark:bg-surface-dark relative">
                         <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/30 dark:bg-black/10 backdrop-blur-sm">
                             <div>
@@ -449,7 +444,6 @@ export default function NewCase() {
                                                 </div>
                                             </div>
 
-                                            {/* Decorative blob */}
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                                         </div>
 

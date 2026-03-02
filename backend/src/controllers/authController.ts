@@ -8,7 +8,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, lawFirm, firmCode }: IUserRegistration = req.body
 
-    // Check if user already exists (exclude deleted users)
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
       res.status(400).json({
@@ -22,11 +21,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     let plan = UserPlan.NONE
     let effectiveLawFirm = lawFirm
 
-    // If firmCode provided, handle organizational join
     if (firmCode) {
       const { default: Organization } = await import('../models/Organization')
       
-      // Atomically check seats and increment
       const org = await Organization.findOneAndUpdate(
         { firmCode: firmCode.toUpperCase(), isActive: true, $expr: { $lt: ['$usedSeats', '$totalSeats'] } },
         { $inc: { usedSeats: 1 } },
@@ -34,7 +31,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       )
       
       if (!org) {
-        // Double check if it's invalid code or full seats
         const checkOrg = await Organization.findOne({ firmCode: firmCode.toUpperCase() })
         if (!checkOrg) {
           res.status(400).json({
@@ -60,16 +56,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       }
 
       organizationId = org._id
-      plan = UserPlan.ENTERPRISE // Updated to ENTERPRISE as requested
+      plan = UserPlan.ENTERPRISE
       effectiveLawFirm = org.name
     }
 
-    // Initialize billing cycle (default to 1 month from registration)
     const now = new Date()
     const nextMonth = new Date(now)
     nextMonth.setMonth(nextMonth.getMonth() + 1)
 
-    // Create new user
     const user = new User({
       name,
       email,
@@ -84,10 +78,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await user.save()
 
-    // Generate token
     const token = user.generateAuthToken()
 
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -100,12 +92,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       description: `New user registration: ${user.email}`
     })
 
-    // Set HttpOnly cookie
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
     res.status(201).json({
@@ -141,7 +132,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password }: IUserLogin = req.body
 
-    // Find user with password
     const user = await User.findByEmail(email)
     if (!user) {
       res.status(401).json({
@@ -151,7 +141,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Check if user is active
     if (user.status !== 'active') {
       let message = 'Account is not active'
       
@@ -168,7 +157,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Compare password
     const isMatch = await user.comparePassword(password)
     if (!isMatch) {
       res.status(401).json({
@@ -178,15 +166,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Generate token
     const token = user.generateAuthToken()
 
-    // Update login timestamps
     user.lastLogin = new Date()
     user.lastActivity = new Date()
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -199,12 +184,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       description: user.role === 'admin' ? `Admin login: ${user.email}` : `User login: ${user.email}`
     })
 
-    // Set HttpOnly cookie
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
     res.status(200).json({
@@ -240,7 +224,6 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
   try {
     const user = (req as { user?: unknown }).user as { generateAuthToken: () => string }
 
-    // Generate new token
     const token = user.generateAuthToken()
 
     res.status(200).json({
@@ -261,11 +244,9 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = (req as any).user
     if (user) {
-      // Clear activity status immediately on logout
       await User.findByIdAndUpdate(user._id, { $unset: { lastActivity: 1 } })
     }
 
-    // Clear HttpOnly cookie
     res.clearCookie('auth_token')
 
     res.status(200).json({
@@ -295,7 +276,6 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
 
     const { name, email, password, lawFirm }: IUserRegistration = req.body
 
-    // Check if user already exists (exclude deleted users)
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
       res.status(400).json({
@@ -305,26 +285,23 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
       return
     }
 
-    // Initialize billing cycle (default to 1 month)
     const now = new Date()
     const nextMonth = new Date(now)
     nextMonth.setMonth(nextMonth.getMonth() + 1)
 
-    // Create new admin user
     const user = new User({
       name,
       email,
       password,
       lawFirm,
       role: UserRole.ADMIN,
-      plan: 'enterprise', // Admins get enterprise plan by default
+      plan: 'enterprise',
       currentPeriodStart: now,
       currentPeriodEnd: nextMonth
     })
 
     await user.save()
 
-    // Log the action (as admin creation)
     await logAction({
       adminId: user._id,
       adminName: user.name,

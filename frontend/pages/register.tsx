@@ -38,7 +38,6 @@ export default function Register() {
     if (user && !registrationSuccess) {
       router.push('/dashboard')
     } else if (user && registrationSuccess && user.organizationId) {
-      // If they joined via firm code, skip the plan selection screen
       router.push('/dashboard')
     }
   }, [user, registrationSuccess, router])
@@ -106,7 +105,6 @@ export default function Register() {
         toast.success('Account created successfully!')
         setRegistrationSuccess(true);
       } else {
-        // Handle validation errors from backend
         if (result.error && Array.isArray(result.error)) {
           const newErrors: Record<string, string> = {};
           result.error.forEach((err: any) => {
@@ -227,7 +225,6 @@ export default function Register() {
         <title>Join LawCaseAI | Secure Legal Intelligence</title>
       </Head>
 
-      {/* Tab Switcher */}
       <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <Link href="/login" className="flex-1">
           <button className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-slate-500 hover:text-slate-200 transition-all duration-500">
@@ -239,7 +236,6 @@ export default function Register() {
         </button>
       </div>
 
-      {/* Dual Registration Mode Selector */}
       <div className="flex justify-center mb-8">
         <div className="premium-glass p-1 rounded-2xl border border-white/10 flex gap-1 w-full">
           <button
@@ -259,7 +255,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Heading */}
       <div className="mb-8 text-center">
         <h2 className="text-3xl font-black text-white mb-2 font-display tracking-tightest">
           {registrationMode === 'individual' ? 'Setup Your Firm' : 'Link Your Account'}
@@ -271,9 +266,7 @@ export default function Register() {
         </p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Full Name */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="name">Full Name</label>
           <div className="relative group">
@@ -291,7 +284,6 @@ export default function Register() {
           {errors.name && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.name}</p>}
         </div>
 
-        {/* Email */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="email">Work Email</label>
           <div className="relative group">
@@ -310,7 +302,6 @@ export default function Register() {
         </div>
 
         {registrationMode === 'individual' ? (
-          /* Law Firm - Individual Mode */
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="lawFirm">Organization</label>
             <div className="relative group">
@@ -328,7 +319,6 @@ export default function Register() {
             {errors.lawFirm && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.lawFirm}</p>}
           </div>
         ) : (
-          /* Firm Code - Empresa Mode */
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="firmCode">Firm Access Code</label>
             <div className="relative group">
@@ -347,7 +337,6 @@ export default function Register() {
           </div>
         )}
 
-        {/* Password */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="password">Password</label>
           <div className="relative group">
@@ -375,7 +364,6 @@ export default function Register() {
           {errors.password && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.password}</p>}
         </div>
 
-        {/* Confirm Password */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="confirmPassword">Confirm Password</label>
           <div className="relative group">
@@ -400,7 +388,6 @@ export default function Register() {
           {errors.confirmPassword && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.confirmPassword}</p>}
         </div>
 
-        {/* Checkbox */}
         <div className="group flex items-start gap-3 py-4 px-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
           <div className="flex items-center h-5">
             <input
@@ -417,7 +404,6 @@ export default function Register() {
           </label>
         </div>
 
-        {/* Submit Button */}
         <button
           className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all group disabled:opacity-70 mt-6"
           type="submit"

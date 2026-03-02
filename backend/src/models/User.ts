@@ -3,8 +3,6 @@ import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import config from '../config'
 import { IUser, UserRole, UserPlan, UserStatus } from '../types'
-
-// Interface for static methods
 export interface IUserModel extends mongoose.Model<IUser> {
   findByEmail(email: string): Promise<IUser | null>
   updateLastLogin(userId: string): Promise<IUser | null>
@@ -49,7 +47,7 @@ const userSchema = new Schema<IUser>({
   },
   planLimit: {
     type: Number,
-    default: 100000 // Moving towards dynamic config-based checks
+    default: 100000
   },
   currentCases: {
     type: Number,
@@ -146,13 +144,11 @@ const userSchema = new Schema<IUser>({
   toObject: { virtuals: true }
 })
 
-// Indexes
 userSchema.index({ role: 1 })
 userSchema.index({ status: 1 })
 userSchema.index({ plan: 1 })
 userSchema.index({ createdAt: -1 })
 
-// Pre-save middleware to hash password
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
 
@@ -165,12 +161,10 @@ userSchema.pre('save', async function (next) {
   }
 })
 
-// Pre-save middleware to set plan limit based on plan (Removed: handled dynamically via config)
 userSchema.pre('save', function (next) {
   next()
 })
 
-// Instance methods
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password)
 }
@@ -192,13 +186,12 @@ userSchema.methods.generateAuthToken = function (): string {
 
   const secret = config.jwt.secret
   const options: SignOptions = {
-    expiresIn: config.jwt.expiresIn as '7d' // Type assertion con un valor válido conocido
+    expiresIn: config.jwt.expiresIn as '7d'
   }
 
   return jwt.sign(payload, secret, options)
 }
 
-// Static methods
 userSchema.statics.findByEmail = function (email: string) {
   return this.findOne({ email }).select('+password')
 }
@@ -207,8 +200,6 @@ userSchema.statics.updateLastLogin = function (userId: string) {
   return this.findByIdAndUpdate(userId, { lastLogin: new Date() })
 }
 
-// Virtuals
-// User virtual for checking overall plan limits across all metrics
 userSchema.virtual('isAtPlanLimit').get(function () {
   const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
   return (
@@ -225,7 +216,6 @@ userSchema.virtual('planUsagePercentage').get(function () {
   const tokenUsage = (this.totalTokensConsumed / limits.maxTokens) * 100
   const storageUsage = (this.totalStorageUsed / limits.maxTotalStorage) * 100
   
-  // Return the highest usage percentage
   return Math.round(Math.max(caseUsage, tokenUsage, storageUsage))
 })
 

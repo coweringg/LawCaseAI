@@ -13,12 +13,11 @@ export class AIService {
   private openai: OpenAI
   private modelName: string
   
-  // Circuit Breaker State
   private circuitState: CircuitState = 'CLOSED'
   private failureCount: number = 0
   private lastFailureTime: number = 0
   private readonly FAILURE_THRESHOLD = 5
-  private readonly COOLDOWN_PERIOD = 30000 // 30 seconds
+  private readonly COOLDOWN_PERIOD = 30000
 
   private constructor() {
     this.openai = new OpenAI({
@@ -92,7 +91,6 @@ export class AIService {
       const startTime = Date.now()
       const systemPrompt = this.buildSystemPrompt(caseContext)
       
-      // Enforce token limit
       if (userId) {
         const user = await User.findById(userId)
         if (user) {
@@ -103,7 +101,6 @@ export class AIService {
         }
       }
 
-      // Prepare messages: System + History + Current User Prompt
       const messages: any[] = [
         { role: 'system', content: systemPrompt },
         ...history.map(m => ({ role: m.role, content: m.content })),
@@ -122,10 +119,8 @@ export class AIService {
       
       const aiResponse = response.choices[0]?.message?.content || 'I apologize, but I could not generate a response at this time.'
       
-      // Token tracking via API response if available, otherwise estimate
       const totalTokens = response.usage?.total_tokens || Math.ceil((prompt.length + aiResponse.length + systemPrompt.length) / 4)
 
-      // Update token tracking if userId is provided
       if (userId) {
         this.updateUserTokens(userId, totalTokens).catch((err: any) => 
           aiLogger.error({ err, userId }, 'Failed to update user tokens')
@@ -169,7 +164,6 @@ export class AIService {
       const systemPrompt = 'You are a legal document analyzer. Return your analysis in valid JSON format with three exact keys: "summary" (string), "keyPoints" (array of strings), and "suggestedActions" (array of strings). Do not include any other text except the JSON object.'
       const prompt = `Please analyze this legal document and provide JSON-formatted summary, key points, and suggested actions.\n\nDocument content:\n${documentContent}`
 
-      // Enforce token limit
       if (userId) {
         const user = await User.findById(userId)
         if (user) {
@@ -242,7 +236,6 @@ export class AIService {
       
       const prompt = `Please perform a global intelligence audit based on the following cross-case repository context:\n\n${globalContext}`
 
-      // Enforce token limit
       if (userId) {
         const user = await User.findById(userId)
         if (user) {

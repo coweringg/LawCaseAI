@@ -9,20 +9,18 @@ import logger from '../utils/logger'
 
 const controllerLogger = logger.child({ module: 'payment-controller' })
 
-// Plan pricing lookup (Monthly)
 const PLAN_PRICES: Record<string, number> = {
   [UserPlan.BASIC]: 99,
   [UserPlan.PROFESSIONAL]: 199,
   [UserPlan.ELITE]: 300,
-  [UserPlan.ENTERPRISE]: 300 // Price per seat
+  [UserPlan.ENTERPRISE]: 300
 }
 
-// Annual Plan pricing lookup (with roughly 20% discount)
 const ANNUAL_PRICES: Record<string, number> = {
   [UserPlan.BASIC]: 79,
   [UserPlan.PROFESSIONAL]: 159,
   [UserPlan.ELITE]: 240,
-  [UserPlan.ENTERPRISE]: 240 // Price per seat (exactly 20% off 300)
+  [UserPlan.ENTERPRISE]: 240
 }
 
 export const getTransactionHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -63,8 +61,6 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
             return
         }
 
-        // TODO: Replace with real Stripe integration
-        // const session = await stripe.checkout.sessions.create({ ... })
         res.status(200).json({
             success: true,
             message: 'Checkout session created',
@@ -139,7 +135,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             return
         }
 
-        // Validate plan
         const validPlans = Object.values(UserPlan)
         if (!plan || !validPlans.includes(plan as UserPlan)) {
             await session.abortTransaction()
@@ -148,7 +143,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             return
         }
 
-        // Validate payment tokenized method
         if (!paymentMethodId || !paymentMethodId.startsWith('pm_')) {
             await session.abortTransaction()
             session.endSession()
@@ -167,15 +161,13 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         const newPriceTable = interval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
         const oldPriceTable = user.billingInterval === 'annual' ? ANNUAL_PRICES : PLAN_PRICES
         
-        // Calculate Proration if user is upgrading
         const currentPlanCost = (user.plan && oldPriceTable[user.plan]) ? oldPriceTable[user.plan] : 0
         const newPlanCost = newPriceTable[plan] || 0
-        let transactionAmount = Math.max(0, newPlanCost - currentPlanCost) // Ensure no negative charges
+        let transactionAmount = Math.max(0, newPlanCost - currentPlanCost)
         
         let organizationId = user.organizationId
         let orgFirmCode: string | undefined = undefined
 
-        // Handle Enterprise Plan
         if (plan === UserPlan.ENTERPRISE) {
             const requestedSeats = parseInt(seats) || 1
             if (requestedSeats < 1) {
@@ -187,11 +179,9 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
 
             transactionAmount = requestedSeats * (newPriceTable[plan] || 300)
             
-            // Generate firm code
             const firmCode = `ENT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
-            orgFirmCode = firmCode; // Capture for response
+            orgFirmCode = firmCode;
 
-            // Create Organization
             const org = await Organization.create([{
                 name: firmName || user.lawFirm || 'My Trial Firm',
                 adminId: userId,
@@ -207,15 +197,13 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             user.organizationId = organizationId
         }
 
-        // Update user plan and billing cycle
         user.plan = plan
         if (interval === 'monthly' || interval === 'annual') {
             user.billingInterval = interval
         }
         
-        // Initialize billing cycle length
         const now = new Date();
-        const oldPeriodStart = user.currentPeriodStart || new Date(0); // Capture BEFORE updating, fallback to epoch if null
+        const oldPeriodStart = user.currentPeriodStart || new Date(0);
         user.currentPeriodStart = now;
         
         const nextPeriod = new Date(now);
@@ -226,9 +214,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         }
         user.currentPeriodEnd = nextPeriod;
         
-        // [MOD] Count all cases that were part of the quota in the previous (now ending) period
-        
-        // Find cases that are ACTIVE or were activated in the cycle we just finished
         const casesToCarryOverCount = await Case.countDocuments({
             userId,
             $or: [
@@ -239,7 +224,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         
         user.currentCases = casesToCarryOverCount;
         
-        // Mark these cases as "activated" in the new period
         if (casesToCarryOverCount > 0) {
             await Case.updateMany(
                 {
@@ -253,18 +237,15 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             );
         }
         
-        // Ensure starting fresh immediately upon purchase for tokens only
         user.totalTokensConsumed = 0;
         await user.save(isTransactional ? { session } : {})
 
-        // Determine payment method string
         const { cardBrand, cardLast4 } = req.body
         const pm = user.paymentMethods.find((p: any) => p.id === paymentMethodId)
         const paymentMethodStr = pm 
             ? `${pm.brand} ending in ${pm.last4}` 
             : (cardBrand && cardLast4 ? `${cardBrand} ending in ${cardLast4}` : 'Credit Card ending in 4242')
 
-        // Record Transaction
         await Transaction.create([{
             userId,
             amount: transactionAmount,
@@ -274,7 +255,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             date: new Date()
         }], isTransactional ? { session } : {})
 
-        // Log action for Plan Change
         await logAction({
             adminId: userId,
             adminName: user.name,
@@ -287,7 +267,6 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
             description: `User upgraded to ${plan} plan (${interval}).`
         })
 
-        // Log action for Payment Source process 
         await logAction({
             adminId: userId,
             adminName: user.name,
@@ -362,29 +341,25 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
 
         const { default: Organization } = await import('../models/Organization')
         
-        // Generate unique 8-character code
         const crypto = await import('crypto')
         const firmCode = `ELITE-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
 
-        // Create Organization
         const org = await Organization.create({
             name: firmName,
             adminId: userId,
             totalSeats: seats,
-            usedSeats: 1, // The admin takes the first seat
+            usedSeats: 1,
             firmCode,
             isActive: true
         })
 
-        // Calculate billing cycle for Business Elite plan (defaulting to monthly for the example, unless specified)
         const now = new Date()
         const nextPeriod = new Date(now)
-        nextPeriod.setMonth(nextPeriod.getMonth() + 1) // Business signup defaults to monthly for this flow unless we add a toggle
+        nextPeriod.setMonth(nextPeriod.getMonth() + 1)
 
-            // Upgrade user to Org Admin
             const user = await User.findById(userId)
             if (user) {
-                const oldPeriodStart = user.currentPeriodStart || new Date(0); // Capture BEFORE updating
+                const oldPeriodStart = user.currentPeriodStart || new Date(0);
                 user.organizationId = org._id
                 user.isOrgAdmin = true
                 user.plan = UserPlan.ELITE
@@ -393,8 +368,6 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
                 user.currentPeriodEnd = nextPeriod
                 user.totalTokensConsumed = 0
                 
-                // [MOD] Count cases to carry over from the previous transition period
-            
             const carriedOverCount = await Case.countDocuments({
                 userId,
                 $or: [
@@ -405,7 +378,6 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             
             user.currentCases = carriedOverCount;
 
-            // Mark carried over cases as activated in the new cycle
             if (carriedOverCount > 0) {
                 await Case.updateMany(
                     {
@@ -422,7 +394,6 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             await user.save()
         }
 
-        // Record the transaction
         const pm = user?.paymentMethods.find((p: any) => p.id === user.defaultPaymentMethodId)
         const paymentMethodStr = pm ? `${pm.brand} ending in ${pm.last4}` : 'Credit Card ending in 4242'
 
@@ -435,7 +406,6 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
             date: now
         })
 
-        // Log action
         await logAction({
             adminId: user?._id || userId,
             adminName: user?.name || 'User',
@@ -538,7 +508,6 @@ export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<v
 
         const pricePerSeat = user.billingInterval === 'annual' ? ANNUAL_PRICES.enterprise : PLAN_PRICES.enterprise
 
-        // Record transaction
         const { cardBrand, cardLast4 } = req.body
         const pm = user.paymentMethods.find((p: any) => p.id === paymentMethodId)
         const paymentMethodStr = pm 
@@ -593,7 +562,6 @@ export const removeMember = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
-        // Atomically decrement usedSeats and unlink member
         const org = await Organization.findOneAndUpdate(
             { _id: admin.organizationId, usedSeats: { $gt: 0 } },
             { $inc: { usedSeats: -1 } },
@@ -605,25 +573,21 @@ export const removeMember = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
-        // DEACTIVATION SIDE EFFECTS:
-        // 1. Close all user cases
         await Case.updateMany(
             { userId: member._id, status: CaseStatus.ACTIVE },
             { $set: { status: CaseStatus.CLOSED, closedAt: new Date() } }
         )
 
-        // 2. Close all user events
         await Event.updateMany(
             { userId: member._id, status: EventStatus.ACTIVE },
             { $set: { status: EventStatus.CLOSED } }
         )
 
-        // 3. Reset user profile and unlink
         member.organizationId = undefined
         member.plan = UserPlan.NONE
         member.role = UserRole.LAWYER
         member.isOrgAdmin = false
-        member.currentCases = 0 // Reset active case count
+        member.currentCases = 0 
         
         await member.save()
 

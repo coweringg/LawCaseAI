@@ -14,10 +14,9 @@ import { handleValidationErrors, validateRequest } from '../middleware/validatio
 
 const router = Router()
 
-// Stricter rate limiting for auth endpoints (brute-force protection)
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per window
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   message: {
     success: false,
     message: 'Too many login attempts from your IP. For your security, access has been temporarily locked. Please wait 15 minutes before trying again.'
@@ -26,7 +25,6 @@ const authLimiter = rateLimit({
   legacyHeaders: false
 })
 
-// Registration validation
 router.post('/register', authLimiter, [
   body('name')
     .trim()
@@ -47,7 +45,6 @@ router.post('/register', authLimiter, [
   handleValidationErrors
 ], register)
 
-// Secure Admin Registration (Requires X-Admin-Key header)
 router.post('/register-admin', [
   validateRequest,
   body('name').trim().notEmpty().withMessage('Name is required'),
@@ -57,7 +54,6 @@ router.post('/register-admin', [
   handleValidationErrors
 ], registerAdmin)
 
-// Login validation
 router.post('/login', authLimiter, [
   body('email')
     .isEmail().withMessage('Please provide a valid email address')

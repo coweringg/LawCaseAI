@@ -126,7 +126,6 @@ export default function Upgrade() {
             </header>
 
             <main className="p-6">
-              {/* Current Plan Status */}
               <Card className="mb-8">
                 <CardHeader>
                   <CardTitle>Current Plan</CardTitle>
@@ -165,7 +164,6 @@ export default function Upgrade() {
                 </CardContent>
               </Card>
 
-              {/* Available Plans */}
               <div className="grid md:grid-cols-3 gap-8 mb-8">
                 {plans.filter(plan => plan.id !== user.plan).map((plan) => (
                   <Card
@@ -224,7 +222,6 @@ export default function Upgrade() {
                 ))}
               </div>
 
-              {/* Security Notice */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">

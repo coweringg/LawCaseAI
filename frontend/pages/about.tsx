@@ -1,4 +1,4 @@
-import React from 'react'; // Refreshing for hydration sync
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -32,7 +32,6 @@ export default function About() {
                 <meta name="description" content="Learn about LawCaseAI's mission to revolutionize legal practice management through elite artificial intelligence." />
             </Head>
 
-            {/* Hero Section */}
             <section className="relative pt-32 pb-24 overflow-hidden">
                 <div className="container-stitch relative z-10 text-center">
                     <motion.div
@@ -54,7 +53,6 @@ export default function About() {
                 </div>
             </section>
 
-            {/* Our Story Section */}
             <section className="py-32 relative">
                 <div className="container-stitch">
                     <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -96,7 +94,6 @@ export default function About() {
                 </div>
             </section>
 
-            {/* Core Values Section */}
             <section className="py-32 relative">
                 <div className="container-stitch relative z-10">
                     <div className="text-center mb-20">
@@ -149,7 +146,6 @@ export default function About() {
                 </div>
             </section>
 
-            {/* Stats Grid */}
             <section className="py-32 relative border-y border-white/5 overflow-hidden">
                 <div className="container-stitch">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
@@ -175,7 +171,6 @@ export default function About() {
                 </div>
             </section>
 
-            {/* Premium CTA */}
             <section className="py-32 relative overflow-hidden bg-background-dark/30">
                 <div className="container-stitch text-center relative z-10">
                     <motion.div

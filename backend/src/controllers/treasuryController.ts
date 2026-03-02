@@ -2,9 +2,6 @@ import { Request, Response } from 'express'
 import { Transaction } from '../models'
 import { IApiResponse } from '../types'
 
-/**
- * Get Financial Treasury Statistics
- */
 export const getTreasuryStats = async (req: Request, res: Response): Promise<void> => {
   try {
     const { range = 'month' } = req.query
@@ -19,7 +16,7 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
         startDate = new Date(now.getFullYear(), 0, 1)
         break
       case 'all':
-        startDate = new Date(0) // Beginning of time
+        startDate = new Date(0)
         break
       case 'month':
       default:
@@ -27,14 +24,12 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
         break
     }
 
-    // 1. Total Revenue (All time or filtered)
     const totalRevenueAgg = await Transaction.aggregate([
       { $match: { status: 'succeeded' } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
     const totalRevenue = totalRevenueAgg[0]?.total || 0
 
-    // 2. MRR / Selected Range Revenue
     const rangeRevenueAgg = await Transaction.aggregate([
       { 
         $match: { 
@@ -46,7 +41,6 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
     ])
     const mrr = rangeRevenueAgg[0]?.total || 0
 
-    // 3. Revenue Trend
     const revenueTrend = await Transaction.aggregate([
       {
         $match: {
@@ -63,7 +57,6 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
       { $sort: { _id: 1 } }
     ])
 
-    // 4. Plan Distribution
     const planDistribution = await Transaction.aggregate([
         { $match: { status: 'succeeded' } },
         { $group: { _id: '$plan', count: { $sum: 1 }, revenue: { $sum: '$amount' } } }
@@ -90,9 +83,6 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
   }
 }
 
-/**
- * Export Treasury Ledger as CSV
- */
 export const exportTreasuryCSV = async (req: Request, res: Response): Promise<void> => {
   try {
     const transactions = await Transaction.find({ status: 'succeeded' })

@@ -54,7 +54,6 @@ export const PlanModal: React.FC<PlanModalProps> = ({
 
     const getProratedPrice = (planId: string) => {
         const basePrice = interval === 'annual' ? (ANNUAL_PRICES[planId] || 0) : (PLAN_PRICES[planId] || 0);
-        // If it's the current plan or a downgrade, show the full base price (don't subtract credit from itself)
         if (!currentUserPlan || currentUserPlan === 'none' || planId === currentUserPlan || currentPlanCost >= basePrice) return basePrice;
         return Math.max(0, basePrice - currentPlanCost);
     };

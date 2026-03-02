@@ -38,7 +38,6 @@ export default function Checkout() {
     setMounted(true);
 
     if (router.isReady) {
-      // Redirect to the unified settings billing modal
       const settingsUrl = `/settings?tab=billing&openPlan=true&planId=${plan || ''}${seats ? `&seats=${seats}` : ''}`;
       router.replace(settingsUrl);
     }
@@ -63,7 +62,6 @@ export default function Checkout() {
         throw new Error(response.message || 'Failed to initialize payment');
       }
 
-      // Simulate network delay for the transaction
       await new Promise(resolve => setTimeout(resolve, 800));
 
       toast.success("Purchase initialized successfully!");

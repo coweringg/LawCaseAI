@@ -9,7 +9,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Extracted Components
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { SecuritySection } from "@/components/settings/SecuritySection";
@@ -20,7 +19,6 @@ import { ConfirmModal } from "@/components/settings/ConfirmModal";
 import { PlanModal } from "@/components/settings/PlanModal";
 import { CapacityModal } from "@/components/settings/CapacityModal";
 
-// Hooks
 import {
   useOrganizationDetails,
   useBillingInfo,
@@ -41,7 +39,6 @@ export default function Settings() {
   });
   const [mounted, setMounted] = useState(false);
 
-  // TanStack Query Hooks
   const { data: orgData, refetch: refetchOrg } = useOrganizationDetails(
     activeTab === "organization" && !!user?.isOrgAdmin,
   );
@@ -55,7 +52,6 @@ export default function Settings() {
     activeTab === "organization" && !!user?.isOrgAdmin,
   );
 
-  // Modal States
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
@@ -67,7 +63,6 @@ export default function Settings() {
     type: "info" as "danger" | "warning" | "info",
   });
 
-  // Form States (for modals/sub-sections that still need local state)
   const [supportData, setSupportData] = useState({
     type: "system_error",
     subject: "",
@@ -107,7 +102,6 @@ export default function Settings() {
     setMounted(true);
   }, []);
 
-  // Guard: Redirect non-admin org members away from billing
   useEffect(() => {
     if (mounted && user?.organizationId && !user?.isOrgAdmin && activeTab === "billing") {
       setActiveTab("profile");
@@ -115,7 +109,6 @@ export default function Settings() {
     }
   }, [mounted, user, activeTab, router]);
 
-  // Handle inbound redirection for plan selection
   useEffect(() => {
     if (router.isReady && router.query.openPlan === "true") {
       const planId = router.query.planId as string;
@@ -225,13 +218,12 @@ export default function Settings() {
 
     setIsProcessingPayment(true);
     try {
-      // Simulate Tokenization (Mocking Stripe.createPaymentMethod)
       const mockToken = `pm_mock_${Math.random().toString(36).substring(7)}`;
 
       const response = await api.post("/payments/confirm-purchase", {
         plan: selectedPlanId,
         seats: planSeats,
-        paymentMethodId: mockToken, // Using token instead of raw card data
+        paymentMethodId: mockToken,
         firmName: paymentData.firmName,
         interval: billingInterval,
         cardBrand: getCardBrand(paymentData.cardNumber),
@@ -241,7 +233,6 @@ export default function Settings() {
       if (response.data.success) {
         toast.success("Tier deployed successfully! Synchronizing neural state...");
         setIsPlanModalOpen(false);
-        // Clean reload to ensure all organization/billing state is fresh
         setTimeout(() => {
           if (selectedPlanId === 'enterprise') {
             window.location.href = '/settings?tab=organization';
@@ -288,12 +279,11 @@ export default function Settings() {
     }
     setIsIncreasingSeats(true);
     try {
-      // Simulate Tokenization
       const mockToken = `pm_mock_${Math.random().toString(36).substring(7)}`;
 
       const response = await api.post("/payments/increase-seats", {
         additionalSeats,
-        paymentMethodId: mockToken, // Using token
+        paymentMethodId: mockToken,
         cardBrand: getCardBrand(paymentData.cardNumber),
         cardLast4: paymentData.cardNumber.slice(-4)
       });
@@ -410,7 +400,6 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Modals */}
         <SupportModal
           isOpen={isSupportModalOpen}
           onClose={() => setIsSupportModalOpen(false)}

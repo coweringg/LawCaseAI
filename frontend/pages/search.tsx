@@ -8,10 +8,8 @@ export default function SmartSearch() {
     return (
         <ProtectedRoute>
             <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
-                {/* Top Navigation Bar */}
                 <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-3">
                     <div className="max-w-[1600px] mx-auto flex items-center gap-8">
-                        {/* Logo */}
                         <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
                             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
                                 <span className="material-icons-round text-2xl">gavel</span>
@@ -19,7 +17,6 @@ export default function SmartSearch() {
                             <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">LawCase<span className="text-primary">AI</span></span>
                         </Link>
 
-                        {/* Smart Search Bar */}
                         <div className="flex-grow max-w-3xl relative">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                                 <span className="material-icons-round text-primary text-xl">psychology</span>
@@ -38,7 +35,6 @@ export default function SmartSearch() {
                             </div>
                         </div>
 
-                        {/* User Actions */}
                         <div className="flex items-center gap-4 flex-shrink-0">
                             <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                 <span className="material-icons-round">notifications</span>
@@ -56,11 +52,9 @@ export default function SmartSearch() {
                 </header>
 
                 <div className="flex-grow flex max-w-[1600px] mx-auto w-full overflow-hidden">
-                    {/* Sidebar Filters */}
                     <aside className="w-72 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 p-6 overflow-y-auto hidden lg:block">
                         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Advanced Filters</h2>
 
-                        {/* Date Range */}
                         <div className="mb-8">
                             <label className="flex items-center gap-2 text-sm font-bold mb-4 text-slate-700 dark:text-slate-300">
                                 <span className="material-icons-round text-sm text-primary">calendar_today</span>
@@ -73,7 +67,6 @@ export default function SmartSearch() {
                             </select>
                         </div>
 
-                        {/* Case Name */}
                         <div className="mb-8">
                             <label className="flex items-center gap-2 text-sm font-bold mb-4 text-slate-700 dark:text-slate-300">
                                 <span className="material-icons-round text-sm text-primary">folder_shared</span>
@@ -90,7 +83,6 @@ export default function SmartSearch() {
                             </div>
                         </div>
 
-                        {/* Document Type */}
                         <div className="mb-8">
                             <label className="flex items-center gap-2 text-sm font-bold mb-4 text-slate-700 dark:text-slate-300">
                                 <span className="material-icons-round text-sm text-primary">description</span>
@@ -113,9 +105,7 @@ export default function SmartSearch() {
                         </div>
                     </aside>
 
-                    {/* Main Content Area */}
                     <main className="flex-grow overflow-y-auto p-8">
-                        {/* Header Section */}
                         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                             <div>
                                 <nav className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
@@ -129,7 +119,6 @@ export default function SmartSearch() {
                             </div>
                         </div>
 
-                        {/* Category Tabs */}
                         <div className="flex items-center gap-8 border-b border-slate-200 dark:border-slate-800 mb-8">
                             <button className="pb-4 border-b-2 border-primary text-primary text-sm font-bold flex items-center gap-2">
                                 Documents <span className="bg-primary/10 px-2 py-0.5 rounded text-xs">12</span>
@@ -142,9 +131,7 @@ export default function SmartSearch() {
                             </button>
                         </div>
 
-                        {/* Search Results List */}
                         <div className="space-y-6">
-                            {/* Result Card 1 */}
                             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-lg transition-all border-l-4 border-l-primary group cursor-pointer">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-4">
@@ -170,7 +157,6 @@ export default function SmartSearch() {
                                 </div>
                             </div>
 
-                            {/* Result Card 2 */}
                             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-lg transition-all border-l-4 border-l-primary group cursor-pointer">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-4">
@@ -198,7 +184,6 @@ export default function SmartSearch() {
                         </div>
                     </main>
 
-                    {/* Right Side Panel (Intelligence Summary) */}
                     <aside className="w-80 flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 hidden xl:block overflow-y-auto">
                         <div className="mb-6">
                             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">AI Insight</h2>

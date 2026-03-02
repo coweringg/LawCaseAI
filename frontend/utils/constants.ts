@@ -7,7 +7,7 @@ export const PLAN_LIMITS = {
   enterprise: 100000
 }
 
-export const FILE_SIZE_LIMIT = 10 * 1024 * 1024 // 10MB
+export const FILE_SIZE_LIMIT = 10 * 1024 * 1024
 
 export const ALLOWED_FILE_TYPES = [
   'application/pdf',

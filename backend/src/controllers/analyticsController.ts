@@ -2,10 +2,6 @@ import { Request, Response } from 'express'
 import { ChatMessage } from '../models'
 import { IApiResponse } from '../types'
 
-/**
- * Get AI Usage Statistics
- * Aggregates token usage, costs, and message counts.
- */
 export const getAiStats = async (req: Request, res: Response): Promise<void> => {
   try {
     const { range = '30d' } = req.query
@@ -14,9 +10,8 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
     if (range === '7d') startDate.setDate(startDate.getDate() - 7)
     else if (range === '30d') startDate.setDate(startDate.getDate() - 30)
     else if (range === '90d') startDate.setDate(startDate.getDate() - 90)
-    else startDate.setFullYear(startDate.getFullYear() - 1) // 1y default
+    else startDate.setFullYear(startDate.getFullYear() - 1)
 
-    // Aggregation Pipeline
     const stats = await ChatMessage.aggregate([
       {
         $match: {
@@ -33,7 +28,6 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
               $cond: [{ $eq: ['$sender', 'ai'] }, '$metadata.responseTime', null] 
             } 
           },
-          // Group by model usage
           modelDistribution: {
             $push: {
               $cond: [{ $eq: ['$sender', 'ai'] }, '$metadata.model', null]
@@ -43,7 +37,6 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
       }
     ])
 
-    // Daily Usage Trend
     const dailyTrend = await ChatMessage.aggregate([
       {
         $match: {
@@ -60,7 +53,6 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
       { $sort: { _id: 1 } }
     ])
 
-    // Top Power Users
     const powerUsers = await ChatMessage.aggregate([
       {
         $match: {
@@ -95,8 +87,6 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
       }
     ])
 
-    // Unified calculation for AI cost
-    // Gemini 2.0 Flash blended rate approx $0.00015 per 1k tokens
     const estimatedCost = (stats[0]?.totalTokens || 0) / 1000 * 0.00015
 
     res.status(200).json({

@@ -6,7 +6,6 @@ import path from 'path'
 import config from '../config'
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '../types'
 
-// Configure AWS S3 (Cloudflare R2 compatible)
 const s3Client = new S3Client({
   region: 'auto',
   endpoint: config.r2.endpoint,
@@ -16,7 +15,6 @@ const s3Client = new S3Client({
   },
 })
 
-// Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -33,11 +31,7 @@ const upload = multer({
 
 export const uploadSingle = upload.single('file')
 
-/**
- * High-level function to save a file to either R2 or Local Storage
- */
 export const saveFileToStorage = async (file: Express.Multer.File, key: string): Promise<string> => {
-  // Check if R2 is properly configured
   const isR2Configured = 
     config.r2.accessKeyId && 
     config.r2.accessKeyId !== 'your-r2-access-key' &&
@@ -49,16 +43,13 @@ export const saveFileToStorage = async (file: Express.Multer.File, key: string):
       return await uploadToR2(file, key)
     } catch (error) {
       console.error('R2 Upload failed, falling back to local:', error)
-      // Fallback to local if R2 fails
     }
   }
 
-  // Local Storage Fallback
   try {
     const uploadDir = path.join(process.cwd(), 'uploads')
     const userDir = path.dirname(path.join(uploadDir, key))
     
-    // Ensure directories exist
     if (!fs.existsSync(userDir)) {
       fs.mkdirSync(userDir, { recursive: true })
     }
@@ -66,7 +57,6 @@ export const saveFileToStorage = async (file: Express.Multer.File, key: string):
     const filePath = path.join(uploadDir, key)
     fs.writeFileSync(filePath, file.buffer)
     
-    // Return relative URL for static serving
     return `/uploads/${key}`
   } catch (localError) {
     throw new Error(`Failed to save file locally: ${localError}`)
@@ -90,11 +80,7 @@ export const uploadToR2 = async (file: Express.Multer.File, key: string): Promis
   }
 }
 
-/**
- * High-level function to delete a file from either R2 or Local Storage
- */
 export const deleteFromStorage = async (key: string): Promise<void> => {
-  // Check if R2 is properly configured
   const isR2Configured = 
     config.r2.accessKeyId && 
     config.r2.accessKeyId !== 'your-r2-access-key' &&
@@ -110,7 +96,6 @@ export const deleteFromStorage = async (key: string): Promise<void> => {
     }
   }
 
-  // Local Storage Deletion
   try {
     const uploadDir = path.join(process.cwd(), 'uploads')
     const filePath = path.join(uploadDir, key)

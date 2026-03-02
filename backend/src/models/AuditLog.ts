@@ -71,7 +71,6 @@ const auditLogSchema = new Schema<IAuditLog>({
   timestamps: true
 })
 
-// Index for fast lookups
 auditLogSchema.index({ targetId: 1, timestamp: -1 })
 auditLogSchema.index({ category: 1, timestamp: -1 })
 auditLogSchema.index({ timestamp: -1 })

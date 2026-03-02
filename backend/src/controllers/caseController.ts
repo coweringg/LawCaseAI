@@ -1,6 +1,5 @@
 import { Response } from 'express'
 
-
 import { Case, User } from '../models'
 import { IApiResponse, CaseStatus, IAuthRequest, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
@@ -18,7 +17,6 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    // Check plan limit
     const user = await User.findById(userId)
     if (!user) {
       res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
@@ -53,10 +51,8 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
 
     await newCase.save()
 
-    // Atomic increment of user's current case count
     await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
 
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -89,7 +85,6 @@ export const getCases = async (req: IAuthRequest, res: Response): Promise<void> 
       return
     }
 
-    // Pagination
     const page = Math.max(1, parseInt(req.query.page as string) || 1)
     const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100)
     const skip = (page - 1) * limit
@@ -215,7 +210,6 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    // Whitelist allowed fields to prevent NoSQL injection
     const { name, client, description, status, practiceArea } = req.body
     const allowedUpdates: Record<string, unknown> = {}
     
@@ -231,8 +225,6 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
         allowedUpdates.closedAt = new Date()
       } else if (status === CaseStatus.ACTIVE) {
         allowedUpdates.closedAt = null
-        // If it's a first-time activation in this period, we'll handle increments later
-        // or we can check here. Let's handle it after successful update for consistency.
       }
     }
 
@@ -252,26 +244,23 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    // Logic: If status changed to ACTIVE, check if it counts towards the current month
     if (status === CaseStatus.ACTIVE && currentCase.status !== CaseStatus.ACTIVE) {
       const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date(0)
       const lastActivation = updatedCase.lastActivationPeriodStart ? new Date(updatedCase.lastActivationPeriodStart) : new Date(0)
       
       if (lastActivation < periodStart) {
-        // First activation in this cycle
         await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
         await Case.updateOne({ _id: id }, { $set: { lastActivationPeriodStart: user.currentPeriodStart || new Date() } })
       }
     }
 
-    // Log the action if status changed
     if (status && status !== currentCase.status) {
       const isClosing = status === CaseStatus.CLOSED
       const isArchiving = status === CaseStatus.ARCHIVED
       
       let actionType: any = 'CASE_STATUS_CHANGE'
       if (isClosing) actionType = 'CASE_CLOSED'
-      if (isArchiving) actionType = 'CASE_STATUS_CHANGE' // Can add CASE_ARCHIVED later if needed
+      if (isArchiving) actionType = 'CASE_STATUS_CHANGE'
       
       const description = isClosing 
         ? `User ${user.email} closed case: "${updatedCase.name}"`
@@ -325,10 +314,6 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    // [MOD] Deletion NO LONGER frees up currentCases capacity until the month ends.
-    // This ensures the "8 cases processed" limit is strictly respected.
-
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -383,8 +368,6 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
       return
     }
 
-    // Dynamic config check for limits is safer, but planLimit works as a fallback based on your current setup.
-    // user.maxCases is the virtual from PLAN_LIMITS
     const maxAllowedCases = user.maxCases || user.planLimit
     if (user.currentCases >= maxAllowedCases) {
       res.status(403).json({
@@ -394,7 +377,6 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
       return
     }
 
-    // Reactivate and check activation month
     currentCase.status = CaseStatus.ACTIVE
     currentCase.closedAt = undefined
     
@@ -402,7 +384,6 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
     const lastActivation = currentCase.lastActivationPeriodStart ? new Date(currentCase.lastActivationPeriodStart) : new Date(0)
     
     if (lastActivation < periodStart) {
-      // It hasn't been used in this month yet! Increment.
       await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
       currentCase.lastActivationPeriodStart = user.currentPeriodStart || new Date()
     }

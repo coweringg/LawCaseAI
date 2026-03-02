@@ -14,7 +14,7 @@ export const Card: React.FC<CardProps> = ({ children, className, variant = 'stan
         isGlass 
           ? 'glass border-white/10 shadow-xl overflow-hidden' 
           : 'bg-white rounded-xl shadow-sm border border-secondary-200',
-        'p-0', // Admin dashboard uses p-0 for table containers, we'll handle padding in components
+        'p-0',
         className
       )}
       {...props}

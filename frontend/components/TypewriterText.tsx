@@ -20,7 +20,6 @@ export default function TypewriterText({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
 
-  // Blinking cursor
   useEffect(() => {
     const cursorInterval = setInterval(() => {
       setShowCursor((prev) => !prev);
@@ -32,16 +31,13 @@ export default function TypewriterText({
     const currentPhrase = phrases[phraseIndex];
 
     if (!isDeleting) {
-      // Typing
       setDisplayText(currentPhrase.substring(0, displayText.length + 1));
 
       if (displayText.length === currentPhrase.length) {
-        // Finished typing, pause then start deleting
         setTimeout(() => setIsDeleting(true), pauseDuration);
         return;
       }
     } else {
-      // Deleting
       setDisplayText(currentPhrase.substring(0, displayText.length - 1));
 
       if (displayText.length === 0) {

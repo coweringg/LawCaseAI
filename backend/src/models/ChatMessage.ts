@@ -55,12 +55,10 @@ const chatMessageSchema = new Schema<IChatMessage>({
   toObject: { virtuals: true }
 })
 
-// Indexes
 chatMessageSchema.index({ caseId: 1, timestamp: 1 })
 chatMessageSchema.index({ userId: 1 })
 chatMessageSchema.index({ timestamp: -1 })
 
-// Static methods
 chatMessageSchema.statics.findByCase = function(caseId: string, limit: number = 50) {
   return this.find({ caseId })
     .sort({ timestamp: 1 })
@@ -76,7 +74,6 @@ chatMessageSchema.statics.findLatestByCase = function(caseId: string) {
     .sort({ timestamp: -1 })
 }
 
-// Virtuals
 chatMessageSchema.virtual('isFromUser').get(function() {
   return this.sender === 'user'
 })

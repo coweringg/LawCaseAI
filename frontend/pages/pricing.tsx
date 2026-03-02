@@ -76,7 +76,6 @@ export default function Pricing() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Firm&apos;s Future</span>
             </h1>
 
-            {/* Main Toggle: Personal vs Empresa */}
             <div className="flex justify-center mb-16">
               <div className="premium-glass p-2 rounded-2xl border border-white/10 flex gap-2">
                 <button
@@ -119,7 +118,6 @@ export default function Pricing() {
 
           {pricingType === 'personal' ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
-              {/* Growth Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -156,7 +154,6 @@ export default function Pricing() {
                 </Link>
               </motion.div>
 
-              {/* Professional Plan */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -194,7 +191,6 @@ export default function Pricing() {
                 </Link>
               </motion.div>
 
-              {/* Elite Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,7 +231,6 @@ export default function Pricing() {
               </motion.div>
             </div>
           ) : (
-            /* Business / Empresa Track */
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -318,7 +313,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* ROI / Value-Based Section */}
       <section className="py-24 relative overflow-hidden bg-white/5 border-y border-white/10">
         <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
         <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
@@ -362,7 +356,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Security & Compliance Grid */}
       <section className="py-24 bg-white dark:bg-[#0a0f18]">
         <div className="container-stitch">
           <div className="grid md:grid-cols-4 gap-8">
@@ -384,7 +377,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Simplified FAQ */}
       <section className="py-32 relative border-y border-white/5">
         <div className="container-stitch max-w-4xl">
           <h2 className="text-4xl md:text-5xl font-black text-center mb-20 font-display tracking-tightest text-white">Financial <span className="text-primary">Precision</span></h2>

@@ -7,14 +7,11 @@ import { handleValidationErrors } from '../middleware/validation'
 
 const router = Router()
 
-// All routes require authentication
 router.use(authenticate)
 router.use(checkAndResetQuotas)
 
-// GET /api/events
 router.get('/', eventController.getEvents)
 
-// POST /api/events
 router.post('/', [
   body('title')
     .trim()
@@ -49,7 +46,6 @@ router.post('/', [
   handleValidationErrors
 ], eventController.createEvent)
 
-// PUT /api/events/:id
 router.put('/:id', [
   param('id').isMongoId().withMessage('Invalid event ID'),
   body('title')
@@ -78,7 +74,6 @@ router.put('/:id', [
   handleValidationErrors
 ], eventController.updateEvent)
 
-// DELETE /api/events/:id
 router.delete('/:id', [
   param('id').isMongoId().withMessage('Invalid event ID'),
   handleValidationErrors

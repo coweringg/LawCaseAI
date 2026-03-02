@@ -68,7 +68,6 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
 
     const { name, lawFirm, email } = req.body
 
-    // Check if email is being changed and if it's already in use
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email })
       if (existingUser) {
@@ -105,7 +104,6 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
       return
     }
 
-    // Log the action
     await logAction({
       adminId: updatedUser._id,
       adminName: updatedUser.name,
@@ -168,7 +166,6 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
 
     const { currentPassword, newPassword } = req.body
 
-    // Get user with password
     const userWithPassword = await User.findById(user._id).select('+password')
     if (!userWithPassword) {
       res.status(404).json({
@@ -178,7 +175,6 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
       return
     }
 
-    // Check current password
     const isMatch = await userWithPassword.comparePassword(currentPassword)
     if (!isMatch) {
       res.status(400).json({
@@ -188,11 +184,9 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
       return
     }
 
-    // Update password
     userWithPassword.password = newPassword
     await userWithPassword.save()
 
-    // Log the action
     await logAction({
       adminId: userWithPassword._id,
       adminName: userWithPassword.name,
@@ -249,7 +243,6 @@ export const updateNotifications = async (req: IAuthRequest, res: Response): Pro
       return
     }
 
-    // Log the action
     await logAction({
       adminId: updatedUser._id,
       adminName: updatedUser.name,
@@ -354,7 +347,6 @@ export const submitSupportRequest = async (req: IAuthRequest, res: Response): Pr
 
     await supportRequest.save()
 
-    // Log the action for support
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -401,14 +393,12 @@ export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promis
 
     user.paymentMethods.push(newPaymentMethod)
 
-    // Set as default if it's the first card
     if (user.paymentMethods.length === 1) {
       user.defaultPaymentMethodId = newId
     }
 
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,
@@ -446,14 +436,12 @@ export const removePaymentMethod = async (req: IAuthRequest, res: Response): Pro
 
     user.paymentMethods = user.paymentMethods.filter(pm => pm.id !== id)
 
-    // Handle default ID reassignment
     if (user.defaultPaymentMethodId === id) {
       user.defaultPaymentMethodId = user.paymentMethods.length > 0 ? user.paymentMethods[0].id : undefined
     }
 
     await user.save()
 
-    // Log the action
     await logAction({
       adminId: user._id,
       adminName: user.name,

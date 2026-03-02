@@ -1,14 +1,7 @@
-/**
- * Realistic Mock Payment Validator
- * Implements standard card validation rules (Luhn, Expiry, CVV)
- */
-
 export const validateCardNumber = (num: string): boolean => {
-  // Remove spaces and dashes
   const cleanNum = num.replace(/[\s-]/g, '');
   if (!/^\d{13,19}$/.test(cleanNum)) return false;
 
-  // Luhn Algorithm
   let sum = 0;
   let shouldDouble = false;
   for (let i = cleanNum.length - 1; i >= 0; i--) {
@@ -28,7 +21,6 @@ export const validateExpiry = (month: number, year: number): boolean => {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
 
-  // Normalize year (handle YY as 20YY)
   const fullYear = year < 100 ? 2000 + year : year;
 
   if (fullYear < currentYear) return false;

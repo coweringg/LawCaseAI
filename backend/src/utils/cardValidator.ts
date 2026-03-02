@@ -1,8 +1,3 @@
-/**
- * Validates a credit card number using the Luhn algorithm.
- * @param cardNumber The card number as a string.
- * @returns boolean indicating if the card number is valid.
- */
 export const validateLuhn = (cardNumber: string): boolean => {
   const digits = cardNumber.replace(/\D/g, '');
   if (digits.length < 13 || digits.length > 19) return false;

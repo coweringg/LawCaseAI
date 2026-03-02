@@ -6,7 +6,6 @@ import logger from '../utils/logger'
 
 const controllerLogger = logger.child({ module: 'dashboard-controller' })
 
-// Escape special regex characters to prevent ReDoS
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -19,14 +18,12 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             return
         }
 
-        // Get user data
         const user = await User.findById(userId)
         if (!user) {
             res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
             return
         }
 
-        // Reset hoursSavedToday if it's a new day
         const now = new Date()
         const lastReset = new Date(user.lastHoursSavedReset)
         if (now.getDate() !== lastReset.getDate() ||
@@ -37,21 +34,16 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             await user.save()
         }
 
-        // Parallelized queries for better performance
         const [caseStats, documentCountResult, recentCases, upcomingDeadlines] = await Promise.all([
-            // Get case stats
             Case.aggregate([
                 { $match: { userId } },
                 { $group: { _id: '$status', count: { $sum: 1 } } }
             ]),
-            // Get total document count
             Case.aggregate([
                 { $match: { userId } },
                 { $group: { _id: null, totalDocuments: { $sum: '$fileCount' } } }
             ]),
-            // Get recent cases (last 3)
             Case.find({ userId }).sort({ updatedAt: -1 }).limit(3).lean(),
-            // Get upcoming deadlines (sorted by proximity)
             Event.find({
                 userId,
                 start: { $gte: now },
@@ -72,7 +64,6 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
 
         const totalDocuments = documentCountResult.length > 0 ? documentCountResult[0].totalDocuments : 0
 
-        // Build response
         const dashboardData = {
             hoursSaved: {
                 total: Math.round((user.hoursSavedByAI || 0) * 10) / 10,
@@ -130,12 +121,9 @@ export const searchGlobal = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
-        // Escape regex special characters to prevent ReDoS
         const safeQuery = escapeRegex(q.trim())
 
-        // Parallelized search queries
         const [cases, files] = await Promise.all([
-            // Search Cases (Name, Client, Description)
             Case.find({
                 userId,
                 $or: [
@@ -148,7 +136,6 @@ export const searchGlobal = async (req: IAuthRequest, res: Response): Promise<vo
                 .select('name client status updatedAt')
                 .lean(),
 
-            // Search CaseFiles (OriginalName)
             CaseFile.find({
                 userId,
                 originalName: { $regex: safeQuery, $options: 'i' }

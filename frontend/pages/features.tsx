@@ -9,11 +9,9 @@ export default function Features() {
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         setMounted(true);
-        // Handle anchor links
         const hash = window.location.hash.replace('#', '');
         if (hash === 'insights' || hash === 'research' || hash === 'chronology') {
             setActiveTab(hash);
-            // Smooth scroll to demo section after a short delay to allow for rendering
             setTimeout(() => {
                 const element = document.getElementById('feature-demos');
                 if (element) {
@@ -44,7 +42,6 @@ export default function Features() {
                 <meta name="description" content="Explore the elite AI capabilities of LawCaseAI, from document insights to automated chronology and jurisprudence research." />
             </Head>
 
-            {/* Hero Section */}
             <section className="relative pt-32 pb-20 overflow-hidden">
                 <div className="container-stitch relative z-10 text-center">
                     <motion.div
@@ -63,9 +60,8 @@ export default function Features() {
                 </div>
             </section>
 
-            {/* Interactive Navigation */}
             <section className="sticky top-16 z-40 bg-background-dark/40 backdrop-blur-2xl border-b border-white/10 py-6">
-                <div className="container-stitch flex justify-center gap-4 md:gap-10 overflow-x-auto pb-2">
+                <div className="container-stitch flex items-center justify-center gap-4 md:gap-10 overflow-x-auto py-6">
                     {[
                         { id: 'insights', label: 'Document Insights', icon: FileText },
                         { id: 'research', label: 'Research Assistant', icon: Search },
@@ -74,9 +70,9 @@ export default function Features() {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.5)] scale-105'
-                                : 'text-slate-500 hover:text-slate-200 bg-white/[0.02] border border-white/5'
+                            className={`flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap border ${activeTab === tab.id
+                                ? 'bg-primary text-white border-primary shadow-[0_0_30px_rgba(124,58,237,0.5)] scale-105'
+                                : 'text-slate-500 hover:text-slate-200 bg-white/[0.02] border-white/5'
                                 }`}
                         >
                             <tab.icon size={16} />
@@ -86,7 +82,6 @@ export default function Features() {
                 </div>
             </section>
 
-            {/* Feature Demos */}
             <section id="feature-demos" className="py-24 bg-[#0d121d] min-h-[80vh]">
                 <div className="container-stitch">
                     <AnimatePresence mode="wait">
@@ -97,7 +92,6 @@ export default function Features() {
                 </div>
             </section>
 
-            {/* Security Section */}
             <section className="py-32 relative overflow-hidden border-t border-white/5">
                 <div className="container-stitch text-center relative z-10">
                     <motion.div
@@ -192,7 +186,6 @@ function InsightsDemo() {
                         </div>
                     </motion.div>
                 </div>
-                {/* Floating elements */}
                 <div className="absolute top-4 right-4 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10"></div>
             </div>
         </motion.div>

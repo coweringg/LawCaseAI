@@ -191,9 +191,13 @@ export default function About() {
                                 </button>
                             </Link>
                             <Link href="/pricing">
-                                <button className="h-16 px-12 border border-white/10 text-white font-black rounded-2xl premium-glass hover:bg-white/5 transition-all text-sm uppercase tracking-widest">
+                                <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="h-16 px-12 border border-white/10 text-white font-black rounded-2xl premium-glass hover:bg-white/5 transition-all text-sm uppercase tracking-widest"
+                                >
                                     View Plans
-                                </button>
+                                </motion.button>
                             </Link>
                         </div>
                     </motion.div>

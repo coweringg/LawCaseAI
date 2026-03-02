@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import TypewriterText from '@/components/TypewriterText';
+import FloatingGlassCard from '@/components/ui/FloatingGlassCard';
 import { Check, Star, Shield, Gavel, Zap, Users } from 'lucide-react';
 
 export default function Home() {
@@ -161,44 +162,50 @@ export default function Home() {
                 </div>
                 <div className="p-8 space-y-8">
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                        <Gavel size={20} />
-                      </div>
-                      <div className="h-2 w-24 bg-white/20 rounded"></div>
-                      <div className="h-5 w-12 bg-white/5 rounded"></div>
-                    </div>
-                    <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20">
-                      <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white">
-                        <Users size={20} />
-                      </div>
-                      <div className="h-2 w-20 bg-white/40 rounded"></div>
-                      <div className="h-5 w-16 bg-white/20 rounded"></div>
-                    </div>
-                  </div>
-                  <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden">
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="h-4 w-32 bg-white/10 rounded"></div>
-                      <div className="h-6 w-20 bg-primary/30 rounded-full"></div>
-                    </div>
-                    <div className="space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex gap-4">
-                          <div className="w-8 h-8 rounded bg-white/5"></div>
-                          <div className="flex-1 space-y-2 py-1">
-                            <div className="h-1.5 bg-white/10 rounded w-full"></div>
-                            <div className="h-1.5 bg-white/5 rounded w-3/4"></div>
-                          </div>
+                    <FloatingGlassCard delay={0.2} duration={6} yOffset={5} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-500">
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform group-hover/inner:scale-110">
+                          <Gavel size={20} />
                         </div>
-                      ))}
-                    </div>
+                        <div className="h-2 w-24 bg-white/20 rounded"></div>
+                        <div className="h-5 w-12 bg-white/5 rounded"></div>
+                      </div>
+                    </FloatingGlassCard>
+                    <FloatingGlassCard delay={0.5} duration={7} yOffset={6} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-500">
+                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform group-hover/inner:scale-110">
+                          <Users size={20} />
+                        </div>
+                        <div className="h-2 w-20 bg-white/40 rounded"></div>
+                        <div className="h-5 w-16 bg-white/20 rounded"></div>
+                      </div>
+                    </FloatingGlassCard>
                   </div>
+                  <FloatingGlassCard delay={0.8} duration={8} yOffset={4} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-500">
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="h-4 w-32 bg-white/10 rounded"></div>
+                        <div className="h-6 w-20 bg-primary/30 rounded-full"></div>
+                      </div>
+                      <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="flex gap-4 group/item cursor-pointer">
+                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-300"></div>
+                            <div className="flex-1 space-y-2 py-1">
+                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-300"></div>
+                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-300"></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </FloatingGlassCard>
                 </div>
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/20 rounded-full blur-[60px] z-0"></div>
-              <div className="absolute bottom-[-30px] left-[-30px] w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] z-0"></div>
+              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/20 rounded-full blur-[60px] z-0 pointer-events-none"></div>
+              <div className="absolute bottom-[-30px] left-[-30px] w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] z-0 pointer-events-none"></div>
             </motion.div>
           </div>
         </div>

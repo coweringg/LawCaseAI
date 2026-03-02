@@ -112,11 +112,13 @@ export default function Login() {
           <h2 className="text-xl font-black text-white mb-6 font-display tracking-tight text-center">Select an account</h2>
           <div className="space-y-3">
             {savedAccounts.map((acc: any, index: number) => (
-              <button
+              <div
                 key={index}
-                onClick={() => handleSavedAccountLogin(index)}
-                disabled={loggingInAccountIndex !== null}
-                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all group"
+                role="button"
+                tabIndex={0}
+                onClick={() => loggingInAccountIndex === null && handleSavedAccountLogin(index)}
+                onKeyDown={(e) => e.key === 'Enter' && loggingInAccountIndex === null && handleSavedAccountLogin(index)}
+                className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all group cursor-pointer ${loggingInAccountIndex !== null ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
@@ -147,7 +149,7 @@ export default function Login() {
                     </>
                   )}
                 </div>
-              </button>
+              </div>
             ))}
 
             <button

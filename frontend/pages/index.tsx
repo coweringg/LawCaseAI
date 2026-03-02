@@ -13,6 +13,9 @@ export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000');
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace('/dashboard');
@@ -37,6 +40,19 @@ export default function Home() {
       <Head>
         <title>LawCaseAI - Enterprise AI Legal Case Management</title>
         <meta name="description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
+        <link rel="canonical" href={siteUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:title" content="LawCaseAI - Enterprise AI Legal Case Management" />
+        <meta property="og:description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
+        <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+        <meta property="og:site_name" content="LawCaseAI" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="LawCaseAI - Enterprise AI Legal Case Management" />
+        <meta name="twitter:description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
+        <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
       </Head>
 
       <main className="flex-grow pt-24 font-sans text-slate-100 bg-background-dark min-h-screen relative overflow-hidden transition-colors duration-500">

@@ -297,18 +297,22 @@ export default function NewCase() {
                                                 Matter Status
                                             </label>
                                             <div className="flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl w-full">
-                                                {['active', 'pending', 'discovery'].map(s => (
+                                                {[
+                                                    { id: 'active', color: 'text-emerald-500', dot: 'bg-emerald-500' },
+                                                    { id: 'pending', color: 'text-amber-500', dot: 'bg-amber-500' },
+                                                    { id: 'discovery', color: 'text-indigo-500', dot: 'bg-indigo-500' }
+                                                ].map(s => (
                                                     <button
-                                                        key={s}
+                                                        key={s.id}
                                                         type="button"
-                                                        onClick={() => setFormData(prev => ({ ...prev, status: s }))}
-                                                        className={`flex-1 flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em] py-3 rounded-lg transition-all ${formData.status === s
-                                                            ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                                                        onClick={() => setFormData(prev => ({ ...prev, status: s.id }))}
+                                                        className={`flex-1 flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em] py-3 rounded-lg transition-all ${formData.status === s.id
+                                                            ? `bg-white dark:bg-slate-700 ${s.color} shadow-sm ring-1 ring-black/5`
                                                             : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-400'
                                                             }`}
                                                     >
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${formData.status === s ? 'bg-primary' : 'bg-slate-300'}`}></span>
-                                                        {s}
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${formData.status === s.id ? s.dot : 'bg-slate-300'}`}></span>
+                                                        {s.id}
                                                     </button>
                                                 ))}
                                             </div>

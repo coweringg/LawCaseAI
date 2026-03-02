@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { body, param } from 'express-validator'
-import { chatWithAI, analyzeCaseFile, getCaseSummary } from '../controllers/aiController'
+import { chatWithAI, analyzeCaseFile, getCaseSummary, globalAudit } from '../controllers/aiController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { handleValidationErrors } from '../middleware/validation'
@@ -43,5 +43,11 @@ router.get('/summary/:caseId', [
   param('caseId').isMongoId().withMessage('Invalid case ID'),
   handleValidationErrors
 ], getCaseSummary)
+
+/**
+ * @route   POST /api/ai/global-audit
+ * @desc    Perform global intelligence audit
+ */
+router.post('/global-audit', globalAudit)
 
 export default router

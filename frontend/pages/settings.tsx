@@ -32,7 +32,13 @@ export default function Settings() {
   const { user, updateProfile, changePassword, logout, fetchProfile } =
     useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('tab') || 'profile';
+    }
+    return 'profile';
+  });
   const [mounted, setMounted] = useState(false);
 
   // TanStack Query Hooks
@@ -90,8 +96,24 @@ export default function Settings() {
   const [isIncreasingSeats, setIsIncreasingSeats] = useState(false);
 
   useEffect(() => {
+    if (user?.billingInterval) {
+      setBillingInterval(user.billingInterval as "monthly" | "annual");
+    } else if (billingInfo?.billingInterval) {
+      setBillingInterval(billingInfo.billingInterval as "monthly" | "annual");
+    }
+  }, [user?.billingInterval, billingInfo?.billingInterval]);
+
+  useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Guard: Redirect non-admin org members away from billing
+  useEffect(() => {
+    if (mounted && user?.organizationId && !user?.isOrgAdmin && activeTab === "billing") {
+      setActiveTab("profile");
+      router.replace("/settings?tab=profile");
+    }
+  }, [mounted, user, activeTab, router]);
 
   // Handle inbound redirection for plan selection
   useEffect(() => {
@@ -185,6 +207,15 @@ export default function Settings() {
     return sum % 10 === 0;
   };
 
+  const getCardBrand = (number: string): string => {
+    const firstDigit = number.charAt(0);
+    if (firstDigit === '4') return 'Visa';
+    if (firstDigit === '5') return 'Mastercard';
+    if (firstDigit === '3') return 'American Express';
+    if (firstDigit === '6') return 'Discover';
+    return 'Credit Card';
+  };
+
   const handleConfirmPurchase = async () => {
     if (!selectedPlanId) return;
     if (!validateLuhn(paymentData.cardNumber)) {
@@ -203,18 +234,21 @@ export default function Settings() {
         paymentMethodId: mockToken, // Using token instead of raw card data
         firmName: paymentData.firmName,
         interval: billingInterval,
+        cardBrand: getCardBrand(paymentData.cardNumber),
+        cardLast4: paymentData.cardNumber.slice(-4)
       });
 
       if (response.data.success) {
-        toast.success("Tier deployed successfully!");
+        toast.success("Tier deployed successfully! Synchronizing neural state...");
         setIsPlanModalOpen(false);
-        refetchBilling();
-        await fetchProfile();
-        if (selectedPlanId === "enterprise" || selectedPlanId === "elite") {
-          setActiveTab("organization");
-          refetchOrg();
-          refetchMembers();
-        }
+        // Clean reload to ensure all organization/billing state is fresh
+        setTimeout(() => {
+          if (selectedPlanId === 'enterprise') {
+            window.location.href = '/settings?tab=organization';
+          } else {
+            window.location.reload();
+          }
+        }, 1500);
       } else {
         toast.error(response.data.message || "Purchase failed");
       }
@@ -260,11 +294,15 @@ export default function Settings() {
       const response = await api.post("/payments/increase-seats", {
         additionalSeats,
         paymentMethodId: mockToken, // Using token
+        cardBrand: getCardBrand(paymentData.cardNumber),
+        cardLast4: paymentData.cardNumber.slice(-4)
       });
       if (response.data.success) {
-        toast.success(`Capacity increased`);
+        toast.success(`Capacity increased. Reloading...`);
         setIsCapacityModalOpen(false);
-        refetchOrg();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
       toast.error("Failed to increase capacity");
@@ -285,12 +323,16 @@ export default function Settings() {
           },
         ]
       : []),
-    {
-      id: "billing",
-      label: "Billing & Plans",
-      icon: "credit_card",
-      color: "primary",
-    },
+    ...(!(user?.organizationId && !user?.isOrgAdmin)
+      ? [
+          {
+            id: "billing",
+            label: "Billing & Plans",
+            icon: "credit_card",
+            color: "primary",
+          },
+        ]
+      : []),
     { id: "security", label: "Security", icon: "security", color: "primary" },
   ];
 
@@ -318,7 +360,12 @@ export default function Settings() {
             <SettingsSidebar
               tabs={tabs}
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={(id) => {
+                setActiveTab(id);
+                router.push({ query: { ...router.query, tab: id } }, undefined, {
+                  shallow: true,
+                });
+              }}
               user={user}
               onLogout={logout}
               onOpenSupport={() => setIsSupportModalOpen(true)}

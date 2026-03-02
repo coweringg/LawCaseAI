@@ -526,8 +526,10 @@ export default function AdminDashboard() {
     })
   }
 
-  const handleClearSupport = async () => {
-    const categoryName = supportTypeFilter === 'system_error' ? 'System Errors' : supportTypeFilter === 'feature_uplink' ? 'Feature Uplinks' : 'Login Issues'
+  const handleClearSupport = async (typeOverride?: string) => {
+    const finalType = typeOverride || supportTypeFilter
+    const categoryName = finalType === 'system_error' ? 'System Errors' : finalType === 'feature_uplink' ? 'Feature Uplinks' : finalType === 'login_issue' ? 'Public Signals' : 'All Signals'
+    
     setConfirmConfig({
       isOpen: true,
       title: 'Signal Cleanup',
@@ -536,10 +538,10 @@ export default function AdminDashboard() {
       variant: 'danger',
       onConfirm: async () => {
         try {
-          const response = await api.delete(`/admin/support?type=${supportTypeFilter}`)
+          const response = await api.delete(`/admin/support?type=${finalType}`)
           if (response.data.success) {
-            setSupportRequests([])
-            setTotalSupportRequests(0)
+            // Re-fetch to sync data
+            await fetchSupportRequests()
             setConfirmConfig(prev => ({ ...prev, isOpen: false }))
             toast.success(`Cleared all ${categoryName}`)
           }
@@ -1276,7 +1278,7 @@ export default function AdminDashboard() {
                       <motion.button
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => { setSupportTypeFilter('login_issue'); handleClearSupport(); }}
+                        onClick={() => handleClearSupport('login_issue')}
                         className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
                       >
                         <Trash2 size={14} />
@@ -1369,7 +1371,7 @@ export default function AdminDashboard() {
                       <motion.button
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleClearSupport}
+                        onClick={() => handleClearSupport(supportTypeFilter === 'all' ? 'user_all' : supportTypeFilter)}
                         className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
                       >
                         <Trash2 size={14} />

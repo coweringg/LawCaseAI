@@ -247,7 +247,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <p className="text-amber-900 dark:text-amber-200 text-xs font-medium">
                             You have reached {usagePercentage}% of your case limit. Upgrade now to ensure uninterrupted service.
                         </p>
-                        <Link href="/pricing">
+                        <Link href="/settings?tab=billing">
                             <button className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-[10px] font-bold transition-colors">
                                 Upgrade Now
                             </button>
@@ -286,8 +286,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 {/* Sidebar - Desktop */}
-                <aside className={`w-64 flex-shrink-0 bg-transparent border-r border-white/5 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-300`}>
-                    <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
+                <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-300`}>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
@@ -350,7 +349,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             className="bg-gradient-to-r from-primary to-blue-500 h-full rounded-full"
                                         ></motion.div>
                                     </div>
-                                    <Link href="/pricing" className="block w-full">
+                                    <Link href="/settings?tab=billing" className="block w-full">
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
@@ -447,8 +446,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Main Content Area */}
                 <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                     {/* Header */}
-                    <header className="h-16 lg:h-20 bg-transparent border-b border-white/5 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-20 relative">
-                        <div className="absolute inset-0 premium-glass bg-white/[0.01] backdrop-blur-2xl z-0"></div>
+                    <header className="h-16 lg:h-20 premium-glass !bg-transparent !border-x-0 !border-t-0 border-b border-white/10 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-20 relative">
                         
                         {/* Mobile Menu Button */}
                         <button 

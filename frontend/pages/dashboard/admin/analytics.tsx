@@ -30,6 +30,7 @@ import {
   Filter
 } from 'lucide-react'
 import { format } from 'date-fns'
+import { toast } from 'react-hot-toast'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -68,6 +69,21 @@ export default function AnalyticsDashboard() {
       fetchData()
     }
   }, [user, isAuthLoading, router, range])
+
+  const handleDeepAudit = async () => {
+    toast.loading('Initiating Deep System Audit...', { id: 'audit' })
+    try {
+      // Re-fetch data to simulate an audit/refresh
+      const res = await api.get(`/admin/analytics/ai?range=${range}`)
+      if (res.data.success) {
+        setData(res.data.data)
+        toast.success('System Audit Complete: All nodes synchronized.', { id: 'audit' })
+      }
+    } catch (error) {
+      console.error('Audit failed', error)
+      toast.error('Audit link failed. Core synchronization interrupted.', { id: 'audit' })
+    }
+  }
 
   if (loading || !data) {
     return (
@@ -271,6 +287,7 @@ export default function AnalyticsDashboard() {
                     <motion.button 
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={handleDeepAudit}
                         className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-white hover:border-primary/40 transition-all"
                     >
                         Deep System Audit

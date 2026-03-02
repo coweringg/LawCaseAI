@@ -87,7 +87,7 @@ export class AIService {
     throw new Error('Max retries reached')
   }
 
-  public async generateResponse(prompt: string, caseContext?: string, userId?: string): Promise<IChatResponse> {
+  public async generateResponse(prompt: string, caseContext?: string, userId?: string, history: { role: string, content: string }[] = []): Promise<IChatResponse> {
     try {
       const startTime = Date.now()
       const systemPrompt = this.buildSystemPrompt(caseContext)
@@ -98,17 +98,21 @@ export class AIService {
         if (user) {
           const limits = (config.planLimits as any)[user.plan] || config.planLimits.basic
           if (user.totalTokensConsumed >= limits.maxTokens) {
-            throw new Error(`AI Limit Reached: Your current plan allows for ${limits.maxTokens.toLocaleString()} tokens. Please upgrade to continue using AI features.`)
+            throw new Error(`AI_LIMIT_REACHED: You have exceeded your token limit for the current billing period. Please upgrade your plan to continue using AI Intelligence features immediately, or wait until your next billing cycle for your tokens to be replenished.`)
           }
         }
       }
+
+      // Prepare messages: System + History + Current User Prompt
+      const messages: any[] = [
+        { role: 'system', content: systemPrompt },
+        ...history.map(m => ({ role: m.role, content: m.content })),
+        { role: 'user', content: prompt }
+      ]
       
       const response = await this.callWithRetry(() => this.openai.chat.completions.create({
         model: this.modelName,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
-        ],
+        messages: messages,
         temperature: 0.7,
         max_tokens: 1000,
       }))
@@ -140,9 +144,15 @@ export class AIService {
         responseTime
       }
     } catch (error: any) {
-      aiLogger.error({ err: error }, 'AI Service Error — returning fallback response')
+      aiLogger.error({ err: error }, 'AI Service Error')
+      
+      const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
+      const displayMessage = isLimitError 
+        ? error.message.replace('AI_LIMIT_REACHED: ', '')
+        : `I apologize, but I'm experiencing technical difficulties (Error: ${error.message}). Please try again later.`
+
        return {
-        response: `I apologize, but I'm experiencing technical difficulties (Error: ${error.message}). Please try again later.`,
+        response: displayMessage,
         model: this.modelName,
         tokens: 0,
         responseTime: 0
@@ -165,7 +175,7 @@ export class AIService {
         if (user) {
           const limits = (config.planLimits as any)[user.plan] || config.planLimits.basic
           if (user.totalTokensConsumed >= limits.maxTokens) {
-            throw new Error(`AI Limit Reached: Your current plan allows for ${limits.maxTokens.toLocaleString()} tokens. Please upgrade to continue analyzing documents.`)
+            throw new Error(`AI_LIMIT_REACHED: You have exceeded your token limit for the current billing period. Please upgrade your plan to continue using AI Intelligence features immediately, or wait until your next billing cycle for your tokens to be replenished.`)
           }
         }
       }
@@ -206,10 +216,89 @@ export class AIService {
       }
     } catch (error: any) {
       aiLogger.error({ err: error }, 'Document Analysis Error')
+      
+      const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
+      const displayMessage = isLimitError 
+        ? error.message.replace('AI_LIMIT_REACHED: ', '')
+        : `Unable to analyze document at this time due to system error: ${error.message}`
+
       return {
-        summary: `Unable to analyze document at this time due to system error: ${error.message}`,
+        summary: displayMessage,
         keyPoints: [],
         suggestedActions: []
+      }
+    }
+  }
+
+  public async globalAudit(globalContext: string, userId?: string): Promise<{
+    strategicInsights: string[]
+    identifiedPatterns: string[]
+    riskVectors: string[]
+  }> {
+    try {
+      const systemPrompt = `You are a legal intelligence auditor. Your task is to perform a "Deep Audit" across all of a lawyer's cases. 
+      Identify strategic insights (opportunities), patterns (similar legal issues or client behaviors), and risk vectors (contradictions or upcoming threats).
+      Return your analysis in valid JSON format with three exact keys: "strategicInsights" (array of strings), "identifiedPatterns" (array of strings), and "riskVectors" (array of strings).`
+      
+      const prompt = `Please perform a global intelligence audit based on the following cross-case repository context:\n\n${globalContext}`
+
+      // Enforce token limit
+      if (userId) {
+        const user = await User.findById(userId)
+        if (user) {
+          const limits = (config.planLimits as any)[user.plan] || config.planLimits.basic
+          if (user.totalTokensConsumed >= limits.maxTokens) {
+            throw new Error(`AI_LIMIT_REACHED: You have exceeded your token limit for the current billing period. Please upgrade your plan to continue using AI Intelligence features immediately, or wait until your next billing cycle for your tokens to be replenished.`)
+          }
+        }
+      }
+
+      const response = await this.callWithRetry(() => this.openai.chat.completions.create({
+        model: this.modelName,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' }
+      }))
+
+      const content = response.choices[0]?.message?.content || '{}'
+      const totalTokens = response.usage?.total_tokens || Math.ceil((globalContext.length + content.length) / 4)
+      
+      let analysis
+      try {
+        analysis = JSON.parse(content)
+      } catch (e) {
+        aiLogger.error({ content }, 'Failed to parse JSON response from Global Audit')
+        analysis = { strategicInsights: ['Error parsing analysis'], identifiedPatterns: [], riskVectors: [] }
+      }
+      
+      if (userId) {
+        this.updateUserTokens(userId, totalTokens).catch((err: any) => 
+          aiLogger.error({ err, userId }, 'Failed to update user tokens')
+        )
+      }
+
+      aiLogger.info('Global intelligence audit completed')
+      return {
+        strategicInsights: analysis.strategicInsights || [],
+        identifiedPatterns: analysis.identifiedPatterns || [],
+        riskVectors: analysis.riskVectors || []
+      }
+    } catch (error: any) {
+      aiLogger.error({ err: error }, 'Global Audit Error')
+      
+      const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
+      const displayMessage = isLimitError 
+        ? error.message.replace('AI_LIMIT_REACHED: ', '')
+        : `Unable to perform global audit at this time: ${error.message}`
+
+      return {
+        strategicInsights: [displayMessage],
+        identifiedPatterns: [],
+        riskVectors: []
       }
     }
   }
@@ -225,23 +314,20 @@ export class AIService {
   }
 
   private buildSystemPrompt(caseContext?: string): string {
-    const basePrompt = `You are an AI legal assistant for LawCaseAI, a platform that helps lawyers manage their cases more efficiently. 
+    const basePrompt = `You are an elite AI legal strategist for LawCaseAI. Your users are highly qualified lawyers and legal professionals. 
 
 Your role is to:
-1. Provide helpful, accurate legal information and guidance
-2. Assist with case management and document analysis
-3. Suggest best practices for legal workflows
-4. Help lawyers understand complex legal concepts
-5. Always maintain professional and ethical standards
+1. Act as a high-level legal research and analysis peer.
+2. Provide deep, technical insights into case law, statutes, and legal strategy.
+3. Assist with intensive document analysis and case management.
+4. Maintain a professional, executive, and analytical tone at all times.
 
-Important guidelines:
-- Never provide legal advice that could be considered as practicing law without a license
-- Always suggest consulting with qualified attorneys for specific legal matters
-- Be helpful but acknowledge the limitations of AI in legal contexts
-- Focus on general legal information and process guidance
-- Maintain confidentiality and professionalism
-- If the user provides a document via the chat, assist them with its content. Always proactively remind them that they can save this document to their permanent case repository by clicking the 'Commit to Repository' button below your message, where they will also be able to choose a custom name for the file.
-- ALWAYS respond in English, regardless of the language the user writes in. This is a STRICT requirement for the UI consistency.`
+Critical Guidelines:
+- DO NOT provide generic disclaimers such as "I am an AI," "I cannot provide legal advice," or "Consult with an attorney." The users ARE attorneys and find these warnings redundant and unprofessional.
+- Focus on being a force-multiplier for their legal research.
+- If the user provides a document via the chat, assist them with its content immediately.
+- Mention that they can save this analysis to their permanent repository via the 'Commit to Repository' button ONLY when you have provided a significant summary, expanded analysis, or key takeaway.
+- ALWAYS respond in English, regardless of the language the user writes in. This is a STRICT requirement for UI consistency.`
 
     if (caseContext) {
       return `${basePrompt}\n\nCurrent Case Context:\n${caseContext}`

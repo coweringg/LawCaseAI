@@ -108,14 +108,14 @@ router.get('/treasury/export', exportTreasuryCSV)
 router.get('/system/status', getSystemStatus)
 
 router.post('/system/maintenance', [
-  body('enabled').isBoolean().withMessage('Enabled must be a boolean'),
+  body('active').isBoolean().withMessage('Active must be a boolean'),
   body('message').optional().trim().isLength({ max: 500 }).withMessage('Message cannot exceed 500 characters'),
   handleValidationErrors
 ], toggleMaintenance)
 
 router.post('/system/alert', [
   body('message').optional().trim().isLength({ max: 500 }).withMessage('Alert message cannot exceed 500 characters'),
-  body('type').optional().isIn(['info', 'warning', 'error']).withMessage('Invalid alert type'),
+  body('type').optional().isIn(['info', 'warning', 'error', 'success']).withMessage('Invalid alert type'),
   handleValidationErrors
 ], updateGlobalAlert)
 

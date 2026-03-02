@@ -35,7 +35,7 @@ const transactionSchema = new Schema<ITransaction>({
     },
     paymentMethod: {
         type: String,
-        default: 'Visa ending in 4242'
+        default: 'N/A'
     },
     invoiceUrl: {
         type: String

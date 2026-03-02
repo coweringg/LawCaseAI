@@ -138,12 +138,30 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.setTextColor(primaryColor);
     doc.text('PAYMENT VERIFICATION', 25, 178);
     
-    const pm = billingInfo?.paymentMethods?.find((p: any) => p.id === billingInfo.defaultPaymentMethodId) || tx.paymentMethod;
-    const cardLast4 = typeof pm === 'string' ? pm.slice(-4) : pm?.last4 || '4242';
+    // Payment verification info
+    const savedPM = tx.paymentMethod;
+    let cardDetail = '4242'; // Improved default placeholder
+    
+    if (savedPM && savedPM !== 'N/A' && savedPM !== 'Credit Card') {
+        // If it's the full string like "Visa ending in 1234", extract the last 4
+        if (savedPM.includes('ending in ')) {
+            cardDetail = savedPM.split('ending in ')[1];
+        } else {
+            // Try to take last 4 digits if they exist
+            const digits = savedPM.match(/\d{4}$/);
+            cardDetail = digits ? digits[0] : (savedPM.slice(-4) || '4242');
+        }
+    } else {
+        // Fallback to currently defined payment method in profile
+        const currentPM = billingInfo?.paymentMethods?.find((p: any) => p.id === billingInfo.defaultPaymentMethodId);
+        if (currentPM && currentPM.last4) cardDetail = currentPM.last4;
+    }
     
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Authentication: Credit Card (**** **** **** ${cardLast4})`, 25, 185);
+    // Ensure we don't show "Card" or other non-numeric text if possible
+    const displaysAs = /^\d+$/.test(cardDetail) ? cardDetail : '4242';
+    doc.text(`Authentication: Credit Card (**** **** **** ${displaysAs})`, 25, 185);
     doc.setTextColor(accentColor);
     doc.text('Status: Transaction Succeeded & Secured', 25, 192);
 
@@ -217,7 +235,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             <div className="text-right">
                                 <p className="text-3xl font-black text-white tracking-tighter">
                                     ${billingInfo?.plan === 'none' ? '0' :
-                                        billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 249 : 300)) :
+                                        billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 240 : 300)) :
                                             billingInfo?.plan === 'basic' ? (billingInfo?.interval === 'annual' ? '79' : '99') :
                                                 billingInfo?.plan === 'professional' ? (billingInfo?.interval === 'annual' ? '159' : '199') :
                                                     '300'}

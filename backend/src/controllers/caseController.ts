@@ -36,7 +36,7 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
     if (user.currentCases >= user.planLimit) {
       res.status(403).json({
         success: false,
-        message: `Case limit reached for your ${user.plan} plan (${user.planLimit} cases). Please upgrade your plan to create more cases.`
+        message: `You have reached the case limit for your ${user.plan} plan (${user.planLimit} cases). Please upgrade your plan to continue creating more cases, or wait until your next billing cycle for your limit to be replenished.`
       } as IApiResponse)
       return
     }
@@ -47,7 +47,8 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       description,
       practiceArea,
       status: CaseStatus.ACTIVE,
-      userId
+      userId,
+      lastActivationPeriodStart: user.currentPeriodStart || new Date()
     })
 
     await newCase.save()
@@ -230,6 +231,8 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
         allowedUpdates.closedAt = new Date()
       } else if (status === CaseStatus.ACTIVE) {
         allowedUpdates.closedAt = null
+        // If it's a first-time activation in this period, we'll handle increments later
+        // or we can check here. Let's handle it after successful update for consistency.
       }
     }
 
@@ -247,6 +250,18 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
     if (!updatedCase) {
       res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
+    }
+
+    // Logic: If status changed to ACTIVE, check if it counts towards the current month
+    if (status === CaseStatus.ACTIVE && currentCase.status !== CaseStatus.ACTIVE) {
+      const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date(0)
+      const lastActivation = updatedCase.lastActivationPeriodStart ? new Date(updatedCase.lastActivationPeriodStart) : new Date(0)
+      
+      if (lastActivation < periodStart) {
+        // First activation in this cycle
+        await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+        await Case.updateOne({ _id: id }, { $set: { lastActivationPeriodStart: user.currentPeriodStart || new Date() } })
+      }
     }
 
     // Log the action if status changed
@@ -310,11 +325,8 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    // Atomic decrement of user's current case count
-    await User.updateOne(
-      { _id: userId, currentCases: { $gt: 0 } },
-      { $inc: { currentCases: -1 } }
-    )
+    // [MOD] Deletion NO LONGER frees up currentCases capacity until the month ends.
+    // This ensures the "8 cases processed" limit is strictly respected.
 
     // Log the action
     await logAction({
@@ -377,17 +389,25 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
     if (user.currentCases >= maxAllowedCases) {
       res.status(403).json({
         success: false,
-        message: `Case limit reached for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade to reactivate more.`
+        message: `You have reached the case limit for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade your plan to reactivate more cases, or wait until your next billing cycle for your limit to be replenished.`
       } as IApiResponse)
       return
     }
 
-    // Reactivate and increment
+    // Reactivate and check activation month
     currentCase.status = CaseStatus.ACTIVE
     currentCase.closedAt = undefined
-    await currentCase.save()
+    
+    const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date(0)
+    const lastActivation = currentCase.lastActivationPeriodStart ? new Date(currentCase.lastActivationPeriodStart) : new Date(0)
+    
+    if (lastActivation < periodStart) {
+      // It hasn't been used in this month yet! Increment.
+      await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+      currentCase.lastActivationPeriodStart = user.currentPeriodStart || new Date()
+    }
 
-    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+    await currentCase.save()
 
     await logAction({
       adminId: user._id,

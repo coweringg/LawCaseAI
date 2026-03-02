@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { Types } from 'mongoose'
 import { User, Case, Transaction, AuditLog, SupportRequest, Organization, Event } from '../models'
-import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus, EventStatus } from '../types'
+import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus, EventStatus, SupportRequestType } from '../types'
 import { logAction } from '../utils/auditLogger'
 
 /**
@@ -696,7 +696,17 @@ export const clearSupportRequests = async (req: IAuthRequest, res: Response): Pr
   try {
     const { type } = req.query
     const query: Record<string, unknown> = {}
-    if (type) query.type = type
+    
+    // Handle special type filters
+    if (type === 'all') {
+      // Delete everything (no filter)
+    } else if (type === 'user_all') {
+      // Delete everything except login issues
+      query.type = { $ne: SupportRequestType.LOGIN_ISSUE }
+    } else if (type) {
+      // Delete specific type
+      query.type = type
+    }
 
     const result = await SupportRequest.deleteMany(query)
 

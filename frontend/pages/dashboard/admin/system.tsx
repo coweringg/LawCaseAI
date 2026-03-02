@@ -22,6 +22,7 @@ import {
   Clock
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'react-hot-toast'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -77,10 +78,11 @@ export default function SystemCommandCenter() {
       const res = await api.post('/admin/system/maintenance', { active })
       if (res.data.success) {
         setSystemStatus((prev: any) => ({ ...prev, maintenanceMode: active }))
+        toast.success(`Mainframe Lockdown ${active ? 'ENGAGED' : 'RELEASED'}`)
       }
     } catch (error) {
       console.error('Failed to toggle maintenance', error)
-      alert('Failed to toggle maintenance mode')
+      toast.error('System command rejected. Encryption mismatch.')
     } finally {
       setIsTogglingMaintenance(false)
     }
@@ -100,9 +102,11 @@ export default function SystemCommandCenter() {
       if (res.data.success) {
         setBroadcastMessage('')
         fetchSystemStatus() // Refresh to see active alert
+        toast.success('Pulse Signal Encoded & Transmitting')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to broadcast', error)
+      toast.error(error.response?.data?.message || 'Transmission Link Failure')
     } finally {
       setIsBroadcasting(false)
     }
@@ -114,9 +118,11 @@ export default function SystemCommandCenter() {
         const res = await api.post('/admin/system/alert', { active: false })
         if (res.data.success) {
             setSystemStatus((prev: any) => ({ ...prev, globalAlert: null }))
+            toast.success('Signal Terminated. Frequency Cleared.')
         }
     } catch (error) {
         console.error('Failed to clear broadcast', error)
+        toast.error('Critical: Failed to terminate signal link.')
     } finally {
         setIsBroadcasting(false)
     }

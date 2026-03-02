@@ -41,6 +41,9 @@ const caseSchema = new Schema<ICase>({
   },
   closedAt: {
     type: Date
+  },
+  lastActivationPeriodStart: {
+    type: Date
   }
 }, {
   timestamps: true,
@@ -53,17 +56,6 @@ caseSchema.index({ userId: 1 })
 caseSchema.index({ userId: 1, status: 1 })
 caseSchema.index({ userId: 1, createdAt: -1 })
 caseSchema.index({ name: 'text', client: 'text', description: 'text' })
-
-// Pre-remove middleware to update user's case count
-caseSchema.pre('deleteOne', { document: true, query: false }, async function (this: ICase & Document, next: (err?: Error) => void) {
-  try {
-    const User = mongoose.model('User')
-    await User.findByIdAndUpdate(this.userId, { $inc: { currentCases: -1 } })
-    next()
-  } catch (error) {
-    next(error as Error)
-  }
-})
 
 // Static methods
 caseSchema.statics.findByUser = function (userId: string, options: { status?: CaseStatus; limit?: number; skip?: number } = {}) {

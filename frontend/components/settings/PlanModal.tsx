@@ -54,7 +54,8 @@ export const PlanModal: React.FC<PlanModalProps> = ({
 
     const getProratedPrice = (planId: string) => {
         const basePrice = interval === 'annual' ? (ANNUAL_PRICES[planId] || 0) : (PLAN_PRICES[planId] || 0);
-        if (!currentUserPlan || currentUserPlan === 'none' || currentPlanCost >= basePrice) return basePrice;
+        // If it's the current plan or a downgrade, show the full base price (don't subtract credit from itself)
+        if (!currentUserPlan || currentUserPlan === 'none' || planId === currentUserPlan || currentPlanCost >= basePrice) return basePrice;
         return Math.max(0, basePrice - currentPlanCost);
     };
 
@@ -62,6 +63,14 @@ export const PlanModal: React.FC<PlanModalProps> = ({
         const basePrice = interval === 'annual' ? (ANNUAL_PRICES[planId] || 0) : (PLAN_PRICES[planId] || 0);
         return currentUserPlan && currentUserPlan !== 'none' && currentPlanCost > 0 && currentPlanCost < basePrice;
     };
+
+    React.useEffect(() => {
+        if (category === 'personal' && currentUserPlan && currentUserPlan !== 'none') {
+            if (interval !== currentUserInterval) {
+                setInterval(currentUserInterval as 'monthly' | 'annual');
+            }
+        }
+    }, [category, currentUserPlan, currentUserInterval, interval, setInterval]);
     return (
         <AnimatePresence>
             {isOpen && (
@@ -136,17 +145,17 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                 <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${interval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly Billing</span>
                                                 <button
                                                     onClick={() => {
-                                                        if (currentUserPlan && currentUserPlan !== 'none') return;
+                                                        if (category === 'personal' && currentUserPlan && currentUserPlan !== 'none') return;
                                                         setInterval(interval === 'monthly' ? 'annual' : 'monthly');
                                                     }}
-                                                    disabled={!!(currentUserPlan && currentUserPlan !== 'none')}
-                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${interval === 'annual' ? 'bg-primary' : 'bg-slate-800'} ${currentUserPlan && currentUserPlan !== 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    disabled={category === 'personal' && !!(currentUserPlan && currentUserPlan !== 'none')}
+                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${interval === 'annual' ? 'bg-primary' : 'bg-slate-800'} ${category === 'personal' && currentUserPlan && currentUserPlan !== 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
                                                     <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${interval === 'annual' ? 'translate-x-6' : 'translate-x-1'}`}></div>
                                                 </button>
                                                 <div className="flex flex-col items-start leading-none">
                                                     <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${interval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual Selection</span>
-                                                    {currentUserPlan && currentUserPlan !== 'none' ? (
+                                                    {category === 'personal' && currentUserPlan && currentUserPlan !== 'none' ? (
                                                         <span className="text-[8px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Locked to {currentUserInterval}</span>
                                                     ) : (
                                                         <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter mt-0.5">Save 20%</span>

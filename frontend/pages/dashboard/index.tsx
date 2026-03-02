@@ -10,6 +10,7 @@ import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar, Sparkles } fro
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardStats } from '@/types';
+import GlobalAuditModal from '@/components/modals/GlobalAuditModal';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -90,7 +92,7 @@ export default function Dashboard() {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="flex flex-col gap-8 relative z-10"
+          className="flex flex-col gap-8 relative z-10 pt-6 lg:pt-12 pb-10"
         >
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -335,6 +337,7 @@ export default function Dashboard() {
                       <motion.button
                         whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={() => setIsAuditModalOpen(true)}
                         className="w-full py-3.5 bg-white text-primary text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-50 transition-all shadow-xl"
                       >
                         Deep Audit Command
@@ -349,6 +352,11 @@ export default function Dashboard() {
           </div>
         </motion.div>
       </DashboardLayout>
+
+      <GlobalAuditModal 
+        isOpen={isAuditModalOpen} 
+        onClose={() => setIsAuditModalOpen(false)} 
+      />
     </ProtectedRoute >
   );
 }

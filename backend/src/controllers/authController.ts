@@ -64,6 +64,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       effectiveLawFirm = org.name
     }
 
+    // Initialize billing cycle (default to 1 month from registration)
+    const now = new Date()
+    const nextMonth = new Date(now)
+    nextMonth.setMonth(nextMonth.getMonth() + 1)
+
     // Create new user
     const user = new User({
       name,
@@ -72,7 +77,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       lawFirm: effectiveLawFirm,
       role: 'lawyer',
       plan,
-      organizationId
+      organizationId,
+      currentPeriodStart: now,
+      currentPeriodEnd: nextMonth
     })
 
     await user.save()
@@ -298,6 +305,11 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
       return
     }
 
+    // Initialize billing cycle (default to 1 month)
+    const now = new Date()
+    const nextMonth = new Date(now)
+    nextMonth.setMonth(nextMonth.getMonth() + 1)
+
     // Create new admin user
     const user = new User({
       name,
@@ -305,7 +317,9 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
       password,
       lawFirm,
       role: UserRole.ADMIN,
-      plan: 'enterprise' // Admins get enterprise plan by default
+      plan: 'enterprise', // Admins get enterprise plan by default
+      currentPeriodStart: now,
+      currentPeriodEnd: nextMonth
     })
 
     await user.save()

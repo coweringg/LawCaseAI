@@ -55,7 +55,7 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
         }
 
         // Whitelist allowed fields to prevent NoSQL injection
-        const { title, description, start, end, type, priority, caseId, location, isAllDay } = req.body
+        const { title, description, start, end, type, priority, caseId, location, isAllDay, status } = req.body
 
         // Validate required fields
         if (!title || !start) {
@@ -85,6 +85,7 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
         if (caseId && caseId !== '') safeEventData.caseId = caseId
         if (location !== undefined) safeEventData.location = location
         if (isAllDay !== undefined) safeEventData.isAllDay = Boolean(isAllDay)
+        if (status !== undefined) safeEventData.status = status
 
         const event = await Event.create(safeEventData)
 
@@ -105,20 +106,14 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         const userId = req.user?._id
 
         // Whitelist allowed fields to prevent NoSQL injection
-        const { title, description, start, end, type, priority, caseId, location, isAllDay } = req.body
+        const { title, description, start, end, type, priority, caseId, location, isAllDay, status } = req.body
 
         const allowedUpdates: Record<string, unknown> = {}
         if (title !== undefined) allowedUpdates.title = title
         if (description !== undefined) allowedUpdates.description = description
         if (start !== undefined) {
             const eventDate = new Date(start)
-            if (eventDate < new Date()) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Legal events and deadlines cannot be scheduled in the past.'
-                } as IApiResponse)
-                return
-            }
+            // Allow updates even if past, as long as it's an existing valid date
             allowedUpdates.start = eventDate
         }
         if (end !== undefined) allowedUpdates.end = new Date(end)
@@ -133,6 +128,7 @@ export const updateEvent = async (req: IAuthRequest, res: Response): Promise<voi
         }
         if (location !== undefined) allowedUpdates.location = location
         if (isAllDay !== undefined) allowedUpdates.isAllDay = Boolean(isAllDay)
+        if (status !== undefined) allowedUpdates.status = status
 
         if (Object.keys(allowedUpdates).length === 0) {
             res.status(400).json({ success: false, message: 'No valid fields to update' } as IApiResponse)

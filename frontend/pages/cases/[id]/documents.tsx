@@ -224,6 +224,10 @@ export default function CaseDocuments() {
             return f.type.includes('video');
         }
 
+        if (activeFilter === 'media') {
+            return f.type.includes('image') || f.type.includes('video') || f.type.includes('audio') || f.name.toLowerCase().endsWith('.mp3');
+        }
+
         return true;
     });
 

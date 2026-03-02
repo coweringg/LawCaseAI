@@ -21,8 +21,8 @@ const PLAN_PRICES: Record<string, number> = {
 const ANNUAL_PRICES: Record<string, number> = {
   [UserPlan.BASIC]: 79,
   [UserPlan.PROFESSIONAL]: 159,
-  [UserPlan.ELITE]: 249,
-  [UserPlan.ENTERPRISE]: 249 // Price per seat
+  [UserPlan.ELITE]: 240,
+  [UserPlan.ENTERPRISE]: 240 // Price per seat (exactly 20% off 300)
 }
 
 export const getTransactionHistory = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -185,7 +185,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
                 return
             }
 
-            transactionAmount = requestedSeats * 300 // Price per seat for Enterprise
+            transactionAmount = requestedSeats * (newPriceTable[plan] || 300)
             
             // Generate firm code
             const firmCode = `ENT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
@@ -215,6 +215,7 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         
         // Initialize billing cycle length
         const now = new Date();
+        const oldPeriodStart = user.currentPeriodStart || new Date(0); // Capture BEFORE updating, fallback to epoch if null
         user.currentPeriodStart = now;
         
         const nextPeriod = new Date(now);
@@ -225,17 +226,51 @@ export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise
         }
         user.currentPeriodEnd = nextPeriod;
         
-        // Ensure starting fresh immediately upon purchase
+        // [MOD] Count all cases that were part of the quota in the previous (now ending) period
+        
+        // Find cases that are ACTIVE or were activated in the cycle we just finished
+        const casesToCarryOverCount = await Case.countDocuments({
+            userId,
+            $or: [
+                { status: CaseStatus.ACTIVE },
+                { lastActivationPeriodStart: { $gte: oldPeriodStart } }
+            ]
+        });
+        
+        user.currentCases = casesToCarryOverCount;
+        
+        // Mark these cases as "activated" in the new period
+        if (casesToCarryOverCount > 0) {
+            await Case.updateMany(
+                {
+                    userId,
+                    $or: [
+                        { status: CaseStatus.ACTIVE },
+                        { lastActivationPeriodStart: { $gte: oldPeriodStart } }
+                    ]
+                },
+                { $set: { lastActivationPeriodStart: user.currentPeriodStart } }
+            );
+        }
+        
+        // Ensure starting fresh immediately upon purchase for tokens only
         user.totalTokensConsumed = 0;
-        user.currentCases = 0;
         await user.save(isTransactional ? { session } : {})
+
+        // Determine payment method string
+        const { cardBrand, cardLast4 } = req.body
+        const pm = user.paymentMethods.find((p: any) => p.id === paymentMethodId)
+        const paymentMethodStr = pm 
+            ? `${pm.brand} ending in ${pm.last4}` 
+            : (cardBrand && cardLast4 ? `${cardBrand} ending in ${cardLast4}` : 'Credit Card ending in 4242')
 
         // Record Transaction
         await Transaction.create([{
             userId,
             amount: transactionAmount,
-            plan: plan,
+            plan: plan as UserPlan,
             status: 'succeeded',
+            paymentMethod: paymentMethodStr,
             date: new Date()
         }], isTransactional ? { session } : {})
 
@@ -346,26 +381,57 @@ export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Pr
         const nextPeriod = new Date(now)
         nextPeriod.setMonth(nextPeriod.getMonth() + 1) // Business signup defaults to monthly for this flow unless we add a toggle
 
-        // Upgrade user to Org Admin
-        const user = await User.findById(userId)
-        if (user) {
-            user.organizationId = org._id
-            user.isOrgAdmin = true
-            user.plan = UserPlan.ELITE
-            user.lawFirm = firmName
-            user.currentPeriodStart = now
-            user.currentPeriodEnd = nextPeriod
-            user.totalTokensConsumed = 0
-            user.currentCases = 0
+            // Upgrade user to Org Admin
+            const user = await User.findById(userId)
+            if (user) {
+                const oldPeriodStart = user.currentPeriodStart || new Date(0); // Capture BEFORE updating
+                user.organizationId = org._id
+                user.isOrgAdmin = true
+                user.plan = UserPlan.ELITE
+                user.lawFirm = firmName
+                user.currentPeriodStart = now
+                user.currentPeriodEnd = nextPeriod
+                user.totalTokensConsumed = 0
+                
+                // [MOD] Count cases to carry over from the previous transition period
+            
+            const carriedOverCount = await Case.countDocuments({
+                userId,
+                $or: [
+                    { status: CaseStatus.ACTIVE },
+                    { lastActivationPeriodStart: { $gte: oldPeriodStart } }
+                ]
+            });
+            
+            user.currentCases = carriedOverCount;
+
+            // Mark carried over cases as activated in the new cycle
+            if (carriedOverCount > 0) {
+                await Case.updateMany(
+                    {
+                        userId,
+                        $or: [
+                            { status: CaseStatus.ACTIVE },
+                            { lastActivationPeriodStart: { $gte: oldPeriodStart } }
+                        ]
+                    },
+                    { $set: { lastActivationPeriodStart: user.currentPeriodStart } }
+                );
+            }
+
             await user.save()
         }
 
         // Record the transaction
+        const pm = user?.paymentMethods.find((p: any) => p.id === user.defaultPaymentMethodId)
+        const paymentMethodStr = pm ? `${pm.brand} ending in ${pm.last4}` : 'Credit Card ending in 4242'
+
         await Transaction.create({
             userId,
-            amount: seats * 300,
+            amount: seats * (user?.billingInterval === 'annual' ? ANNUAL_PRICES.elite : PLAN_PRICES.elite),
             plan: UserPlan.ELITE,
             status: 'succeeded',
+            paymentMethod: paymentMethodStr,
             date: now
         })
 
@@ -473,11 +539,18 @@ export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<v
         const pricePerSeat = user.billingInterval === 'annual' ? ANNUAL_PRICES.enterprise : PLAN_PRICES.enterprise
 
         // Record transaction
+        const { cardBrand, cardLast4 } = req.body
+        const pm = user.paymentMethods.find((p: any) => p.id === paymentMethodId)
+        const paymentMethodStr = pm 
+            ? `${pm.brand} ending in ${pm.last4}` 
+            : (cardBrand && cardLast4 ? `${cardBrand} ending in ${cardLast4}` : 'Credit Card ending in 4242')
+
         await Transaction.create({
             userId,
             amount: additionalSeats * pricePerSeat,
             plan: UserPlan.ENTERPRISE,
             status: 'succeeded',
+            paymentMethod: paymentMethodStr,
             date: new Date()
         })
 

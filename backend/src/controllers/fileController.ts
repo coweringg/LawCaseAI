@@ -35,7 +35,7 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         if (!isTemporary && lawyerCase.fileCount >= limits.maxFilesPerCase) {
             res.status(403).json({ 
                 success: false, 
-                message: `Plan Limit Reached: Your current plan allows a maximum of ${limits.maxFilesPerCase} documents per case.` 
+                message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
             } as IApiResponse)
             return
         }
@@ -44,7 +44,7 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         if (file.size > limits.maxFileSize) {
             res.status(403).json({ 
                 success: false, 
-                message: `File too large: The maximum file size for your plan is ${Math.round(limits.maxFileSize / 1024 / 1024)}MB.` 
+                message: `The file you are trying to upload exceeds the maximum file size for your current plan (${Math.round(limits.maxFileSize / 1024 / 1024)}MB). Please upgrade to upload larger files.` 
             } as IApiResponse)
             return
         }
@@ -53,7 +53,7 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
         if (!isTemporary && user && (user.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
             res.status(403).json({ 
                 success: false, 
-                message: `Storage Limit Reached: Your total storage usage would exceed the ${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB allowed by your plan.` 
+                message: `You have reached your total storage capacity for the current billing period (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase your storage capacity immediately.` 
             } as IApiResponse)
             return
         }
@@ -360,7 +360,7 @@ export const commitFile = async (req: IAuthRequest, res: Response): Promise<void
         if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
              res.status(403).json({ 
                  success: false, 
-                 message: `Plan Limit Reached: Your current plan allows a maximum of ${limits.maxFilesPerCase} documents per case.` 
+                 message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
              } as IApiResponse)
              return
         }
@@ -437,7 +437,7 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
         if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
             res.status(403).json({ 
                 success: false, 
-                message: `Plan Limit Reached: Your current plan allows a maximum of ${limits.maxFilesPerCase} documents per case.` 
+                message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
             } as IApiResponse)
             return
         }

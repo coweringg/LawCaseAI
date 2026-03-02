@@ -140,6 +140,7 @@ export interface ICase extends Document {
   updatedAt: Date
   closedAt?: Date
   fileCount: number
+  lastActivationPeriodStart?: Date
 }
 
 export interface ICaseFile extends Document {

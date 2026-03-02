@@ -63,12 +63,36 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
 
         const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}`
 
-        const aiRes = await aiService.generateResponse(message, caseContext, req.user?._id?.toString())
+        // Fetch recent chat history (last 30 messages)
+        const recentHistory = await ChatMessage.find({ caseId })
+            .sort({ timestamp: -1 })
+            .limit(30)
+            .select('sender content')
+
+        // Format history for AI (reverse because we fetched -1)
+        const history = recentHistory.reverse().map(m => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.content
+        }))
+
+        const aiRes = await aiService.generateResponse(message, caseContext, req.user?._id?.toString(), history)
 
         // Determine if we should suggest saving this response
-        const isSummaryRequest = /resum|summar|analyz|analiz/i.test(message);
-        const shouldSuggestSaving = !!temporaryFileId || (isSummaryRequest && filesToInclude.length > 0);
-        const relatedType = tempFile?.type || (filesToInclude.length > 0 ? filesToInclude[0].type : 'text/markdown');
+        const summaryKeywords = /resum|summar|analyz|analiz|explay|detall|expand|key takeaway|puntos clave|commit to repository/i;
+        const isSummaryRequest = summaryKeywords.test(message) || summaryKeywords.test(aiRes.response);
+        
+        // We have context if a file is currently attached, IF the AI found files to talk about, 
+        // OR if there are ANY temporary files in this case (from previous history)
+        const hasAnyFiles = await CaseFile.countDocuments({ caseId }) > 0;
+        const shouldSuggestSaving = hasAnyFiles && isSummaryRequest && aiRes.response.length > 300;
+        
+        let relatedType = tempFile?.type || (filesToInclude.length > 0 ? filesToInclude[0].type : 'text/markdown');
+
+        // If this is a substantial summary/analysis, we prefer saving as PDF (Neural Analysis Unit)
+        // rather than raw markdown, unless the related document is already a Word file.
+        if (shouldSuggestSaving && !relatedType.includes('pdf') && !relatedType.includes('word')) {
+            relatedType = 'application/pdf';
+        }
 
         // Persist messages to Database
         try {
@@ -278,6 +302,66 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
         return res.status(500).json({
             success: false,
             message: 'Server error during case summary generation'
+        })
+    }
+}
+
+/**
+ * @desc    Perform a global intelligence audit across all cases
+ * @route   POST /api/ai/global-audit
+ * @access  Private
+ */
+export const globalAudit = async (req: IAuthRequest, res: Response): Promise<Response> => {
+    try {
+        const userId = req.user?._id
+
+        // Fetch all active cases
+        const cases = await Case.find({ userId, status: 'active' })
+        
+        if (cases.length === 0) {
+            return res.status(200).json({
+                success: true,
+                data: {
+                    strategicInsights: [],
+                    identifiedPatterns: [],
+                    riskVectors: [],
+                    isEmpty: true
+                }
+            })
+        }
+
+        // Fetch document metadata/extracted text for context
+        // We limit the number of files and characters per file to prevent hitting token limits
+        const files = await CaseFile.find({ userId, isTemporary: false })
+            .select('name extractedText caseId')
+            .limit(15)
+            .sort({ createdAt: -1 })
+
+        // Construct global context
+        const caseSummaries = cases.map(c => `[CASE: ${c.name}] Area: ${c.practiceArea || 'General'}. Description: ${c.description || 'N/A'}`).join('\n')
+        const fileContext = files.map(f => {
+            const fileName = f.name
+            const content = f.extractedText ? f.extractedText.substring(0, 400) : 'No text content'
+            const caseInstance = cases.find(c => c._id.toString() === f.caseId.toString())
+            return `[UNIT: ${fileName} in Case ${caseInstance?.name || 'Unknown'}] ${content}...`
+        }).join('\n')
+        
+        const globalContext = `GLOBAL INTELLIGENCE AUDIT REQUEST\n\nACTIVE CASES SUMMARY:\n${caseSummaries}\n\nDOCUMENT REPOSITORY SNIPPETS:\n${fileContext}`
+
+        const auditResults = await aiService.globalAudit(globalContext, userId?.toString())
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                ...auditResults,
+                isEmpty: false
+            }
+        })
+    } catch (error: any) {
+        controllerLogger.error({ err: error }, 'Global Audit Controller Error')
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred during the Deep Audit. Please try again later.'
         })
     }
 }

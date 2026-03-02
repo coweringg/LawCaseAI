@@ -106,10 +106,10 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
 
                     {/* Actions */}
                     <div className="flex flex-col gap-4">
-                        <Link href="/pricing" className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
-                            <span>Upgrade to Partner</span>
-                            <span className="material-icons-round text-sm">arrow_forward</span>
-                        </Link>
+                        <Link href="/settings?tab=billing" className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                             <span>Upgrade to Partner</span>
+                             <span className="material-icons-round text-sm">arrow_forward</span>
+                         </Link>
                         <button onClick={onClose} className="w-full bg-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-semibold py-2 transition-colors">
                             Maybe Later
                         </button>

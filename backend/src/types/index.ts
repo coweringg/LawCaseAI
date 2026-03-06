@@ -107,6 +107,7 @@ export interface IUser extends Document {
   lastLogin: Date
   lastActivity: Date
   tokenVersion: number
+  savedLoginToken?: string
   totalTokensConsumed: number
   totalStorageUsed: number
   paymentMethods: IPaymentMethod[]

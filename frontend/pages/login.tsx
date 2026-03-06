@@ -30,16 +30,6 @@ export default function Login() {
     }
   }, [router.query.support])
 
-  if (!mounted) {
-    return (
-      <AuthLayout>
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="animate-spin h-8 w-8 text-primary border-4 border-primary/20 border-t-primary rounded-full" />
-        </div>
-      </AuthLayout>
-    )
-  }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -107,7 +97,7 @@ export default function Login() {
         </Link>
       </div>
 
-      {hasSavedAccounts && !showMainForm && (
+      {hasSavedAccounts && !showMainForm && mounted && (
         <div className="mb-8">
           <h2 className="text-xl font-black text-white mb-6 font-display tracking-tight text-center">Select an account</h2>
           <div className="space-y-3">
@@ -163,14 +153,14 @@ export default function Login() {
         </div>
       )}
 
-      {isFormVisible && (
+      {(!mounted || (isFormVisible && (!hasSavedAccounts || showMainForm))) && (
         <>
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-black text-white mb-2 font-display tracking-tightest">Welcome Back</h2>
             <p className="text-slate-400 text-xs font-medium">Access your professional intelligence workspace.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <form onSubmit={handleSubmit} className={`space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ${!mounted ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="email">Work Email</label>
               <div className="relative group">

@@ -39,7 +39,6 @@ export const checkMaintenanceMode = async (req: Request, res: Response, next: Ne
                 return next()
             }
         } catch {
-          // token invalid, treat as non-admin
         }
     }
 

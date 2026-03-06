@@ -107,6 +107,10 @@ const userSchema = new Schema<IUser>({
     type: Number,
     default: 0
   },
+  savedLoginToken: {
+    type: String,
+    select: false
+  },
   paymentMethods: [{
     id: { type: String, required: true },
     brand: { type: String, required: true },

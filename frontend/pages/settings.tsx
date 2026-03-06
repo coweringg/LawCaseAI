@@ -8,6 +8,8 @@ import api from "@/utils/api";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { getPaddleInstance } from "@/utils/paddle";
+import { Paddle } from "@paddle/paddle-js";
 
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
 import { ProfileSection } from "@/components/settings/ProfileSection";
@@ -38,6 +40,7 @@ export default function Settings() {
     return 'profile';
   });
   const [mounted, setMounted] = useState(false);
+  const [paddle, setPaddle] = useState<Paddle>();
 
   const { data: orgData, refetch: refetchOrg } = useOrganizationDetails(
     activeTab === "organization" && !!user?.isOrgAdmin,
@@ -100,6 +103,9 @@ export default function Settings() {
 
   useEffect(() => {
     setMounted(true);
+    getPaddleInstance().then((p) => {
+      if (p) setPaddle(p);
+    });
   }, []);
 
   useEffect(() => {
@@ -210,41 +216,35 @@ export default function Settings() {
   };
 
   const handleConfirmPurchase = async () => {
-    if (!selectedPlanId) return;
-    if (!validateLuhn(paymentData.cardNumber)) {
-      toast.error("Invalid card number.");
+    if (!selectedPlanId || !paddle) {
+      toast.error("Initialization incomplete. Please try again.");
       return;
     }
 
     setIsProcessingPayment(true);
     try {
-      const mockToken = `pm_mock_${Math.random().toString(36).substring(7)}`;
-
-      const response = await api.post("/payments/confirm-purchase", {
-        plan: selectedPlanId,
+      const { data: response } = await api.post("/payments/checkout", {
+        planId: selectedPlanId,
         seats: planSeats,
-        paymentMethodId: mockToken,
-        firmName: paymentData.firmName,
         interval: billingInterval,
-        cardBrand: getCardBrand(paymentData.cardNumber),
-        cardLast4: paymentData.cardNumber.slice(-4)
       });
 
-      if (response.data.success) {
-        toast.success("Tier deployed successfully! Synchronizing neural state...");
-        setIsPlanModalOpen(false);
-        setTimeout(() => {
-          if (selectedPlanId === 'enterprise') {
-            window.location.href = '/settings?tab=organization';
-          } else {
-            window.location.reload();
-          }
-        }, 1500);
-      } else {
-        toast.error(response.data.message || "Purchase failed");
+      if (!response.success || !response.data?.transactionId) {
+        throw new Error(response.message || "Failed to initialize payment gateway");
       }
+
+      setIsPlanModalOpen(false);
+      paddle.Checkout.open({
+        transactionId: response.data.transactionId,
+        settings: {
+          displayMode: "overlay",
+          theme: "dark",
+          successUrl: `${window.location.origin}/dashboard?status=success`
+        }
+      });
+      
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Payment error");
+      toast.error(error.response?.data?.message || error.message || "Payment error");
     } finally {
       setIsProcessingPayment(false);
     }
@@ -273,29 +273,33 @@ export default function Settings() {
   };
 
   const handleIncreaseCapacity = async () => {
-    if (!validateLuhn(paymentData.cardNumber)) {
-      toast.error("Invalid card number");
+    if (!paddle) {
+      toast.error("Initialization incomplete. Please try again.");
       return;
     }
     setIsIncreasingSeats(true);
     try {
-      const mockToken = `pm_mock_${Math.random().toString(36).substring(7)}`;
-
-      const response = await api.post("/payments/increase-seats", {
-        additionalSeats,
-        paymentMethodId: mockToken,
-        cardBrand: getCardBrand(paymentData.cardNumber),
-        cardLast4: paymentData.cardNumber.slice(-4)
+      const { data: response } = await api.post("/payments/checkout", {
+        planId: "enterprise",
+        seats: additionalSeats,
+        interval: billingInterval,
       });
-      if (response.data.success) {
-        toast.success(`Capacity increased. Reloading...`);
-        setIsCapacityModalOpen(false);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+
+      if (!response.success || !response.data?.transactionId) {
+         throw new Error(response.message || "Failed to initialize payment gateway");
       }
-    } catch (error) {
-      toast.error("Failed to increase capacity");
+
+      setIsCapacityModalOpen(false);
+      paddle.Checkout.open({
+        transactionId: response.data.transactionId,
+        settings: {
+          displayMode: "overlay",
+          theme: "dark",
+          successUrl: `${window.location.origin}/settings?tab=organization`
+        }
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to increase capacity");
     } finally {
       setIsIncreasingSeats(false);
     }

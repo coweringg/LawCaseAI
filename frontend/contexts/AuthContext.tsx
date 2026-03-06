@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      saveAccountToLocal(data.user.name, email, password);
+      saveAccountToLocal(data.user.name, email, data.savedLoginToken);
 
       return { success: true, message: message || "Login successful" };
     } catch (error: any) {
@@ -168,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      saveAccountToLocal(data.user.name, userData.email, userData.password);
+      saveAccountToLocal(data.user.name, userData.email, data.savedLoginToken);
 
       return { success: true, message: message || "Registration successful" };
     } catch (error: any) {
@@ -188,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const saveAccountToLocal = (name: string, email: string, pass: string) => {
+  const saveAccountToLocal = (name: string, email: string, token: string) => {
     try {
       const stored = localStorage.getItem("lawcase_saved_accounts");
       let accounts = stored ? JSON.parse(stored) : [];
@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name,
         email,
         initials: name.substring(0, 2).toUpperCase(),
-        token: btoa(`${email}:${pass}`),
+        token,
       });
 
       if (accounts.length > 3) accounts = accounts.slice(0, 3);
@@ -219,14 +219,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const account = savedAccounts[index];
     try {
-      const decoded = atob(account.token);
-      const [email, password] = decoded.split(":");
+      const isNewToken = /^[0-9a-f]{64}$/.test(account.token);
 
-      return await login(email, password);
-    } catch (e) {
+      if (!isNewToken) {
+         try {
+           const decoded = atob(account.token);
+           if (decoded.includes(':')) {
+              const [email, password] = decoded.split(':');
+              return await login(email, password);
+           }
+         } catch(e) {}
+      }
+
+      const response = await api.post("/auth/saved-login", { 
+        email: account.email, 
+        savedLoginToken: account.token 
+      });
+
+      if (!response.data.success) {
+        removeSavedAccount(index);
+        return {
+          success: false,
+          message: response.data.message || "Session expired. Please log in again.",
+        };
+      }
+
+      const { data, message } = response.data;
+
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      saveAccountToLocal(data.user.name, account.email, data.savedLoginToken);
+
+      return { success: true, message: message || "Login successful" };
+    } catch (error: any) {
+      removeSavedAccount(index);
       return {
         success: false,
-        message: "Saved account token is invalid or corrupted",
+        message: error.response?.data?.message || "Login failed",
       };
     }
   };

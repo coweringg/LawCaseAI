@@ -5,6 +5,7 @@ import {
   register,
   registerAdmin,
   login,
+  loginWithSavedToken,
   refreshToken,
   logout
 } from '../controllers/authController'
@@ -62,6 +63,15 @@ router.post('/login', authLimiter, [
     .notEmpty().withMessage('Password is required'),
   handleValidationErrors
 ], login)
+
+router.post('/saved-login', authLimiter, [
+  body('email')
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  body('savedLoginToken')
+    .notEmpty().withMessage('Token is required'),
+  handleValidationErrors
+], loginWithSavedToken)
 
 router.post('/refresh', authenticate, checkAndResetQuotas, refreshToken)
 router.post('/logout', authenticate, checkAndResetQuotas, logout)

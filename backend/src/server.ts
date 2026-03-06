@@ -43,6 +43,7 @@ import dashboardRoutes from './routes/dashboard'
 import eventRoutes from './routes/event'
 import systemRoutes from './routes/system'
 import supportRoutes from './routes/support.routes'
+import webhookRoutes from './routes/webhook'
 import { planRateLimiter } from './middleware/rateLimiter'
 
 const app = express()
@@ -83,6 +84,8 @@ app.use('/api', limiter)
 app.use('/api', planRateLimiter)
 
 app.use(compression())
+
+app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes)
 
 app.use(express.json({ 
   limit: '10mb',

@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { getPaddleInstance } from '@/utils/paddle';
+import { Paddle } from '@paddle/paddle-js';
 import { motion } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -33,9 +35,13 @@ export default function Checkout() {
   const [mounted, setMounted] = useState(false);
   const [order, setOrder] = useState<OrderSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [paddle, setPaddle] = useState<Paddle>();
 
   useEffect(() => {
     setMounted(true);
+    getPaddleInstance().then(p => {
+      if (p) setPaddle(p);
+    });
 
     if (router.isReady) {
       const settingsUrl = `/settings?tab=billing&openPlan=true&planId=${plan || ''}${seats ? `&seats=${seats}` : ''}`;
@@ -44,35 +50,35 @@ export default function Checkout() {
   }, [router.isReady, plan, seats, type, router]);
 
   const handleCompletePurchase = async () => {
-    if (!order || !user) {
-      toast.error("Missing order data");
+    if (!order || !user || !paddle) {
+      toast.error("Preparation incomplete or Paddle failed to load.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const { data: response } = await api.post('/api/payments/confirm-purchase', {
-        plan: order.plan,
+      const { data: response } = await api.post('/api/payments/checkout', {
+        planId: order.plan,
         seats: order.seats,
-        isBusiness: order.isBusiness,
+        interval: order.interval
       });
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to initialize payment');
+      if (!response.success || !response.data?.transactionId) {
+        throw new Error(response.message || 'Failed to initialize payment gateway');
       }
 
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      toast.success("Purchase initialized successfully!");
-      if (order.isBusiness) {
-        router.push('/dashboard?status=success_org');
-      } else {
-        router.push('/dashboard?status=success');
-      }
+      paddle.Checkout.open({
+        transactionId: response.data.transactionId,
+        settings: {
+           displayMode: "overlay",
+           theme: "dark",
+           successUrl: `${window.location.origin}/dashboard?status=${order.isBusiness ? 'success_org' : 'success'}`
+        }
+      });
 
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Transaction error occurred');
+      toast.error(error.response?.data?.message || error.message || 'Transaction error occurred');
     } finally {
       setIsLoading(false);
     }

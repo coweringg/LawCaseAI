@@ -3,6 +3,7 @@ import { User } from '../models'
 import { IApiResponse, IUserRegistration, IUserLogin, UserRole, UserPlan } from '../types'
 import config from '../config'
 import { logAction } from '../utils/auditLogger'
+import crypto from 'crypto'
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -79,6 +80,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     await user.save()
 
     const token = user.generateAuthToken()
+    const savedLoginToken = crypto.randomBytes(32).toString('hex')
+    user.savedLoginToken = savedLoginToken
+    await user.save()
 
     await logAction({
       adminId: user._id,
@@ -116,7 +120,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           isOrgAdmin: user.isOrgAdmin,
           organizationId: user.organizationId
         },
-        token
+        token,
+        savedLoginToken: user.savedLoginToken
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -168,6 +173,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const token = user.generateAuthToken()
 
+    const savedLoginToken = crypto.randomBytes(32).toString('hex')
+    user.savedLoginToken = savedLoginToken
+
     user.lastLogin = new Date()
     user.lastActivity = new Date()
     await user.save()
@@ -208,7 +216,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           isOrgAdmin: user.isOrgAdmin,
           organizationId: user.organizationId
         },
-        token
+        token,
+        savedLoginToken: user.savedLoginToken
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -220,6 +229,99 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+export const loginWithSavedToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, savedLoginToken } = req.body
+
+    if (!email || !savedLoginToken) {
+      res.status(400).json({
+        success: false,
+        message: 'Email and token are required'
+      } as IApiResponse)
+      return
+    }
+
+    const user = await User.findOne({ email }).select('+password +savedLoginToken')
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid credential token'
+      } as IApiResponse)
+      return
+    }
+
+    if (user.status !== 'active') {
+      res.status(401).json({
+        success: false,
+        message: 'Account is not active'
+      } as IApiResponse)
+      return
+    }
+
+    if (!user.savedLoginToken || user.savedLoginToken !== savedLoginToken) {
+      res.status(401).json({
+        success: false,
+        message: 'Saved login token has expired or is invalid'
+      } as IApiResponse)
+      return
+    }
+
+    const token = user.generateAuthToken()
+    
+    const newSavedLoginToken = crypto.randomBytes(32).toString('hex')
+    user.savedLoginToken = newSavedLoginToken
+    user.lastLogin = new Date()
+    user.lastActivity = new Date()
+    await user.save()
+
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: user._id,
+      targetName: user.name,
+      targetType: 'user',
+      category: user.role === 'admin' ? 'admin' : 'platform',
+      action: 'LOGIN',
+      after: { lastLogin: new Date(), email: user.email, authMethod: 'saved_token' },
+      description: `User login via saved account token: ${user.email}`
+    })
+
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          lawFirm: user.lawFirm,
+          role: user.role,
+          plan: user.plan,
+          planLimit: user.planLimit,
+          currentCases: user.currentCases,
+          lastLogin: user.lastLogin,
+          isOrgAdmin: user.isOrgAdmin,
+          organizationId: user.organizationId
+        },
+        token,
+        savedLoginToken: newSavedLoginToken
+      }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Login failed'
+    res.status(500).json({
+      success: false,
+      message: errorMessage
+    } as IApiResponse)
+  }
+}
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = (req as { user?: unknown }).user as { generateAuthToken: () => string }

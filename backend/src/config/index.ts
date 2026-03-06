@@ -32,6 +32,10 @@ const envSchema = z.object({
   CLOUDFLARE_R2_BUCKET_NAME: z.string().default("lawcaseai-files"),
   CLOUDFLARE_R2_ENDPOINT: z.string().default(""),
   CLOUDFLARE_R2_PUBLIC_URL: z.string().default(""),
+  
+  PADDLE_API_KEY: z.string().optional(),
+  PADDLE_WEBHOOK_SECRET: z.string().optional(),
+  PADDLE_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
 
   OPENAI_API_KEY: z
     .string()
@@ -77,6 +81,11 @@ export const config = {
   jwt: {
     secret: env.JWT_SECRET,
     expiresIn: env.JWT_EXPIRES_IN,
+  },
+  paddle: {
+    apiKey: env.PADDLE_API_KEY,
+    webhookSecret: env.PADDLE_WEBHOOK_SECRET,
+    environment: env.PADDLE_ENVIRONMENT,
   },
   adminCreationKey: env.ADMIN_CREATION_KEY,
 

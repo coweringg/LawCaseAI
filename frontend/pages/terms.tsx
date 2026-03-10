@@ -52,7 +52,7 @@ export default function TermsOfService() {
               Terms of <span className="text-primary italic">Service</span>
             </h1>
             <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
-              The professional agreement governing the use of LawCaseAI&apos;s legal intelligence infrastructure and neural processing units.
+              The professional agreement governing the use of LawCaseAI&apos;s legal application and data processing services.
             </p>
             <div className="mt-8 flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500">
               <span>Effective Date: {lastUpdated}</span>
@@ -89,12 +89,12 @@ export default function TermsOfService() {
                   <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Agreement Scope</h2>
                 </div>
                 <p className="text-slate-400 leading-relaxed font-medium">
-                  By accessing the LawCaseAI platform, you enter into a legally binding agreement between your organization and LawCaseAI Infrastructure Corp. This agreement governs your use of our proprietary AI models, cloud infrastructure, and semantic search systems.
+                  By accessing the LawCaseAI platform, you enter into a legally binding agreement with LawCaseAI (&ldquo;the Service&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;). This agreement governs your use of our proprietary AI models, cloud infrastructure, and search systems.
                 </p>
                 <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10">
-                  <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2 font-display">Elite Proviso</p>
+                  <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2 font-display">Usage Proviso</p>
                   <p className="text-slate-300 text-sm italic">
-                    &ldquo;Unauthorized access to the system&apos;s neural weights or direct API manipulation without cryptographic authorization is strictly prohibited.&rdquo;
+                    &ldquo;Unauthorized access to the system&apos;s internal weights or direct API manipulation is strictly prohibited.&rdquo;
                   </p>
                 </div>
               </section>
@@ -134,7 +134,7 @@ export default function TermsOfService() {
                 <div className="inline-flex items-center justify-center p-4 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 mb-2">
                   <AlertTriangle size={32} />
                 </div>
-                <h2 className="text-xl font-black text-white uppercase tracking-widest">Neural Advisory Disclosure</h2>
+                <h2 className="text-xl font-black text-white uppercase tracking-widest">AI Advisory Disclosure</h2>
                 <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
                   LawCaseAI is a professional indexing and analysis tool. It does not provide legal advice. All AI-generated outputs, summaries, and predictions must be reviewed and validated by a qualified attorney before use in legal proceedings.
                 </p>
@@ -146,21 +146,28 @@ export default function TermsOfService() {
                   <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Subscription Protocol</h2>
                 </div>
                 <p className="text-slate-400 leading-relaxed font-medium">
-                  Subscriptions are billed in advance on a monthly or annual cycle. Fees are non-refundable after the first 48 hours of infrastructure deployment. LawCaseAI reserves the right to suspend accounts with delinquent ledger status.
+                  Subscriptions are billed in advance on a monthly or annual cycle. Fees are non-refundable after the first 48 hours of service activation. LawCaseAI reserves the right to suspend accounts with delinquent payment status.
                 </p>
               </section>
 
               <section className="space-y-6 border-t border-white/5 pt-8">
                 <h2 className="text-xl font-black text-white uppercase tracking-widest">Limitation of Liability</h2>
                 <p className="text-slate-500 text-sm leading-relaxed">
-                  IN NO EVENT SHALL LAWCASEAI INFRASTRUCTURE BE LIABLE FOR ANY CONSEQUENTIAL, INDIRECT, OR SPECIAL DAMAGES ARISING FROM SYSTEM DOWNTIME, NEURAL PROCESSING DELAYS, OR LOSS OF CASE DATA. OUR ENTIRE LIABILITY IS LIMITED TO THE AMOUNT PAID FOR SERVICES IN THE PRECEDING 3 MONTHS.
+                  IN NO EVENT SHALL LAWCASEAI BE LIABLE FOR ANY CONSEQUENTIAL, INDIRECT, OR SPECIAL DAMAGES ARISING FROM SYSTEM DOWNTIME, DATA PROCESSING DELAYS, OR LOSS OF CASE DATA. OUR ENTIRE LIABILITY IS LIMITED TO THE AMOUNT PAID FOR SERVICES IN THE PRECEDING 3 MONTHS.
+                </p>
+              </section>
+
+              <section className="space-y-6">
+                <h2 className="text-xl font-black text-white uppercase tracking-widest">Governing Law</h2>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  These Terms shall be governed by and construed in accordance with the laws applicable in the jurisdiction where the Service operates, without regard to its conflict of law provisions.
                 </p>
               </section>
             </div>
 
             <div className="p-8 bg-white/[0.02] border-t border-white/5 text-center">
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Agreement Queries</p>
-              <a href="mailto:legal@lawcaseai.io" className="text-primary font-bold hover:underline">legal-desk@lawcaseai.io</a>
+              <a href="mailto:lawcaseai@gmail.com" className="text-primary font-bold hover:underline">lawcaseai@gmail.com</a>
             </div>
           </div>
 
@@ -185,9 +192,10 @@ export default function TermsOfService() {
               © 2026 LawCaseAI Infrastructure. All Rights Reserved.
             </p>
           </div>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 text-center flex-wrap justify-center">
             <Link href="/terms" className="text-primary text-[10px] font-black uppercase tracking-widest">Terms of Service</Link>
             <Link href="/privacy" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Privacy Policy</Link>
+            <Link href="/refund" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Refund Policy</Link>
             <Link href="/login?support=true" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Contact Support</Link>
           </div>
         </div>

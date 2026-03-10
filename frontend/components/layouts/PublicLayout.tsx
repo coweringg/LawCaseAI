@@ -115,10 +115,11 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                         </div>
                     </div>
                     <div className="border-t border-slate-800 pt-6 flex flex-col md:flex-row justify-between items-center text-xs">
-                        <p>© 2026 LawCaseAI Inc. Professional Software. No trial available.</p>
+                        <p>© 2026 LawCaseAI. All rights reserved. Professional Software. No trial available.</p>
                         <div className="flex space-x-6 mt-4 md:mt-0">
-                            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-                            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
+                            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                            <Link href="/refund" className="hover:text-white transition-colors">Refund Policy</Link>
                         </div>
                     </div>
                 </div>

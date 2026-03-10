@@ -140,7 +140,7 @@ export default function Pricing() {
                   )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["8 Active AI Matters", "20 Documents per Case", "15MB max File Size", "50MB Total Storage", "Unlimited AI Queries (4o-mini)", "SOC2 Type II Security"].map((f, i) => (
+                  {["8 Active AI Matters", "20 Documents per Case", "15MB max File Size", "50MB Total Storage", "Unlimited AI Queries (4o-mini)", "SOC2-ready infrastructure"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -177,7 +177,7 @@ export default function Pricing() {
                   )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["18 Active AI Matters", "50 Documents per Case", "25MB max File Size", "500MB Total Storage", "Unlimited Deep Context", "HIPAA & GDPR Compliance"].map((f, i) => (
+                  {["18 Active AI Matters", "50 Documents per Case", "25MB max File Size", "500MB Total Storage", "Unlimited Deep Context", "HIPAA-ready security architecture"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-300 text-sm font-medium">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -308,6 +308,12 @@ export default function Pricing() {
                   </div>
                 </div>
               </div>
+              <div className="mt-8 text-center bg-white/[0.02] border border-white/5 p-6 rounded-3xl">
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Billing Transparency</p>
+                <p className="text-slate-400 text-sm mb-4">All subscriptions are billed monthly or annually. Cancel anytime from your dashboard.</p>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Merchant of Record</p>
+                <p className="text-slate-400 text-xs">Payments are securely processed by Paddle, our Merchant of Record.</p>
+              </div>
             </motion.div>
           )}
         </div>
@@ -362,7 +368,7 @@ export default function Pricing() {
             {[
               { icon: Shield, label: "Zero Knowledge", desc: "We can't see your data." },
               { icon: Zap, label: "Sub-second", desc: "Analysis at light speed." },
-              { icon: Star, label: "Compliance", desc: "SOC2, HIPAA, GDPR." },
+              { icon: Star, label: "Compliance", desc: "SOC2 & HIPAA ready." },
               { icon: Info, label: "Insurance", desc: "Cyber-liability coverage." }
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center text-center space-y-3">
@@ -385,7 +391,7 @@ export default function Pricing() {
               { q: "Can I switch plans mid-cycle?", a: "Yes. Upgrades take effect immediately with prorated billing. Downgrades apply at the next cycle." },
               { q: "Is there a trial available?", a: "We don't offer generic trials. Contact sales for a live demo on your firm's complex data." },
               { q: "What is a 'Priority Case'?", a: "A priority case is an active litigation or matter receiving top-tier GPU priority for AI analysis and storage." },
-              { q: "Security standards enforced?", a: "All transactions and data processing inherit firm-wide SOC2 Type II and HIPAA compliance standards." }
+              { q: "Security standards enforced?", a: "All transactions and data processing inherit firm-wide SOC2 and HIPAA ready security standards." }
             ].map((faq, i) => (
               <motion.div 
                 key={i} 

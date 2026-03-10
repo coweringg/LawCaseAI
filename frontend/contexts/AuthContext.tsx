@@ -49,6 +49,7 @@ const publicRoutes = [
   "/features",
   "/privacy",
   "/terms",
+  "/refund",
 ];
 const restrictedRoutes = ["/pricing", "/about", "/features", "/login"];
 

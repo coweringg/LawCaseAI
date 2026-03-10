@@ -141,7 +141,7 @@ export default function Register() {
           </div>
 
           <div>
-            <h2 className="text-3xl font-black text-white mb-3 font-display tracking-tight">System Initialized</h2>
+            <h2 className="text-3xl font-black text-white mb-3 font-display tracking-tight">Account Created</h2>
             <p className="text-slate-400 text-sm font-medium">Your professional AI workspace is ready. <br /> How would you like to proceed?</p>
           </div>
 
@@ -419,7 +419,7 @@ export default function Register() {
             </div>
           ) : (
             <>
-              Initialize Workspace
+              Create Account
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </>
           )}

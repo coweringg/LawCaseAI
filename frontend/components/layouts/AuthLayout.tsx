@@ -50,9 +50,9 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                         className="mb-6 xl:mb-12"
                     >
                         <h1 className="text-4xl xl:text-6xl font-black text-white leading-tight mb-4 xl:mb-8 font-display tracking-tightest">
-                            Command the <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Digital Twin</span> <br />
-                            of Your Firm.
+                            Upgrade Your <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Legal Intelligence</span> <br />
+                            with LawCaseAI.
                         </h1>
                         <p className="text-slate-400 text-lg leading-relaxed max-w-md font-medium">
                             Standardizing professional AI infrastructure for high-stakes US legal teams.
@@ -80,15 +80,15 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                                     JD
                                 </div>
                                 <div>
-                                    <p className="text-white font-black text-sm">James Dale</p>
-                                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black">Partner, Dale & Associates</p>
+                                    <p className="text-white font-black text-sm">Senior Litigation Partner</p>
+                                    <p className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black">Early Access Partner</p>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
 
                     <div className="mt-8 text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
-                        © 2026 LawCaseAI Infrastructure
+                        © 2026 LawCaseAI
                     </div>
                 </div>
             </div>

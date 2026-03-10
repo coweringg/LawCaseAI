@@ -68,13 +68,13 @@ export default function About() {
                             </div>
                             <div className="space-y-6 text-xl text-slate-400 leading-relaxed font-medium">
                                 <p>
-                                    LawCaseAI was founded by a coalition of elite litigation partners and senior AI researchers who recognized a gap in the enterprise market: the need for truly sovereign, intelligent legal technology.
+                                    LawCaseAI was created by engineers and legal technology researchers focused on improving how modern law firms process and analyze complex case data.
                                 </p>
                                 <p>
-                                    Generic LLMs fail at the nuances of US case law. We built a proprietary semantic layer that understands the &ldquo;why&rdquo; behind legal precedents, not just the text.
+                                    Generic LLMs often struggle with the specific nuances of US case law. We focus on building a secure semantic layer that helps legal professionals identify insights, precedents, and risks with greater speed and accuracy.
                                 </p>
                                 <p>
-                                    Today, we represent the vanguard of legal tech, securing the digital infrastructure of firms that command the future of American jurisprudence.
+                                    Today, LawCaseAI is focused on building secure, privacy-first AI infrastructure for modern legal teams who require professional-grade analysis tools.
                                 </p>
                             </div>
                         </motion.div>
@@ -106,8 +106,8 @@ export default function About() {
                         {[
                             {
                                 icon: Shield,
-                                title: "Zero Knowledge",
-                                desc: "Absolute data sovereignty. Your case files are encrypted so deeply even we can't access them."
+                                title: "Bank-Grade Security",
+                                desc: "Professional data protection. Your case files are encrypted in transit and at rest using industry-standard protocols."
                             },
                             {
                                 icon: Zap,
@@ -150,10 +150,10 @@ export default function About() {
                 <div className="container-stitch">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
                         {[
-                            { label: "Elite Firms", val: "500+" },
-                            { label: "Pages Scanned", val: "10M+" },
-                            { label: "Hours Saved", val: "250k+" },
-                            { label: "Uptime SLA", val: "99.99%" }
+                            { label: "Early Access Partners", val: "Active" },
+                            { label: "Pages Processed", val: "Millions" },
+                            { label: "Hours Saved", val: "Thousands" },
+                            { label: "Uptime SLA", val: "99.9%" }
                         ].map((s, i) => (
                             <motion.div 
                                 key={i} 
@@ -163,10 +163,38 @@ export default function About() {
                                 transition={{ delay: i * 0.1 }}
                                 className="space-y-4"
                             >
-                                <div className="text-5xl md:text-7xl font-black text-white font-display tracking-tightest drop-shadow-[0_0_20px_rgba(10,68,184,0.3)]">{s.val}</div>
+                                <div className="text-3xl md:text-5xl font-black text-white font-display tracking-tighter drop-shadow-[0_0_20px_rgba(10,68,184,0.3)] break-words">{s.val}</div>
                                 <div className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">{s.label}</div>
                             </motion.div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-24 relative bg-background-dark/20 border-b border-white/5">
+                <div className="container-stitch">
+                    <div className="max-w-4xl mx-auto premium-glass p-12 rounded-[2rem] border border-white/5 space-y-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
+                                <Shield size={24} />
+                            </div>
+                            <h2 className="text-2xl font-black text-white font-display uppercase tracking-wider">Company Information</h2>
+                        </div>
+                        <div className="space-y-6 text-slate-400 font-medium leading-relaxed">
+                            <p>
+                                LawCaseAI is an independent legal technology platform focused on developing AI-powered case analysis and document intelligence tools. Our mission is to provide secure, privacy-first infrastructure for law firms handling complex litigation and document-heavy cases.
+                            </p>
+                            <div className="grid sm:grid-cols-2 gap-8 pt-4 border-t border-white/5">
+                                <div>
+                                    <h4 className="text-white text-xs font-black uppercase tracking-widest mb-2">Platform Focus</h4>
+                                    <p className="text-sm">Enterprise Legal Infrastructure & AI Analysis</p>
+                                </div>
+                                <div>
+                                    <h4 className="text-white text-xs font-black uppercase tracking-widest mb-2">Contact</h4>
+                                    <p className="text-sm">lawcaseai@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -178,7 +206,7 @@ export default function About() {
                         whileInView={{ opacity: 1, scale: 1 }}
                         className="max-w-4xl mx-auto premium-glass p-16 rounded-[3rem] border border-white/10 shadow-2xl"
                     >
-                        <h2 className="text-4xl md:text-6xl font-black text-white mb-10 font-display tracking-tightest leading-tight">Command the Digital <br /><span className="text-primary">Twin of Your Firm</span></h2>
+                        <h2 className="text-4xl md:text-6xl font-black text-white mb-10 font-display tracking-tightest leading-tight">Upgrade Your Firm’s <br /><span className="text-primary">Legal Intelligence</span></h2>
                         <div className="flex flex-col sm:flex-row gap-6 justify-center">
                             <Link href="/register">
                                 <button className="h-16 px-12 bg-primary text-white font-black rounded-2xl shadow-[0_0_30px_rgba(10,68,184,0.4)] hover:scale-105 transition-all text-sm uppercase tracking-widest">

@@ -54,7 +54,7 @@ export default function Features() {
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
                             Premium AI infrastructure tailored for high-stakes US legal practice. 
-                            Scale your firm with zero-knowledge security and sub-second analysis.
+                            Scale your firm with bank-grade security and sub-second analysis.
                         </p>
                     </motion.div>
                 </div>
@@ -101,12 +101,12 @@ export default function Features() {
                     >
                         <Shield size={64} />
                     </motion.div>
-                    <h2 className="text-4xl md:text-6xl font-black text-white mb-12 font-display tracking-tight">Zero-Knowledge <span className="text-primary">Sovereignty</span></h2>
+                    <h2 className="text-4xl md:text-6xl font-black text-white mb-12 font-display tracking-tight">Bank-Grade <span className="text-primary">Security</span></h2>
                     <div className="grid md:grid-cols-3 gap-10 text-left">
                         {[
-                            { title: "AES-256 Encryption", desc: "Data is encrypted at the source. Not even LawCaseAI developers can read your case files." },
+                            { title: "AES-256 Encryption", desc: "Data is encrypted in transit and at rest using industry-standard professional protocols." },
                             { title: "Isolated Compute", desc: "Your firm's analysis runs in isolated virtual environments, ensuring no data leakage between accounts." },
-                            { title: "Sovereign Control", desc: "Download and wipe all data at any time with a single command. Complete ownership of your digital twin." }
+                            { title: "Data Sovereignty", desc: "Download and wipe all data at any time. Complete professional ownership of your digital workspace." }
                         ].map((s, i) => (
                             <div key={i} className="p-10 premium-glass rounded-[2rem] border border-white/5 space-y-5 hover:bg-white/[0.04] transition-colors group">
                                 <h3 className="text-primary font-black uppercase tracking-[0.2em] text-[11px] group-hover:scale-105 transition-transform origin-left">{s.title}</h3>
@@ -258,12 +258,12 @@ function ResearchDemo() {
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 glass rounded-[law-lg] border-white/5">
-                        <div className="text-primary font-bold text-2xl mb-1">2M+</div>
-                        <div className="text-xs text-slate-500 uppercase tracking-tighter font-bold">Citations Indexed</div>
+                        <div className="text-primary font-bold text-2xl mb-1">Deep</div>
+                        <div className="text-xs text-slate-500 uppercase tracking-tighter font-bold">Case Law Index</div>
                     </div>
                     <div className="p-4 glass rounded-[law-lg] border-white/5">
-                        <div className="text-primary font-bold text-2xl mb-1">&lt; 0.5s</div>
-                        <div className="text-xs text-slate-500 uppercase tracking-tighter font-bold">Query Latency</div>
+                        <div className="text-primary font-bold text-2xl mb-1">Sub-sec</div>
+                        <div className="text-xs text-slate-500 uppercase tracking-tighter font-bold">Analysis Speed</div>
                     </div>
                 </div>
             </div>
@@ -286,8 +286,8 @@ function ChronologyDemo() {
                 </p>
                 <div className="space-y-4">
                     {[
-                        { label: "Date Extraction", val: "100%" },
-                        { label: "Entity Resolution", val: "94%" },
+                        { label: "Date Extraction", val: "High-Precision" },
+                        { label: "Entity Resolution", val: "Advanced" },
                         { label: "Timeline Export", val: "Instant" }
                     ].map((stat, i) => (
                         <div key={i} className="space-y-1">
@@ -298,7 +298,7 @@ function ChronologyDemo() {
                             <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    whileInView={{ width: stat.val === 'Instant' ? '100%' : stat.val }}
+                                    whileInView={{ width: '100%' }}
                                     className="h-full bg-primary"
                                 />
                             </div>

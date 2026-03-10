@@ -366,7 +366,7 @@ export default function Pricing() {
         <div className="container-stitch">
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { icon: Shield, label: "Zero Knowledge", desc: "We can't see your data." },
+              { icon: Shield, label: "Bank-Grade", desc: "Encryption at rest & transit." },
               { icon: Zap, label: "Sub-second", desc: "Analysis at light speed." },
               { icon: Star, label: "Compliance", desc: "SOC2 & HIPAA ready." },
               { icon: Info, label: "Insurance", desc: "Cyber-liability coverage." }

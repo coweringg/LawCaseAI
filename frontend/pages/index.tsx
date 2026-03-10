@@ -99,10 +99,20 @@ export default function Home() {
 
               <motion.p
                 variants={fadeInUp}
-                className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed"
+                className="text-xl text-slate-400 max-w-xl mb-4 leading-relaxed"
               >
-                Empower your firm with elite case management and document automation. LawCaseAI provides immediate operational efficiency for professional US law firms.
+                AI-powered case management and document intelligence platform for US law firms. LawCaseAI provides immediate operational efficiency and secure analysis for professional legal teams.
               </motion.p>
+              
+
+              <motion.div
+                variants={fadeInUp}
+                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary/80 mb-12"
+              >
+                <div className="w-4 h-px bg-primary/30" />
+                Secure AI infrastructure built for professional legal workflows
+                <div className="w-4 h-px bg-primary/30" />
+              </motion.div>
 
               <motion.div
                 variants={fadeInUp}
@@ -130,10 +140,10 @@ export default function Home() {
                     <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary/60">Compliance & Trust</p>
                     <div className="h-0.5 w-12 bg-primary/30 rounded-full"></div>
                 </div>
-                {['SOC2 TYPE II', 'HIPAA', 'GDPR'].map((badge) => (
+                {['SOC2-READY', 'HIPAA-READY', 'GDPR-ALIGNED'].map((badge) => (
                   <div key={badge} className="flex items-center gap-2 text-slate-500 hover:text-white transition-all duration-500 cursor-default group/badge">
                     <Shield size={16} className="text-primary group-hover/badge:scale-125 transition-transform" />
-                    <span className="font-display font-black text-[13px] tracking-widest">{badge}</span>
+                    <span className="font-display font-black text-[11px] tracking-widest">{badge}</span>
                   </div>
                 ))}
               </motion.div>
@@ -229,7 +239,7 @@ export default function Home() {
               },
               {
                 title: "Legal Research Assistant",
-                desc: "Search jurisprudence across millions of records. Find precedents in seconds, not hours.",
+                desc: "Technical analysis across extensive jurisprudence. Identify precedents with precision and speed.",
                 icon: "gavel",
                 link: "/features#research",
                 color: "from-primary/20 to-transparent"
@@ -280,18 +290,18 @@ export default function Home() {
             {[
               {
                 text: "LawCaseAI transformed our discovery process. What used to take junior associates weeks now takes minutes with higher accuracy.",
-                author: "Senior Partner",
-                firm: "Top-Tier NYC Litigation Firm"
+                author: "Senior Attorney",
+                firm: "Early Access Partner"
               },
               {
-                text: "The security architecture is what sold us. Professional standards for zero-knowledge data management are non-negotiable for us.",
-                author: "Head of Operations",
-                firm: "International Transactional Law"
+                text: "The security architecture is what sold us. Professional standards for secure data management are non-negotiable for our team.",
+                author: "Principal Partner",
+                firm: "Beta Customer (Private Firm)"
               },
               {
                 text: "Finally, an AI tool that actually understands the nuances of US case law rather than just generating generic summaries.",
                 author: "Lead Counsel",
-                firm: "Federal Practice Group"
+                firm: "Legal Technology Advisor"
               }
             ].map((t, i) => (
               <motion.div 
@@ -350,7 +360,7 @@ export default function Home() {
                     ))}
                 </div>
                 <p className="text-[11px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                    Join 500+ US Law Firms
+                    Early access for US Law Firms
                 </p>
             </div>
           </motion.div>

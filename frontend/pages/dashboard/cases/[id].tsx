@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import api from '@/utils/api'
 import { Button } from '@/components/ui/Button'
+import { useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Alert } from '@/components/ui/Alert'
@@ -60,6 +61,7 @@ interface Case {
 export default function CaseDetail() {
   const router = useRouter()
   const { id } = router.query
+  const queryClient = useQueryClient()
   const [case_, setCase] = useState<Case | null>(null)
   const [files, setFiles] = useState<CaseFile[]>([])
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -147,6 +149,9 @@ export default function CaseDetail() {
         setFiles(prev => [...prev, data])
         setShowUploadModal(false)
         setSelectedFile(null)
+        // Update usage stats live
+        queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
+        queryClient.invalidateQueries({ queryKey: ['billing'] })
       }
     } catch (error) {
       console.error('Failed to upload file:', error)
@@ -193,6 +198,9 @@ export default function CaseDetail() {
             timestamp: new Date().toISOString()
           }]
         })
+        // Update usage stats live
+        queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
+        queryClient.invalidateQueries({ queryKey: ['billing'] })
       }
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -210,6 +218,9 @@ export default function CaseDetail() {
 
       if (response.status === 200) {
         setFiles(prev => prev.filter(file => file.id !== fileId))
+        // Update usage stats live
+        queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
+        queryClient.invalidateQueries({ queryKey: ['billing'] })
       }
     } catch (error) {
       console.error('Failed to delete file:', error)

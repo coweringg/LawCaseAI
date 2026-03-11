@@ -200,13 +200,18 @@ export default function MyCases() {
                                                     <span className="w-1.5 h-1.5 bg-white/5 rounded-full"></span>
                                                     <span className="text-[10px] font-black text-primary/70 uppercase tracking-widest">{c.practiceArea || 'General Legal'}</span>
                                                 </div>
-                                                {c.status === 'closed' && (
+                                                {c.status === 'closed' && !c.closedByUser && (
                                                     <button 
                                                         onClick={(e) => handleReactivateCase(e, c._id)}
                                                         className="mt-2 text-[10px] font-black uppercase tracking-widest bg-primary/20 hover:bg-primary/40 text-primary px-4 py-2 rounded-xl transition-all duration-300 border border-primary/30"
                                                     >
                                                         Reactivate Case
                                                     </button>
+                                                )}
+                                                {c.status === 'closed' && c.closedByUser && (
+                                                    <span className="mt-2 inline-block text-[10px] font-black uppercase tracking-widest text-slate-600 px-4 py-2">
+                                                        Permanently Sealed
+                                                    </span>
                                                 )}
                                             </div>
 

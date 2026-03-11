@@ -12,11 +12,18 @@ import { Loader2, ArrowLeft, Search, Folder, Grid, List as ListIcon, Upload, Tra
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDashboardStats, useBillingInfo, useCaseData } from '@/hooks/useSettings';
 
 export default function CaseDocuments() {
     const router = useRouter();
     const { id } = router.query;
     const { isAuthenticated, user } = useAuth();
+    const queryClient = useQueryClient();
+    const { data: dashboardData } = useDashboardStats(!!user && isAuthenticated);
+    const { data: billingInfo } = useBillingInfo();
+    const { data: caseData } = useCaseData(id as string, !!user && isAuthenticated);
+    const isCaseLocked = caseData?.status === 'closed';
     const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -56,6 +63,10 @@ export default function CaseDocuments() {
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !id || !isAuthenticated) return;
+        if (isCaseLocked) {
+            toast.error('This case is locked. Reactivate it to upload files.');
+            return;
+        }
 
         setIsUploading(true);
         const formData = new FormData();
@@ -70,6 +81,10 @@ export default function CaseDocuments() {
             if (data.success) {
                 toast.success('File uploaded successfully');
                 fetchFiles();
+                // Update usage stats live
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(data.message || 'Upload failed');
             }
@@ -161,6 +176,9 @@ export default function CaseDocuments() {
                 setFiles(prev => prev.filter(f => f._id !== fileToDelete._id));
                 if (selectedFile?._id === fileToDelete._id) setSelectedFile(null);
                 setDeleteModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             }
         } catch (error) {
             toast.error('Purge failed');
@@ -180,6 +198,9 @@ export default function CaseDocuments() {
                 setSelectedDocs([]);
                 if (selectedFile && selectedDocs.includes(selectedFile._id)) setSelectedFile(null);
                 setBulkDeleteModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             }
         } catch (error) {
             toast.error('Bulk purge failed');
@@ -227,15 +248,16 @@ export default function CaseDocuments() {
         return true;
     });
 
-    const totalSize = user?.totalStorageUsed || files.reduce((acc, f) => acc + (f.size || 0), 0);
-    const storageLimit = user?.maxTotalStorage || 100 * 1024 * 1024;
-    const calculatedPercent = (totalSize / storageLimit) * 100;
-    const storagePercent = totalSize > 0 ? Math.min(100, Math.max(0.1, parseFloat(calculatedPercent.toFixed(1)))) : 0;
+    const plan = user?.plan || 'basic';
+    const limits = billingInfo?.limits || { maxTotalStorage: 50 * 1024 * 1024, maxTokens: 400000 };
+    
+    const currentStorageUsed = caseData?.totalStorageUsed || files.reduce((acc, f) => acc + (f.size || 0), 0);
+    const storageLimit = limits.maxTotalStorage || 100 * 1024 * 1024;
+    const storagePercent = Math.min(100, Math.max(0, parseFloat(((currentStorageUsed / storageLimit) * 100).toFixed(1))));
 
-    const totalTokens = user?.totalTokensConsumed || 0;
-    const tokenLimit = user?.maxTokens || 10000;
-    const calculatedTokenPercent = tokenLimit > 0 ? (totalTokens / tokenLimit) * 100 : 0;
-    const tokenPercent = totalTokens > 0 ? Math.min(100, Math.max(0.1, parseFloat(calculatedTokenPercent.toFixed(1)))) : 0;
+    const caseTokensUsed = caseData?.totalTokensConsumed || 0;
+    const tokenLimit = limits.maxTokens || 400000;
+    const tokenPercent = Math.min(100, Math.max(0, parseFloat(((caseTokensUsed / tokenLimit) * 100).toFixed(1))));
 
     const formatSize = (bytes: number) => {
         if (bytes === 0) return '0 Bytes';
@@ -416,7 +438,7 @@ export default function CaseDocuments() {
                                         <h2 className="text-3xl font-black text-white tracking-tightest font-display uppercase italic">Documents</h2>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        {selectedDocs.length > 0 && (
+                                        {selectedDocs.length > 0 && !isCaseLocked && (
                                             <motion.button
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -455,19 +477,28 @@ export default function CaseDocuments() {
                                         />
 
                                         <motion.button
-                                            whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={() => fileInputRef.current?.click()}
-                                            disabled={isUploading}
-                                            className="h-12 px-6 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary-hover transition-all flex items-center gap-3 shadow-2xl border border-white/20 disabled:opacity-50"
+                                            whileHover={isCaseLocked ? {} : { scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
+                                            whileTap={isCaseLocked ? {} : { scale: 0.98 }}
+                                            onClick={() => !isCaseLocked && fileInputRef.current?.click()}
+                                            disabled={isUploading || isCaseLocked}
+                                            className={`h-12 px-6 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary-hover transition-all flex items-center gap-3 shadow-2xl border border-white/20 disabled:opacity-50 ${isCaseLocked ? 'cursor-not-allowed' : ''}`}
                                         >
                                             {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload size={16} />}
-                                            {isUploading ? 'UPLOADING...' : 'UPLOAD FILE'}
+                                            {isCaseLocked ? 'CASE LOCKED' : isUploading ? 'UPLOADING...' : 'UPLOAD FILE'}
                                         </motion.button>
                                     </div>
                                 </div>
 
                             </div>
+
+                            {isCaseLocked && (
+                                <div className="mx-8 mt-2 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-4 relative z-10">
+                                    <Shield size={18} className="text-amber-500 shrink-0" />
+                                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                                        This case is sealed &bull; Read-only mode &bull; Reactivate from your case list to resume operations
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="flex-1 overflow-auto px-8 mt-4 relative z-10 scrollbar-hide">
                                 {isLoading ? (

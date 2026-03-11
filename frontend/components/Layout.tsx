@@ -29,6 +29,7 @@ export function Layout({ children }: LayoutProps) {
     "/about",
     "/privacy",
     "/terms",
+    "/refund",
   ].includes(router.pathname);
 
   return (

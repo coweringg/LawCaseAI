@@ -12,6 +12,9 @@ export interface User {
   lastLogin?: string
   organizationId?: string
   isOrgAdmin?: boolean
+  isTrialUsed?: boolean
+  trialStartedAt?: string
+  trialCaseId?: string
   totalTokensConsumed?: number
   totalStorageUsed?: number
   maxTokens?: number

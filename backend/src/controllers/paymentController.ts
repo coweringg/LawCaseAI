@@ -110,11 +110,75 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
     }
 }
 
-export const confirmPayment = async (req: IAuthRequest, res: Response): Promise<void> => {
-    res.status(200).json({
-        success: true,
-        message: 'Endpoint deprecated. Use Paddle webhook flow.',
-    } as IApiResponse)
+export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<void> => {
+    try {
+        const { planId, interval = 'monthly', seats = 1, firmName } = req.body
+        const userId = req.user?._id
+
+        if (!userId) {
+            res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
+            return
+        }
+
+        const validPlans = Object.values(UserPlan)
+        if (!planId || !validPlans.includes(planId as UserPlan)) {
+            res.status(400).json({ success: false, message: 'The selected plan is invalid.' } as IApiResponse)
+            return
+        }
+
+        const user = await User.findById(userId)
+        if (!user) {
+            res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+            return
+        }
+
+        user.plan = planId as UserPlan
+        user.billingInterval = interval
+        user.isTrialUsed = true
+
+        const now = new Date()
+        user.currentPeriodStart = now
+        const nextPeriod = new Date(now)
+        if (interval === 'annual') {
+            nextPeriod.setFullYear(nextPeriod.getFullYear() + 1)
+        } else {
+            nextPeriod.setMonth(nextPeriod.getMonth() + 1)
+        }
+        user.currentPeriodEnd = nextPeriod
+        // Note: we do not reset currentCases here so their trial case counts towards the new limit
+
+        if (planId === UserPlan.ENTERPRISE) {
+            if (!user.organizationId) {
+                const org = new Organization({
+                    name: firmName || `${user.name}'s Firm`,
+                    firmCode: crypto.randomBytes(4).toString('hex').toUpperCase(),
+                    totalSeats: Math.max(5, parseInt(seats)),
+                    usedSeats: 1,
+                    isActive: true
+                })
+                await org.save()
+                user.organizationId = org._id
+                user.isOrgAdmin = true
+                user.role = UserRole.ORG_ADMIN
+            } else if (user.isOrgAdmin) {
+                await Organization.findByIdAndUpdate(user.organizationId, {
+                    $max: { totalSeats: parseInt(seats) }
+                })
+            }
+        }
+
+        await user.save()
+
+        res.status(200).json({
+            success: true,
+            message: 'Mock Checkout Successful! Plan has been upgraded.',
+            data: { redirectUrl: '/dashboard?status=success' }
+        } as IApiResponse)
+
+    } catch (error: unknown) {
+        controllerLogger.error({ err: error }, 'mockCheckout error')
+        res.status(500).json({ success: false, message: 'Development mock checkout failed' } as IApiResponse)
+    }
 }
 
 export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise<void> => {

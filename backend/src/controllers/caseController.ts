@@ -31,10 +31,12 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    if (user.currentCases >= user.planLimit) {
+    const isTrial = user.plan === UserPlan.TRIAL
+
+    if (isTrial && user.trialCaseId) {
       res.status(403).json({
         success: false,
-        message: `You have reached the case limit for your ${user.plan} plan (${user.planLimit} cases). Please upgrade your plan to continue creating more cases, or wait until your next billing cycle for your limit to be replenished.`
+        message: 'Your free trial is limited to one single case/matter. Please upgrade to a paid plan to create more cases.'
       } as IApiResponse)
       return
     }
@@ -46,12 +48,18 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       practiceArea,
       status: CaseStatus.ACTIVE,
       userId,
-      lastActivationPeriodStart: user.currentPeriodStart || new Date()
+      lastActivationPeriodStart: user.currentPeriodStart || new Date(),
+      isTrialCase: isTrial
     })
 
     await newCase.save()
 
-    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+    const userUpdate: any = { $inc: { currentCases: 1 } }
+    if (isTrial) {
+      userUpdate.$set = { trialCaseId: newCase._id }
+    }
+
+    await User.updateOne({ _id: userId }, userUpdate)
 
     await logAction({
       adminId: user._id,
@@ -89,6 +97,18 @@ export const getCases = async (req: IAuthRequest, res: Response): Promise<void> 
     const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 20), 100)
     const skip = (page - 1) * limit
     const status = req.query.status as string | undefined
+
+    const user = await User.findById(userId)
+    if (user && user.plan === UserPlan.TRIAL && user.trialStartedAt) {
+      const startTime = new Date(user.trialStartedAt)
+      const diffInHours = (new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60)
+      if (diffInHours >= 24) {
+        await Case.updateMany(
+          { userId, isTrialCase: true, status: CaseStatus.ACTIVE },
+          { $set: { status: CaseStatus.CLOSED } }
+        )
+      }
+    }
 
     const filter: Record<string, unknown> = { 
       userId,
@@ -173,6 +193,18 @@ export const getCaseById = async (req: IAuthRequest, res: Response): Promise<voi
 
     const caseData = await Case.findOne({ _id: id, userId })
 
+    if (caseData && caseData.isTrialCase && caseData.status === CaseStatus.ACTIVE) {
+      const user = await User.findById(userId)
+      if (user && user.plan === UserPlan.TRIAL && user.trialStartedAt) {
+        const startTime = new Date(user.trialStartedAt)
+        const diffInHours = (new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60)
+        if (diffInHours >= 24) {
+          caseData.status = CaseStatus.CLOSED
+          await caseData.save()
+        }
+      }
+    }
+
     if (!caseData) {
       res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
@@ -223,8 +255,10 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       allowedUpdates.status = status
       if (status === CaseStatus.CLOSED) {
         allowedUpdates.closedAt = new Date()
+        allowedUpdates.closedByUser = true
       } else if (status === CaseStatus.ACTIVE) {
         allowedUpdates.closedAt = null
+        allowedUpdates.closedByUser = false
       }
     }
 
@@ -354,6 +388,14 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
 
     if (currentCase.status !== CaseStatus.CLOSED) {
       res.status(400).json({ success: false, message: 'Only closed cases can be reactivated.' } as IApiResponse)
+      return
+    }
+
+    if (currentCase.closedByUser) {
+      res.status(403).json({
+        success: false,
+        message: 'This case was permanently sealed by you and cannot be reactivated. You can create a new case instead.'
+      } as IApiResponse)
       return
     }
 

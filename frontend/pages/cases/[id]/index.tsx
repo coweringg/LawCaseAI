@@ -32,11 +32,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import { TrialStatusBanner } from '@/components/cases/TrialStatusBanner';
+import { LockedTrialOverlay } from '@/components/cases/LockedTrialOverlay';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CaseWorkspace() {
     const router = useRouter();
     const { id } = router.query;
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<'summary' | 'search' | 'notes'>('summary');
     const [caseData, setCaseData] = useState<any>(null);
     const [files, setFiles] = useState<any[]>([]);
@@ -59,6 +63,17 @@ export default function CaseWorkspace() {
 
     const [isSavingSummary, setIsSavingSummary] = useState(false);
     const [summaryToSave, setSummaryToSave] = useState<{ content: string, type: string } | null>(null);
+
+    const [isTrialCase, setIsTrialCase] = useState(false);
+    const [isTrialExpired, setIsTrialExpired] = useState(false);
+
+    const isCaseLocked = isTrialExpired || caseData?.status === 'closed';
+    
+    useEffect(() => {
+        if (router.query.trial === 'activated') {
+            setIsTrialCase(true);
+        }
+    }, [router.query]);
 
     const getFullFileUrl = (url: string) => {
         if (url.startsWith('http')) return url;
@@ -127,6 +142,10 @@ export default function CaseWorkspace() {
                 const fData = filesRes.data;
                 const chData = chatRes.data;
 
+                if (cData.error === 'TRIAL_EXPIRED' || cData.error === 'TRIAL_LOCKED') {
+                    setIsTrialExpired(true);
+                }
+
                 if (cData.success) {
                     setCaseData(cData.data);
                     if (cData.data.summary) {
@@ -156,6 +175,14 @@ export default function CaseWorkspace() {
     }, [id, isAuthenticated]);
 
     const handleAttachFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isTrialCase && files.length >= 10) {
+            toast.error('Trial limit reached: Maximum 10 units per evaluation matter.');
+            return;
+        }
+        if (isCaseLocked) {
+            toast.error('This case is locked. Reactivate it to continue.');
+            return;
+        }
         const file = e.target.files?.[0];
         if (!file) return;
         await uploadFileProtocol(file, true);
@@ -189,6 +216,9 @@ export default function CaseWorkspace() {
                     setFiles(prev => [res.data.data, ...prev]);
                     toast.success('Unit saved to repository');
                 }
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(res.data.message || 'Failed to stage unit');
                 if (isTemporary) setAttachingFile(null);
@@ -244,6 +274,17 @@ export default function CaseWorkspace() {
     const executeCommitFile = async () => {
         if ((!fileToCommit && !summaryToSave) || !id || isSavingSummary) return;
 
+        if (isCaseLocked) {
+            toast.error('This case is locked. Reactivate it to continue.');
+            setCommitModalOpen(false);
+            return;
+        }
+        if (isTrialCase && files.length >= 10) {
+            toast.error('Trial limit reached: Maximum 10 units per evaluation matter.');
+            setCommitModalOpen(false);
+            return;
+        }
+
         setIsSavingSummary(true);
         try {
             let res;
@@ -268,6 +309,10 @@ export default function CaseWorkspace() {
                 setCommitModalOpen(false);
                 setFileToCommit(null);
                 setSummaryToSave(null);
+                // Update usage stats live
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(data.message);
             }
@@ -288,6 +333,10 @@ export default function CaseWorkspace() {
             if (res.data.success) {
                 toast.success('Unit purged from repository');
                 setFiles(prev => prev.filter(f => f._id !== fileToDelete._id));
+                // Update usage stats live
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(res.data.message || 'Failed to purge unit');
             }
@@ -321,6 +370,10 @@ export default function CaseWorkspace() {
     };
 
     const handleSendMessage = async () => {
+        if (isCaseLocked) {
+            toast.error('This case is locked. Reactivate it to continue.');
+            return;
+        }
         if ((!userInput.trim() && !temporaryFileId) || isSending || !id || !isAuthenticated) return;
 
         let content = userInput.trim();
@@ -363,6 +416,10 @@ export default function CaseWorkspace() {
                     const withoutPending = prev.map(m => m.isPending ? { ...m, isPending: false } : m);
                     return [...withoutPending, aiMessage];
                 });
+                // Update usage stats live
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(data.message || 'AI failed to respond');
                 setChatMessages(prev => prev.map(m => m.isPending ? { ...m, isPending: false } : m));
@@ -383,6 +440,10 @@ export default function CaseWorkspace() {
             if (data.success) {
                 setCaseSummary(data.data.summary);
                 toast.success('Summary updated');
+                // Update usage stats live
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
             }
         } catch (error) {
             toast.error('Failed to generate summary');
@@ -426,6 +487,7 @@ export default function CaseWorkspace() {
             <DashboardLayout>
                 <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                    {isTrialExpired && <LockedTrialOverlay />}
                     
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
@@ -451,7 +513,7 @@ export default function CaseWorkspace() {
 
                         <div className="flex items-center gap-5 relative z-10">
                             <AnimatePresence>
-                                {caseData?.status === 'active' && (
+                                {caseData?.status === 'active' && !isTrialExpired && (
                                     <motion.button
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -475,7 +537,16 @@ export default function CaseWorkspace() {
                         </div>
                     </header>
 
+                    {isTrialCase && !isTrialExpired && (
+                        <TrialStatusBanner 
+                            hoursRemaining={24} 
+                            docsCount={files.length} 
+                            maxDocs={10} 
+                        />
+                    )}
+
                     <div className="flex-1 flex overflow-hidden relative z-10">
+                        {isCaseLocked && <LockedTrialOverlay isTrialExpired={isTrialExpired} closedByUser={caseData?.closedByUser} />}
                         <aside 
                             className="w-64 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative"
                             onDragOver={(e) => handleDragOver(e, setIsDraggingSidebar)}
@@ -782,10 +853,11 @@ export default function CaseWorkspace() {
                                     </AnimatePresence>
 
                                     <textarea
-                                        className="w-full bg-transparent text-[13px] font-medium text-white placeholder-slate-600 border-none focus:ring-0 resize-none pt-4 pb-16 px-6 outline-none scrollbar-hide"
-                                        placeholder={attachingFile ? "Input command protocols for attached unit..." : "Input command protocols..."}
+                                        className={`w-full bg-transparent text-[13px] font-medium text-white placeholder-slate-600 border-none focus:ring-0 resize-none pt-4 pb-16 px-6 outline-none scrollbar-hide ${isCaseLocked ? 'cursor-not-allowed opacity-50' : ''}`}
+                                        placeholder={isCaseLocked ? "Case is locked. Reactivate to unlock command console." : (attachingFile ? "Input command protocols for attached unit..." : "Input command protocols...")}
                                         rows={2}
                                         value={userInput}
+                                        disabled={isCaseLocked}
                                         onChange={(e) => setUserInput(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                                     />
@@ -798,10 +870,10 @@ export default function CaseWorkspace() {
                                                 onChange={handleAttachFile}
                                             />
                                             <motion.button 
-                                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
-                                                onClick={() => fileInputRef.current?.click()}
-                                                disabled={isUploadingTemp}
-                                                className={`p-2 text-slate-500 rounded-xl transition-all ${attachingFile ? 'text-primary' : 'hover:text-primary'}`}
+                                                whileHover={isCaseLocked ? {} : { scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                                onClick={() => !isCaseLocked && fileInputRef.current?.click()}
+                                                disabled={isUploadingTemp || isCaseLocked}
+                                                className={`p-2 text-slate-500 rounded-xl transition-all ${isCaseLocked ? 'opacity-30 cursor-not-allowed' : attachingFile ? 'text-primary' : 'hover:text-primary'}`}
                                             >
                                                 <Plus size={18} />
                                             </motion.button>
@@ -816,8 +888,8 @@ export default function CaseWorkspace() {
                                             whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(37,99,235,0.4)" }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={handleSendMessage}
-                                            disabled={(!userInput.trim() && !temporaryFileId) || isSending || isUploadingTemp}
-                                            className={`bg-primary text-white pl-6 pr-4 py-3 rounded-2xl flex items-center gap-3 transition-all shadow-2xl text-[11px] font-bold tracking-wider ${((!userInput.trim() && !temporaryFileId) || isSending || isUploadingTemp) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                            disabled={isCaseLocked || (!userInput.trim() && !temporaryFileId) || isSending || isUploadingTemp}
+                                            className={`bg-primary text-white pl-6 pr-4 py-3 rounded-2xl flex items-center gap-3 transition-all shadow-2xl text-[11px] font-bold tracking-wider ${(isCaseLocked || (!userInput.trim() && !temporaryFileId) || isSending || isUploadingTemp) ? 'opacity-40 cursor-not-allowed' : ''}`}
                                         >
                                             {isSending ? 'Synthesizing' : 'Transmit'}
                                             {!isSending && <Zap size={14} fill="currentColor" />}

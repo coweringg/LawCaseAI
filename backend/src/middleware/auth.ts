@@ -111,14 +111,13 @@ export const checkPlanLimit = async (req: IAuthRequest, res: Response, next: Nex
       return
     }
 
-    if (user.currentCases >= user.planLimit) {
+    if (user.isAtPlanLimit) {
       res.status(403).json({
         success: false,
-        message: 'Plan limit reached. Please upgrade your plan to create more cases.',
+        message: `Plan limit reached for ${user.plan} plan. Please upgrade your plan or wait for the next billing cycle.`,
         data: {
-          current: user.currentCases,
-          limit: user.planLimit,
-          plan: user.plan
+          plan: user.plan,
+          usage: user.planUsagePercentage
         }
       })
       return

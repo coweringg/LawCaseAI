@@ -12,7 +12,8 @@ export enum UserPlan {
   BASIC = 'basic',
   PROFESSIONAL = 'professional',
   ELITE = 'elite',
-  ENTERPRISE = 'enterprise'
+  ENTERPRISE = 'enterprise',
+  TRIAL = 'trial'
 }
 
 export enum CaseStatus {
@@ -115,6 +116,9 @@ export interface IUser extends Document {
   billingInterval?: 'monthly' | 'annual'
   currentPeriodStart?: Date
   currentPeriodEnd?: Date
+  isTrialUsed?: boolean
+  trialStartedAt?: Date
+  trialCaseId?: Types.ObjectId
   maxCases: number
   maxTokens: number
   maxTotalStorage: number
@@ -140,6 +144,10 @@ export interface ICase extends Document {
   closedAt?: Date
   fileCount: number
   lastActivationPeriodStart?: Date
+  isTrialCase?: boolean
+  totalTokensConsumed: number
+  totalStorageUsed: number
+  closedByUser?: boolean
 }
 
 export interface ICaseFile extends Document {
@@ -298,6 +306,7 @@ export interface IPlanLimits {
   professional: IPlanDetails
   elite: IPlanDetails
   enterprise: IPlanDetails
+  trial: IPlanDetails
 }
 
 export interface IValidationRule {
@@ -322,7 +331,8 @@ export const PLAN_LIMITS: IPlanLimits = {
   basic: { maxCases: 8, maxFilesPerCase: 20, maxFileSize: 15 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024, maxTokens: 2000000 },
   professional: { maxCases: 18, maxFilesPerCase: 50, maxFileSize: 25 * 1024 * 1024, maxTotalStorage: 500 * 1024 * 1024, maxTokens: 10000000 },
   elite: { maxCases: 100000, maxFilesPerCase: 100000, maxFileSize: 50 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024 * 1024, maxTokens: 1000000000 },
-  enterprise: { maxCases: 100000, maxFilesPerCase: 100000, maxFileSize: 50 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024 * 1024, maxTokens: 1000000000 }
+  enterprise: { maxCases: 100000, maxFilesPerCase: 100000, maxFileSize: 50 * 1024 * 1024, maxTotalStorage: 50 * 1024 * 1024 * 1024, maxTokens: 1000000000 },
+  trial: { maxCases: 1, maxFilesPerCase: 10, maxFileSize: 10 * 1024 * 1024, maxTotalStorage: 100 * 1024 * 1024, maxTokens: 400000 }
 }
 
 export const ALLOWED_FILE_TYPES = [

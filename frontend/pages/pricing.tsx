@@ -99,20 +99,32 @@ export default function Pricing() {
                 : 'Corporate solutions with centralized billing. Empower your entire team with unlimited Elite access.'}
             </p>
 
-            <div className="flex justify-center items-center gap-6 mb-16">
-              <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
-              <button
-                role="switch"
-                aria-checked={billingInterval === 'annual'}
-                onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-                className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
-              >
-                <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
-              </button>
-              <div className="flex flex-col items-start leading-none">
-                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
-                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
+            <div className="flex flex-col items-center gap-4 mb-16">
+              <div className="flex items-center gap-6">
+                <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
+                <button
+                  role="switch"
+                  aria-checked={billingInterval === 'annual'}
+                  onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                  className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all focus:ring-4 focus:ring-primary/20 ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
+                >
+                  <div className={`h-7 w-7 transform rounded-full bg-white shadow-xl transition-transform ${billingInterval === 'annual' ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                </button>
+                <div className="flex flex-col items-start leading-none">
+                  <span className={`text-sm font-bold tracking-widest uppercase ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual</span>
+                  <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">SAVE 20%</span>
+                </div>
               </div>
+
+              <Link href="/register">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-primary text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-white/10 transition-all"
+                >
+                  <Zap size={12} className="fill-current" />
+                  Free 24h evaluation available for all new firms
+                </motion.div>
+              </Link>
             </div>
           </motion.div>
 
@@ -389,7 +401,7 @@ export default function Pricing() {
           <div className="grid md:grid-cols-2 gap-8">
             {[
               { q: "Can I switch plans mid-cycle?", a: "Yes. Upgrades take effect immediately with prorated billing. Downgrades apply at the next cycle." },
-              { q: "Is there a trial available?", a: "We don't offer generic trials. Contact sales for a live demo on your firm's complex data." },
+              { q: "Is there a trial available?", a: "Yes. We offer a 24-hour full-access evaluation for new law firms. You can activate it from your billing dashboard after registration." },
               { q: "What is a 'Priority Case'?", a: "A priority case is an active litigation or matter receiving top-tier GPU priority for AI analysis and storage." },
               { q: "Security standards enforced?", a: "All transactions and data processing inherit firm-wide SOC2 and HIPAA ready security standards." }
             ].map((faq, i) => (

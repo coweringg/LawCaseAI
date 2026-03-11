@@ -31,7 +31,6 @@ export const usePurchaseHistory = () => {
         },
     });
 };
-
 export const useOrganizationMembers = (enabled: boolean) => {
     return useQuery({
         queryKey: ['members'],
@@ -40,5 +39,26 @@ export const useOrganizationMembers = (enabled: boolean) => {
             return response.data.data || [];
         },
         enabled,
+    });
+};
+
+export const useDashboardStats = (enabled: boolean = true) => {
+    return useQuery({
+        queryKey: ['dashboardStats'],
+        queryFn: async () => {
+            const response = await api.get('/dashboard/stats');
+            return response.data.data;
+        },
+        enabled,
+    });
+};
+export const useCaseData = (id: string | undefined, enabled: boolean = true) => {
+    return useQuery({
+        queryKey: ['case', id],
+        queryFn: async () => {
+            const response = await api.get(`/cases/${id}`);
+            return response.data.data;
+        },
+        enabled: !!id && enabled,
     });
 };

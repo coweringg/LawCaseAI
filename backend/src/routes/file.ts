@@ -5,12 +5,13 @@ import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { uploadSingle } from '../utils/fileUpload'
 import { handleValidationErrors } from '../middleware/validation'
+import { checkTrialStatus } from '../middleware/trialMiddleware'
 
 const router = Router()
 
-router.post('/upload', authenticate as any, checkAndResetQuotas as any, uploadSingle, uploadFile as any)
+router.post('/upload', authenticate as any, checkAndResetQuotas as any, checkTrialStatus as any, uploadSingle, uploadFile as any)
 
-router.post('/commit', authenticate as any, checkAndResetQuotas as any, commitFile as any)
+router.post('/commit', authenticate as any, checkAndResetQuotas as any, checkTrialStatus as any, commitFile as any)
 
 router.patch('/:fileId/star', authenticate as any, checkAndResetQuotas as any, toggleStarFile as any)
 
@@ -25,6 +26,6 @@ router.get('/case/:caseId', [
   handleValidationErrors
 ], authenticate as any, checkAndResetQuotas as any, getCaseFiles as any)
 
-router.post('/create-from-text', authenticate as any, checkAndResetQuotas as any, createFileFromText as any)
+router.post('/create-from-text', authenticate as any, checkAndResetQuotas as any, checkTrialStatus as any, createFileFromText as any)
 
 export default router

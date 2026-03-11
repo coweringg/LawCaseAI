@@ -136,11 +136,19 @@ const userSchema = new Schema<IUser>({
     enum: ['monthly', 'annual'],
     default: 'monthly'
   },
-  currentPeriodStart: {
-    type: Date
-  },
   currentPeriodEnd: {
     type: Date
+  },
+  isTrialUsed: {
+    type: Boolean,
+    default: false
+  },
+  trialStartedAt: {
+    type: Date
+  },
+  trialCaseId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Case'
   }
 }, {
   timestamps: true,

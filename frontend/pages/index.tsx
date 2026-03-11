@@ -155,6 +155,44 @@ export default function Home() {
               transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
               className="relative hidden lg:block perspective-1000"
             >
+              <div className="absolute -top-12 -right-12 z-20 pointer-events-none">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, rotate: 20 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 12 }}
+                  whileHover={{ scale: 1.1, rotate: 15 }}
+                  transition={{ delay: 0.8, duration: 0.8, type: "spring", stiffness: 100 }}
+                  className="relative group/badge cursor-default pointer-events-auto"
+                >
+                  <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-2xl group-hover/badge:bg-primary/60 transition-colors duration-500"></div>
+                  
+                  <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 text-white px-9 py-4 rounded-2xl shadow-[0_25px_60px_-15px_rgba(10,68,184,0.7)] border border-white/30 backdrop-blur-md overflow-hidden min-w-[140px]">
+                    <motion.div 
+                      animate={{ x: ['-200%', '200%'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg] z-10"
+                    />
+                    
+                    <div className="relative z-20 flex flex-col items-center group-hover/badge:scale-105 transition-transform duration-200">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Zap size={14} className="fill-current text-blue-200" />
+                        <span className="text-3xl font-black tracking-tighter leading-none italic drop-shadow-md">FREE</span>
+                      </div>
+                      <div className="h-px w-full bg-white/20 mb-2"></div>
+                      <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-100 whitespace-nowrap">24h Case Evaluation</span>
+                    </div>
+
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-3xl translate-x-4 -translate-y-4"></div>
+                  </div>
+                  
+                  <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500 border-2 border-white"></span>
+                  </div>
+                </motion.div>
+                
+                <div className="absolute top-12 right-12 w-[1px] h-12 bg-gradient-to-t from-primary/40 to-transparent -rotate-[15deg] opacity-50"></div>
+              </div>
+
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden premium-glass border-white/10 shadow-[0_0_80px_-20px_rgba(10,68,184,0.4)] aspect-[4/3] group/card">
                 <div className="h-12 border-b border-white/5 bg-slate-900/50 flex items-center px-6 gap-3">
                   <div className="flex gap-1.5">
@@ -169,18 +207,18 @@ export default function Home() {
                 </div>
                 <div className="p-8 space-y-8">
                   <div className="grid grid-cols-2 gap-6">
-                    <FloatingGlassCard delay={0.2} duration={6} yOffset={5} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-500">
-                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform group-hover/inner:scale-110">
+                    <FloatingGlassCard delay={0.2} duration={4} yOffset={5} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-200">
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform duration-200 group-hover/inner:scale-110">
                           <Gavel size={20} />
                         </div>
                         <div className="h-2 w-24 bg-white/20 rounded"></div>
                         <div className="h-5 w-12 bg-white/5 rounded"></div>
                       </div>
                     </FloatingGlassCard>
-                    <FloatingGlassCard delay={0.5} duration={7} yOffset={6} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-500">
-                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform group-hover/inner:scale-110">
+                    <FloatingGlassCard delay={0.4} duration={5} yOffset={6} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-200">
+                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform duration-200 group-hover/inner:scale-110">
                           <Users size={20} />
                         </div>
                         <div className="h-2 w-20 bg-white/40 rounded"></div>
@@ -188,8 +226,8 @@ export default function Home() {
                       </div>
                     </FloatingGlassCard>
                   </div>
-                  <FloatingGlassCard delay={0.8} duration={8} yOffset={4} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-500">
+                  <FloatingGlassCard delay={0.6} duration={6} yOffset={4} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
+                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-200">
                       <div className="flex justify-between items-center mb-6">
                         <div className="h-4 w-32 bg-white/10 rounded"></div>
                         <div className="h-6 w-20 bg-primary/30 rounded-full"></div>
@@ -197,10 +235,10 @@ export default function Home() {
                       <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
                           <div key={i} className="flex gap-4 group/item cursor-pointer">
-                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-300"></div>
+                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-200"></div>
                             <div className="flex-1 space-y-2 py-1">
-                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-300"></div>
-                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-300"></div>
+                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-200"></div>
+                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-200"></div>
                             </div>
                           </div>
                         ))}

@@ -83,6 +83,20 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
             documents: {
                 total: totalDocuments
             },
+            storage: {
+                used: user.totalStorageUsed || 0,
+                limit: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
+                usagePercentage: (config.planLimits as any)[user.plan]?.maxTotalStorage > 0 
+                    ? Math.round((user.totalStorageUsed / (config.planLimits as any)[user.plan].maxTotalStorage) * 100) 
+                    : 0
+            },
+            ai: {
+                tokensConsumed: user.totalTokensConsumed || 0,
+                maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
+                usagePercentage: (config.planLimits as any)[user.plan]?.maxTokens > 0 
+                    ? Math.min(100, Math.round((user.totalTokensConsumed / (config.planLimits as any)[user.plan].maxTokens) * 100))
+                    : 0
+            },
             recentCases: recentCases,
             upcomingDeadlines: upcomingDeadlines.map((d: any) => ({
                 id: d._id,

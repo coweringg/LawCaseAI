@@ -27,6 +27,14 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
              return res.status(404).json({ success: false, message: 'This case could not be found, or you do not have permission to access it.' })
         }
 
+        const limits = (config.planLimits as any)[req.user!.plan] || config.planLimits.basic;
+        if ((currentCase.totalTokensConsumed || 0) >= limits.maxTokens) {
+            return res.status(403).json({
+                success: false,
+                message: `This case has reached its AI processing limit (${limits.maxTokens} tokens). Please upgrade your plan to continue analysis in this workspace.`
+            });
+        }
+
         let filesContext = 'No files uploaded yet.'
         const filesToInclude = []
 
@@ -113,14 +121,22 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
             const tokensProcessed = aiRes.tokens || (message.length / 4);
             const hoursToInc = Math.max(0.1, Math.round((tokensProcessed / 10000) * 10) / 10);
             
-            await User.findByIdAndUpdate(req.user?._id, {
-                $inc: { 
-                    hoursSavedByAI: hoursToInc,
-                    hoursSavedToday: hoursToInc
-                }
-            })
+            await Promise.all([
+                User.findByIdAndUpdate(req.user?._id, {
+                    $inc: { 
+                        hoursSavedByAI: hoursToInc,
+                        hoursSavedToday: hoursToInc,
+                        totalTokensConsumed: Math.round(tokensProcessed)
+                    }
+                }),
+                Case.findByIdAndUpdate(currentCase._id, {
+                    $inc: {
+                        totalTokensConsumed: Math.round(tokensProcessed)
+                    }
+                })
+            ])
         } catch (userErr) {
-            controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user hours saved')
+            controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user/case hours and tokens')
         }
 
         await logAction({
@@ -163,6 +179,17 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             })
         }
 
+        const currentCase = await Case.findById(file.caseId);
+        if (currentCase) {
+             const limits = (config.planLimits as any)[req.user!.plan] || config.planLimits.basic;
+             if ((currentCase.totalTokensConsumed || 0) >= limits.maxTokens) {
+                 return res.status(403).json({
+                     success: false,
+                     message: `This case has reached its AI processing limit (${limits.maxTokens} tokens). Please upgrade your plan to continue analysis in this workspace.`
+                 });
+             }
+        }
+
         const content = file.extractedText || `Filename: ${file.name}. (No text could be extracted from this file for analysis).`
         const analysis = await aiService.analyzeDocument(content, req.user?._id?.toString())
 
@@ -198,14 +225,22 @@ export const analyzeCaseFile = async (req: IAuthRequest, res: Response): Promise
             const estimatedTokens = charCount / 4;
             const hoursToInc = Math.max(0.5, Math.round((estimatedTokens / 10000) * 10) / 10);
 
-            await User.findByIdAndUpdate(req.user?._id, {
-                $inc: { 
-                    hoursSavedByAI: hoursToInc,
-                    hoursSavedToday: hoursToInc
-                }
-            })
+            await Promise.all([
+                User.findByIdAndUpdate(req.user?._id, {
+                    $inc: { 
+                        hoursSavedByAI: hoursToInc,
+                        hoursSavedToday: hoursToInc,
+                        totalTokensConsumed: Math.round(estimatedTokens)
+                    }
+                }),
+                Case.findByIdAndUpdate(file.caseId, {
+                    $inc: {
+                        totalTokensConsumed: Math.round(estimatedTokens)
+                    }
+                })
+            ])
         } catch (userErr) {
-            controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user hours saved during analysis')
+            controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user/case hours/tokens during analysis')
         }
 
         await logAction({
@@ -248,6 +283,14 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
             })
         }
 
+        const limits = (config.planLimits as any)[req.user!.plan] || config.planLimits.basic;
+        if ((currentCase.totalTokensConsumed || 0) >= limits.maxTokens) {
+            return res.status(403).json({
+                success: false,
+                message: `This case has reached its AI processing limit (${limits.maxTokens} tokens). Please upgrade your plan to continue analysis in this workspace.`
+            });
+        }
+
         const files = await CaseFile.find({ caseId })
 
         const context = `Case Name: ${currentCase.name}\nClient: ${currentCase.client || 'N/A'}\nPractice Area: ${currentCase.practiceArea || 'General'}\nNumber of files: ${files.length}\nFiles: ${files.map(f => f.name).join(', ')}`
@@ -255,6 +298,28 @@ export const getCaseSummary = async (req: IAuthRequest, res: Response): Promise<
         const prompt = "Please provide a high-level executive summary of this case based on the provided metadata. Highlight potential legal challenges and suggest next steps."
 
         const aiRes = await aiService.generateResponse(prompt, context, req.user?._id?.toString())
+
+        try {
+            const tokensProcessed = aiRes.tokens || (prompt.length + context.length) / 4
+            const hoursToInc = Math.max(0.2, Math.round((tokensProcessed / 10000) * 10) / 10)
+            
+            await Promise.all([
+                User.findByIdAndUpdate(req.user?._id, {
+                    $inc: { 
+                        hoursSavedByAI: hoursToInc,
+                        hoursSavedToday: hoursToInc,
+                        totalTokensConsumed: Math.round(tokensProcessed)
+                    }
+                }),
+                Case.findByIdAndUpdate(currentCase._id, {
+                    $inc: {
+                        totalTokensConsumed: Math.round(tokensProcessed)
+                    }
+                })
+            ])
+        } catch (userErr) {
+            controllerLogger.error({ err: userErr, userId: req.user?._id }, 'Failed to update user/case hours/tokens for case summary')
+        }
 
         return res.status(200).json({
             success: true,
@@ -306,6 +371,21 @@ export const globalAudit = async (req: IAuthRequest, res: Response): Promise<Res
         const globalContext = `GLOBAL INTELLIGENCE AUDIT REQUEST\n\nACTIVE CASES SUMMARY:\n${caseSummaries}\n\nDOCUMENT REPOSITORY SNIPPETS:\n${fileContext}`
 
         const auditResults = await aiService.globalAudit(globalContext, userId?.toString())
+
+        try {
+            const estimatedTokens = globalContext.length / 4 + 2000 // Audit usually uses deep context
+            const hoursToInc = Math.max(1, Math.round((estimatedTokens / 10000) * 10) / 10)
+            
+            await User.findByIdAndUpdate(userId, {
+                $inc: { 
+                    hoursSavedByAI: hoursToInc,
+                    hoursSavedToday: hoursToInc,
+                    totalTokensConsumed: Math.round(estimatedTokens)
+                }
+            })
+        } catch (userErr) {
+            controllerLogger.error({ err: userErr, userId }, 'Failed to update user hours/tokens for global audit')
+        }
 
         return res.status(200).json({
             success: true,

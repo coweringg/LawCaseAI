@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { body, param } from 'express-validator'
 import { 
   createCheckoutSession, 
-  confirmPayment, 
+  mockCheckout, 
   getTransactionHistory, 
   purchaseBusinessPlan, 
   getOrganizationDetails, 
@@ -34,12 +34,11 @@ router.post('/checkout', [
   handleValidationErrors
 ], createCheckoutSession)
 
-router.post('/confirm', [
-  body('paymentId')
-    .optional()
-    .isString().withMessage('Payment ID must be a string'),
+router.post('/mock-checkout', [
+  body('planId')
+    .notEmpty().withMessage('Plan ID is required'),
   handleValidationErrors
-], confirmPayment)
+], mockCheckout)
 
 router.post('/confirm-purchase', [
   body('plan')

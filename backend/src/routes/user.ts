@@ -9,7 +9,8 @@ import {
   submitSupportRequest,
   addPaymentMethod,
   removePaymentMethod,
-  setDefaultPaymentMethod
+  setDefaultPaymentMethod,
+  activateTrial
 } from '../controllers/userController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
@@ -59,6 +60,7 @@ router.put('/notifications', [
 ], updateNotifications)
 
 router.get('/billing', getBillingInfo)
+router.post('/activate-trial', activateTrial)
 
 router.post('/payment-methods', [
   body('brand')

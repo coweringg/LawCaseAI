@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import toast from 'react-hot-toast'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { validateEmail, validatePassword } from '@/utils/helpers'
-import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building, CheckCircle2 } from 'lucide-react'
+import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building, CheckCircle2, Zap, Shield } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function Register() {
@@ -142,77 +142,28 @@ export default function Register() {
 
           <div>
             <h2 className="text-3xl font-black text-white mb-3 font-display tracking-tight">Account Created</h2>
-            <p className="text-slate-400 text-sm font-medium">Your professional AI workspace is ready. <br /> How would you like to proceed?</p>
+            <p className="text-slate-400 text-sm font-medium">Your professional AI workspace is ready. <br /> Configure your billing to start your evaluation.</p>
           </div>
 
-          <div className="flex justify-center items-center gap-6 py-4">
-            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${billingInterval === 'monthly' ? 'text-primary' : 'text-slate-500'}`}>Monthly</span>
-            <button
-              onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${billingInterval === 'annual' ? 'bg-primary' : 'bg-slate-800'}`}
-            >
-              <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${billingInterval === 'annual' ? 'translate-x-6' : 'translate-x-1'}`}></div>
-            </button>
-            <div className="flex flex-col items-start">
-              <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${billingInterval === 'annual' ? 'text-primary' : 'text-slate-500'}`}>Annual Selection</span>
-              <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Save 20%</span>
-            </div>
-          </div>
+          <div className="space-y-4 pt-4">
+              <button
+                onClick={() => router.push('/settings?tab=billing')}
+                className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-3 group"
+              >
+                Configure Billing & Start Trial
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </button>
 
-          <div className="space-y-4">
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Select Your Infrastructure Tier</h3>
-            
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { id: 'basic', name: 'Growth Tier', price: billingInterval === 'annual' ? '$79' : '$99', cases: '8 Case Capacity', color: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-400', border: 'border-emerald-500/20' },
-                { id: 'professional', name: 'Professional Tier', price: billingInterval === 'annual' ? '$159' : '$199', cases: '18 Case Capacity', color: 'from-primary/20 to-primary/5', iconColor: 'text-primary', border: 'border-primary/20' },
-                { id: 'elite', name: 'Elite Infrastructure', price: billingInterval === 'annual' ? '$249' : '$300', cases: '∞ Unlimited Matters', color: 'from-purple-500/20 to-purple-500/5', iconColor: 'text-purple-400', border: 'border-purple-500/20' },
-                { id: 'enterprise', name: 'Enterprise Intelligence', price: billingInterval === 'annual' ? '$249' : '$300', cases: '∞ Unlimited Capacity', color: 'from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-400', border: 'border-rose-500/20' }
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => {
-                    const settingsUrl = `/settings?tab=billing&openPlan=true&planId=${p.id}${seatsQuery ? `&seats=${seatsQuery}` : ''}&interval=${billingInterval}`;
-                    router.push(settingsUrl);
-                  }}
-                  className={`w-full p-5 rounded-3xl border ${p.border} flex items-center justify-between group hover:scale-[1.02] active:scale-[0.98] transition-all bg-gradient-to-br ${p.color} backdrop-blur-md relative overflow-hidden`}
-                >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 pointer-events-none"></div>
-                  <div className="flex items-center gap-5 relative z-10">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg bg-black/20 ${p.iconColor} shadow-inner`}>
-                      {p.id === 'elite' || p.id === 'enterprise' ? '∞' : p.id.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="text-left">
-                      <p className="text-white font-black text-base tracking-tight mb-0.5">{p.name}</p>
-                      <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${p.id === 'elite' || p.id === 'enterprise' ? p.iconColor : 'text-slate-500'}`}>{p.cases}</p>
-                    </div>
-                  </div>
-                  <div className="text-right relative z-10">
-                    <p className="text-white font-black text-xl font-display">
-                      {p.price}
-                      <span className="text-[10px] text-slate-500 ml-1">
-                        {p.id === 'enterprise' ? '/user/mo' : '/mo'}
-                      </span>
-                    </p>
-                    <div className="flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform">
-                      <span className="text-[10px] font-black uppercase tracking-widest">Select Tier</span>
-                      <ArrowRight size={14} />
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full py-5 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-colors border-t border-white/5 mt-4"
-            >
-              Skip for now, explore dashboard
-            </button>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full py-5 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-colors"
+              >
+                Continue to Dashboard
+              </button>
           </div>
 
           <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest pt-4">
-            You can always configure your subscription in Settings
+            Security protocols and billing units can be managed in Settings
           </p>
         </motion.div>
       </AuthLayout>

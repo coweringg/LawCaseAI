@@ -44,6 +44,24 @@ const caseSchema = new Schema<ICase>({
   },
   lastActivationPeriodStart: {
     type: Date
+  },
+  isTrialCase: {
+    type: Boolean,
+    default: false
+  },
+  totalTokensConsumed: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  totalStorageUsed: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  closedByUser: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

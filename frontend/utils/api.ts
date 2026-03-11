@@ -46,9 +46,13 @@ api.interceptors.response.use(
 
         if (error.response && error.response.status === 401) {
             if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-                console.warn('Unauthorized access detected. Redirecting to login.');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
+                const publicRoutes = ['/', '/login', '/register', '/pricing', '/about', '/features', '/privacy', '/terms', '/refund'];
+                const isPublicRoute = publicRoutes.includes(window.location.pathname);
+                if (!isPublicRoute) {
+                    console.warn('Unauthorized access detected. Redirecting to login.');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                }
             }
         }
 
@@ -56,7 +60,8 @@ api.interceptors.response.use(
             return Promise.resolve({
                 data: {
                     success: false,
-                    message: error.response.data?.message || 'Access denied or limit reached.'
+                    message: error.response.data?.message || 'Access denied or limit reached.',
+                    error: error.response.data?.error
                 }
             });
         }

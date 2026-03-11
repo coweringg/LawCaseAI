@@ -1,6 +1,9 @@
-import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud } from 'lucide-react';
+import React, { useState } from 'react';
+import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud, Zap, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
+import api from '@/utils/api';
 
 interface BillingSectionProps {
     billingInfo: any;
@@ -12,6 +15,7 @@ interface BillingSectionProps {
     onSetDefaultCard: (id: string) => void;
     onRemoveCard: (id: string) => void;
     formatDate: (date: string) => string;
+    isTrialUsed?: boolean;
 }
 
 const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
@@ -174,14 +178,163 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
     onUpdatePayment,
     onSetDefaultCard,
     onRemoveCard,
-    formatDate
+    formatDate,
+    isTrialUsed = false
 }) => {
+    const [showTrialMock, setShowTrialMock] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
+
+    if (showTrialMock) {
+        return (
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="premium-glass p-8 rounded-[3rem] border border-white/10 text-center space-y-8 max-w-2xl mx-auto"
+            >
+                <div className="flex justify-center">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                        <Shield size={32} />
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 className="text-2xl font-black text-white mb-2 font-display uppercase tracking-tight">Identity Verification</h3>
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-wider opacity-70">Verify a payment method to unlock your 24h evaluation. <br /> No charges will be processed today.</p>
+                </div>
+
+                <div className="space-y-4 text-left">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cardholder Name</label>
+                        <input type="text" placeholder="JONATHAN DAVIS" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-bold uppercase tracking-wider outline-none focus:border-primary transition-colors" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Card Number</label>
+                        <div className="relative">
+                            <input type="text" placeholder="•••• •••• •••• ••••" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono tracking-[0.3em] outline-none focus:border-primary transition-colors" />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                                <CreditCard className="text-slate-600" size={20} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Expiry</label>
+                            <input type="text" placeholder="MM / YY" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono tracking-widest outline-none focus:border-primary transition-colors" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">CVV</label>
+                            <input type="text" placeholder="•••" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono tracking-widest outline-none focus:border-primary transition-colors" />
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    disabled={isVerifying}
+                    onClick={async () => {
+                        setIsVerifying(true);
+                        try {
+                            const { data } = await api.post('/user/activate-trial');
+                            if (data.success) {
+                                toast.success('24-hour Free Evaluation Activated');
+                                window.location.href = '/dashboard?trial=activated';
+                            } else {
+                                toast.error(data.message || 'Failed to activate trial');
+                            }
+                        } catch (error: any) {
+                            toast.error(error.response?.data?.message || 'Activation error');
+                        } finally {
+                            setIsVerifying(false);
+                        }
+                    }}
+                    className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-3 group"
+                >
+                    {isVerifying ? (
+                        <>
+                            <Loader2 className="animate-spin h-4 w-4" />
+                            Synchronizing Protocols...
+                        </>
+                    ) : (
+                        <>
+                            Authorize & Start Evaluation
+                            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        </>
+                    )}
+                </button>
+
+                <button 
+                    onClick={() => setShowTrialMock(false)}
+                    className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] hover:text-white transition-colors"
+                >
+                    Return to Billing Overview
+                </button>
+
+                <div className="pt-4 border-t border-white/5 flex items-center justify-center gap-6">
+                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-widest">
+                        <Shield size={10} className="text-primary" />
+                        AES-256 Encrypted
+                    </div>
+                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-widest">
+                        <CheckCircle2 size={10} className="text-emerald-500" />
+                        PCI-DSS Level 1
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            className="space-y-8"
         >
+            {!isTrialUsed && billingInfo?.plan === 'none' && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden group shadow-[0_0_50px_-10px_rgba(37,99,235,0.3)]"
+                >
+                    <div className="absolute top-0 right-10 bg-primary text-white text-[9px] font-black px-5 py-2 rounded-b-xl uppercase tracking-widest shadow-lg">Special Offer</div>
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-3 group-hover:rotate-0 transition-transform duration-500 shrink-0">
+                            <Zap size={40} fill="currentColor" />
+                        </div>
+                        <div className="flex-1 text-center md:text-left">
+                            <div className="flex flex-col sm:flex-row items-baseline gap-3 mb-2 justify-center md:justify-start">
+                                <h3 className="text-3xl font-black text-white tracking-tighter uppercase font-display">24h Free Evaluation</h3>
+                                <span className="text-primary font-black text-xs uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full border border-primary/20">$0.00 / Trial</span>
+                            </div>
+                            <p className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-4 opacity-80">Full infrastructure access • 1 Active Matter • 10 Document Units</p>
+                            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                    No upfront cost
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                    Instant Activation
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                    Cancel anytime
+                                </div>
+                            </div>
+                        </div>
+                        <div className="shrink-0">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setShowTrialMock(true)}
+                                className="px-10 py-5 bg-white text-primary font-black rounded-2xl shadow-2xl hover:bg-slate-50 transition-all text-xs uppercase tracking-[0.2em] flex items-center gap-3"
+                            >
+                                Start Evaluation
+                                <ArrowRight size={16} />
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 glass-dark border border-white/10 rounded-[32px] overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
@@ -195,7 +348,8 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                                 billingInfo?.plan === 'professional' ? 'Professional' :
                                                     billingInfo?.plan === 'elite' ? 'Elite' :
                                                         billingInfo?.plan === 'enterprise' ? 'Enterprise Intelligence' :
-                                                            billingInfo?.plan || 'Loading...'} System
+                                                            billingInfo?.plan === 'trial' ? 'Free Evaluation' :
+                                                                billingInfo?.plan || 'Loading...'} System
                                     </h2>
                                     <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
                                         {billingInfo?.plan === 'none' ? 'Infrastructure Inactive' : 'Active'}
@@ -208,14 +362,15 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                 </div>
                                 <p className="text-slate-500 font-bold text-xs uppercase tracking-wider">
                                     {billingInfo?.plan === 'none' ? 'Select a tier to activate neural processing' :
-                                        billingInfo?.plan === 'basic' ? 'Standard Legal Processing' :
-                                            billingInfo?.plan === 'professional' ? 'Advanced Neural Jurisprudence' :
-                                                'Firm-Wide Intelligence Access'}
+                                        billingInfo?.plan === 'trial' ? '24-hour Evaluative Access' :
+                                            billingInfo?.plan === 'basic' ? 'Standard Legal Processing' :
+                                                billingInfo?.plan === 'professional' ? 'Advanced Neural Jurisprudence' :
+                                                    'Firm-Wide Intelligence Access'}
                                 </p>
                             </div>
                             <div className="text-right">
                                 <p className="text-3xl font-black text-white tracking-tighter">
-                                    ${billingInfo?.plan === 'none' ? '0' :
+                                    ${billingInfo?.plan === 'none' || billingInfo?.plan === 'trial' ? '0' :
                                         billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 240 : 300)) :
                                             billingInfo?.plan === 'basic' ? (billingInfo?.interval === 'annual' ? '79' : '99') :
                                                 billingInfo?.plan === 'professional' ? (billingInfo?.interval === 'annual' ? '159' : '199') :
@@ -223,7 +378,8 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                     <span className="text-sm text-slate-500 font-bold">/mo</span>
                                 </p>
                                 <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">
-                                    {billingInfo?.plan === 'enterprise' ? `${orgData?.totalSeats || 1} User License${(orgData?.totalSeats || 1) > 1 ? 's' : ''}` : 'Per User License'}
+                                    {billingInfo?.plan === 'trial' ? 'Free Evaluative License' :
+                                        billingInfo?.plan === 'enterprise' ? `${orgData?.totalSeats || 1} User License${(orgData?.totalSeats || 1) > 1 ? 's' : ''}` : 'Per User License'}
                                 </p>
                             </div>
                         </div>
@@ -275,7 +431,8 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             >
                                 {billingInfo?.plan === 'elite' ? 'Max Tier Active' :
                                     billingInfo?.plan === 'enterprise' ? 'Enterprise Locked' :
-                                        billingInfo?.plan === 'none' ? 'Select Plan' : 'Enhance Protocol'}
+                                        billingInfo?.plan === 'none' ? 'Select Plan' : 
+                                            billingInfo?.plan === 'trial' ? 'Upgrade Plan' : 'Enhance Protocol'}
                             </motion.button>
                         </div>
                     </div>

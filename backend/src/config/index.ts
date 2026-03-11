@@ -174,6 +174,13 @@ export const config = {
       maxTotalStorage: 50 * 1024 * 1024 * 1024,
       maxTokens: 1000000000
     },
+    trial: {
+      maxCases: 1,
+      maxFilesPerCase: 10,
+      maxFileSize: 10 * 1024 * 1024,
+      maxTotalStorage: 100 * 1024 * 1024,
+      maxTokens: 400000
+    }
   },
 };
 

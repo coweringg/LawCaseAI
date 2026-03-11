@@ -216,12 +216,38 @@ export default function Settings() {
   };
 
   const handleConfirmPurchase = async () => {
-    if (!selectedPlanId || !paddle) {
-      toast.error("Initialization incomplete. Please try again.");
+    if (!selectedPlanId) {
+      toast.error("Please select a plan first.");
       return;
     }
 
     setIsProcessingPayment(true);
+
+    if (!paddle) {
+      // Mock Checkout mode for local development without token
+      try {
+        const { data: response } = await api.post("/payments/mock-checkout", {
+          planId: selectedPlanId,
+          seats: planSeats,
+          interval: billingInterval,
+          firmName: paymentData.firmName
+        });
+
+        if (response.success) {
+          toast.success(response.message);
+          setIsPlanModalOpen(false);
+          window.location.href = response.data?.redirectUrl || '/dashboard?status=success';
+        } else {
+          toast.error(response.message || 'Mock checkout failed');
+        }
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || error.message || "Mock checkout error");
+      } finally {
+        setIsProcessingPayment(false);
+      }
+      return;
+    }
+
     try {
       const { data: response } = await api.post("/payments/checkout", {
         planId: selectedPlanId,
@@ -390,6 +416,7 @@ export default function Settings() {
                   orgData={orgData}
                   purchaseHistory={purchaseHistory || []}
                   isLoadingHistory={!purchaseHistory}
+                  isTrialUsed={user?.isTrialUsed}
                   onUpgradePlan={() => {
                     setModalStep("selection");
                     setIsPlanModalOpen(true);

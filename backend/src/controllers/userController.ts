@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import { User, SupportRequest } from '../models'
-import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus } from '../types'
+import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
 import logger from '../utils/logger'
 import config from '../config'
@@ -496,5 +496,71 @@ export const setDefaultPaymentMethod = async (req: IAuthRequest, res: Response):
   } catch (error: unknown) {
     controllerLogger.error({ err: error }, 'setDefaultPaymentMethod error')
     res.status(500).json({ success: false, message: 'Failed to set default payment method' } as IApiResponse)
+  }
+}
+
+export const activateTrial = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
+      return
+    }
+
+    if (user.isTrialUsed) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Trial has already been used on this account. Please subscribe to a plan to continue.' 
+      } as IApiResponse)
+      return
+    }
+
+    if (user.plan !== UserPlan.NONE) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'A trial cannot be activated while an active plan is in place.' 
+      } as IApiResponse)
+      return
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        plan: UserPlan.TRIAL,
+        trialStartedAt: new Date(),
+        isTrialUsed: true,
+        planLimit: (config.planLimits as any).trial.maxCases
+      },
+      { new: true }
+    )
+
+    if (!updatedUser) {
+      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
+      return
+    }
+
+    await logAction({
+      adminId: updatedUser._id,
+      adminName: updatedUser.name,
+      targetId: updatedUser._id,
+      targetName: updatedUser.name,
+      targetType: 'user',
+      category: 'platform',
+      action: 'TRIAL_ACTIVATED',
+      description: `User ${updatedUser.email} activated their 24h free trial`
+    })
+
+    res.status(200).json({
+      success: true,
+      message: '24-hour Free Evaluation activated successfully',
+      data: {
+        plan: updatedUser.plan,
+        trialStartedAt: updatedUser.trialStartedAt,
+        isTrialUsed: updatedUser.isTrialUsed
+      }
+    } as IApiResponse)
+  } catch (error: unknown) {
+    controllerLogger.error({ err: error }, 'activateTrial error')
+    res.status(500).json({ success: false, message: 'Failed to activate trial' } as IApiResponse)
   }
 }

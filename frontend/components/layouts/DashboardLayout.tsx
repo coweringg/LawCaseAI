@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDashboardStats } from '@/hooks/useSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardStats } from '@/types';
 
@@ -40,7 +41,7 @@ TimeDisplay.displayName = 'TimeDisplay';
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
-    const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+    const { data: dashboardData, refetch: refetchDashboardStats } = useDashboardStats(!!user && isAuthenticated);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
     const [mounted, setMounted] = useState(false);
     const [globalAlert, setGlobalAlert] = useState<{message: string, type: string} | null>(null);
@@ -57,23 +58,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
     useEffect(() => {
-        const fetchUsageStats = async () => {
-            if (!isAuthenticated || !user) return;
-            try {
-                const dismissed = localStorage.getItem(`dismiss_usage_banner_${user.id}`);
-                if (dismissed === 'true') {
-                    setIsBannerVisible(false);
-                }
-
-                const response = await api.get('/dashboard/stats');
-                if (response.data.success) {
-                    setDashboardData(response.data.data);
-                }
-            } catch (error) {
-                console.error('Error fetching usage stats:', error);
-            }
-        };
-
         const checkSystemStatus = () => {
             if (!isAuthenticated) return;
             api.get('/system/status').then(res => {
@@ -87,13 +71,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             }).catch(() => {})
         };
 
-        fetchUsageStats().catch(() => {});
+        if (user) {
+            const dismissed = localStorage.getItem(`dismiss_usage_banner_${user.id}`);
+            if (dismissed === 'true') {
+                setIsBannerVisible(false);
+            }
+        }
 
         checkSystemStatus();
 
         const heartbeatInterval = setInterval(() => {
             if (isAuthenticated && user) {
                 api.get('/user/profile').catch(() => {});
+                refetchDashboardStats();
                 checkSystemStatus();
             }
         }, 300000);
@@ -101,7 +91,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         return () => {
             clearInterval(heartbeatInterval);
         };
-    }, [isAuthenticated, user]);
+    }, [isAuthenticated, user, refetchDashboardStats]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {

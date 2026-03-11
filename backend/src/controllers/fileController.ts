@@ -46,10 +46,10 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
             return
         }
 
-        if (!isTemporary && user && (user.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
+        if (!isTemporary && user && (lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
             res.status(403).json({ 
                 success: false, 
-                message: `You have reached your total storage capacity for the current billing period (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase your storage capacity immediately.` 
+                message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.` 
             } as IApiResponse)
             return
         }
@@ -83,6 +83,7 @@ export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void
 
         if (!isTemporary) {
             lawyerCase.fileCount += 1
+            lawyerCase.totalStorageUsed += file.size
             await lawyerCase.save()
 
             await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
@@ -159,7 +160,7 @@ export const deleteFile = async (req: IAuthRequest, res: Response): Promise<void
         await CaseFile.deleteOne({ _id: fileId })
 
         if (!file.isTemporary) {
-            await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1 } })
+            await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1, totalStorageUsed: -file.size } })
             await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -file.size } })
         }
 
@@ -213,7 +214,7 @@ export const deleteMultipleFiles = async (req: IAuthRequest, res: Response): Pro
             const totalSize = caseFiles.reduce((sum, f) => sum + f.size, 0)
 
             if (count > 0) {
-                await Case.updateOne({ _id: cId }, { $inc: { fileCount: -count } })
+                await Case.updateOne({ _id: cId }, { $inc: { fileCount: -count, totalStorageUsed: -totalSize } })
                 await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -totalSize } })
             }
         }
@@ -347,6 +348,14 @@ export const commitFile = async (req: IAuthRequest, res: Response): Promise<void
              return
         }
 
+        if ((lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
+             res.status(403).json({ 
+                 success: false, 
+                 message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.` 
+             } as IApiResponse)
+             return
+        }
+
         if (newFileName && typeof newFileName === 'string' && newFileName.trim() !== '') {
             file.name = newFileName.trim()
         }
@@ -355,6 +364,7 @@ export const commitFile = async (req: IAuthRequest, res: Response): Promise<void
         await file.save()
 
         lawyerCase.fileCount += 1
+        lawyerCase.totalStorageUsed += file.size
         await lawyerCase.save()
 
         await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
@@ -413,6 +423,23 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
             res.status(403).json({ 
                 success: false, 
                 message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
+            } as IApiResponse)
+            return
+        }
+
+        const estimatedSize = Buffer.byteLength(content, 'utf8')
+        if ((lawyerCase.totalStorageUsed || 0) + estimatedSize > limits.maxTotalStorage) {
+            res.status(403).json({
+                success: false,
+                message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.`
+            } as IApiResponse)
+            return
+        }
+
+        if (user && (user.totalStorageUsed || 0) + estimatedSize > limits.maxTotalStorage) {
+            res.status(403).json({
+                success: false,
+                message: `You have reached your total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.`
             } as IApiResponse)
             return
         }
@@ -531,6 +558,7 @@ export const createFileFromText = async (req: IAuthRequest, res: Response): Prom
         await newCaseFile.save()
 
         lawyerCase.fileCount += 1
+        lawyerCase.totalStorageUsed += finalBuffer.length
         await lawyerCase.save()
 
         await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: finalBuffer.length } })

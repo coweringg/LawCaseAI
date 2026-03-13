@@ -373,7 +373,7 @@ export const globalAudit = async (req: IAuthRequest, res: Response): Promise<Res
         const auditResults = await aiService.globalAudit(globalContext, userId?.toString())
 
         try {
-            const estimatedTokens = globalContext.length / 4 + 2000 // Audit usually uses deep context
+            const estimatedTokens = globalContext.length / 4 + 2000
             const hoursToInc = Math.max(1, Math.round((estimatedTokens / 10000) * 10) / 10)
             
             await User.findByIdAndUpdate(userId, {

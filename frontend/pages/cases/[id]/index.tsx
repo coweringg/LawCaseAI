@@ -309,7 +309,6 @@ export default function CaseWorkspace() {
                 setCommitModalOpen(false);
                 setFileToCommit(null);
                 setSummaryToSave(null);
-                // Update usage stats live
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -333,7 +332,6 @@ export default function CaseWorkspace() {
             if (res.data.success) {
                 toast.success('Unit purged from repository');
                 setFiles(prev => prev.filter(f => f._id !== fileToDelete._id));
-                // Update usage stats live
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -416,7 +414,6 @@ export default function CaseWorkspace() {
                     const withoutPending = prev.map(m => m.isPending ? { ...m, isPending: false } : m);
                     return [...withoutPending, aiMessage];
                 });
-                // Update usage stats live
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -440,7 +437,6 @@ export default function CaseWorkspace() {
             if (data.success) {
                 setCaseSummary(data.data.summary);
                 toast.success('Summary updated');
-                // Update usage stats live
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });

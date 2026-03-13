@@ -149,7 +149,6 @@ export default function CaseDetail() {
         setFiles(prev => [...prev, data])
         setShowUploadModal(false)
         setSelectedFile(null)
-        // Update usage stats live
         queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
         queryClient.invalidateQueries({ queryKey: ['billing'] })
       }
@@ -198,7 +197,6 @@ export default function CaseDetail() {
             timestamp: new Date().toISOString()
           }]
         })
-        // Update usage stats live
         queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
         queryClient.invalidateQueries({ queryKey: ['billing'] })
       }
@@ -218,7 +216,6 @@ export default function CaseDetail() {
 
       if (response.status === 200) {
         setFiles(prev => prev.filter(file => file.id !== fileId))
-        // Update usage stats live
         queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
         queryClient.invalidateQueries({ queryKey: ['billing'] })
       }

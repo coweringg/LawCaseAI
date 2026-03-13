@@ -15,7 +15,6 @@ async function run() {
 
         const User = mongoose.connection.collection('users');
 
-        // Find users with paid plans (not trial, not none)
         const paidUsers = await User.find({
             plan: { $nin: ['trial', 'none'] }
         }).toArray();
@@ -23,7 +22,6 @@ async function run() {
         console.log(`Found ${paidUsers.length} users on paid plans.`);
 
         if (paidUsers.length > 0) {
-            // Set currentPeriodEnd to 1 hour ago so quotaResetMiddleware triggers on next request
             const pastDate = new Date(Date.now() - (60 * 60 * 1000));
 
             const result = await User.updateMany(

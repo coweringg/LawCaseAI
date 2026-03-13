@@ -145,7 +145,6 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
             nextPeriod.setMonth(nextPeriod.getMonth() + 1)
         }
         user.currentPeriodEnd = nextPeriod
-        // Note: we do not reset currentCases here so their trial case counts towards the new limit
 
         if (planId === UserPlan.ENTERPRISE) {
             if (!user.organizationId) {

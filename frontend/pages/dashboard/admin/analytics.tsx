@@ -121,7 +121,7 @@ export default function AnalyticsDashboard() {
           <div className="premium-glass p-1.5 rounded-2xl border border-white/10 shadow-2xl flex gap-1.5">
             {(['7d', '30d', '90d'] as const).map((r) => (
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
                 whileTap={{ scale: 0.95 }}
                 key={r}
                 onClick={() => setRange(r)}
@@ -279,7 +279,7 @@ export default function AnalyticsDashboard() {
                 </div>
                 <div className="p-6 border-t border-white/5 bg-white/[0.01]">
                     <motion.button 
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleDeepAudit}
                         className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-white hover:border-primary/40 transition-all"

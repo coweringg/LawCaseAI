@@ -7,6 +7,7 @@ import { logAction } from '../utils/auditLogger'
 import mongoose from 'mongoose'
 import crypto from 'crypto'
 import logger from '../utils/logger'
+import config from '../config'
 
 const webhookLogger = logger.child({ module: 'paddle-webhook' })
 
@@ -115,6 +116,7 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
     }
 
     user.plan = plan
+    user.planLimit = (config.planLimits as any)[plan]?.maxCases || 0
     if (interval === 'monthly' || interval === 'annual') {
         user.billingInterval = interval
     }

@@ -116,15 +116,17 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <Link href="/register">
-                <motion.div 
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-primary text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-white/10 transition-all"
-                >
-                  <Zap size={12} className="fill-current" />
-                  Free 24h evaluation available for all new firms
-                </motion.div>
-              </Link>
+              {!user?.isTrialUsed && (
+                <Link href="/register">
+                  <motion.div 
+                    whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
+                    className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-primary text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-white/10 transition-all"
+                  >
+                    <Zap size={12} className="fill-current" />
+                    Free 24h evaluation available for all new firms
+                  </motion.div>
+                </Link>
+              )}
             </div>
           </motion.div>
 

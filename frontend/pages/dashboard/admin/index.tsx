@@ -980,7 +980,7 @@ export default function AdminDashboard() {
             { id: 'support', label: 'Logic Signal Feed', icon: Bell }
           ].map((tab) => (
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
               whileTap={{ scale: 0.98 }}
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
@@ -1107,7 +1107,7 @@ export default function AdminDashboard() {
                   </div>
                   
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => fetchAuditLogs(activeHistoryTab)}
                     disabled={isLogsLoading}
@@ -1117,7 +1117,7 @@ export default function AdminDashboard() {
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleClearLogs}
                     className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
@@ -1160,7 +1160,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => setSignalSubTab('public')}
                     className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
                       signalSubTab === 'public'
                         ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10"
                         : "text-slate-500 hover:text-slate-300"
@@ -1171,7 +1171,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => setSignalSubTab('user')}
                     className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
                       signalSubTab === 'user'
                         ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
                         : "text-slate-500 hover:text-slate-300"
@@ -1240,7 +1240,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.95 }}
                         onClick={fetchSupportRequests}
                         disabled={isSupportLoading}
@@ -1250,7 +1250,7 @@ export default function AdminDashboard() {
                       </motion.button>
 
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleClearSupport('login_issue')}
                         className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
@@ -1332,7 +1332,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.95 }}
                         onClick={fetchSupportRequests}
                         disabled={isSupportLoading}
@@ -1342,7 +1342,7 @@ export default function AdminDashboard() {
                       </motion.button>
 
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleClearSupport(supportTypeFilter === 'all' ? 'user_all' : supportTypeFilter)}
                         className="px-5 py-3 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-error-500 flex items-center gap-2 transition-all shadow-xl"
@@ -1430,7 +1430,7 @@ export default function AdminDashboard() {
               </div>
 
               {activeDetailTab === 'overview' && (
-                <div className="space-y-8 animate-in fade-in duration-300">
+                <div className="space-y-8 animate-in fade-in duration-150">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-white/5 p-5 rounded-3xl border border-white/5">
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
@@ -1515,7 +1515,7 @@ export default function AdminDashboard() {
               )}
 
               {activeDetailTab === 'cases' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-150">
                   <div className="bg-black/40 rounded-3xl overflow-hidden border border-white/5 mb-6">
                     <Table 
                       data={userHistory.cases}
@@ -1602,7 +1602,7 @@ export default function AdminDashboard() {
               )}
 
               {activeDetailTab === 'payments' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
+                <div className="space-y-4 animate-in fade-in duration-150">
                   <div className="bg-black/40 rounded-3xl overflow-hidden border border-white/5">
                     {userHistory.payments.length > 0 ? (
                       <Table 
@@ -1623,7 +1623,7 @@ export default function AdminDashboard() {
               )}
 
               {activeDetailTab === 'activity' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
+                <div className="space-y-4 animate-in fade-in duration-150">
                   <div className="space-y-2">
                     {userHistory.auditLogs.map((log) => (
                       <div key={log._id} className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-start justify-between">
@@ -1670,7 +1670,7 @@ export default function AdminDashboard() {
               )}
 
               {activeDetailTab === 'members' && (
-                <div className="space-y-4 animate-in fade-in duration-300">
+                <div className="space-y-4 animate-in fade-in duration-150">
                   <div className="bg-black/40 rounded-3xl overflow-hidden border border-white/5">
                     {userHistory?.orgMembers && userHistory.orgMembers.length > 0 ? (
                       <Table 
@@ -1726,7 +1726,7 @@ export default function AdminDashboard() {
               )}
 
               {activeDetailTab === 'ia' && (
-                <div className="space-y-8 animate-in fade-in duration-300">
+                <div className="space-y-8 animate-in fade-in duration-150">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {(!userHistory.aiUsage?.plan || !['elite', 'enterprise'].includes(userHistory.aiUsage?.plan.toLowerCase())) && (
                     <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
@@ -1930,7 +1930,7 @@ export default function AdminDashboard() {
             </div>
 
             {selectedUser?.isOrgAdmin && (
-              <div className="space-y-2 animate-in slide-in-from-left-2 duration-300">
+              <div className="space-y-2 animate-in slide-in-from-left-2 duration-150">
                 <label className="text-[10px] font-black text-primary uppercase tracking-[0.2em] ml-1">Firm Access Code (Administrative Key)</label>
                 <div className="relative">
                   <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
@@ -2051,7 +2051,7 @@ export default function AdminDashboard() {
         >
           {selectedSupportRequest && (
             <div className="max-h-[75vh] overflow-y-auto pr-4 -mr-4 scrollbar-hide">
-              <div className="space-y-8 animate-in fade-in duration-500">
+              <div className="space-y-8 animate-in fade-in duration-250">
                 <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                   <div className="relative z-10 flex items-center gap-5">

@@ -115,10 +115,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           role: user.role,
           plan: user.plan,
           planLimit: user.planLimit,
-          currentCases: user.currentCases,
-          createdAt: user.createdAt,
           isOrgAdmin: user.isOrgAdmin,
-          organizationId: user.organizationId
+          organizationId: user.organizationId,
+          isTrialUsed: user.isTrialUsed
         },
         token,
         savedLoginToken: user.savedLoginToken

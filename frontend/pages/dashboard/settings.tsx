@@ -250,7 +250,7 @@ export default function Settings() {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`py-2 px-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 ${activeTab === tab.id
+                        className={`py-2 px-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-200 ${activeTab === tab.id
                           ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20'
                           : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent'
                           }`}
@@ -287,12 +287,12 @@ export default function Settings() {
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.2 }}
                     className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500">
+                      <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-200">
                         <User size={20} />
                       </div>
                       <div>
@@ -342,7 +342,7 @@ export default function Settings() {
 
                       <div className="md:col-span-2 pt-4">
                         <motion.button
-                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)", transition: { duration: 0.15 } }}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
                           className="w-full h-12 bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
@@ -359,11 +359,11 @@ export default function Settings() {
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.2 }}
                     className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl group"
                   >
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-500">
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform duration-200">
                         <Lock size={20} />
                       </div>
                       <div>
@@ -430,7 +430,7 @@ export default function Settings() {
 
                       <div className="pt-4">
                         <motion.button
-                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(245,158,11,0.4)" }}
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(245,158,11,0.4)", transition: { duration: 0.15 } }}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
                           className="w-full h-12 bg-gradient-to-r from-amber-600 to-orange-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
@@ -447,11 +447,11 @@ export default function Settings() {
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.2 }}
                     className="premium-glass border border-white/10 rounded-[2.5rem] p-6 shadow-2xl group"
                   >
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform duration-500">
+                      <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform duration-200">
                         <Bell size={20} />
                       </div>
                       <div>
@@ -468,16 +468,16 @@ export default function Settings() {
                           { id: 'aiResponses', label: 'Cognitive Insights', desc: 'Neural processing completion pings' },
                           { id: 'marketingEmails', label: 'Strategic Intel', desc: 'Consortium updates and releases' }
                         ].map((item) => (
-                          <div key={item.id} className="p-4 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-500 flex items-center justify-between group/item">
+                          <div key={item.id} className="p-4 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-200 flex items-center justify-between group/item">
                             <div>
                               <p className="text-[11px] font-black text-white uppercase tracking-wider mb-1 group-hover/item:text-primary transition-colors">{item.label}</p>
                               <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{item.desc}</p>
                             </div>
                             <div 
                               onClick={() => setNotifications(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof prev] }))}
-                              className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all duration-500 relative ${notifications[item.id as keyof typeof notifications] ? 'bg-primary' : 'bg-slate-800'}`}
+                              className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all duration-200 relative ${notifications[item.id as keyof typeof notifications] ? 'bg-primary' : 'bg-slate-800'}`}
                             >
-                              <div className={`w-4 h-4 rounded-full bg-white shadow-xl transition-all duration-500 transform ${notifications[item.id as keyof typeof notifications] ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                              <div className={`w-4 h-4 rounded-full bg-white shadow-xl transition-all duration-200 transform ${notifications[item.id as keyof typeof notifications] ? 'translate-x-6' : 'translate-x-0'}`}></div>
                             </div>
                           </div>
                         ))}
@@ -485,7 +485,7 @@ export default function Settings() {
 
                       <div className="pt-8">
                         <motion.button
-                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(99,102,241,0.4)" }}
+                          whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(99,102,241,0.4)", transition: { duration: 0.15 } }}
                           whileTap={{ scale: 0.98 }}
                           type="submit"
                           className="w-full h-14 bg-gradient-to-r from-indigo-600 to-blue-500 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl border border-white/20 flex items-center justify-center gap-3"
@@ -502,7 +502,7 @@ export default function Settings() {
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.2 }}
                     className="space-y-8"
                   >
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -510,7 +510,7 @@ export default function Settings() {
                           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] to-transparent pointer-events-none"></div>
                           <div className="flex items-center justify-between mb-6 relative z-10">
                             <div className="flex items-center gap-3">
-                              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform duration-500">
+                              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform duration-200">
                                 <CreditCard size={20} />
                               </div>
                               <div>
@@ -541,7 +541,7 @@ export default function Settings() {
                             </div>
                             <Link href="/dashboard/upgrade">
                               <motion.button
-                                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}
+                                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(16,185,129,0.3)", transition: { duration: 0.15 } }}
                                 whileTap={{ scale: 0.98 }}
                                 className="w-full h-12 bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-white/10 hover:border-emerald-500/40 transition-all flex items-center justify-center gap-3"
                               >

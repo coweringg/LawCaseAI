@@ -256,6 +256,9 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       if (status === CaseStatus.CLOSED) {
         allowedUpdates.closedAt = new Date()
         allowedUpdates.closedByUser = true
+        if (currentCase.status === CaseStatus.ACTIVE) {
+          await User.updateOne({ _id: userId }, { $inc: { currentCases: -1 } })
+        }
       } else if (status === CaseStatus.ACTIVE) {
         allowedUpdates.closedAt = null
         allowedUpdates.closedByUser = false
@@ -342,11 +345,15 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
     }
 
     const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
-
     if (!deletedCase) {
       res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
     }
+
+    if (deletedCase.status === CaseStatus.ACTIVE) {
+      await User.updateOne({ _id: userId }, { $inc: { currentCases: -1 } })
+    }
+
 
     await logAction({
       adminId: user._id,
@@ -422,13 +429,15 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
     currentCase.status = CaseStatus.ACTIVE
     currentCase.closedAt = undefined
     
-    const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date(0)
-    const lastActivation = currentCase.lastActivationPeriodStart ? new Date(currentCase.lastActivationPeriodStart) : new Date(0)
-    
-    if (lastActivation < periodStart) {
-      await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
-      currentCase.lastActivationPeriodStart = user.currentPeriodStart || new Date()
+    const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date()
+
+    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
+    currentCase.lastActivationPeriodStart = periodStart
+
+    if (currentCase.isTrialCase) {
+      currentCase.isTrialCase = false
     }
+
 
     await currentCase.save()
 

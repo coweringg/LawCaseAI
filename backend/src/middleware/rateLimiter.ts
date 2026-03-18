@@ -4,22 +4,22 @@ import { IAuthRequest, UserPlan } from '../types';
 import { IApiResponse } from '../types';
 
 export const planRateLimiter = rateLimit({
-    windowMs: 8 * 60 * 1000,
+    windowMs: 5 * 60 * 1000,
     limit: (req: Request) => {
         const authReq = req as IAuthRequest;
         const user = authReq.user;
 
-        if (!user) return 200;
+        if (!user) return 2000;
 
         switch (user.plan) {
             case UserPlan.ENTERPRISE:
             case UserPlan.ELITE:
             case UserPlan.PROFESSIONAL:
-                return 5000;
+                return 10000;
             case UserPlan.BASIC:
-                return 1000;
+                return 5000;
             default:
-                return 500;
+                return 2000;
         }
     },
     message: {

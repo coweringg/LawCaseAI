@@ -75,10 +75,10 @@ export const getDashboardStats = async (req: IAuthRequest, res: Response): Promi
                 archived: formattedCaseStats.archived,
                 total: formattedCaseStats.total,
                 usagePercentage: (config.planLimits as any)[user.plan]?.maxCases > 0 
-                    ? Math.round((user.currentCases / (config.planLimits as any)[user.plan].maxCases) * 100) 
+                    ? Math.round((formattedCaseStats.active / (config.planLimits as any)[user.plan].maxCases) * 100) 
                     : 0,
                 limit: (config.planLimits as any)[user.plan]?.maxCases || 0,
-                current: user.currentCases
+                current: formattedCaseStats.active
             },
             documents: {
                 total: totalDocuments

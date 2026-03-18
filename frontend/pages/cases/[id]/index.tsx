@@ -490,7 +490,7 @@ export default function CaseWorkspace() {
                         <div className="flex items-center gap-6 relative z-10">
                             <Link href="/cases">
                                 <motion.div
-                                    whileHover={{ x: -5, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                    whileHover={{ x: -5, backgroundColor: "rgba(255,255,255,0.05)", transition: { duration: 0.15 } }}
                                     className="p-3 text-slate-400 hover:text-primary rounded-2xl transition-all cursor-pointer border border-transparent hover:border-white/10"
                                 >
                                     <ArrowLeft size={20} />
@@ -513,7 +513,7 @@ export default function CaseWorkspace() {
                                     <motion.button
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.1)" }}
+                                        whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.1)", transition: { duration: 0.15 } }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => setIsConfirmModalOpen(true)}
                                         className="px-6 py-2.5 premium-glass border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all flex items-center gap-2.5 shadow-xl"
@@ -523,7 +523,7 @@ export default function CaseWorkspace() {
                                     </motion.button>
                                 )}
                             </AnimatePresence>
-                            <div className={`flex items-center gap-2.5 text-[10px] font-black px-5 py-2.5 rounded-xl border tracking-[0.2em] uppercase shadow-2xl backdrop-blur-2xl transition-all duration-500 ${caseData?.status === 'active'
+                            <div className={`flex items-center gap-2.5 text-[10px] font-black px-5 py-2.5 rounded-xl border tracking-[0.2em] uppercase shadow-2xl backdrop-blur-2xl transition-all duration-200 ${caseData?.status === 'active'
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-1 ring-emerald-500/20'
                                 : 'bg-slate-500/10 text-slate-400 border-white/10'
                                 }`}>
@@ -568,7 +568,7 @@ export default function CaseWorkspace() {
                             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/[0.02] relative z-10">
                                 <h2 className="text-[11px] font-bold text-slate-500 tracking-wider">Intelligence Repository</h2>
                                 <motion.button 
-                                    whileHover={{ rotate: 180 }}
+                                    whileHover={{ rotate: 180, transition: { duration: 0.15 } }}
                                     className="p-2 text-slate-500 hover:text-primary transition-all rounded-xl"
                                     onClick={() => window.location.reload()}
                                 >
@@ -632,7 +632,7 @@ export default function CaseWorkspace() {
                             <div className="p-4 border-t border-white/10 bg-white/[0.02] relative z-10">
                                 <Link href={`/cases/${id}/documents`}>
                                     <motion.button
-                                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+                                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)", transition: { duration: 0.15 } }}
                                         whileTap={{ scale: 0.98 }}
                                         className="w-full text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 rounded-2xl flex items-center justify-center gap-3 transition-all border border-white/10 shadow-xl premium-glass"
                                     >
@@ -692,7 +692,7 @@ export default function CaseWorkspace() {
                                         >
                                             <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center mb-8 relative group">
                                                 <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:blur-3xl transition-all opacity-40"></div>
-                                                <Zap className="text-primary relative z-10 group-hover:scale-110 transition-transform duration-500" size={40} />
+                                                <Zap className="text-primary relative z-10 group-hover:scale-110 transition-transform duration-200" size={40} />
                                             </div>
                                             <h3 className="text-2xl font-bold text-white mb-4 font-display tracking-tightest">Directive Core Ready</h3>
                                             <p className="text-[12px] text-slate-500 font-medium leading-relaxed mb-10">
@@ -733,7 +733,7 @@ export default function CaseWorkspace() {
                                                             <Zap className="text-primary relative z-10" size={20} />
                                                         </div>
                                                     )}
-                                                    <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-500 ${msg.role === 'user'
+                                                    <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-200 ${msg.role === 'user'
                                                         ? 'bg-gradient-to-br from-primary to-blue-700 text-white rounded-tr-sm border border-white/20'
                                                         : 'premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
                                                         }`}>
@@ -814,7 +814,7 @@ export default function CaseWorkspace() {
                             </div>
 
                             <div className="p-6 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
-                                <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-500 group/input flex flex-col">
+                                <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-200 group/input flex flex-col">
                                     <AnimatePresence>
                                         {attachingFile && (
                                             <motion.div 
@@ -901,14 +901,14 @@ export default function CaseWorkspace() {
                             <div className="grid grid-cols-2 bg-white/[0.02] border-b border-white/10 p-1.5 m-3 rounded-[1.5rem] premium-glass relative z-10">
                                 <button
                                     onClick={() => setActiveTab('summary')}
-                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${activeTab === 'summary' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                 >
                                     <List size={12} />
                                     Abstract
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('search')}
-                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${activeTab === 'search' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                                    className={`py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${activeTab === 'search' ? 'bg-primary text-white shadow-xl border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                 >
                                     <CheckCircle size={12} />
                                     Metrics
@@ -924,7 +924,7 @@ export default function CaseWorkspace() {
                                             exit={{ opacity: 0, x: -20 }}
                                             className="space-y-6"
                                         >
-                                            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-4 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-500">
+                                            <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-4 shadow-2xl relative overflow-hidden group/card hover:border-primary/30 transition-all duration-200">
                                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center justify-between mb-6 relative z-10">
                                                     <div className="flex items-center gap-3">

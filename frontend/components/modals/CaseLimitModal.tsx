@@ -19,7 +19,7 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                 onClick={onClose}
             ></div>
 
-            <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 relative z-10">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150 relative z-10">
                 <div className="absolute top-4 right-4">
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                         <span className="material-icons-round">close</span>

@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { User, SupportRequest } from '../models'
+import { User, SupportRequest, Case } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
 import logger from '../utils/logger'
@@ -37,8 +37,10 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
         marketingEmails: user.marketingEmails,
         organizationId: user.organizationId,
         isOrgAdmin: user.isOrgAdmin,
+        isTrialUsed: user.isTrialUsed,
         createdAt: user.createdAt,
         lastLogin: user.lastLogin,
+        currentPeriodEnd: user.currentPeriodEnd,
         totalTokensConsumed: user.totalTokensConsumed,
         totalStorageUsed: user.totalStorageUsed,
         maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
@@ -284,13 +286,15 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       return
     }
 
+    const activeCaseCount = await Case.countDocuments({ userId: user._id, status: 'active' })
+
     const billingInfo = {
       plan: user.plan,
       planLimit: user.planLimit,
-      currentCases: user.currentCases,
-      remainingCases: Math.max(0, user.planLimit - user.currentCases),
-      planUsagePercentage: user.planLimit > 0 ? Math.round((user.currentCases / user.planLimit) * 100) : 0,
-      isAtPlanLimit: user.currentCases >= user.planLimit,
+      currentCases: activeCaseCount,
+      remainingCases: Math.max(0, user.planLimit - activeCaseCount),
+      planUsagePercentage: user.planLimit > 0 ? Math.round((activeCaseCount / user.planLimit) * 100) : 0,
+      isAtPlanLimit: activeCaseCount >= user.planLimit,
       paymentMethods: user.paymentMethods || [],
       defaultPaymentMethodId: user.defaultPaymentMethodId || (user.paymentMethods.length > 0 ? user.paymentMethods[0].id : null),
       interval: user.billingInterval || 'monthly',

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
@@ -74,12 +75,13 @@ export default function MyCases() {
             const response = await api.put(`/cases/${caseId}/reactivate`);
             if (response.data.success) {
                 setCases(cases.map(c => c._id === caseId ? { ...c, status: 'active' } : c));
+                toast.success('Case reactivated successfully');
             } else {
-                alert(response.data.message || 'Failed to reactivate case');
+                toast.error(response.data.message || 'Failed to reactivate case');
             }
         } catch (error: any) {
             console.error('Error reactivating case:', error);
-            alert(error.response?.data?.message || 'Failed to reactivate case. Please check your plan limits.');
+            toast.error(error.response?.data?.message || 'Failed to reactivate case. Please check your plan limits.');
         }
     };
 
@@ -130,7 +132,7 @@ export default function MyCases() {
                                 <button
                                     key={f.id}
                                     onClick={() => setStatusFilter(f.id as any)}
-                                    className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${statusFilter === f.id
+                                    className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-150 ${statusFilter === f.id
                                         ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20'
                                         : 'text-slate-500 hover:text-white hover:bg-white/5'
                                         }`}
@@ -151,12 +153,12 @@ export default function MyCases() {
                             <Link href="/cases/new" className="group">
                                 <motion.div
                                     variants={itemVariants}
-                                    whileHover={{ scale: 1.02, y: -5 }}
-                                    className="premium-glass bg-white/[0.02] border-2 border-dashed border-white/10 rounded-[2.5rem] p-8 hover:border-primary/50 hover:bg-primary/[0.03] transition-all duration-500 h-full flex flex-col items-center justify-center min-h-[340px] cursor-pointer shadow-2xl relative overflow-hidden group"
+                                    whileHover={{ scale: 1.02, y: -5, transition: { duration: 0.15 } }}
+                                    className="premium-glass bg-white/[0.02] border-2 border-dashed border-white/10 rounded-[2.5rem] p-8 hover:border-primary/50 hover:bg-primary/[0.03] transition-all duration-150 h-full flex flex-col items-center justify-center min-h-[340px] cursor-pointer shadow-2xl relative overflow-hidden group"
                                 >
-                                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-125 rotate-45 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-150"></div>
+                                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-125 rotate-45 z-0 pointer-events-none transition-transform duration-200 group-hover:scale-150"></div>
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white group-hover:rotate-12 transition-all duration-700 shadow-2xl border border-white/5 group-hover:shadow-[0_0_30px_rgba(37,99,235,0.4)]">
+                                        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white group-hover:rotate-12 transition-all duration-200 shadow-2xl border border-white/5 group-hover:shadow-[0_0_30px_rgba(37,99,235,0.4)]">
                                             <Plus className="w-10 h-10" />
                                         </div>
                                         <span className="text-xl font-black text-white font-display tracking-tightest">Initialize Case</span>
@@ -173,17 +175,17 @@ export default function MyCases() {
                                     <Link href={`/cases/${c._id}`} key={c._id} className="group">
                                         <motion.div
                                             variants={itemVariants}
-                                            whileHover={{ y: -8, transition: { duration: 0.4, ease: "easeOut" } }}
-                                            className="premium-glass border border-white/10 rounded-[2.5rem] p-8 hover:border-primary/40 transition-all duration-500 h-full flex flex-col relative overflow-hidden shadow-2xl group"
+                                            whileHover={{ y: -8, transition: { duration: 0.15, ease: "easeOut" } }}
+                                            className="premium-glass border border-white/10 rounded-[2.5rem] p-8 hover:border-primary/40 transition-all duration-150 h-full flex flex-col relative overflow-hidden shadow-2xl group"
                                         >
-                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-                                            <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 pointer-events-none group-hover:scale-[1.6] transition-transform duration-1000"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
+                                            <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 pointer-events-none group-hover:scale-[1.6] transition-transform duration-300"></div>
 
                                             <div className="flex justify-between items-start mb-8 relative z-10">
-                                                <div className={`p-4 rounded-2xl shadow-xl backdrop-blur-xl border border-white/5 group-hover:scale-110 transition-transform duration-500 ${areaColor}`}>
+                                                <div className={`p-4 rounded-2xl shadow-xl backdrop-blur-xl border border-white/5 group-hover:scale-110 transition-transform duration-150 ${areaColor}`}>
                                                     {getAreaIcon(c.practiceArea)}
                                                 </div>
-                                                <span className={`text-[8px] font-black px-4 py-1.5 rounded-full border tracking-[0.15em] uppercase shadow-lg backdrop-blur-md transition-all duration-500 ${c.status === 'active' 
+                                                <span className={`text-[8px] font-black px-4 py-1.5 rounded-full border tracking-[0.15em] uppercase shadow-lg backdrop-blur-md transition-all duration-150 ${c.status === 'active' 
                                                     ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-white/20' 
                                                     : c.status === 'closed' 
                                                     ? 'bg-slate-500/10 text-slate-400 border-white/10' 
@@ -203,7 +205,7 @@ export default function MyCases() {
                                                 {c.status === 'closed' && !c.closedByUser && (
                                                     <button 
                                                         onClick={(e) => handleReactivateCase(e, c._id)}
-                                                        className="mt-2 text-[10px] font-black uppercase tracking-widest bg-primary/20 hover:bg-primary/40 text-primary px-4 py-2 rounded-xl transition-all duration-300 border border-primary/30"
+                                                        className="mt-2 text-[10px] font-black uppercase tracking-widest bg-primary/20 hover:bg-primary/40 text-primary px-4 py-2 rounded-xl transition-all duration-150 border border-primary/30"
                                                     >
                                                         Reactivate Case
                                                     </button>
@@ -225,7 +227,7 @@ export default function MyCases() {
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${progress}%` }}
                                                         transition={{ duration: 1.5, delay: 0.2, ease: "circOut" }}
-                                                        className={`h-full rounded-full transition-all duration-500 ${progress === 100 
+                                                        className={`h-full rounded-full transition-all duration-150 ${progress === 100 
                                                             ? 'bg-gradient-to-r from-emerald-600 to-teal-400 shadow-[0_0_15px_rgba(16,185,129,0.5)]' 
                                                             : 'bg-gradient-to-r from-primary via-blue-500 to-indigo-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]'}`}
                                                     ></motion.div>

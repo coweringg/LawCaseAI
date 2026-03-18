@@ -17,7 +17,7 @@ input[type="number"] {
 @layer base {
   body {
     font-family: "Inter", system-ui, sans-serif;
-    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased transition-colors duration-500;
+    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased transition-colors duration-200;
   }
 
   h1,
@@ -74,11 +74,11 @@ input[type="number"] {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover focus:ring-4 focus:ring-primary/30 transition-all shadow-lg shadow-primary/25;
+    @apply inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover focus:ring-4 focus:ring-primary/30 transition-all duration-150 shadow-lg shadow-primary/25;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus:ring-4 focus:ring-slate-100 dark:bg-surface-dark dark:text-white dark:border-white/10 dark:hover:bg-slate-800 transition-all;
+    @apply inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 focus:ring-4 focus:ring-slate-100 dark:bg-surface-dark dark:text-white dark:border-white/10 dark:hover:bg-slate-800 transition-all duration-150;
   }
 
   .container-stitch {

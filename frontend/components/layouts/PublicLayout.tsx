@@ -41,7 +41,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             <nav className="fixed w-full z-50 top-0 start-0 border-b border-primary/10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-4 py-3">
                     <Link href="/" className="flex items-center gap-2 rtl:space-x-reverse group">
-                        <div className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary/20">
+                        <div className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform duration-150 shadow-lg shadow-primary/20">
                             <span className="material-icons-round text-xl leading-none">gavel</span>
                         </div>
                         <span className="self-center text-xl font-bold whitespace-nowrap text-primary dark:text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
@@ -64,7 +64,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                             </svg>
                         </button>
                     </div>
-                    <div className={`${isMenuOpen ? 'block' : 'hidden'} w-full md:block md:w-auto md:order-1 transition-all duration-300`} id="navbar-sticky">
+                    <div className={`${isMenuOpen ? 'block' : 'hidden'} w-full md:block md:w-auto md:order-1 transition-all duration-150`} id="navbar-sticky">
                         <ul className="flex flex-col p-4 md:p-0 mt-4 font-bold border border-primary/10 rounded-2xl bg-white dark:bg-background-dark md:bg-transparent md:dark:bg-transparent md:border-0 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0">
                             <li><Link href="/features" className="block py-2 px-3 text-slate-900 rounded-xl hover:bg-primary/10 md:hover:bg-transparent md:hover:text-primary md:p-0 dark:text-white dark:hover:text-primary transition-all">Features</Link></li>
                             <li><Link href="/pricing" className="block py-2 px-3 text-slate-900 rounded-xl hover:bg-primary/10 md:hover:bg-transparent md:hover:text-primary md:p-0 dark:text-white dark:hover:text-primary transition-all">Plans</Link></li>
@@ -83,7 +83,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
             <button
                 onClick={goToTop}
-                className={`fixed bottom-8 right-8 z-40 p-3 rounded-full bg-primary text-white shadow-2xl shadow-primary/40 transition-all duration-300 hover:-translate-y-1 hover:bg-primary-hover ${
+                className={`fixed bottom-8 right-8 z-40 p-3 rounded-full bg-primary text-white shadow-2xl shadow-primary/40 transition-all duration-150 hover:-translate-y-1 hover:bg-primary-hover ${
                     showTopBtn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
                 }`}
                 aria-label="Scroll to top"

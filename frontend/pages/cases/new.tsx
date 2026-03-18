@@ -102,7 +102,7 @@ export default function NewCase() {
                                 ].map((s, idx) => (
                                     <div key={s.id} className="relative group">
                                         <div className="flex gap-5 items-center">
-                                            <div className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 border-2 ${step > s.id
+                                            <div className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-250 border-2 ${step > s.id
                                                 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110'
                                                 : step === s.id
                                                     ? 'bg-primary border-primary text-white shadow-xl shadow-primary/25 scale-110'
@@ -175,7 +175,7 @@ export default function NewCase() {
                                         </p>
                                     </div>
                                     <button 
-                                        onClick={() => router.push('/dashboard/upgrade')}
+                                        onClick={() => router.push('/settings?tab=billing')}
                                         className="ml-auto px-4 py-2 bg-error-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-error-500/20 hover:bg-error-600 transition-all"
                                     >
                                         Upgrade
@@ -193,7 +193,7 @@ export default function NewCase() {
                                         </p>
                                     </div>
                                     <button 
-                                        onClick={() => router.push('/dashboard/upgrade')}
+                                        onClick={() => router.push('/settings?tab=billing')}
                                         className="ml-auto px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all"
                                     >
                                         Select Plan
@@ -203,11 +203,11 @@ export default function NewCase() {
 
                             <form className="space-y-4 max-w-2xl mx-auto">
                                 {step === 1 && (
-                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
                                             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
                                                 <FileText className="w-3.5 h-3.5" />
-                                                Case Project Name
+                                                Case Project Name <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <input
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700"
@@ -225,7 +225,7 @@ export default function NewCase() {
                                         <div className="group">
                                             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
                                                 <Users className="w-3.5 h-3.5" />
-                                                Primary Client / Represented Party
+                                                Primary Client / Represented Party <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <input
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700"
@@ -253,11 +253,11 @@ export default function NewCase() {
                                 )}
 
                                 {step === 2 && (
-                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
                                             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
                                                 <Gavel className="w-3.5 h-3.5" />
-                                                Legal Practice Area
+                                                Legal Practice Area <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {[
@@ -345,7 +345,7 @@ export default function NewCase() {
                                 )}
 
                                 {step === 3 && (
-                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
                                             <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
                                                 <Scale className="w-3.5 h-3.5" />
@@ -381,7 +381,7 @@ export default function NewCase() {
                                 )}
 
                                 {step === 4 && (
-                                    <div className="animate-in fade-in zoom-in duration-500 space-y-6">
+                                    <div className="animate-in fade-in zoom-in duration-250 space-y-6">
                                         <div className="relative p-1 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/5 to-indigo-500/20 border border-primary/20 overflow-hidden">
                                             <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-8 shadow-2xl z-10">
                                                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -468,8 +468,8 @@ export default function NewCase() {
                             </button>
                             <button
                                 onClick={step === 4 ? handleSubmit : handleNext}
-                                disabled={isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit)}
-                                className={`group relative px-10 py-3 rounded-xl font-bold text-xs uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && !formData.name) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit))
+                                disabled={isLoading || (step === 1 && (!formData.name || !formData.client)) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit)}
+                                className={`group relative px-10 py-3 rounded-xl font-bold text-xs uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && (!formData.name || !formData.client)) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit))
                                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                                     : 'bg-primary text-white shadow-xl shadow-primary/25 hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0'
                                     }`}

@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 export default function Onboarding() {
     return (
         <ProtectedRoute>
-            <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display transition-colors duration-300">
+            <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display transition-colors duration-150">
                 <nav className="w-full py-6 px-8 flex justify-between items-center bg-white dark:bg-background-dark border-b border-primary/10">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -38,7 +38,7 @@ export default function Onboarding() {
                         <div className="p-10">
                             <div className="grid md:grid-cols-3 gap-8">
                                 <div className="flex flex-col items-center text-center group">
-                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-150">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">create_new_folder</span>
                                     </div>
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">1. Create Case</h3>
@@ -47,7 +47,7 @@ export default function Onboarding() {
                                     </p>
                                 </div>
                                 <div className="flex flex-col items-center text-center group">
-                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-150">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">cloud_upload</span>
                                     </div>
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">2. Upload Docs</h3>
@@ -56,7 +56,7 @@ export default function Onboarding() {
                                     </p>
                                 </div>
                                 <div className="flex flex-col items-center text-center group">
-                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                    <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-150">
                                         <span className="material-icons-round text-primary group-hover:text-white text-2xl">auto_awesome</span>
                                     </div>
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">3. Chat with AI</h3>

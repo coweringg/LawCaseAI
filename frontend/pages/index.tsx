@@ -23,8 +23,7 @@ export default function Home() {
   }, [isAuthenticated, isLoading, router]);
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
+    animate: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
 
   const stagger = {
@@ -39,20 +38,8 @@ export default function Home() {
     <PublicLayout>
       <Head>
         <title>LawCaseAI - Enterprise AI Legal Case Management</title>
-        <meta name="description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
+        <meta name="description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firm infrastructure." />
         <link rel="canonical" href={siteUrl} />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={siteUrl} />
-        <meta property="og:title" content="LawCaseAI - Enterprise AI Legal Case Management" />
-        <meta property="og:description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
-        <meta property="og:image" content={`${siteUrl}/og-image.png`} />
-        <meta property="og:site_name" content="LawCaseAI" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="LawCaseAI - Enterprise AI Legal Case Management" />
-        <meta name="twitter:description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firms." />
-        <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
       </Head>
 
       <main className="flex-grow pt-24 font-sans text-slate-100 bg-background-dark min-h-screen relative overflow-hidden transition-colors duration-500">
@@ -119,13 +106,13 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-5"
               >
                 <Link href="/register">
-                  <button className="h-14 px-10 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-hover transition-all shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 group">
+                  <button className="h-14 px-10 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-hover hover:scale-[1.03] will-change-transform transform-gpu transition-all duration-150 shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 group">
                     Subscribe Now
-                    <span className="material-icons-round transition-transform group-hover:translate-x-1">arrow_forward</span>
+                    <span className="material-icons-round transition-transform duration-150 group-hover:translate-x-1">arrow_forward</span>
                   </button>
                 </Link>
                 <Link href="/pricing">
-                  <button className="h-14 px-10 text-lg font-bold text-slate-300 glass hover:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2">
+                  <button className="h-14 px-10 text-lg font-bold text-slate-300 glass hover:bg-white/5 hover:scale-[1.03] will-change-transform transform-gpu rounded-xl transition-all duration-150 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-primary">payments</span>
                     View Plans
                   </button>
@@ -141,8 +128,8 @@ export default function Home() {
                     <div className="h-0.5 w-12 bg-primary/30 rounded-full"></div>
                 </div>
                 {['SOC2-READY', 'HIPAA-READY', 'GDPR-ALIGNED'].map((badge) => (
-                  <div key={badge} className="flex items-center gap-2 text-slate-500 hover:text-white transition-all duration-500 cursor-default group/badge">
-                    <Shield size={16} className="text-primary group-hover/badge:scale-125 transition-transform" />
+                  <div key={badge} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors duration-150 cursor-default group/badge">
+                    <Shield size={16} className="text-primary group-hover/badge:scale-125 transition-transform duration-150 will-change-transform transform-gpu" />
                     <span className="font-display font-black text-[11px] tracking-widest">{badge}</span>
                   </div>
                 ))}
@@ -151,42 +138,41 @@ export default function Home() {
 
             <motion.div
               initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0, transition: { duration: 1.2, ease: "easeOut", delay: 0.2 } }}
               className="relative hidden lg:block perspective-1000"
             >
               <div className="absolute -top-12 -right-12 z-20 pointer-events-none">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8, rotate: 20 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 12 }}
-                  whileHover={{ scale: 1.1, rotate: 15 }}
-                  transition={{ delay: 0.8, duration: 0.8, type: "spring", stiffness: 100 }}
-                  className="relative group/badge cursor-default pointer-events-auto"
+                  animate={{ opacity: 1, scale: 1, rotate: 12, transition: { delay: 0.8, duration: 0.8, type: "spring", stiffness: 100 } }}
+                  className="relative cursor-default pointer-events-auto will-change-transform transform-gpu"
                 >
-                  <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-2xl group-hover/badge:bg-primary/60 transition-colors duration-500"></div>
-                  
-                  <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 text-white px-9 py-4 rounded-2xl shadow-[0_25px_60px_-15px_rgba(10,68,184,0.7)] border border-white/30 backdrop-blur-md overflow-hidden min-w-[140px]">
-                    <motion.div 
-                      animate={{ x: ['-200%', '200%'] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg] z-10"
-                    />
-                    
-                    <div className="relative z-20 flex flex-col items-center group-hover/badge:scale-105 transition-transform duration-200">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Zap size={14} className="fill-current text-blue-200" />
-                        <span className="text-3xl font-black tracking-tighter leading-none italic drop-shadow-md">FREE</span>
-                      </div>
-                      <div className="h-px w-full bg-white/20 mb-2"></div>
-                      <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-100 whitespace-nowrap">24h Case Evaluation</span>
-                    </div>
+                  <div className="group/badge transition-transform duration-200 hover:scale-110 hover:rotate-3 will-change-transform">
+                      <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-2xl group-hover/badge:bg-primary/60 transition-colors duration-150"></div>
+                      
+                      <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 text-white px-9 py-4 rounded-2xl shadow-[0_25px_60px_-15px_rgba(10,68,184,0.7)] border border-white/30 backdrop-blur-md overflow-hidden min-w-[140px]">
+                        <motion.div 
+                          animate={{ x: ['-200%', '200%'] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg] z-10"
+                        />
+                        
+                        <div className="relative z-20 flex flex-col items-center group-hover/badge:scale-105 transition-transform duration-150 will-change-transform transform-gpu">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Zap size={14} className="fill-current text-blue-200" />
+                            <span className="text-3xl font-black tracking-tighter leading-none italic drop-shadow-md">FREE</span>
+                          </div>
+                          <div className="h-px w-full bg-white/20 mb-2"></div>
+                          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-100 whitespace-nowrap">24h Case Evaluation</span>
+                        </div>
 
-                    <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-3xl translate-x-4 -translate-y-4"></div>
-                  </div>
-                  
-                  <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500 border-2 border-white"></span>
+                        <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-3xl translate-x-4 -translate-y-4"></div>
+                      </div>
+                      
+                      <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500 border-2 border-white"></span>
+                      </div>
                   </div>
                 </motion.div>
                 
@@ -208,8 +194,8 @@ export default function Home() {
                 <div className="p-8 space-y-8">
                   <div className="grid grid-cols-2 gap-6">
                     <FloatingGlassCard delay={0.2} duration={4} yOffset={5} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-200">
-                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform duration-200 group-hover/inner:scale-110">
+                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-150 transform-gpu">
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform duration-150 group-hover/inner:scale-110 will-change-transform">
                           <Gavel size={20} />
                         </div>
                         <div className="h-2 w-24 bg-white/20 rounded"></div>
@@ -217,8 +203,8 @@ export default function Home() {
                       </div>
                     </FloatingGlassCard>
                     <FloatingGlassCard delay={0.4} duration={5} yOffset={6} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-200">
-                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform duration-200 group-hover/inner:scale-110">
+                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-150 transform-gpu">
+                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform duration-150 group-hover/inner:scale-110 will-change-transform">
                           <Users size={20} />
                         </div>
                         <div className="h-2 w-20 bg-white/40 rounded"></div>
@@ -227,7 +213,7 @@ export default function Home() {
                     </FloatingGlassCard>
                   </div>
                   <FloatingGlassCard delay={0.6} duration={6} yOffset={4} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-200">
+                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-150">
                       <div className="flex justify-between items-center mb-6">
                         <div className="h-4 w-32 bg-white/10 rounded"></div>
                         <div className="h-6 w-20 bg-primary/30 rounded-full"></div>
@@ -235,10 +221,10 @@ export default function Home() {
                       <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
                           <div key={i} className="flex gap-4 group/item cursor-pointer">
-                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-200"></div>
+                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-150"></div>
                             <div className="flex-1 space-y-2 py-1">
-                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-200"></div>
-                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-200"></div>
+                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-150"></div>
+                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-150"></div>
                             </div>
                           </div>
                         ))}
@@ -293,23 +279,23 @@ export default function Home() {
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="group relative p-10 bg-white/[0.02] premium-border rounded-[2.5rem] border border-white/5 transition-all duration-500 backdrop-blur-sm shadow-2xl overflow-hidden"
+                className="will-change-transform"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                <div className="relative z-10">
-                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 transition-all duration-500 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_30px_rgba(10,68,184,0.5)]">
-                    <span className="material-icons-round text-3xl font-bold">{feature.icon}</span>
+                  <div className="group relative p-10 bg-white/[0.02] premium-border rounded-[2.5rem] border border-white/5 transition-all duration-200 backdrop-blur-sm shadow-2xl overflow-hidden hover:-translate-y-3 hover:shadow-[0_20px_40px_rgba(30,58,138,0.2)] will-change-transform transform-gpu">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} />
+                    <div className="relative z-10">
+                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 transition-all duration-200 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_30px_rgba(10,68,184,0.5)] will-change-transform transform-gpu">
+                        <span className="material-icons-round text-3xl font-bold">{feature.icon}</span>
+                        </div>
+                        <h3 className="text-2xl font-black text-white mb-4 font-display tracking-tight">{feature.title}</h3>
+                        <p className="text-slate-400 leading-relaxed mb-8 font-medium">{feature.desc}</p>
+                        <Link href={feature.link} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group/link">
+                        Explore Feature <span className="material-icons-round text-sm transition-transform duration-200 group-hover/link:translate-x-2 will-change-transform transform-gpu">arrow_forward</span>
+                        </Link>
                     </div>
-                    <h3 className="text-2xl font-black text-white mb-4 font-display tracking-tight">{feature.title}</h3>
-                    <p className="text-slate-400 leading-relaxed mb-8 font-medium">{feature.desc}</p>
-                    <Link href={feature.link} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group/link">
-                    Explore Feature <span className="material-icons-round text-sm transition-transform group-hover/link:translate-x-2">arrow_forward</span>
-                    </Link>
-                </div>
+                  </div>
               </motion.div>
             ))}
           </div>
@@ -345,17 +331,18 @@ export default function Home() {
               <motion.div 
                 key={i} 
                 initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                whileInView={{ opacity: 1, scale: 1, transition: { delay: i * 0.1, duration: 0.4 } }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-10 premium-glass rounded-[2rem] border border-white/5 flex flex-col justify-between group cursor-default hover:bg-white/[0.03] transition-colors"
+                className="h-full"
               >
-                <p className="mb-8 relative text-lg font-medium text-slate-400 leading-relaxed italic">
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <div className="pt-6 border-t border-white/5">
-                  <p className="text-white font-black text-sm mb-1 uppercase tracking-wider">{t.author}</p>
-                  <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{t.firm}</p>
+                <div className="p-10 premium-glass rounded-[2rem] border border-white/5 flex flex-col justify-between group cursor-default transition-all duration-200 hover:bg-white/[0.04] hover:scale-[1.03] hover:-translate-y-1 will-change-transform transform-gpu h-full">
+                    <p className="mb-8 relative text-lg font-medium text-slate-400 leading-relaxed italic">
+                    &ldquo;{t.text}&rdquo;
+                    </p>
+                    <div className="pt-6 border-t border-white/5">
+                    <p className="text-white font-black text-sm mb-1 uppercase tracking-wider">{t.author}</p>
+                    <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{t.firm}</p>
+                    </div>
                 </div>
               </motion.div>
             ))}
@@ -370,7 +357,7 @@ export default function Home() {
         <div className="relative z-10 container-stitch text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0, transition: { duration: 0.6 } }}
             viewport={{ once: true }}
             className="max-w-4xl mx-auto premium-glass p-8 sm:p-12 lg:p-16 rounded-2xl lg:rounded-[3rem] border border-white/10 shadow-2xl relative"
           >
@@ -385,7 +372,7 @@ export default function Home() {
               Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market. Trusted by industry leaders.
             </p>
             <Link href="/register">
-              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(124,58,237,0.4)] hover:scale-105 hover:bg-primary-hover transition-all text-xl uppercase tracking-widest">
+              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(124,58,237,0.4)] hover:scale-[1.03] hover:bg-primary-hover transition-all duration-150 text-xl uppercase tracking-widest will-change-transform transform-gpu">
                 Get Started Now
               </button>
             </Link>

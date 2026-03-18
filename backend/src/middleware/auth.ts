@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { User } from '../models'
-import { IAuthRequest, IJWTPayload, UserRole, UserStatus } from '../types'
+import { User, Case } from '../models'
+import { IAuthRequest, IJWTPayload, UserRole, UserStatus, UserPlan, CaseStatus } from '../types'
 import config from '../config'
 import logger from '../utils/logger'
 
@@ -45,6 +45,31 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
       return
     }
 
+    if (user.plan === UserPlan.TRIAL && user.trialStartedAt) {
+      const trialEnd = new Date(user.trialStartedAt.getTime() + 24 * 60 * 60 * 1000)
+      if (new Date() > trialEnd) {
+        user.plan = UserPlan.NONE
+        user.currentCases = 0
+        await user.save()
+
+        await Case.updateMany(
+          { userId: user._id, status: CaseStatus.ACTIVE },
+          { $set: { status: CaseStatus.CLOSED } }
+        )
+      }
+    }
+
+    if (user.plan !== UserPlan.NONE && user.plan !== UserPlan.TRIAL && user.currentPeriodEnd && user.currentPeriodEnd < new Date()) {
+      user.plan = UserPlan.NONE
+      user.currentCases = 0
+      await user.save()
+      
+      await Case.updateMany(
+        { userId: user._id, status: CaseStatus.ACTIVE },
+        { $set: { status: CaseStatus.CLOSED } }
+      )
+    }
+
     if (decoded.version !== undefined && decoded.version !== user.tokenVersion) {
       res.status(401).json({
         success: false,
@@ -56,6 +81,14 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     if (!req.url.includes('/confirm-purchase')) {
       User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(err =>
         authLogger.error({ err, userId: user._id }, 'Failed to update lastActivity')
+      )
+    }
+
+    const configLimit = (config.planLimits as any)[user.plan]?.maxCases
+    if (configLimit !== undefined && user.planLimit !== configLimit) {
+      user.planLimit = configLimit
+      User.findByIdAndUpdate(user._id, { planLimit: configLimit }).exec().catch(err =>
+        authLogger.error({ err, userId: user._id }, 'Failed to sync planLimit')
       )
     }
 

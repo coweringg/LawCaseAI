@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 import crypto from 'crypto'
 import logger from '../utils/logger'
 import { getPaddleInstance } from '../utils/paddle'
+import config from '../config'
 
 const controllerLogger = logger.child({ module: 'payment-controller' })
 
@@ -133,6 +134,7 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
         }
 
         user.plan = planId as UserPlan
+        user.planLimit = (config.planLimits as any)[planId]?.maxCases || 0
         user.billingInterval = interval
         user.isTrialUsed = true
 
@@ -145,6 +147,9 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
             nextPeriod.setMonth(nextPeriod.getMonth() + 1)
         }
         user.currentPeriodEnd = nextPeriod
+
+        const activeCaseCount = await Case.countDocuments({ userId, status: CaseStatus.ACTIVE })
+        user.currentCases = activeCaseCount
 
         if (planId === UserPlan.ENTERPRISE) {
             if (!user.organizationId) {

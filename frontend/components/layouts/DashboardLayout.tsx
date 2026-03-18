@@ -52,6 +52,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        if (isAuthenticated && mounted) {
+            refetchDashboardStats();
+        }
+    }, [router.pathname, isAuthenticated, mounted, refetchDashboardStats]);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<{ cases: Array<{ id: string; title: string; subtitle: string; status: string }>; files: Array<{ id: string; caseId: string; title: string; subtitle: string }> }>({ cases: [], files: [] });
     const [isSearching, setIsSearching] = useState(false);
@@ -86,7 +92,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 refetchDashboardStats();
                 checkSystemStatus();
             }
-        }, 300000);
+        }, 30000);
 
         return () => {
             clearInterval(heartbeatInterval);
@@ -260,7 +266,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
-                <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-300`}>
+                <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-150`}>
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
@@ -284,15 +290,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 ]).map((item) => (
                                     <Link key={item.href} href={item.href}>
                                         <motion.div
-                                            whileHover={{ x: 6, backgroundColor: "rgba(255,255,255,0.03)" }}
-                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-300 border group cursor-pointer relative overflow-hidden ${isActive(item.href, (item as any).exact)
+                                            whileHover={{ x: 6, backgroundColor: "rgba(255,255,255,0.03)", transition: { duration: 0.15 } }}
+                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-150 border group cursor-pointer relative overflow-hidden ${isActive(item.href, (item as any).exact)
                                                 ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_30px_rgba(10,68,184,0.1)]'
                                                 : 'text-slate-500 hover:text-slate-200 border-transparent'}`}
                                         >
-                                            <span className={`material-icons-round text-[22px] transition-all duration-300 ${isActive(item.href, (item as any).exact) ? 'text-primary scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}>
+                                            <span className={`material-icons-round text-[22px] transition-all duration-150 ${isActive(item.href, (item as any).exact) ? 'text-primary scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}>
                                                 {item.icon}
                                             </span>
-                                            <span className={`text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ${isActive(item.href, (item as any).exact) ? 'text-white' : 'group-hover:text-white'}`}>
+                                            <span className={`text-[11px] uppercase tracking-[0.2em] transition-all duration-150 ${isActive(item.href, (item as any).exact) ? 'text-white' : 'group-hover:text-white'}`}>
                                                 {item.label}
                                             </span>
                                             {isActive(item.href, (item as any).exact) && (
@@ -325,7 +331,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     </div>
                                     <Link href="/settings?tab=billing" className="block w-full">
                                         <motion.button
-                                            whileHover={{ scale: 1.02 }}
+                                            whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                                             whileTap={{ scale: 0.98 }}
                                             className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-[11px] font-bold rounded-xl transition-all shadow-lg shadow-primary/20"
                                         >
@@ -525,7 +531,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <div className="flex items-center gap-5">
                                         <Link href="/cases/new">
                                             <motion.button
-                                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)" }}
+                                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)", transition: { duration: 0.15 } }}
                                                 whileTap={{ scale: 0.95 }}
                                                 className="flex items-center gap-2 lg:gap-3 px-4 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
                                             >

@@ -94,11 +94,11 @@ export default function Dashboard() {
           className="flex flex-col gap-8 relative z-10 pt-6 lg:pt-12 pb-10"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-primary/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-primary/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
                     <span className="material-icons-round text-2xl">auto_awesome</span>
                   </div>
                   {(dashboardData?.hoursSaved?.today || 0) > 0 && (
@@ -114,11 +114,11 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-blue-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                  <div className="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
                     <Briefcase size={22} />
                   </div>
                   <span className="text-[9px] font-black text-slate-400 border border-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest bg-white/5 backdrop-blur-md">
@@ -148,11 +148,11 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-amber-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-amber-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                  <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
                     <AlertCircle size={22} />
                   </div>
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
@@ -167,11 +167,11 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-500 hover:border-indigo-500/40 group relative overflow-hidden">
+            <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-indigo-500/40 group relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner border border-white/5">
+                  <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
                     <Gavel size={22} />
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
-              <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-500 hover:border-primary/20 backdrop-blur-3xl">
+              <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-200 hover:border-primary/20 backdrop-blur-3xl">
                 <div className="p-4 lg:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                   <div>
                     <h3 className="text-lg lg:text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
@@ -222,7 +222,7 @@ export default function Dashboard() {
                           >
                             <td className="px-4 lg:px-8 py-4 lg:py-6">
                               <div className="flex items-center gap-3 lg:gap-5">
-                                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-base lg:text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-500 shrink-0">
+                                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-base lg:text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-200 shrink-0">
                                   {c.name.substring(0, 2)}
                                 </div>
                                 <div className="min-w-0">
@@ -333,7 +333,7 @@ export default function Dashboard() {
                     </p>
                     <div className="pt-2">
                       <motion.button
-                        whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.2)", transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setIsAuditModalOpen(true)}
                         className="w-full py-3.5 bg-white text-primary text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-50 transition-all shadow-xl"

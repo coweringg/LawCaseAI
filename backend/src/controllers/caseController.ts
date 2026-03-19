@@ -1,15 +1,16 @@
 import { Response } from 'express'
 
-import { Case, User } from '../models'
+import { Case, User, CaseFile, ChatMessage, Event } from '../models'
 import { IApiResponse, CaseStatus, IAuthRequest, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
+import { deleteFromStorage } from '../utils/fileUpload'
 import logger from '../utils/logger'
 
 const controllerLogger = logger.child({ module: 'case-controller' })
 
 export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, client, description, practiceArea } = req.body
+    const { name, client, description, practiceArea, status, complexity } = req.body
     const userId = req.user?._id
 
     if (!userId) {
@@ -41,12 +42,16 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
+    const validStatuses = Object.values(CaseStatus)
+    const finalStatus = status && validStatuses.includes(status) ? status : CaseStatus.ACTIVE
+
     const newCase = new Case({
       name,
       client,
       description,
       practiceArea,
-      status: CaseStatus.ACTIVE,
+      status: finalStatus,
+      complexity: complexity || '2',
       userId,
       lastActivationPeriodStart: user.currentPeriodStart || new Date(),
       isTrialCase: isTrial
@@ -344,32 +349,59 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       return
     }
 
-    const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
-    if (!deletedCase) {
+    const caseToDelete = await Case.findOne({ _id: id, userId })
+    if (!caseToDelete) {
       res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
       return
     }
 
-    if (deletedCase.status === CaseStatus.ACTIVE) {
-      await User.updateOne({ _id: userId }, { $inc: { currentCases: -1 } })
+    if (caseToDelete.status !== CaseStatus.CLOSED) {
+      res.status(400).json({ success: false, message: 'Only closed cases can be permanently deleted.' } as IApiResponse)
+      return
     }
 
+    const files = await CaseFile.find({ caseId: id, userId })
+    let totalFreedStorage = 0
+    for (const file of files) {
+      if (file.key) {
+        try {
+          await deleteFromStorage(file.key)
+        } catch (storageError) {
+          controllerLogger.error({ err: storageError, fileId: file._id }, 'deleteCase: failed to delete file from storage')
+        }
+      }
+      if (!file.isTemporary && file.size) {
+        totalFreedStorage += file.size
+      }
+    }
 
-    await logAction({
-      adminId: user._id,
-      adminName: user.name,
-      targetId: deletedCase._id,
-      targetName: deletedCase.name,
-      targetType: 'case',
-      category: 'platform',
-      action: 'CASE_DELETED',
-      before: { email: user.email, name: deletedCase.name },
-      description: `User ${user.email} deleted case: ${deletedCase.name}`
-    })
+    await CaseFile.deleteMany({ caseId: id, userId })
+    await ChatMessage.deleteMany({ caseId: id, userId })
+    await Event.deleteMany({ caseId: id, userId })
+
+    if (totalFreedStorage > 0) {
+      await User.updateOne({ _id: userId }, { $inc: { totalStorageUsed: -totalFreedStorage } })
+    }
+
+    const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
+
+    if (deletedCase) {
+      await logAction({
+        adminId: user._id,
+        adminName: user.name,
+        targetId: deletedCase._id,
+        targetName: deletedCase.name,
+        targetType: 'case',
+        category: 'platform',
+        action: 'CASE_DELETED',
+        before: { email: user.email, name: deletedCase.name },
+        description: `User ${user.email} permanently deleted closed case: ${deletedCase.name} and all its associated data.`
+      })
+    }
 
     res.status(200).json({
       success: true,
-      message: 'Case deleted successfully'
+      message: 'Case permanently deleted successfully.'
     } as IApiResponse)
   } catch (error: unknown) {
     controllerLogger.error({ err: error }, 'deleteCase error')

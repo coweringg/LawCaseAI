@@ -39,6 +39,11 @@ const caseSchema = new Schema<ICase>({
     trim: true,
     maxlength: [100, 'Practice area cannot exceed 100 characters']
   },
+  complexity: {
+    type: String,
+    enum: ['1', '2', '3'],
+    default: '2'
+  },
   closedAt: {
     type: Date
   },

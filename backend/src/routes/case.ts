@@ -31,6 +31,14 @@ router.post('/', [
     .optional()
     .trim()
     .isLength({ max: 100 }).withMessage('Practice area cannot exceed 100 characters'),
+  body('status')
+    .optional()
+    .isIn(['active', 'pending', 'discovery'])
+    .withMessage('Invalid status provided'),
+  body('complexity')
+    .optional()
+    .isIn(['1', '2', '3'])
+    .withMessage('Invalid complexity level'),
   handleValidationErrors
 ], createCase)
 
@@ -55,7 +63,11 @@ router.put('/:id', [
     .isLength({ max: 5000 }).withMessage('Description cannot exceed 5000 characters'),
   body('status')
     .optional()
-    .isIn(['active', 'closed', 'archived']).withMessage('Invalid case status'),
+    .isIn(['active', 'closed', 'archived', 'pending', 'discovery']).withMessage('Invalid case status'),
+  body('complexity')
+    .optional()
+    .isIn(['1', '2', '3'])
+    .withMessage('Invalid complexity level'),
   handleValidationErrors
 ], updateCase)
 

@@ -130,41 +130,66 @@ export default function Register() {
           <title>Account Ready - LawCaseAI</title>
         </Head>
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center space-y-8 py-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative"
         >
-          <div className="flex justify-center">
-            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-2xl shadow-primary/20">
-              <CheckCircle2 size={40} />
+          <div className="text-center mb-6">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 text-white shadow-2xl shadow-primary/40 mb-5"
+            >
+              <CheckCircle2 size={32} />
+            </motion.div>
+            <h2 className="text-2xl font-black text-white font-display tracking-tight leading-tight">Account Created</h2>
+            <p className="text-slate-400 text-xs font-medium mt-1.5 leading-relaxed">
+              Your AI workspace is ready. Configure billing to begin.
+            </p>
+          </div>
+
+          <div className="premium-glass rounded-2xl border border-white/10 p-5 mb-5">
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: <Zap size={16} />, label: 'AI Engine', color: 'text-amber-500' },
+                { icon: <Shield size={16} />, label: 'Encrypted', color: 'text-emerald-500' },
+                { icon: <CheckCircle2 size={16} />, label: 'Verified', color: 'text-primary' }
+              ].map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + i * 0.1 }}
+                  className="flex flex-col items-center gap-2 py-3 rounded-xl bg-white/[0.03] border border-white/5"
+                >
+                  <span className={item.color}>{item.icon}</span>
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{item.label}</span>
+                </motion.div>
+              ))}
             </div>
           </div>
 
-          <div>
-            <h2 className="text-3xl font-black text-white mb-3 font-display tracking-tight">Account Created</h2>
-            <p className="text-slate-400 text-sm font-medium">Your professional AI workspace is ready. <br /> Configure your billing to start your evaluation.</p>
+          <div className="space-y-3">
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              onClick={() => router.push('/settings?tab=billing')}
+              className="w-full py-4 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover hover:scale-[1.02] transition-all text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
+            >
+              Configure Billing & Start Trial
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full py-3 premium-glass border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white hover:border-white/20 transition-all"
+            >
+              Continue to Dashboard
+            </button>
           </div>
-
-          <div className="space-y-4 pt-4">
-              <button
-                onClick={() => router.push('/settings?tab=billing')}
-                className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-3 group"
-              >
-                Configure Billing & Start Trial
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full py-5 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-colors"
-              >
-                Continue to Dashboard
-              </button>
-          </div>
-
-          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest pt-4">
-            Security protocols and billing units can be managed in Settings
-          </p>
         </motion.div>
       </AuthLayout>
     )

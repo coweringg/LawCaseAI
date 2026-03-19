@@ -23,7 +23,7 @@ export default function CaseDocuments() {
     const { data: dashboardData } = useDashboardStats(!!user && isAuthenticated);
     const { data: billingInfo } = useBillingInfo();
     const { data: caseData } = useCaseData(id as string, !!user && isAuthenticated);
-    const isCaseLocked = caseData?.status === 'closed';
+    const isCaseLocked = caseData?.status && caseData.status !== 'active';
     const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -81,7 +81,6 @@ export default function CaseDocuments() {
             if (data.success) {
                 toast.success('File uploaded successfully');
                 fetchFiles();
-                // Update usage stats live
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -495,7 +494,7 @@ export default function CaseDocuments() {
                                 <div className="mx-8 mt-2 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-4 relative z-10">
                                     <Shield size={18} className="text-amber-500 shrink-0" />
                                     <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                                        This case is sealed &bull; Read-only mode &bull; Reactivate from your case list to resume operations
+                                        This case is not active &bull; Read-only mode &bull; Reactivate from your case list to resume operations
                                     </p>
                                 </div>
                             )}
@@ -595,20 +594,24 @@ export default function CaseDocuments() {
                                                                         >
                                                                             <Clock size={14} />
                                                                         </button>
-                                                                        <button 
-                                                                            onClick={(e) => { e.stopPropagation(); setFileToRename(file); setNewFileName(file.name); setRenameModalOpen(true); }}
-                                                                            className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition-all"
-                                                                            title="Update Identity"
-                                                                        >
-                                                                            <Zap size={14} />
-                                                                        </button>
-                                                                        <button 
-                                                                            onClick={(e) => { e.stopPropagation(); setFileToDelete(file); setDeleteModalOpen(true); }}
-                                                                            className="p-2 hover:bg-red-500/20 rounded-lg text-red-500 transition-all"
-                                                                            title="Purge Unit"
-                                                                        >
-                                                                            <Trash2 size={14} />
-                                                                        </button>
+                                                                        {!isCaseLocked && (
+                                                                            <>
+                                                                                <button 
+                                                                                    onClick={(e) => { e.stopPropagation(); setFileToRename(file); setNewFileName(file.name); setRenameModalOpen(true); }}
+                                                                                    className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition-all"
+                                                                                    title="Update Identity"
+                                                                                >
+                                                                                    <Zap size={14} />
+                                                                                </button>
+                                                                                <button 
+                                                                                    onClick={(e) => { e.stopPropagation(); setFileToDelete(file); setDeleteModalOpen(true); }}
+                                                                                    className="p-2 hover:bg-red-500/20 rounded-lg text-red-500 transition-all"
+                                                                                    title="Purge Unit"
+                                                                                >
+                                                                                    <Trash2 size={14} />
+                                                                                </button>
+                                                                            </>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             </td>

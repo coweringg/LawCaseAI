@@ -67,7 +67,7 @@ export default function CaseWorkspace() {
     const [isTrialCase, setIsTrialCase] = useState(false);
     const [isTrialExpired, setIsTrialExpired] = useState(false);
 
-    const isCaseLocked = isTrialExpired || caseData?.status === 'closed';
+    const isCaseLocked = isTrialExpired || (caseData?.status && caseData.status !== 'active');
     
     useEffect(() => {
         if (router.query.trial === 'activated') {
@@ -483,7 +483,7 @@ export default function CaseWorkspace() {
             <DashboardLayout>
                 <div className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative">
                     <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
-                    {isTrialExpired && <LockedTrialOverlay />}
+                    {isTrialExpired && <LockedTrialOverlay status={caseData?.status} />}
                     
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
@@ -502,6 +502,18 @@ export default function CaseWorkspace() {
                                     <span className="text-[11px] font-bold text-slate-500 tracking-wider">{caseData?.client || 'Matrix Client'}</span>
                                     <span className="w-1 h-1 bg-primary/40 rounded-full"></span>
                                     <span className="text-[11px] font-bold text-primary tracking-wider">{caseData?.practiceArea || 'Neural Analysis'}</span>
+                                    {caseData?.complexity && (
+                                        <>
+                                            <span className="w-1 h-1 bg-primary/40 rounded-full"></span>
+                                            <span className={`text-[11px] font-bold tracking-wider ${
+                                                caseData.complexity === '1' ? 'text-emerald-500' :
+                                                caseData.complexity === '2' ? 'text-indigo-500' :
+                                                'text-rose-500'
+                                            }`}>
+                                                Lvl {caseData.complexity}
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
                                 <h2 className="text-xl font-black text-white truncate max-w-[400px] font-display tracking-tightest leading-none">{caseData?.name || 'Loading Intelligence...'}</h2>
                             </div>
@@ -542,7 +554,7 @@ export default function CaseWorkspace() {
                     )}
 
                     <div className="flex-1 flex overflow-hidden relative z-10">
-                        {isCaseLocked && <LockedTrialOverlay isTrialExpired={isTrialExpired} closedByUser={caseData?.closedByUser} />}
+                        {isCaseLocked && <LockedTrialOverlay isTrialExpired={isTrialExpired} closedByUser={caseData?.closedByUser} status={caseData?.status} />}
                         <aside 
                             className="w-64 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden group/sidebar relative"
                             onDragOver={(e) => handleDragOver(e, setIsDraggingSidebar)}

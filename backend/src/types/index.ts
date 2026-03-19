@@ -18,6 +18,8 @@ export enum UserPlan {
 
 export enum CaseStatus {
   ACTIVE = 'active',
+  PENDING = 'pending',
+  DISCOVERY = 'discovery',
   CLOSED = 'closed',
   ARCHIVED = 'archived',
   DELETED = 'deleted'
@@ -139,6 +141,7 @@ export interface ICase extends Document {
   status: CaseStatus
   userId: Types.ObjectId
   practiceArea?: string
+  complexity?: string
   createdAt: Date
   updatedAt: Date
   closedAt?: Date

@@ -224,7 +224,6 @@ export default function Settings() {
     setIsProcessingPayment(true);
 
     if (!paddle) {
-      // Mock Checkout mode for local development without token
       try {
         const { data: response } = await api.post("/payments/mock-checkout", {
           planId: selectedPlanId,

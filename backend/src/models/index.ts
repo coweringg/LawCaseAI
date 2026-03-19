@@ -9,6 +9,7 @@ export { default as SystemSetting } from './SystemSetting'
 export { default as SupportRequest } from './SupportRequest'
 
 export { default as Organization } from './Organization'
+export { default as Notification } from './Notification'
 
 export * from './User'
 export * from './Case'
@@ -16,3 +17,4 @@ export * from './CaseFile'
 export * from './ChatMessage'
 export * from './Event'
 export * from './Organization'
+export * from './Notification'

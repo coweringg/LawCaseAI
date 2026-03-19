@@ -64,12 +64,56 @@ export enum SupportRequestStatus {
   RESOLVED = 'resolved'
 }
 
+export enum NotificationType {
+  CASE_UPDATE = 'case_update',
+  CALENDAR_EVENT = 'calendar_event',
+  SYSTEM = 'system',
+  BILLING = 'billing',
+  DEADLINE = 'deadline'
+}
+
+export enum NotificationPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high'
+}
+
 export interface IPaymentMethod {
   id: string
   brand: string
   last4: string
   expiryMonth: number
   expiryYear: number
+}
+
+export interface IAuditLog extends Document {
+  adminId: Types.ObjectId
+  adminName: string
+  targetId?: Types.ObjectId
+  targetName?: string
+  targetType: 'case' | 'user' | 'system' | 'billing' | 'platform'
+  category: 'case' | 'user' | 'system' | 'billing' | 'platform'
+  action: string
+  before?: any
+  after?: any
+  description: string
+  ipAddress?: string
+  userAgent?: string
+  createdAt: Date
+}
+
+export interface INotification extends Document {
+  _id: Types.ObjectId
+  userId: Types.ObjectId
+  title: string
+  message: string
+  type: NotificationType
+  priority: NotificationPriority
+  isRead: boolean
+  link?: string
+  metadata?: any
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface IOrganization extends Document {

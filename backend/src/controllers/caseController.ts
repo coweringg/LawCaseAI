@@ -1,8 +1,8 @@
 import { Response } from 'express'
-
 import { Case, User, CaseFile, ChatMessage, Event } from '../models'
-import { IApiResponse, CaseStatus, IAuthRequest, UserPlan } from '../types'
+import { IApiResponse, CaseStatus, IAuthRequest, UserPlan, EventPriority, NotificationType, NotificationPriority } from '../types'
 import { logAction } from '../utils/auditLogger'
+import { createNotification } from '../utils/notification'
 import { deleteFromStorage } from '../utils/fileUpload'
 import logger from '../utils/logger'
 
@@ -10,7 +10,7 @@ const controllerLogger = logger.child({ module: 'case-controller' })
 
 export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, client, description, practiceArea, status, complexity } = req.body
+    const { name, client, description, practiceArea, status, complexity, keyDates } = req.body
     const userId = req.user?._id
 
     if (!userId) {
@@ -59,6 +59,22 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
 
     await newCase.save()
 
+    if (keyDates && Array.isArray(keyDates) && keyDates.length > 0) {
+      const eventPromises = keyDates
+        .filter((kd: any) => kd.date && kd.title)
+        .map((kd: any) => Event.create({
+          title: kd.title,
+          start: new Date(kd.date),
+          type: kd.type || 'other',
+          priority: 'medium',
+          caseId: newCase._id,
+          userId,
+          status: 'active'
+        }))
+      await Promise.allSettled(eventPromises)
+      controllerLogger.info({ caseId: newCase._id, count: eventPromises.length }, 'Auto-created calendar events from key dates')
+    }
+
     const userUpdate: any = { $inc: { currentCases: 1 } }
     if (isTrial) {
       userUpdate.$set = { trialCaseId: newCase._id }
@@ -76,6 +92,15 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       action: 'CASE_CREATED',
       after: { name: newCase.name, client: newCase.client, status: newCase.status },
       description: `User ${user.email} created a new case: ${newCase.name}`
+    })
+
+    await createNotification({
+      userId,
+      title: 'New Case Initialized',
+      message: `Case "${newCase.name}" has been successfully created.`,
+      type: NotificationType.CASE_UPDATE,
+      priority: NotificationPriority.MEDIUM,
+      link: `/cases/${newCase._id}`
     })
 
     res.status(201).json({
@@ -264,6 +289,20 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
         if (currentCase.status === CaseStatus.ACTIVE) {
           await User.updateOne({ _id: userId }, { $inc: { currentCases: -1 } })
         }
+        const archiveResult = await Event.updateMany(
+          { caseId: id, userId, status: 'active' },
+          { $set: { status: 'closed' } }
+        )
+        controllerLogger.info({ caseId: id, archived: archiveResult.modifiedCount }, 'Archived events on user case closure')
+        
+        await createNotification({
+          userId,
+          title: 'Case Closed',
+          message: `Workspace for "${currentCase.name}" has been sealed. ${archiveResult.modifiedCount} calendar events were archived.`,
+          type: NotificationType.CASE_UPDATE,
+          priority: NotificationPriority.LOW,
+          link: '/cases'
+        })
       } else if (status === CaseStatus.ACTIVE) {
         allowedUpdates.closedAt = null
         allowedUpdates.closedByUser = false
@@ -470,8 +509,22 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
       currentCase.isTrialCase = false
     }
 
-
     await currentCase.save()
+
+    const restoreResult = await Event.updateMany(
+      { caseId: id, userId, status: 'closed' },
+      { $set: { status: 'active' } }
+    )
+    controllerLogger.info({ caseId: id, restored: restoreResult.modifiedCount }, 'Restored events on case reactivation')
+
+    await createNotification({
+      userId,
+      title: 'Case Reactivated',
+      message: `Case "${currentCase.name}" is now active again. ${restoreResult.modifiedCount} archived events have been restored.`,
+      type: NotificationType.CASE_UPDATE,
+      priority: NotificationPriority.MEDIUM,
+      link: `/cases/${id}`
+    })
 
     await logAction({
       adminId: user._id,

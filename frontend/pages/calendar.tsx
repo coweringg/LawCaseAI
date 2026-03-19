@@ -30,7 +30,8 @@ import {
     MoreVertical,
     Loader2,
     MapPin,
-    ListFilter
+    ListFilter,
+    Briefcase
 } from 'lucide-react';
 import { subDays } from 'date-fns';
 import { toast } from 'react-hot-toast';
@@ -272,6 +273,15 @@ export default function Calendar() {
                                         <div className={`w-1.5 h-10 rounded-full shrink-0 ${event.priority === 'critical' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]'}`}></div>
                                         <div className="flex-1 min-w-0 py-0.5">
                                             <p className="text-[11px] font-black text-white group-hover:text-primary transition-colors line-clamp-1 truncate font-display tracking-tightest leading-tight mb-1.5">{event.title}</p>
+                                            {event.caseId && (() => {
+                                                const linkedCase = cases.find((c: any) => c._id === event.caseId);
+                                                return linkedCase ? (
+                                                    <div className="flex items-center gap-1 mb-1.5">
+                                                        <Briefcase size={8} className="text-primary/60" />
+                                                        <span className="text-[8px] font-bold text-primary/60 uppercase tracking-widest truncate">{linkedCase.name}</span>
+                                                    </div>
+                                                ) : null;
+                                            })()}
                                             <div className="flex items-center gap-3">
                                                 <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-bold uppercase tracking-widest">
                                                     <Clock size={10} className="text-primary" />
@@ -369,6 +379,7 @@ export default function Calendar() {
                                             onOpenModal={handleOpenModal}
                                             monthStart={monthStart}
                                             getPriorityColor={getPriorityColor}
+                                            cases={cases}
                                         />
                                     ))}
                                 </div>
@@ -674,7 +685,7 @@ export default function Calendar() {
     );
 }
 
-function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor }: any) {
+function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor, cases }: any) {
     const dayEvents = events.filter((e: any) => {
         try {
             const d = new Date(e.start);
@@ -722,6 +733,15 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor 
                             {(event.priority === 'critical' && event.status !== 'closed') && <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />}
                             <span className="truncate">{event.title}</span>
                         </div>
+                        {event.caseId && (() => {
+                            const linkedCase = cases?.find((c: any) => c._id === event.caseId);
+                            return linkedCase ? (
+                                <div className="flex items-center gap-1 mt-0.5 opacity-70">
+                                    <Briefcase size={8} />
+                                    <span className="text-[7px] truncate">{linkedCase.name}</span>
+                                </div>
+                            ) : null;
+                        })()}
                     </motion.div>
                 ))}
             </div>

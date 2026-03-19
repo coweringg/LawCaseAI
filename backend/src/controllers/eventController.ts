@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { Event } from '../models'
-import { IApiResponse, IAuthRequest, EventType, EventPriority } from '../types'
+import { IApiResponse, IAuthRequest, EventType, EventPriority, NotificationType, NotificationPriority } from '../types'
+import { createNotification } from '../utils/notification'
 import logger from '../utils/logger'
 
 const controllerLogger = logger.child({ module: 'event-controller' })
@@ -82,6 +83,16 @@ export const createEvent = async (req: IAuthRequest, res: Response): Promise<voi
         if (status !== undefined) safeEventData.status = status
 
         const event = await Event.create(safeEventData)
+
+        await createNotification({
+            userId,
+            title: 'New Calendar Event',
+            message: `Event "${event.title}" has been scheduled for ${eventDate.toLocaleDateString()}.`,
+            type: NotificationType.CALENDAR_EVENT,
+            priority: event.priority === 'critical' || event.priority === 'high' ? NotificationPriority.HIGH : NotificationPriority.MEDIUM,
+            link: '/calendar',
+            metadata: { eventId: event._id, caseId: event.caseId }
+        })
 
         res.status(201).json({
             success: true,

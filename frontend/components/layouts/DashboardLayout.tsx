@@ -5,6 +5,7 @@ import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardStats } from '@/hooks/useSettings';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationBell from '@/components/notifications/NotificationBell';
 import { DashboardStats } from '@/types';
 
 interface DashboardLayoutProps {
@@ -529,6 +530,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 )}
                                 {user?.role !== 'admin' && (
                                     <div className="flex items-center gap-5">
+                                        <NotificationBell />
                                         <Link href="/cases/new">
                                             <motion.button
                                                 whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)", transition: { duration: 0.15 } }}

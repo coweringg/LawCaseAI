@@ -24,8 +24,11 @@ import {
     Clock,
     Info,
     AlertCircle,
-    ShieldAlert
+    ShieldAlert,
+    Plus,
+    Trash2
 } from 'lucide-react';
+import { isBefore, startOfDay } from 'date-fns';
 
 export default function NewCase() {
     const router = useRouter();
@@ -41,6 +44,27 @@ export default function NewCase() {
         complexity: '2',
         court: '',
     });
+    const [keyDates, setKeyDates] = useState<{ title: string; date: string; type: string }[]>([]);
+
+    const addKeyDate = () => setKeyDates(prev => [...prev, { title: '', date: '', type: 'deadline' }]);
+    const removeKeyDate = (idx: number) => setKeyDates(prev => prev.filter((_, i) => i !== idx));
+    const updateKeyDate = (idx: number, field: string, value: string) => {
+        if (field === 'date' && value && value.length >= 10) {
+            const dateParts = value.split('-');
+            const year = parseInt(dateParts[0]);
+            
+            if (year >= 2000 && year < 3000) {
+                const selectedDate = startOfDay(new Date(value + 'T00:00:00'));
+                const today = startOfDay(new Date());
+                
+                if (isBefore(selectedDate, today)) {
+                    toast.error('Cannot select a past date for key deadlines');
+                    return;
+                }
+            }
+        }
+        setKeyDates(prev => prev.map((kd, i) => i === idx ? { ...kd, [field]: value } : kd));
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -53,7 +77,11 @@ export default function NewCase() {
     const handleSubmit = async () => {
         setIsLoading(true);
         try {
-            const response = await api.post('/cases', formData);
+            const payload: any = { ...formData };
+            if (keyDates.length > 0) {
+                payload.keyDates = keyDates.filter(kd => kd.title && kd.date);
+            }
+            const response = await api.post('/cases', payload);
             const data = response.data;
 
             if (data.success) {
@@ -368,77 +396,162 @@ export default function NewCase() {
                                             </p>
                                         </div>
 
-                                        <div className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
-                                            <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 shadow-md">
-                                                <Calendar className="w-5 h-5" />
+                                        <div>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
+                                                    <Calendar className="w-3.5 h-3.5" />
+                                                    Key Dates & Deadlines
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={addKeyDate}
+                                                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-all"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" /> Add Date
+                                                </button>
                                             </div>
-                                            <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Calendar Integration</h4>
-                                            <p className="text-[10px] font-medium text-slate-500 max-w-xs">
-                                                Once created, you&apos;ll be able to sync court calendars and deadlines through your dashboard settings.
-                                            </p>
+                                            {keyDates.length === 0 ? (
+                                                <div className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
+                                                    <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 shadow-md">
+                                                        <Calendar className="w-5 h-5" />
+                                                    </div>
+                                                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Calendar Sync</h4>
+                                                    <p className="text-[10px] font-medium text-slate-500 max-w-xs">
+                                                        Add key dates like hearings, deadlines, and meetings. They&apos;ll auto-sync to your calendar.
+                                                    </p>
+                                                    <button type="button" onClick={addKeyDate} className="mt-4 px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-1.5">
+                                                        <Plus className="w-3.5 h-3.5" /> Add First Date
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {keyDates.map((kd, idx) => (
+                                                        <div key={idx} className="flex gap-3 items-start p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+                                                            <div className="flex-1 space-y-3">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="e.g., Discovery Deadline"
+                                                                    value={kd.title}
+                                                                    onChange={(e) => updateKeyDate(idx, 'title', e.target.value)}
+                                                                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                                                                />
+                                                                <div className="flex gap-3">
+                                                                    <input
+                                                                        type="date"
+                                                                        value={kd.date}
+                                                                        min={new Date().toISOString().split('T')[0]}
+                                                                        onChange={(e) => updateKeyDate(idx, 'date', e.target.value)}
+                                                                        className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none [color-scheme:light] dark:[color-scheme:dark]"
+                                                                    />
+                                                                    <select
+                                                                        value={kd.type}
+                                                                        onChange={(e) => updateKeyDate(idx, 'type', e.target.value)}
+                                                                        className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none cursor-pointer"
+                                                                    >
+                                                                        <option value="deadline">Deadline</option>
+                                                                        <option value="hearing">Hearing</option>
+                                                                        <option value="meeting">Meeting</option>
+                                                                        <option value="review">Review</option>
+                                                                        <option value="consultation">Consultation</option>
+                                                                        <option value="other">Other</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeKeyDate(idx)}
+                                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all mt-1"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
 
                                 {step === 4 && (
                                     <div className="animate-in fade-in zoom-in duration-250 space-y-6">
-                                        <div className="relative p-1 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/5 to-indigo-500/20 border border-primary/20 overflow-hidden">
-                                            <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-8 shadow-2xl z-10">
-                                                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="relative p-0.5 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/5 to-indigo-500/20 border border-primary/10 overflow-hidden">
+                                            <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-6 shadow-2xl z-10">
+                                                <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                                            <CheckCircle2 className="w-6 h-6" />
+                                                        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                                            <CheckCircle2 className="w-5 h-5" />
                                                         </div>
-                                                        <h3 className="font-extrabold text-xl text-slate-900 dark:text-white tracking-tight">Case Summary</h3>
+                                                        <h3 className="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">Case Summary</h3>
                                                     </div>
-                                                    <span className="text-[10px] font-extrabold text-primary px-3 py-1 bg-primary/10 rounded-full uppercase tracking-widest">Live Preview</span>
+                                                    <span className="text-[9px] font-extrabold text-primary px-2.5 py-0.5 bg-primary/10 rounded-full uppercase tracking-widest">Live Preview</span>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                    <div className="space-y-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="space-y-4">
                                                         <div>
-                                                            <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <FileText className="w-3 h-3" /> Case Reference
                                                             </div>
-                                                            <div className="text-lg font-bold text-slate-900 dark:text-white">{formData.name}</div>
+                                                            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{formData.name}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <Users className="w-3 h-3" /> Represented Client
                                                             </div>
-                                                            <div className="text-lg font-bold text-slate-900 dark:text-white">{formData.client}</div>
+                                                            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{formData.client}</div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="space-y-6">
+                                                    <div className="space-y-4">
                                                         <div className="flex gap-4">
-                                                            <div className="flex-1">
-                                                                <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                     <Gavel className="w-3 h-3" /> Practice Area
                                                                 </div>
-                                                              <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">{formData.practiceArea || 'General'}</div>
+                                                              <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize truncate">{formData.practiceArea || 'General'}</div>
                                                             </div>
-                                                            <div className="flex-1">
-                                                                <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                     <Shield className="w-3 h-3" /> Complexity
                                                                 </div>
-                                                                <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Level {formData.complexity}</div>
+                                                                <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Lvl {formData.complexity}</div>
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <Building2 className="w-3 h-3" /> Jurisdiction
                                                             </div>
-                                                            <div className="text-sm font-bold text-slate-800 dark:text-slate-200">{formData.court || 'Not provided'}</div>
+                                                            <div className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{formData.court || 'Not provided'}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-                                                    <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2.5 flex items-center gap-2">
-                                                        <Layers className="w-3 h-3" /> Full Description
+                                                {keyDates.length > 0 && (
+                                                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+                                                        <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                            <Calendar className="w-3 h-3" /> Scheduled Key Dates
+                                                        </div>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                            {keyDates.map((kd, idx) => (
+                                                                <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                                                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                                        <Calendar className="w-3.5 h-3.5" />
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <div className="text-[10px] font-bold text-slate-900 dark:text-white truncate uppercase tracking-tight">{kd.title || 'Untitled Event'}</div>
+                                                                        <div className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">{kd.date} &bull; {kd.type}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 italic">
+                                                )}
+
+                                                <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+                                                    <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                        <Layers className="w-3 h-3" /> Description Preview
+                                                    </div>
+                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 italic truncate max-h-20 overflow-hidden">
                                                         &quot;{formData.description || 'No description provided.'}&quot;
                                                     </p>
                                                 </div>

@@ -21,6 +21,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     let organizationId = null
     let plan = UserPlan.NONE
     let effectiveLawFirm = lawFirm
+    let orgPeriodEnd: Date | undefined = undefined
 
     if (firmCode) {
       const { default: Organization } = await import('../models/Organization')
@@ -59,11 +60,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       organizationId = org._id
       plan = UserPlan.ENTERPRISE
       effectiveLawFirm = org.name
+      orgPeriodEnd = org.currentPeriodEnd
     }
 
     const now = new Date()
-    const nextMonth = new Date(now)
-    nextMonth.setMonth(nextMonth.getMonth() + 1)
+    const nextMonth = orgPeriodEnd || new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
     const user = new User({
       name,
@@ -213,7 +214,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           currentCases: user.currentCases,
           lastLogin: user.lastLogin,
           isOrgAdmin: user.isOrgAdmin,
-          organizationId: user.organizationId
+          organizationId: user.organizationId,
+          expiredPremium: user.expiredPremium,
+          expiredTrial: user.expiredTrial
         },
         token,
         savedLoginToken: user.savedLoginToken
@@ -307,7 +310,9 @@ export const loginWithSavedToken = async (req: Request, res: Response): Promise<
           currentCases: user.currentCases,
           lastLogin: user.lastLogin,
           isOrgAdmin: user.isOrgAdmin,
-          organizationId: user.organizationId
+          organizationId: user.organizationId,
+          expiredPremium: user.expiredPremium,
+          expiredTrial: user.expiredTrial
         },
         token,
         savedLoginToken: newSavedLoginToken

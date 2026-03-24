@@ -34,6 +34,9 @@ const organizationSchema = new Schema<IOrganization>({
     type: Boolean,
     default: true
   },
+  currentPeriodEnd: {
+    type: Date
+  },
   stripeSubscriptionId: {
     type: String
   }

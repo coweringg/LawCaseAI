@@ -124,6 +124,7 @@ export interface IOrganization extends Document {
   usedSeats: number
   firmCode: string
   isActive: boolean
+  currentPeriodEnd?: Date
   stripeSubscriptionId?: string
   createdAt: Date
   updatedAt: Date
@@ -165,6 +166,8 @@ export interface IUser extends Document {
   isTrialUsed?: boolean
   trialStartedAt?: Date
   trialCaseId?: Types.ObjectId
+  expiredPremium?: boolean
+  expiredTrial?: boolean
   maxCases: number
   maxTokens: number
   maxTotalStorage: number

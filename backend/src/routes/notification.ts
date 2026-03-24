@@ -14,10 +14,10 @@ router.patch('/:id/read', [
   param('id').isMongoId().withMessage('Invalid notification ID'),
   handleValidationErrors
 ], notificationController.markAsRead)
+router.delete('/clear-all', notificationController.deleteAllNotifications)
 router.delete('/:id', [
   param('id').isMongoId().withMessage('Invalid notification ID'),
   handleValidationErrors
 ], notificationController.deleteNotification)
-router.delete('/clear-all', notificationController.deleteAllNotifications)
 
 export default router

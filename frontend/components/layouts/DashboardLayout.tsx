@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardStats } from '@/hooks/useSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import ExpirationModal from '@/components/modals/ExpirationModal';
 import { DashboardStats } from '@/types';
 
 interface DashboardLayoutProps {
@@ -48,6 +49,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [globalAlert, setGlobalAlert] = useState<{message: string, type: string} | null>(null);
     const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isExpirationModalOpen, setIsExpirationModalOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -82,6 +84,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             const dismissed = localStorage.getItem(`dismiss_usage_banner_${user.id}`);
             if (dismissed === 'true') {
                 setIsBannerVisible(false);
+            }
+            
+            if (user.expiredPremium || user.expiredTrial) {
+                const dismissed = localStorage.getItem(`dismiss_expiration_${user.id}`);
+                const now = new Date().getTime();
+                if (!dismissed || now >= parseInt(dismissed, 10)) {
+                    setIsExpirationModalOpen(true);
+                }
+            } else {
+                localStorage.removeItem(`dismiss_expiration_${user.id}`);
             }
         }
 
@@ -143,6 +155,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setIsBannerVisible(false);
         if (user) {
             localStorage.setItem(`dismiss_usage_banner_${user.id}`, 'true');
+        }
+    };
+
+    const handleCloseExpirationModal = (delayHours: number) => {
+        setIsExpirationModalOpen(false);
+        if (user && delayHours > 0) {
+            const nextTime = new Date().getTime() + delayHours * 60 * 60 * 1000;
+            localStorage.setItem(`dismiss_expiration_${user.id}`, nextTime.toString());
         }
     };
 
@@ -265,6 +285,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                 </div>
             )}
+
+            <ExpirationModal 
+                isOpen={isExpirationModalOpen} 
+                onClose={handleCloseExpirationModal} 
+                user={user} 
+            />
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-150`}>

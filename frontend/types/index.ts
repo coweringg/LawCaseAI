@@ -20,6 +20,8 @@ export interface User {
   maxTokens?: number
   maxTotalStorage?: number
   billingInterval?: 'monthly' | 'annual'
+  expiredPremium?: boolean
+  expiredTrial?: boolean
 }
 
 export interface IOrganization {

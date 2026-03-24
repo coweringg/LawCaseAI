@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { User, SupportRequest, Case } from '../models'
+import { User, SupportRequest, Case, Organization } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
 import logger from '../utils/logger'
@@ -45,7 +45,9 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
         totalStorageUsed: user.totalStorageUsed,
         maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
         maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
-        billingInterval: user.billingInterval || 'monthly'
+        billingInterval: user.billingInterval || 'monthly',
+        expiredPremium: user.expiredPremium,
+        expiredTrial: user.expiredTrial
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -301,7 +303,8 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       totalTokensConsumed: user.totalTokensConsumed,
       maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
       totalStorageUsed: user.totalStorageUsed,
-      maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0
+      maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
+      organization: user.organizationId ? await Organization.findById(user.organizationId).select('name usedSeats totalSeats isActive currentPeriodEnd') : null
     }
 
     res.status(200).json({

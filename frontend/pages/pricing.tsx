@@ -32,8 +32,15 @@ export default function Pricing() {
     enterprise: 249
   };
 
+  const ANNUAL_TOTALS: Record<string, number> = {
+    basic: 79 * 12,
+    professional: 159 * 12,
+    elite: 249 * 12,
+     enterprise: 249 * 12
+  };
+
   const currentPlanCost = (user?.plan && user.plan !== 'none') 
-    ? (user.billingInterval === 'annual' ? ANNUAL_PRICES[user.plan] : PLAN_PRICES[user.plan]) 
+    ? (user.billingInterval === 'annual' ? ANNUAL_TOTALS[user.plan] : PLAN_PRICES[user.plan]) 
     : 0;
 
   const getProratedPrice = (basePrice: number) => {
@@ -141,15 +148,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Growth</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 : 100) && (
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 * 12 : 100) && (
                       <span className="text-2xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '79' : '100'}</span>
                     )}
-                    <span className="text-5xl font-bold text-white">${getProratedPrice(billingInterval === 'annual' ? 79 : 100)}</span>
+                    <span className="text-5xl font-bold text-white">${billingInterval === 'annual' ? '79' : getProratedPrice(100)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-medium text-sm">/mo</span>
                     </div>
                   </div>
-                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 : 100) && (
+                  {billingInterval === 'annual' && (
+                    <div className="text-[10px] text-slate-500 font-bold mb-2">
+                      Billed annually (${getProratedPrice(79 * 12)})
+                    </div>
+                  )}
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 79 * 12 : 100) && (
                     <div className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Upgrade Proration Applied</div>
                   )}
                 </div>
@@ -178,15 +190,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-4">Professional</h3>
                   <div className="flex items-baseline gap-2 mb-2">
-                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 : 199) && (
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 * 12 : 199) && (
                       <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '159' : '199'}</span>
                     )}
-                    <span className="text-6xl font-black text-white tracking-tighter">${getProratedPrice(billingInterval === 'annual' ? 159 : 199)}</span>
+                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '159' : getProratedPrice(199)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
-                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 : 199) && (
+                  {billingInterval === 'annual' && (
+                    <div className="text-[10px] text-slate-500 font-bold mb-2">
+                      Billed annually (${getProratedPrice(159 * 12)})
+                    </div>
+                  )}
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 159 * 12 : 199) && (
                     <div className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Upgrade Proration Applied</div>
                   )}
                 </div>
@@ -214,15 +231,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Elite</h3>
                   <div className="flex items-baseline gap-2 mb-2">
-                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 : 300) && (
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 * 12 : 300) && (
                       <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '249' : '300'}</span>
                     )}
-                    <span className="text-6xl font-black text-white tracking-tighter">${getProratedPrice(billingInterval === 'annual' ? 249 : 300)}</span>
+                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '249' : getProratedPrice(300)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
-                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 : 300) && (
+                  {billingInterval === 'annual' && (
+                    <div className="text-[10px] text-slate-500 font-bold mb-2">
+                      Billed annually (${getProratedPrice(249 * 12)})
+                    </div>
+                  )}
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 * 12 : 300) && (
                     <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1 mb-3">Upgrade Proration Applied</div>
                   )}
                   <div className="text-[11px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
@@ -309,6 +331,11 @@ export default function Pricing() {
                       <span className="text-6xl font-black text-white tracking-tighter">${businessPrice.toLocaleString()}</span>
                       <span className="text-sm font-bold text-slate-500 uppercase">/mo</span>
                     </div>
+                    {billingInterval === 'annual' && (
+                      <div className="text-xs text-slate-500 font-bold mb-6 -mt-6">
+                        Billed annually (${(businessPrice * 12).toLocaleString()})
+                      </div>
+                    )}
                     
                     <Link 
                       href={`/register?plan=elite&seats=${seats}&type=empresa`}

@@ -90,31 +90,6 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
     let orgFirmCode: string | undefined = undefined
     const requestedSeats = parseInt(seats, 10) || 1
 
-    if (plan === UserPlan.ENTERPRISE && !user.organizationId) {
-       const firmCode = `ENT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
-       orgFirmCode = firmCode;
-
-       const org = await Organization.create([{
-           name: firmName || user.lawFirm || 'My Premium Firm',
-           adminId: userId,
-           totalSeats: requestedSeats,
-           usedSeats: 1,
-           firmCode,
-           isActive: true
-       }], isTransactional ? { session } : {})
-
-       organizationId = org[0]._id
-       user.role = UserRole.ORG_ADMIN
-       user.isOrgAdmin = true
-       user.organizationId = organizationId
-    } else if (plan === UserPlan.ENTERPRISE && user.organizationId) {
-       await Organization.findByIdAndUpdate(
-           user.organizationId,
-           { $inc: { totalSeats: requestedSeats } },
-           { session: isTransactional ? session : null }
-       )
-    }
-
     user.plan = plan
     user.planLimit = (config.planLimits as any)[plan]?.maxCases || 0
     if (interval === 'monthly' || interval === 'annual') {
@@ -122,6 +97,8 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
     }
     
     const now = new Date();
+    user.expiredPremium = false;
+    user.expiredTrial = false;
     const oldPeriodStart = user.currentPeriodStart || new Date(0);
     user.currentPeriodStart = now;
     
@@ -132,6 +109,37 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
         nextPeriod.setMonth(nextPeriod.getMonth() + 1);
     }
     user.currentPeriodEnd = nextPeriod;
+
+    if (plan === UserPlan.ENTERPRISE && !user.organizationId) {
+        const firmCode = `ENT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
+        orgFirmCode = firmCode;
+
+        const org = await Organization.create([{
+            name: firmName || user.lawFirm || 'My Premium Firm',
+            adminId: userId,
+            totalSeats: requestedSeats,
+            usedSeats: 1,
+            firmCode,
+            isActive: true,
+            currentPeriodEnd: nextPeriod
+        }], isTransactional ? { session } : {})
+
+        organizationId = org[0]._id
+        user.role = UserRole.ORG_ADMIN
+        user.isOrgAdmin = true
+        user.organizationId = organizationId
+     } else if (plan === UserPlan.ENTERPRISE && user.organizationId) {
+        await Organization.findByIdAndUpdate(
+            user.organizationId,
+            { $inc: { totalSeats: requestedSeats }, isActive: true, currentPeriodEnd: nextPeriod },
+            { session: isTransactional ? session : undefined }
+        )
+        await User.updateMany(
+            { organizationId: user.organizationId },
+            { $set: { plan: UserPlan.ENTERPRISE, planLimit: (config.planLimits as any)[plan]?.maxCases || 0, currentPeriodEnd: nextPeriod, expiredPremium: false } },
+            { session: isTransactional ? session : undefined }
+        )
+     }
     
     const casesToCarryOverCount = await Case.countDocuments({
         userId,

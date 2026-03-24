@@ -46,6 +46,60 @@ async function main() {
 
     await user.save();
 
+    const now = new Date();
+    if (user.plan === 'trial' && user.trialStartedAt) {
+      const trialEnd = new Date(user.trialStartedAt.getTime() + 24 * 60 * 60 * 1000);
+      if (now > trialEnd) {
+        user.plan = 'none' as any;
+        user.currentCases = 0;
+        user.expiredTrial = true;
+        await user.save();
+        await Case.updateMany(
+          { userId: user._id, status: 'active' },
+          { $set: { status: 'closed' } }
+        );
+        console.log('-> Trial expired.');
+      }
+    } else if (user.plan !== 'none' && user.plan !== 'trial' && user.currentPeriodEnd && user.currentPeriodEnd < now) {
+      const isOrgAdmin = (user as any).isOrgAdmin;
+      const organizationId = (user as any).organizationId;
+
+      user.plan = 'none' as any;
+      user.currentCases = 0;
+      user.expiredPremium = true;
+      await user.save();
+      
+      await Case.updateMany(
+        { userId: user._id, status: 'active' },
+        { $set: { status: 'closed' } }
+      );
+
+      if (isOrgAdmin && organizationId) {
+        const Organization = mongoose.connection.collection('organizations');
+        const UserCollection = mongoose.connection.collection('users');
+        
+        await Organization.updateOne({ _id: organizationId }, { $set: { isActive: false, currentPeriodEnd: user.currentPeriodEnd } });
+        
+        const employees = await UserCollection.find({ organizationId: organizationId, _id: { $ne: user._id } }).toArray();
+        const employeeIds = employees.map(e => e._id);
+        
+        await UserCollection.updateMany(
+          { organizationId: organizationId },
+          { $set: { plan: 'none', currentCases: 0, expiredPremium: true } }
+        );
+
+        if (employeeIds.length > 0) {
+          await Case.updateMany(
+            { userId: { $in: employeeIds }, status: 'active' },
+            { $set: { status: 'closed' } }
+          );
+        }
+        console.log(`-> Premium Plan expired with Enterprise cascade (${employeeIds.length} members affected).`);
+      } else {
+        console.log('-> Premium Plan expired.');
+      }
+    }
+
     console.log(`\n--- User After Time Travel (${daysToAdvance} days into the future) ---`);
     console.log(`Plan: ${user.plan}`);
     console.log(`Current Period Start: ${user.currentPeriodStart}`);

@@ -371,12 +371,19 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             <div className="text-right">
                                 <p className="text-3xl font-black text-white tracking-tighter">
                                     ${billingInfo?.plan === 'none' || billingInfo?.plan === 'trial' ? '0' :
-                                        billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 240 : 300)) :
+                                        billingInfo?.plan === 'enterprise' ? ((orgData?.totalSeats || 1) * (billingInfo?.interval === 'annual' ? 249 : 300)) :
                                             billingInfo?.plan === 'basic' ? (billingInfo?.interval === 'annual' ? '79' : '99') :
                                                 billingInfo?.plan === 'professional' ? (billingInfo?.interval === 'annual' ? '159' : '199') :
-                                                    '300'}
+                                                    (billingInfo?.interval === 'annual' ? '249' : '300')}
                                     <span className="text-sm text-slate-500 font-bold">/mo</span>
                                 </p>
+                                {billingInfo?.interval === 'annual' && billingInfo?.plan !== 'none' && billingInfo?.plan !== 'trial' && (
+                                    <p className="text-[10px] text-slate-500 font-bold mt-1">
+                                        Billed annually (${billingInfo?.plan === 'enterprise' ? (orgData?.totalSeats || 1) * 249 * 12 :
+                                            billingInfo?.plan === 'basic' ? 79 * 12 :
+                                                billingInfo?.plan === 'professional' ? 159 * 12 : 249 * 12})
+                                    </p>
+                                )}
                                 <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">
                                     {billingInfo?.plan === 'trial' ? 'Free Evaluative License' :
                                         billingInfo?.plan === 'enterprise' ? `${orgData?.totalSeats || 1} User License${(orgData?.totalSeats || 1) > 1 ? 's' : ''}` : 'Per User License'}

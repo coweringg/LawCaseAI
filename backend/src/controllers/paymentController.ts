@@ -80,6 +80,33 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
             return
         }
 
+        const user = await User.findById(userId)
+        if (user?.organizationId && !user?.isOrgAdmin) {
+            res.status(403).json({ success: false, message: 'Your account is managed by your organization administrator. Please contact them for plan changes.' } as IApiResponse)
+            return
+        }
+
+        const isPersonalPlan = [UserPlan.BASIC, UserPlan.PROFESSIONAL, UserPlan.ELITE].includes(planId as UserPlan);
+        if (isPersonalPlan && (user?.isOrgAdmin || user?.organizationId)) {
+            res.status(403).json({ 
+                success: false, 
+                message: 'Your account is currently registered as an Enterprise Administrator with active licenses associated. To preserve billing integrity for your team, you cannot transition to a personal plan with this account. If you wish to use a personal plan, please register a new, separate account.' 
+            } as IApiResponse)
+            return
+        }
+
+        if (planId === UserPlan.ENTERPRISE && user?.organizationId && user?.isOrgAdmin) {
+            const org = await (await import('../models/Organization')).default.findById(user.organizationId);
+            const requestedSeats = parseInt(seats as string) || 1;
+            if (org && requestedSeats < org.totalSeats) {
+                res.status(400).json({ 
+                    success: false, 
+                    message: `Your organization currently has ${org.totalSeats} seats. Your new plan must include at least ${org.totalSeats} seats to maintain your infrastructure.` 
+                } as IApiResponse)
+                return
+            }
+        }
+
         const priceId = getPaddlePriceId(planId as UserPlan, interval)
 
         const paddle = getPaddleInstance()
@@ -133,6 +160,32 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
             return
         }
 
+        if (user.organizationId && !user.isOrgAdmin) {
+            res.status(403).json({ success: false, message: 'Your account is managed by your organization administrator. Please contact them for plan changes.' } as IApiResponse)
+            return
+        }
+
+        const isPersonalPlan = [UserPlan.BASIC, UserPlan.PROFESSIONAL, UserPlan.ELITE].includes(planId as any);
+        if (isPersonalPlan && (user.isOrgAdmin || user.organizationId)) {
+            res.status(403).json({ 
+                success: false, 
+                message: 'Your account is associated with an Enterprise organization. You cannot purchase personal plans with this account.' 
+            } as IApiResponse)
+            return
+        }
+
+        if (planId === UserPlan.ENTERPRISE && user.organizationId && user.isOrgAdmin) {
+            const org = await (await import('../models/Organization')).default.findById(user.organizationId);
+            const requestedSeats = parseInt(seats as string) || 1;
+            if (org && requestedSeats < org.usedSeats) {
+                res.status(400).json({ 
+                    success: false, 
+                    message: `Your organization currently has ${org.usedSeats} seats in use. Your new plan must include at least ${org.usedSeats} seats.` 
+                } as IApiResponse)
+                return
+            }
+        }
+
         user.plan = planId as UserPlan
         user.planLimit = (config.planLimits as any)[planId]?.maxCases || 0
         user.billingInterval = interval
@@ -150,24 +203,35 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
 
         const activeCaseCount = await Case.countDocuments({ userId, status: CaseStatus.ACTIVE })
         user.currentCases = activeCaseCount
+        user.expiredPremium = false
+        user.expiredTrial = false
 
         if (planId === UserPlan.ENTERPRISE) {
+            const requestedSeats = parseInt(seats as string) || 5;
             if (!user.organizationId) {
                 const org = new Organization({
                     name: firmName || `${user.name}'s Firm`,
+                    adminId: user._id,
                     firmCode: crypto.randomBytes(4).toString('hex').toUpperCase(),
-                    totalSeats: Math.max(5, parseInt(seats)),
+                    totalSeats: Math.max(5, requestedSeats),
                     usedSeats: 1,
-                    isActive: true
+                    isActive: true,
+                    currentPeriodEnd: user.currentPeriodEnd
                 })
                 await org.save()
-                user.organizationId = org._id
+                user.organizationId = org._id as any
                 user.isOrgAdmin = true
                 user.role = UserRole.ORG_ADMIN
             } else if (user.isOrgAdmin) {
                 await Organization.findByIdAndUpdate(user.organizationId, {
-                    $max: { totalSeats: parseInt(seats) }
+                    $max: { totalSeats: Math.max(5, requestedSeats) },
+                    isActive: true,
+                    currentPeriodEnd: user.currentPeriodEnd
                 })
+                await User.updateMany(
+                    { organizationId: user.organizationId },
+                    { $set: { plan: UserPlan.ENTERPRISE, planLimit: config.planLimits.enterprise.maxCases, currentPeriodEnd: user.currentPeriodEnd } }
+                )
             }
         }
 

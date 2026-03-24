@@ -6,9 +6,10 @@ interface CaseLimitModalProps {
     onClose: () => void;
     caseCount: number;
     caseLimit: number;
+    isEmployee?: boolean;
 }
 
-export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }: CaseLimitModalProps) {
+export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit, isEmployee }: CaseLimitModalProps) {
     const isUnlimited = caseLimit >= 10000;
     if (!isOpen) return null;
 
@@ -49,7 +50,9 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                                 <div className="h-full bg-primary w-full rounded-full"></div>
                             </div>
                             <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 italic">
-                                All {caseLimit} case slots are currently active. Close a case or upgrade to continue.
+                                {isEmployee 
+                                    ? `Your firm's active case slots (${caseLimit}) are full. Please ask your administrator to upgrade capacity.`
+                                    : `All ${caseLimit} case slots are currently active. Close a case or upgrade to continue.`}
                             </p>
                         </div>
                     )}
@@ -67,46 +70,56 @@ export default function CaseLimitModal({ isOpen, onClose, caseCount, caseLimit }
                         </div>
                     )}
 
-                    <div className="mb-10 text-left">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-5 uppercase tracking-widest flex items-center">
-                            <span className="w-8 h-[1px] bg-primary/30 mr-3"></span>
-                            Upgrade to Partner Plan
-                            <span className="ml-2 px-2 py-0.5 bg-primary text-[10px] text-white rounded uppercase">Recommended</span>
-                        </h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-start">
-                                <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
-                                <div>
-                                    <span className="block font-semibold text-slate-800 dark:text-slate-200">Expand Your Reach</span>
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Up to 20 active cases and unlimited archiving.</span>
-                                </div>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
-                                <div>
-                                    <span className="block font-semibold text-slate-800 dark:text-slate-200">Advanced AI Analytics</span>
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Deep-dive legal reasoning and precedent mapping.</span>
-                                </div>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
-                                <div>
-                                    <span className="block font-semibold text-slate-800 dark:text-slate-200">Priority Processing</span>
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Reduce document analysis time by up to 60%.</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                    {!isEmployee ? (
+                        <>
+                            <div className="mb-10 text-left">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-5 uppercase tracking-widest flex items-center">
+                                    <span className="w-8 h-[1px] bg-primary/30 mr-3"></span>
+                                    Upgrade to Partner Plan
+                                    <span className="ml-2 px-2 py-0.5 bg-primary text-[10px] text-white rounded uppercase">Recommended</span>
+                                </h3>
+                                <ul className="space-y-4">
+                                    <li className="flex items-start">
+                                        <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
+                                        <div>
+                                            <span className="block font-semibold text-slate-800 dark:text-slate-200">Expand Your Reach</span>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">Up to 20 active cases and unlimited archiving.</span>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
+                                        <div>
+                                            <span className="block font-semibold text-slate-800 dark:text-slate-200">Advanced AI Analytics</span>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">Deep-dive legal reasoning and precedent mapping.</span>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="material-icons-round text-primary mr-3 text-xl">check_circle</span>
+                                        <div>
+                                            <span className="block font-semibold text-slate-800 dark:text-slate-200">Priority Processing</span>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">Reduce document analysis time by up to 60%.</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
 
-                    <div className="flex flex-col gap-4">
-                        <Link href="/settings?tab=billing" className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
-                             <span>Upgrade to Partner</span>
-                             <span className="material-icons-round text-sm">arrow_forward</span>
-                         </Link>
-                        <button onClick={onClose} className="w-full bg-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-semibold py-2 transition-colors">
-                            Maybe Later
-                        </button>
-                    </div>
+                            <div className="flex flex-col gap-4">
+                                <Link href="/settings?tab=billing" className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                                    <span>Upgrade to Partner</span>
+                                    <span className="material-icons-round text-sm">arrow_forward</span>
+                                </Link>
+                                <button onClick={onClose} className="w-full bg-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-semibold py-2 transition-colors">
+                                    Maybe Later
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex flex-col gap-4">
+                            <button onClick={onClose} className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                                 <span>Got it</span>
+                            </button>
+                        </div>
+                    )}
 
                     <div className="mt-8 flex items-center justify-center gap-6 opacity-60">
                         <div className="flex items-center gap-1 text-[10px] text-slate-500 uppercase tracking-tighter">

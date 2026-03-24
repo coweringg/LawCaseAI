@@ -149,6 +149,14 @@ const userSchema = new Schema<IUser>({
   trialCaseId: {
     type: Schema.Types.ObjectId,
     ref: 'Case'
+  },
+  expiredPremium: {
+    type: Boolean,
+    default: false
+  },
+  expiredTrial: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

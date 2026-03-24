@@ -214,8 +214,8 @@ export default function Dashboard() {
                           <tr
                             key={c._id}
                             className="group hover:bg-white/5 transition-colors cursor-pointer"
-                            onClick={() => router.push(`/cases/${c._id}`)}
-                            onKeyDown={(e) => e.key === 'Enter' && router.push(`/cases/${c._id}`)}
+                            onClick={() => router.push(`/dashboard/cases/${c._id}`)}
+                            onKeyDown={(e) => e.key === 'Enter' && router.push(`/dashboard/cases/${c._id}`)}
                             tabIndex={0}
                             role="button"
                             aria-label={`View case ${c.name}`}

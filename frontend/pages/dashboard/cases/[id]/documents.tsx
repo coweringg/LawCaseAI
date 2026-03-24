@@ -273,7 +273,7 @@ export default function CaseDocuments() {
                     <header className="h-20 flex-none border-b border-white/10 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-between px-8 relative overflow-hidden z-20">
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
                         <div className="flex items-center gap-6 relative z-10">
-                            <Link href={`/cases/${id}`}>
+                            <Link href={`/dashboard/cases/${id}`}>
                                 <motion.div 
                                     whileHover={{ x: -5, backgroundColor: "rgba(255,255,255,0.05)" }}
                                     className="p-3 text-slate-400 hover:text-primary rounded-2xl transition-all cursor-pointer border border-transparent hover:border-white/10"

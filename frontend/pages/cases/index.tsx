@@ -227,7 +227,7 @@ export default function MyCases() {
                                 const isWaitState = isPending || isDiscovery;
 
                                 return (
-                                    <Link href={`/cases/${c._id}`} key={c._id} className="group">
+                                    <Link href={`/dashboard/cases/${c._id}`} key={c._id} className="group">
                                         <motion.div
                                             variants={itemVariants}
                                             whileHover={(isClosed || isWaitState) ? { y: -4, transition: { duration: 0.2 } } : { y: -8, transition: { duration: 0.15, ease: "easeOut" } }}

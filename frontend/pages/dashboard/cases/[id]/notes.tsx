@@ -21,7 +21,7 @@ export default function CaseNotesEditor() {
                             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
                                 <Link href="/dashboard" className="hover:text-primary transition-colors">Cases</Link>
                                 <span className="material-icons-round text-xs">chevron_right</span>
-                                <Link href={`/cases/${id}`} className="hover:text-primary transition-colors">Smith v. Jones</Link>
+                                <Link href={`/dashboard/cases/${id}`} className="hover:text-primary transition-colors">Smith v. Jones</Link>
                                 <span className="material-icons-round text-xs">chevron_right</span>
                                 <span className="text-slate-400">Internal Notes</span>
                             </div>

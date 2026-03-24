@@ -642,7 +642,7 @@ export default function CaseWorkspace() {
                             </div>
 
                             <div className="p-4 border-t border-white/10 bg-white/[0.02] relative z-10">
-                                <Link href={`/cases/${id}/documents`}>
+                                <Link href={`/dashboard/cases/${id}/documents`}>
                                     <motion.button
                                         whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)", transition: { duration: 0.15 } }}
                                         whileTap={{ scale: 0.98 }}

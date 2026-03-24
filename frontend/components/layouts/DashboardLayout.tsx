@@ -486,7 +486,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                     <div>
                                                                         <div className="px-5 py-3 text-[9px] font-black text-primary uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Cases</div>
                                                                         {searchResults.cases.map(c => (
-                                                                            <Link href={`/cases/${c.id}`} key={c.id}>
+                                                                            <Link href={`/dashboard/cases/${c.id}`} key={c.id}>
                                                                                 <div className="px-5 py-4 hover:bg-white/5 rounded-2xl transition-all duration-300 flex items-center gap-4 cursor-pointer group/item">
                                                                                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-white/5 group-hover/item:border-primary/30 group-hover/item:bg-primary/20 transition-all">
                                                                                         <span className="material-icons-round text-primary text-xl">folder</span>
@@ -505,7 +505,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                     <div className={searchResults.cases.length > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
                                                                         <div className="px-5 py-3 text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Documents</div>
                                                                         {searchResults.files.map(f => (
-                                                                            <Link href={`/cases/${f.caseId}`} key={f.id}>
+                                                                            <Link href={`/dashboard/cases/${f.caseId}`} key={f.id}>
                                                                                 <div className="px-5 py-4 hover:bg-white/5 rounded-2xl transition-all duration-300 flex items-center gap-4 cursor-pointer group/item">
                                                                                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-white/5 group-hover/item:border-blue-500/30 group-hover/item:bg-blue-500/20 transition-all">
                                                                                         <span className="material-icons-round text-blue-400 text-xl">description</span>

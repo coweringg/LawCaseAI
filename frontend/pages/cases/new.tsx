@@ -85,8 +85,8 @@ export default function NewCase() {
             const data = response.data;
 
             if (data.success) {
-                toast.success('Case created successfully!');
-                router.push('/dashboard');
+                toast.success('Intelligence unit initialized successfully!');
+                router.push(`/dashboard/cases/${data.data._id}`);
             } else {
                 toast.error(data.message || 'Failed to create case');
                 if (data.message?.toLowerCase().includes('limit')) {

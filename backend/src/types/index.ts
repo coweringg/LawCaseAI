@@ -130,6 +130,13 @@ export interface IOrganization extends Document {
   updatedAt: Date
 }
 
+export interface ICustomLimits {
+  maxCases?: number
+  maxTokens?: number
+  maxTotalStorage?: number
+  maxFilesPerCase?: number
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId
   name: string
@@ -171,6 +178,8 @@ export interface IUser extends Document {
   maxCases: number
   maxTokens: number
   maxTotalStorage: number
+  maxFilesPerCase: number
+  customLimits?: ICustomLimits
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
   isAtPlanLimit: boolean

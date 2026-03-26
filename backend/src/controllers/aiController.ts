@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { IAuthRequest } from '../types'
 import AIService from '@/utils/aiService'
 import { Case, CaseFile, ChatMessage, User } from '@/models'
+import { getRelevantKnowledgeContext } from '../utils/knowledgeBaseUtils'
 import { logAction } from '@/utils/auditLogger'
 import config from '@/config'
 import logger from '@/utils/logger'
@@ -60,7 +61,9 @@ export const chatWithAI = async (req: IAuthRequest, res: Response): Promise<Resp
             }).join('\n\n')
         }
 
-        const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}`
+        const knowledgeContext = await getRelevantKnowledgeContext(req.user!._id!.toString(), message)
+        
+        const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}\n\n${knowledgeContext}`
 
         const recentHistory = await ChatMessage.find({ caseId })
             .sort({ timestamp: -1 })

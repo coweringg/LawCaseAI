@@ -310,10 +310,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     { href: '/dashboard/admin/treasury', label: 'Treasury', icon: 'account_balance', exact: false },
                                     { href: '/dashboard/admin/organizations', label: 'Organizations', icon: 'business', exact: false },
                                     { href: '/dashboard/admin/ai-health', label: 'AI Health', icon: 'monitor_heart', exact: false },
+                                    { href: '/dashboard/admin/knowledge-base', label: 'Knowledge Base', icon: 'menu_book', exact: false },
+                                    { href: '/dashboard/admin/quota-control', label: 'Quota Control', icon: 'tune', exact: false },
                                     { href: '/dashboard/admin/system', label: 'System Command', icon: 'security', exact: false }
                                 ] : [
                                     { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
                                     { href: '/cases', label: 'My Cases', icon: 'folder_open' },
+                                    { href: '/knowledge-base', label: 'Legal Library', icon: 'menu_book' },
                                     { href: '/calendar', label: 'Calendar', icon: 'calendar_today' },
                                     { href: '/settings', label: 'Settings', icon: 'settings' }
                                 ]).map((item) => (
@@ -429,6 +432,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         ] : [
                                             { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
                                             { href: '/cases', label: 'My Cases', icon: 'folder_open' },
+                                            { href: '/knowledge-base', label: 'Legal Library', icon: 'menu_book' },
                                             { href: '/calendar', label: 'Calendar', icon: 'calendar_today' },
                                             { href: '/settings', label: 'Settings', icon: 'settings' }
                                         ]).map((item) => (

@@ -45,6 +45,7 @@ import systemRoutes from './routes/system'
 import supportRoutes from './routes/support.routes'
 import webhookRoutes from './routes/webhook'
 import notificationRoutes from './routes/notification'
+import knowledgeBaseRoutes from './routes/knowledgeBase'
 import { planRateLimiter } from './middleware/rateLimiter'
 
 const app = express()
@@ -151,6 +152,7 @@ app.use('/api/user', userRoutes)
 app.use('/api/system', systemRoutes)
 app.use('/api/support', supportRoutes)
 app.use('/api/notifications', notificationRoutes)
+app.use('/api/knowledge-base', knowledgeBaseRoutes)
 
 app.use('*', (req: express.Request, res: express.Response) => {
   res.status(404).json({

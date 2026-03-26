@@ -157,6 +157,12 @@ const userSchema = new Schema<IUser>({
   expiredTrial: {
     type: Boolean,
     default: false
+  },
+  customLimits: {
+    maxCases: Number,
+    maxTokens: Number,
+    maxTotalStorage: Number,
+    maxFilesPerCase: Number
   }
 }, {
   timestamps: true,
@@ -256,17 +262,22 @@ userSchema.virtual('remainingStorage').get(function () {
 
 userSchema.virtual('maxCases').get(function () {
   const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
-  return limits.maxCases
+  return this.customLimits?.maxCases || limits.maxCases
 })
 
 userSchema.virtual('maxTokens').get(function () {
   const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
-  return limits.maxTokens
+  return this.customLimits?.maxTokens || limits.maxTokens
 })
 
 userSchema.virtual('maxTotalStorage').get(function () {
   const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
-  return limits.maxTotalStorage
+  return this.customLimits?.maxTotalStorage || limits.maxTotalStorage
+})
+
+userSchema.virtual('maxFilesPerCase').get(function () {
+  const limits = (config.planLimits as any)[this.plan] || config.planLimits.basic
+  return this.customLimits?.maxFilesPerCase || limits.maxFilesPerCase
 })
 
 const User = mongoose.model<IUser, IUserModel>('User', userSchema)

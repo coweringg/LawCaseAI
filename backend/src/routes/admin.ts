@@ -12,12 +12,17 @@ import {
   deleteAuditLog,
   clearAuditLogs,
   logoutUser,
+  updateOrganizationCode,
   getSupportRequests,
   updateSupportRequestStatus,
   deleteSupportRequest,
-  clearSupportRequests,
-  updateOrganizationCode
+  clearSupportRequests
 } from '../controllers/adminController'
+import {
+    getUsersWithQuotas,
+    updateUserQuotas,
+    resetUserQuotas
+} from '../controllers/quotaController'
 import { authenticate, authorize } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { UserRole } from '../types'
@@ -46,6 +51,20 @@ import {
   getAiHealthMetrics,
   resolveAiError
 } from '../controllers/aiHealthController'
+import {
+  getKnowledgeDocuments,
+  uploadKnowledgeDocument,
+  deleteKnowledgeDocument,
+  incrementDocumentAccess
+} from '../controllers/knowledgeBaseController'
+import {
+  getAdminKnowledgeRequests,
+  updateKnowledgeRequestStatus,
+  deleteKnowledgeRequest,
+  bulkResolveKnowledgeRequests,
+  clearAllKnowledgeRequests
+} from '../controllers/knowledgeRequestController'
+import { uploadSingle } from '../utils/fileUpload'
 
 const router = Router()
 
@@ -156,5 +175,21 @@ router.delete('/support/:id', [
 ], deleteSupportRequest)
 
 router.delete('/support', clearSupportRequests)
+
+router.get('/knowledge-base', getKnowledgeDocuments)
+router.post('/knowledge-base', uploadSingle, uploadKnowledgeDocument)
+router.delete('/knowledge-base/:id', deleteKnowledgeDocument)
+router.post('/knowledge-base/:id/access', incrementDocumentAccess)
+
+router.get('/knowledge-requests', getAdminKnowledgeRequests)
+router.put('/knowledge-requests/:id/status', updateKnowledgeRequestStatus)
+router.delete('/knowledge-requests/:id', deleteKnowledgeRequest)
+router.post('/knowledge-requests/bulk-resolve', bulkResolveKnowledgeRequests)
+router.delete('/knowledge-requests/bulk-clear', clearAllKnowledgeRequests)
+
+// Quota Control
+router.get('/quotas', getUsersWithQuotas)
+router.put('/quotas/:userId', updateUserQuotas)
+router.post('/quotas/:userId/reset', resetUserQuotas)
 
 export default router

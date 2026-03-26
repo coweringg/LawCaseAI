@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParser = require('pdf-parse')
+import pdfParser from 'pdf-parse'
 import logger from './logger'
 
 const pdfLogger = logger.child({ module: 'pdf-utils' })

@@ -422,19 +422,28 @@ export const getUserHistory = async (req: IAuthRequest, res: Response): Promise<
 
 export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { page = 1, limit = 50, category, search, startDate, endDate } = req.query
-    const skip = (Number(page) - 1) * Number(limit)
+    const { 
+      page = 1, 
+      limit = 50, 
+      category, 
+      search, 
+      startDate, 
+      endDate, 
+      action, 
+      targetType,
+      export: exportCsv 
+    } = req.query
 
     const filter: Record<string, any> = {}
-    if (category && (category === 'admin' || category === 'platform')) {
-      filter.category = category
-    }
+    
+    if (category) filter.category = category
+    if (action) filter.action = action
+    if (targetType) filter.targetType = targetType
 
     if (search) {
       filter.$or = [
         { adminName: { $regex: search, $options: 'i' } },
         { targetName: { $regex: search, $options: 'i' } },
-        { action: { $regex: search, $options: 'i' } },
         { 'details.description': { $regex: search, $options: 'i' } }
       ]
     }
@@ -449,6 +458,27 @@ export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<vo
       }
     }
 
+    if (exportCsv === 'true') {
+      const allLogs = await AuditLog.find(filter).sort({ timestamp: -1 }).lean()
+      const headers = ['Timestamp', 'Admin', 'Action', 'Target', 'Type', 'Severity', 'Description']
+      const rows = allLogs.map(log => [
+        new Date(log.timestamp).toISOString(),
+        log.adminName,
+        log.action,
+        log.targetName,
+        log.targetType,
+        log.severity || 'info',
+        log.details.description.replace(/,/g, ';')
+      ])
+      
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-Disposition', 'attachment; filename=audit_logs.csv')
+      res.status(200).send(csv)
+      return
+    }
+
+    const skip = (Number(page) - 1) * Number(limit)
     const logs = await AuditLog.find(filter)
       .sort({ timestamp: -1 })
       .skip(skip)

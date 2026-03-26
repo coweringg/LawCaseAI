@@ -9,9 +9,10 @@ interface LogOptions {
   adminName: string
   targetId?: Types.ObjectId
   targetName: string
-  targetType: 'user' | 'case' | 'support' | 'organization' | 'payment'
+  targetType: 'user' | 'case' | 'support' | 'organization' | 'payment' | 'system' | 'billing'
   category: 'admin' | 'platform'
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE' | 'PLAN_CHANGE' | 'LOGIN' | 'PASSWORD_RESET' | 'USER_DISABLED' | 'USER_ENABLED' | 'CASE_CREATED' | 'CASE_DELETED' | 'FILE_UPLOADED' | 'FILE_DELETED' | 'FILE_RENAMED' | 'BULK_FILE_DELETED' | 'AI_CONSULTATION' | 'PROFILE_UPDATE' | 'NOTIFICATION_CHANGE' | 'PAYMENT_METHOD_ADD' | 'PAYMENT_METHOD_REMOVE' | 'CASE_STATUS_CHANGE' | 'USER_DELETED' | 'CASE_CLOSED' | 'PASSWORD_CHANGE' | 'SUPPORT_REQUEST_SUBMITTED' | 'SUPPORT_REQUEST_STATUS_UPDATE' | 'ORG_CODE_UPDATE' | 'PAYMENT_PROCESSED' | 'TRIAL_ACTIVATED' | 'TRIAL_EXPIRED'
+  severity?: 'info' | 'warning' | 'critical'
+  action: string
   before?: Record<string, unknown>
   after?: Record<string, unknown>
   description: string
@@ -26,6 +27,7 @@ export const logAction = async (options: LogOptions): Promise<void> => {
       targetName: options.targetName,
       targetType: options.targetType,
       category: options.category,
+      severity: options.severity || 'info',
       action: options.action,
       details: {
         before: options.before,

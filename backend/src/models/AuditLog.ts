@@ -5,9 +5,10 @@ export interface IAuditLog extends Document {
   adminName: string
   targetId: Types.ObjectId
   targetName: string
-  targetType: 'user' | 'case' | 'support' | 'organization'
+  targetType: 'user' | 'case' | 'support' | 'organization' | 'payment' | 'system' | 'billing'
   category: 'admin' | 'platform'
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE' | 'PLAN_CHANGE' | 'LOGIN' | 'PASSWORD_RESET' | 'USER_DISABLED' | 'USER_ENABLED' | 'CASE_CREATED' | 'CASE_DELETED' | 'FILE_UPLOADED' | 'FILE_DELETED' | 'AI_CONSULTATION' | 'PROFILE_UPDATE' | 'NOTIFICATION_CHANGE' | 'PAYMENT_METHOD_ADD' | 'PAYMENT_METHOD_REMOVE' | 'CASE_STATUS_CHANGE' | 'USER_DELETED' | 'CASE_CLOSED' | 'PASSWORD_CHANGE' | 'SUPPORT_REQUEST_SUBMITTED' | 'SUPPORT_REQUEST_STATUS_UPDATE' | 'ORG_CODE_UPDATE'
+  severity: 'info' | 'warning' | 'critical'
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE' | 'PLAN_CHANGE' | 'LOGIN' | 'LOGOUT' | 'PASSWORD_RESET' | 'USER_DISABLED' | 'USER_ENABLED' | 'CASE_CREATED' | 'CASE_DELETED' | 'FILE_UPLOADED' | 'FILE_DELETED' | 'AI_CONSULTATION' | 'PROFILE_UPDATE' | 'NOTIFICATION_CHANGE' | 'PAYMENT_METHOD_ADD' | 'PAYMENT_METHOD_REMOVE' | 'CASE_STATUS_CHANGE' | 'USER_DELETED' | 'CASE_CLOSED' | 'PASSWORD_CHANGE' | 'SUPPORT_REQUEST_SUBMITTED' | 'SUPPORT_REQUEST_STATUS_UPDATE' | 'ORG_CODE_UPDATE' | 'MAINTENANCE_TOGGLE' | 'GLOBAL_ALERT_UPDATE'
   details: {
     before?: Record<string, unknown>
     after?: Record<string, unknown>
@@ -36,7 +37,7 @@ const auditLogSchema = new Schema<IAuditLog>({
   },
   targetType: {
     type: String,
-    enum: ['user', 'case', 'support', 'organization'],
+    enum: ['user', 'case', 'support', 'organization', 'payment', 'system', 'billing'],
     required: true
   },
   category: {
@@ -45,16 +46,23 @@ const auditLogSchema = new Schema<IAuditLog>({
     required: true,
     default: 'admin'
   },
+  severity: {
+    type: String,
+    enum: ['info', 'warning', 'critical'],
+    required: true,
+    default: 'info'
+  },
   action: {
     type: String,
     enum: [
-      'CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE', 'PLAN_CHANGE', 'LOGIN', 
+      'CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE', 'PLAN_CHANGE', 'LOGIN', 'LOGOUT',
       'PASSWORD_RESET', 'USER_DISABLED', 'USER_ENABLED', 'CASE_CREATED', 
       'CASE_DELETED', 'FILE_UPLOADED', 'FILE_DELETED', 'AI_CONSULTATION', 
       'PROFILE_UPDATE', 'NOTIFICATION_CHANGE', 'PAYMENT_METHOD_ADD', 
       'PAYMENT_METHOD_REMOVE', 'CASE_STATUS_CHANGE', 'USER_DELETED', 
       'CASE_CLOSED', 'PASSWORD_CHANGE', 'SUPPORT_REQUEST_SUBMITTED', 
-      'SUPPORT_REQUEST_STATUS_UPDATE', 'ORG_CODE_UPDATE'
+      'SUPPORT_REQUEST_STATUS_UPDATE', 'ORG_CODE_UPDATE', 'MAINTENANCE_TOGGLE',
+      'GLOBAL_ALERT_UPDATE'
     ],
     required: true
   },

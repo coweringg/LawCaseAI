@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 import config from '../config'
 import { IChatResponse } from '../types'
 import logger from './logger'
-import { User } from '../models'
+import { User, AiLog } from '../models'
 
 const aiLogger = logger.child({ module: 'ai-service' })
 
@@ -36,6 +36,33 @@ export class AIService {
       AIService.instance = new AIService()
     }
     return AIService.instance
+  }
+
+  private async saveTelemetry(data: {
+    userId?: string;
+    action: 'chat' | 'analysis' | 'audit';
+    status: 'success' | 'error' | 'rate_limit';
+    tokens: number;
+    responseTime: number;
+    errorMessage?: string;
+  }) {
+    try {
+      const provider = this.modelName.includes('openai') || this.modelName.includes('gpt') ? 'openai' : 'openrouter';
+      
+      await AiLog.create({
+        userId: data.userId,
+        provider,
+        aiModel: this.modelName,
+        action: data.action,
+        status: data.status,
+        tokens: data.tokens,
+        responseTime: data.responseTime,
+        errorMessage: data.errorMessage,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      aiLogger.error({ error }, 'Failed to save AI telemetry');
+    }
   }
 
   private checkCircuit(): boolean {
@@ -132,6 +159,14 @@ export class AIService {
         'AI response generated'
       )
 
+      this.saveTelemetry({
+        userId,
+        action: 'chat',
+        status: 'success',
+        tokens: totalTokens,
+        responseTime
+      });
+
       return {
         response: aiResponse,
         model: this.modelName,
@@ -140,6 +175,17 @@ export class AIService {
       }
     } catch (error: any) {
       aiLogger.error({ err: error }, 'AI Service Error')
+
+      const isRateLimit = error.status === 429 || error.message?.includes('rate limit');
+      
+      this.saveTelemetry({
+        userId,
+        action: 'chat',
+        status: isRateLimit ? 'rate_limit' : 'error',
+        tokens: 0,
+        responseTime: 0,
+        errorMessage: error.message
+      });
       
       const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
       const displayMessage = isLimitError 
@@ -161,6 +207,7 @@ export class AIService {
     suggestedActions: string[]
   }> {
     try {
+      const startTime = Date.now()
       const systemPrompt = 'You are a legal document analyzer. Return your analysis in valid JSON format with three exact keys: "summary" (string), "keyPoints" (array of strings), and "suggestedActions" (array of strings). Do not include any other text except the JSON object.'
       const prompt = `Please analyze this legal document and provide JSON-formatted summary, key points, and suggested actions.\n\nDocument content:\n${documentContent}`
 
@@ -185,6 +232,8 @@ export class AIService {
         response_format: { type: 'json_object' }
       }))
 
+      const endTime = Date.now()
+      const responseTime = endTime - startTime
       const content = response.choices[0]?.message?.content || '{}'
       const totalTokens = response.usage?.total_tokens || Math.ceil((documentContent.length + content.length) / 4)
       
@@ -202,6 +251,14 @@ export class AIService {
         )
       }
 
+      this.saveTelemetry({
+        userId,
+        action: 'analysis',
+        status: 'success',
+        tokens: totalTokens,
+        responseTime
+      });
+
       aiLogger.info('Document analysis completed')
       return {
         summary: analysis.summary || 'Summary unavailable',
@@ -210,6 +267,17 @@ export class AIService {
       }
     } catch (error: any) {
       aiLogger.error({ err: error }, 'Document Analysis Error')
+      
+      const isRateLimit = error.status === 429 || error.message?.includes('rate limit');
+      
+      this.saveTelemetry({
+        userId,
+        action: 'analysis',
+        status: isRateLimit ? 'rate_limit' : 'error',
+        tokens: 0,
+        responseTime: 0,
+        errorMessage: error.message
+      });
       
       const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
       const displayMessage = isLimitError 
@@ -230,6 +298,7 @@ export class AIService {
     riskVectors: string[]
   }> {
     try {
+      const startTime = Date.now()
       const systemPrompt = `You are a legal intelligence auditor. Your task is to perform a "Deep Audit" across all of a lawyer's cases. 
       Identify strategic insights (opportunities), patterns (similar legal issues or client behaviors), and risk vectors (contradictions or upcoming threats).
       Return your analysis in valid JSON format with three exact keys: "strategicInsights" (array of strings), "identifiedPatterns" (array of strings), and "riskVectors" (array of strings).`
@@ -257,6 +326,8 @@ export class AIService {
         response_format: { type: 'json_object' }
       }))
 
+      const endTime = Date.now()
+      const responseTime = endTime - startTime
       const content = response.choices[0]?.message?.content || '{}'
       const totalTokens = response.usage?.total_tokens || Math.ceil((globalContext.length + content.length) / 4)
       
@@ -274,6 +345,14 @@ export class AIService {
         )
       }
 
+      this.saveTelemetry({
+        userId,
+        action: 'audit',
+        status: 'success',
+        tokens: totalTokens,
+        responseTime
+      });
+
       aiLogger.info('Global intelligence audit completed')
       return {
         strategicInsights: analysis.strategicInsights || [],
@@ -282,6 +361,17 @@ export class AIService {
       }
     } catch (error: any) {
       aiLogger.error({ err: error }, 'Global Audit Error')
+      
+      const isRateLimit = error.status === 429 || error.message?.includes('rate limit');
+      
+      this.saveTelemetry({
+        userId,
+        action: 'audit',
+        status: isRateLimit ? 'rate_limit' : 'error',
+        tokens: 0,
+        responseTime: 0,
+        errorMessage: error.message
+      });
       
       const isLimitError = error.message?.startsWith('AI_LIMIT_REACHED:')
       const displayMessage = isLimitError 

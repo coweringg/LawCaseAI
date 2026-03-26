@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { SystemSetting } from '../models'
 import { IApiResponse } from '../types'
+import mongoose from 'mongoose'
 
 export const getSystemStatus = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -79,7 +80,6 @@ export const updateGlobalAlert = async (req: Request, res: Response): Promise<vo
 
 export const getSystemHealth = async (req: Request, res: Response): Promise<void> => {
   try {
-    const mongoose = require('mongoose')
     const dbStatus = mongoose.connection.readyState === 1 ? 'Healthy' : 'Unstable'
     
     const aiNodeStatus = 'Operational'

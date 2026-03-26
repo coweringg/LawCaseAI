@@ -81,9 +81,10 @@ interface AuditLogEntry {
   adminName: string
   targetId: string
   targetName: string
-  targetType: 'user' | 'case'
+  targetType: 'user' | 'case' | 'payment' | 'system' | 'organization' | 'ai'
   category: 'admin' | 'platform'
   action: string
+  severity: 'info' | 'warning' | 'critical'
   details: {
     before?: any
     after?: any
@@ -93,10 +94,34 @@ interface AuditLogEntry {
 }
 
 interface UserHistory {
-  cases: any[]
-  payments: any[]
+  cases: Array<{
+    _id: string
+    name: string
+    client: string
+    status: 'active' | 'closed' | 'pending'
+    createdAt: string
+    closedAt?: string
+  }>
+  payments: Array<{
+    _id: string
+    amount: number
+    currency: string
+    status: string
+    createdAt: string
+    plan: string
+  }>
   auditLogs: AuditLogEntry[]
-  orgMembers?: any[]
+  orgMembers?: Array<{
+    id: string
+    name: string
+    email: string
+    role: string
+    status: 'active' | 'disabled' | 'suspended'
+    plan?: string
+    currentCases?: number
+    isOrgAdmin?: boolean
+    _id: string
+  }>
   organizationData?: {
     id: string
     firmCode: string
@@ -150,6 +175,11 @@ export default function AdminDashboard() {
   const [logSearchTerm, setLogSearchTerm] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [actionFilter, setActionFilter] = useState('')
+  const [targetTypeFilter, setTargetTypeFilter] = useState('')
+  const [logPage, setLogPage] = useState(1)
+  const [logLimit, setLogLimit] = useState(20)
+  const [totalPages, setTotalPages] = useState(1)
   const [showDiffModal, setShowDiffModal] = useState(false)
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([])
@@ -206,22 +236,55 @@ export default function AdminDashboard() {
     try {
       const query = new URLSearchParams({
         category,
-        limit: '100',
+        page: logPage.toString(),
+        limit: logLimit.toString(),
         ...(logSearchTerm ? { search: logSearchTerm } : {}),
         ...(startDate ? { startDate } : {}),
-        ...(endDate ? { endDate } : {})
+        ...(endDate ? { endDate } : {}),
+        ...(actionFilter ? { action: actionFilter } : {}),
+        ...(targetTypeFilter ? { targetType: targetTypeFilter } : {})
       })
       const response = await api.get(`/admin/audit-logs?${query.toString()}`)
       if (response.data.success) {
         if (category === 'admin') setAdminLogs(response.data.data.logs)
         else setPlatformLogs(response.data.data.logs)
+        setTotalPages(response.data.data.totalPages || 1)
       }
     } catch (error) {
       console.error('Failed to fetch audit logs:', error)
     } finally {
       setIsLogsLoading(false)
     }
-  }, [activeHistoryTab, logSearchTerm, startDate, endDate])
+  }, [activeHistoryTab, logSearchTerm, startDate, endDate, actionFilter, targetTypeFilter, logPage, logLimit])
+
+  const handleExportCSV = async () => {
+    try {
+      const query = new URLSearchParams({
+        category: activeHistoryTab,
+        export: 'csv',
+        ...(logSearchTerm ? { search: logSearchTerm } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+        ...(actionFilter ? { action: actionFilter } : {}),
+        ...(targetTypeFilter ? { targetType: targetTypeFilter } : {})
+      })
+      
+      const response = await api.get(`/admin/audit-logs?${query.toString()}`, {
+        responseType: 'blob'
+      })
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `audit-logs-${activeHistoryTab}-${new Date().toISOString().split('T')[0]}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('CSV Export failed:', error)
+      toast.error('Failed to export CSV')
+    }
+  }
 
   const fetchSupportRequests = useCallback(async () => {
     setIsSupportLoading(true)
@@ -432,7 +495,7 @@ export default function AdminDashboard() {
     setEditError(null)
     
     try {
-      const payload: any = { ...editData }
+      const payload: Partial<typeof editData> = { ...editData }
       if (!payload.password) delete payload.password
 
       const response = await api.put(`/admin/users/${selectedUser.id}`, payload, {
@@ -709,43 +772,67 @@ export default function AdminDashboard() {
       )
     },
     {
+      key: 'severity' as keyof AuditLogEntry,
+      title: 'Severity',
+      render: (v: string) => (
+        <span className={cn(
+          "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit",
+          v === 'critical' ? 'text-error-500 bg-error-500/10 border border-error-500/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]' :
+          v === 'warning' ? 'text-warning-500 bg-warning-500/10 border border-warning-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]' :
+          'text-primary bg-primary/10 border border-primary/20'
+        )}>
+          <span className={cn(
+            "w-1 h-1 rounded-full",
+            v === 'critical' ? 'bg-error-500 animate-pulse' :
+            v === 'warning' ? 'bg-warning-500' :
+            'bg-primary'
+          )} />
+          {v}
+        </span>
+      )
+    },
+    {
       key: 'action' as keyof AuditLogEntry,
       title: 'Movement Type',
       render: (value: string) => {
         const displayValue = value.replace(/_/g, ' ')
         const colors: Record<string, string> = {
-          'DELETE': 'bg-error-500/20 text-error-500',
-          'CASE_DELETED': 'bg-error-500/20 text-error-500',
-          'USER_DISABLED': 'bg-error-500/20 text-error-500',
-          'UPDATE': 'bg-primary/20 text-primary',
-          'PROFILE_UPDATE': 'bg-primary/20 text-primary',
-          'CASE_CREATED': 'bg-success-500/20 text-success-500',
-          'USER_ENABLED': 'bg-success-500/20 text-success-500',
-          'CASE_STATUS_CHANGE': 'bg-warning-500/20 text-warning-500',
-          'CASE_CLOSED': 'bg-slate-500/20 text-slate-400',
-          'PASSWORD_RESET': 'bg-error-500/20 text-error-500',
-          'PASSWORD_CHANGE': 'bg-orange-500/20 text-orange-400',
-          'LOGIN': 'bg-success-500/20 text-success-500',
-          'FILE_UPLOADED': 'bg-secondary/20 text-secondary',
-          'FILE_DELETED': 'bg-error-500/20 text-error-500',
-          'AI_CONSULTATION': 'bg-purple-500/20 text-purple-400',
-          'PLAN_CHANGE': 'bg-indigo-500/20 text-indigo-400',
-          'PAYMENT_PROCESSED': 'bg-emerald-500/20 text-emerald-400',
-          'PAYMENT_METHOD_ADD': 'bg-emerald-500/20 text-emerald-400',
-          'PAYMENT_METHOD_REMOVE': 'bg-error-500/20 text-error-500',
-          'USER_DELETED': 'bg-error-500/20 text-error-500',
-          'STATUS_CHANGE': 'bg-warning-500/20 text-warning-500',
-          'NOTIFICATION_CHANGE': 'bg-slate-500/20 text-slate-400',
-          'SUPPORT_REQUEST_SUBMITTED': 'bg-blue-500/20 text-blue-400',
-          'SUPPORT_REQUEST_STATUS_UPDATE': 'bg-blue-500/20 text-blue-400',
-          'ORG_CODE_UPDATE': 'bg-indigo-500/20 text-indigo-400',
-          'CREATE': 'bg-success-500/20 text-success-500'
+          'DELETE': 'text-error-500',
+          'CASE_DELETED': 'text-error-500',
+          'USER_DISABLED': 'text-error-500',
+          'UPDATE': 'text-primary',
+          'PROFILE_UPDATE': 'text-primary',
+          'CASE_CREATED': 'text-success-500',
+          'USER_ENABLED': 'text-success-500',
+          'CASE_STATUS_CHANGE': 'text-warning-500',
+          'CASE_CLOSED': 'text-slate-400',
+          'PASSWORD_RESET': 'text-error-500',
+          'PASSWORD_CHANGE': 'text-orange-400',
+          'LOGIN': 'text-success-500',
+          'FILE_UPLOADED': 'text-secondary',
+          'FILE_DELETED': 'text-error-500',
+          'AI_CONSULTATION': 'text-purple-400',
+          'PLAN_CHANGE': 'text-indigo-400',
+          'PAYMENT_PROCESSED': 'text-emerald-400',
+          'PAYMENT_METHOD_ADD': 'text-emerald-400',
+          'PAYMENT_METHOD_REMOVE': 'text-error-500',
+          'USER_DELETED': 'text-error-500',
+          'STATUS_CHANGE': 'text-warning-500',
+          'NOTIFICATION_CHANGE': 'text-slate-400',
+          'SUPPORT_REQUEST_SUBMITTED': 'text-blue-400',
+          'SUPPORT_REQUEST_STATUS_UPDATE': 'text-blue-400',
+          'ORG_CODE_UPDATE': 'text-indigo-400',
+          'CREATE': 'text-success-500',
+          'SYSTEM_MAINTENANCE_ENABLED': 'text-error-500',
+          'SYSTEM_MAINTENANCE_DISABLED': 'text-success-500',
+          'GLOBAL_ALERT_POSTED': 'text-warning-500',
+          'AI_PROVIDER_STATUS_CHANGE': 'text-primary'
         }
         
         return (
           <span className={cn(
-            "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
-            colors[value] || 'bg-slate-500/20 text-slate-400'
+            "text-[10px] font-black uppercase tracking-[0.1em]",
+            colors[value] || 'text-slate-400'
           )}>
             {displayValue}
           </span>
@@ -1046,19 +1133,25 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="flex flex-1 max-w-2xl gap-3 items-center">
-                  <div className="relative flex-1">
+                <div className="flex flex-wrap gap-3 items-center w-full max-w-5xl">
+                  <div className="relative flex-1 min-w-[200px]">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type="text"
                       placeholder={`Filter ${activeHistoryTab === 'admin' ? 'Administrative' : 'Client'} archives...`}
                       value={logSearchTerm}
-                      onChange={(e) => setLogSearchTerm(e.target.value)}
+                      onChange={(e) => {
+                        setLogSearchTerm(e.target.value)
+                        setLogPage(1)
+                      }}
                       className="w-full pl-12 pr-10 py-3 bg-white/[0.02] border border-white/5 rounded-2xl text-[13px] text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] transition-all font-bold uppercase tracking-widest"
                     />
                     {logSearchTerm && (
                       <button 
-                        onClick={() => setLogSearchTerm('')}
+                        onClick={() => {
+                          setLogSearchTerm('')
+                          setLogPage(1)
+                        }}
                         className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                       >
                         <X size={14} />
@@ -1066,22 +1159,81 @@ export default function AdminDashboard() {
                     )}
                   </div>
 
+                  <div className="relative group">
+                    <select
+                      value={actionFilter}
+                      onChange={(e) => {
+                        setActionFilter(e.target.value)
+                        setLogPage(1)
+                      }}
+                      className="bg-white/[0.02] border border-white/10 rounded-2xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none min-w-[140px]"
+                    >
+                      <option value="" className="bg-slate-900">All Actions</option>
+                      <option value="CREATE" className="bg-slate-900">Create</option>
+                      <option value="UPDATE" className="bg-slate-900">Update</option>
+                      <option value="DELETE" className="bg-slate-900">Delete</option>
+                      <option value="LOGIN" className="bg-slate-900">Login</option>
+                      <option value="LOGOUT" className="bg-slate-900">Logout</option>
+                      <option value="PLAN_CHANGE" className="bg-slate-900">Plan Change</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
+                        <Filter size={12} />
+                    </div>
+                  </div>
+
+                  <div className="relative group">
+                    <select
+                      value={targetTypeFilter}
+                      onChange={(e) => {
+                        setTargetTypeFilter(e.target.value)
+                        setLogPage(1)
+                      }}
+                      className="bg-white/[0.02] border border-white/10 rounded-2xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none min-w-[140px]"
+                    >
+                      <option value="" className="bg-slate-900">All Sections</option>
+                      <option value="user" className="bg-slate-900">Users</option>
+                      <option value="case" className="bg-slate-900">Cases</option>
+                      <option value="organization" className="bg-slate-900">Orgs</option>
+                      <option value="payment" className="bg-slate-900">Payments</option>
+                      <option value="system" className="bg-slate-900">System</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
+                        <Filter size={12} />
+                    </div>
+                  </div>
+
                   <div className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-2 hover:bg-white/[0.04] transition-all">
                     <Calendar size={12} className="text-slate-500" />
                     <input 
                       type="date" 
                       value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      onChange={(e) => {
+                        setStartDate(e.target.value)
+                        setLogPage(1)
+                      }}
                       className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-0 w-28 [color-scheme:dark]"
                     />
                     <span className="text-slate-800 font-bold">-</span>
                     <input 
                       type="date" 
                       value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
+                      onChange={(e) => {
+                        setEndDate(e.target.value)
+                        setLogPage(1)
+                      }}
                       className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-0 w-28 [color-scheme:dark]"
                     />
                   </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleExportCSV}
+                    className="px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2 hover:bg-primary hover:text-white transition-all"
+                  >
+                    <FileText size={14} />
+                    Export CSV
+                  </motion.button>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -1095,6 +1247,7 @@ export default function AdminDashboard() {
                         onClick={() => {
                           setActiveHistoryTab(hTab.id as any)
                           setLogSearchTerm('')
+                          setLogPage(1)
                         }}
                         className={cn(
                           "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
@@ -1135,6 +1288,34 @@ export default function AdminDashboard() {
                   loading={isLogsLoading}
                   emptyMessage="Archive query returned zero results."
                 />
+                
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-8 py-6 border-t border-white/5 bg-white/[0.01]">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                      Page {logPage} of {totalPages}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="none"
+                        size="sm"
+                        disabled={logPage === 1 || isLogsLoading}
+                        onClick={() => setLogPage(p => p - 1)}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="none"
+                        size="sm"
+                        disabled={logPage === totalPages || isLogsLoading}
+                        onClick={() => setLogPage(p => p + 1)}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           ) : activeTab === 'support' ? (
@@ -1608,7 +1789,7 @@ export default function AdminDashboard() {
                       <Table 
                         data={userHistory.payments}
                         columns={[
-                          { key: 'date', title: 'Transaction Date', render: (v) => <span className="text-slate-400">{formatDate(v)}</span> },
+                          { key: 'createdAt', title: 'Transaction Date', render: (v) => <span className="text-slate-400">{formatDate(v)}</span> },
                           { key: 'plan', title: 'Service Plan', render: (v) => <span className="font-bold text-white uppercase">{v}</span> },
                           { key: 'amount', title: 'Credit Amount', render: (v) => <span className="text-success-500 font-black">${v}</span> }
                         ]}
@@ -1700,7 +1881,7 @@ export default function AdminDashboard() {
                               {v}
                             </span>
                           )},
-                          { key: 'actions', title: '', render: (_, item: any) => (
+                          { key: 'id' as any, title: '', render: (_, item: any) => (
                             <Button 
                               variant="none" 
                               size="sm"

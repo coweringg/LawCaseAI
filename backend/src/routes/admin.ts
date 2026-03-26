@@ -36,6 +36,16 @@ import {
   updateGlobalAlert,
   getSystemHealth
 } from '../controllers/systemController'
+import {
+  getAllOrganizations,
+  getOrganizationDetails,
+  toggleOrganizationStatus,
+  extendOrganizationPlan
+} from '../controllers/adminOrgController'
+import {
+  getAiHealthMetrics,
+  resolveAiError
+} from '../controllers/aiHealthController'
 
 const router = Router()
 
@@ -100,6 +110,14 @@ router.get('/treasury/export', exportTreasuryCSV)
 
 router.get('/system/status', getSystemStatus)
 router.get('/system/health', getSystemHealth)
+
+router.get('/organizations', getAllOrganizations)
+router.get('/organizations/:id', getOrganizationDetails)
+router.patch('/organizations/:id/status', toggleOrganizationStatus)
+router.post('/organizations/:id/extend', extendOrganizationPlan)
+
+router.get('/ai-health', getAiHealthMetrics)
+router.patch('/ai-health/logs/:id/resolve', resolveAiError)
 
 router.post('/system/maintenance', [
   body('active').isBoolean().withMessage('Active must be a boolean'),

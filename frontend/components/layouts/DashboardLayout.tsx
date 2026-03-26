@@ -308,6 +308,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     { href: '/dashboard/admin', label: 'Overview', icon: 'admin_panel_settings', exact: true },
                                     { href: '/dashboard/admin/analytics', label: 'AI Analytics', icon: 'psychology', exact: false },
                                     { href: '/dashboard/admin/treasury', label: 'Treasury', icon: 'account_balance', exact: false },
+                                    { href: '/dashboard/admin/organizations', label: 'Organizations', icon: 'business', exact: false },
+                                    { href: '/dashboard/admin/ai-health', label: 'AI Health', icon: 'monitor_heart', exact: false },
                                     { href: '/dashboard/admin/system', label: 'System Command', icon: 'security', exact: false }
                                 ] : [
                                     { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -422,6 +424,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             { href: '/dashboard/admin', label: 'Overview', icon: 'admin_panel_settings', exact: true },
                                             { href: '/dashboard/admin/analytics', label: 'AI Analytics', icon: 'psychology', exact: false },
                                             { href: '/dashboard/admin/treasury', label: 'Treasury', icon: 'account_balance', exact: false },
+                                            { href: '/dashboard/admin/organizations', label: 'Organizations', icon: 'business', exact: false },
                                             { href: '/dashboard/admin/system', label: 'System Command', icon: 'security', exact: false }
                                         ] : [
                                             { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },

@@ -403,3 +403,26 @@ export const ALLOWED_FILE_TYPES = [
 ]
 
 export const MAX_FILE_SIZE = 100 * 1024 * 1024
+
+export interface IAiHealthProvider {
+  provider: string
+  status: 'operational' | 'degraded' | 'down'
+  latency: number
+  successRate: number
+  rateLimits: number
+  estimatedCost: string
+}
+
+export interface IAiHealthStats {
+  requests24h: number
+  requests7d: number
+  requests30d: number
+  tokens24h: number
+  dailyTrend: Array<{ _id: string, requests: number, provider: string }>
+}
+
+export interface IAiHealthData {
+  providers: IAiHealthProvider[]
+  recentLogs: any[]
+  stats: IAiHealthStats
+}

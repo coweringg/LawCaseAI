@@ -235,6 +235,21 @@ export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<vo
             }
         }
 
+        const basePrice = interval === 'annual' ? ANNUAL_PRICES[planId as string] : PLAN_PRICES[planId as string];
+        const multiplier = planId === UserPlan.ENTERPRISE ? (parseInt(seats as string) || 5) : 1;
+        const totalAmount = (basePrice || 0) * multiplier;
+
+        if (totalAmount > 0) {
+            await Transaction.create({
+                userId,
+                amount: totalAmount,
+                plan: planId as UserPlan,
+                status: 'succeeded',
+                paymentMethod: 'Mock/Development Checkout',
+                date: new Date()
+            });
+        }
+
         await user.save()
 
         res.status(200).json({

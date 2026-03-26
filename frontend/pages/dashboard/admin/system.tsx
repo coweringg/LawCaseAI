@@ -32,11 +32,20 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, formatDate } from '@/utils/helpers'
 
+interface SystemStatus {
+  maintenanceMode: boolean;
+  globalAlert: {
+    message: string;
+    type: 'info' | 'warning' | 'success' | 'error';
+    timestamp: string;
+  } | null;
+}
+
 export default function SystemCommandCenter() {
   const { user, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [systemStatus, setSystemStatus] = useState<any>(null)
+  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null)
   
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
   
@@ -75,7 +84,7 @@ export default function SystemCommandCenter() {
       const active = !systemStatus.maintenanceMode
       const res = await api.post('/admin/system/maintenance', { active })
       if (res.data.success) {
-        setSystemStatus((prev: any) => ({ ...prev, maintenanceMode: active }))
+        setSystemStatus((prev) => prev ? ({ ...prev, maintenanceMode: active }) : null)
         toast.success(`Mainframe Lockdown ${active ? 'ENGAGED' : 'RELEASED'}`)
       }
     } catch (error) {
@@ -115,7 +124,7 @@ export default function SystemCommandCenter() {
     try {
         const res = await api.post('/admin/system/alert', { active: false })
         if (res.data.success) {
-            setSystemStatus((prev: any) => ({ ...prev, globalAlert: null }))
+            setSystemStatus((prev) => prev ? ({ ...prev, globalAlert: null }) : null)
             toast.success('Signal Terminated. Frequency Cleared.')
         }
     } catch (error) {

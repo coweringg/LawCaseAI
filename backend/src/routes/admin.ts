@@ -33,7 +33,8 @@ import {
 import { 
   getSystemStatus, 
   toggleMaintenance, 
-  updateGlobalAlert 
+  updateGlobalAlert,
+  getSystemHealth
 } from '../controllers/systemController'
 
 const router = Router()
@@ -98,6 +99,7 @@ router.get('/treasury', getTreasuryStats)
 router.get('/treasury/export', exportTreasuryCSV)
 
 router.get('/system/status', getSystemStatus)
+router.get('/system/health', getSystemHealth)
 
 router.post('/system/maintenance', [
   body('active').isBoolean().withMessage('Active must be a boolean'),

@@ -42,11 +42,29 @@ import { cn, formatDate } from '@/utils/helpers'
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
 
+interface TreasuryData {
+  kpi: {
+    totalRevenue: number;
+    mrr: number;
+    growth: number;
+  };
+  revenueTrend: {
+    _id: string; // date
+    amount: number;
+  }[];
+  planDistribution: {
+    _id: string; // plan name
+    count: number;
+    revenue: number;
+    amount?: number; // fallback in case both keys used
+  }[];
+}
+
 export default function TreasuryDashboard() {
   const { user, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<TreasuryData | null>(null)
   const [range, setRange] = useState('month')
   const [isExporting, setIsExporting] = useState(false)
 
@@ -165,7 +183,7 @@ export default function TreasuryDashboard() {
             },
             { 
                 label: 'Active Institutional Subscriptions', 
-                value: data.planDistribution.reduce((acc: number, curr: any) => acc + curr.count, 0), 
+                value: data.planDistribution.reduce((acc: number, curr) => acc + curr.count, 0), 
                 icon: CreditCard, 
                 color: 'text-secondary', 
                 bg: 'bg-secondary/5', 
@@ -305,7 +323,7 @@ export default function TreasuryDashboard() {
                           nameKey="_id"
                           stroke="none"
                         >
-                          {data.planDistribution.map((entry: any, index: number) => (
+                          {data.planDistribution.map((entry, index: number) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -324,7 +342,7 @@ export default function TreasuryDashboard() {
                    </div>
                    
                    <div className="grid grid-cols-2 gap-4 px-8 pb-8">
-                      {data.planDistribution.map((entry: any, index: number) => (
+                      {data.planDistribution.map((entry, index: number) => (
                         <div key={entry._id} className="flex flex-col gap-1">
                            <div className="flex items-center gap-2">
                               <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />

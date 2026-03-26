@@ -64,8 +64,24 @@ export const getStats = async (_req: IAuthRequest, res: Response): Promise<void>
 
     const totalCases = await Case.countDocuments({ status: { $ne: CaseStatus.DELETED } })
     
-    const totalRevenue = totalUsers * 49 
-    const monthlyRevenue = activeUsers * 29 
+    const totalRevenueAgg = await Transaction.aggregate([
+      { $match: { status: 'succeeded' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ])
+    const totalRevenue = totalRevenueAgg[0]?.total || 0
+
+    const now = new Date()
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    const monthlyRevenueAgg = await Transaction.aggregate([
+      { 
+        $match: { 
+          status: 'succeeded',
+          date: { $gte: thirtyDaysAgo }
+        } 
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ])
+    const monthlyRevenue = monthlyRevenueAgg[0]?.total || 0
     
     const startOfMonth = new Date()
     startOfMonth.setDate(1)

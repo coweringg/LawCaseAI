@@ -38,11 +38,32 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, formatDate } from '@/utils/helpers'
 
+interface AnalyticsData {
+  totals: {
+    messages: number;
+    tokens: number;
+    cost: number;
+    avgResponseTime: number;
+  };
+  dailyTrend: {
+    _id: string;
+    tokens: number;
+    messages: number;
+  }[];
+  powerUsers: {
+    _id: string;
+    name: string;
+    email: string;
+    messageCount: number;
+    lastActive: string;
+  }[];
+}
+
 export default function AnalyticsDashboard() {
   const { user, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<AnalyticsData | null>(null)
   const [range, setRange] = useState<'7d' | '30d' | '90d'>('30d')
 
   useEffect(() => {
@@ -73,10 +94,22 @@ export default function AnalyticsDashboard() {
   const handleDeepAudit = async () => {
     toast.loading('Initiating Deep System Audit...', { id: 'audit' })
     try {
-      const res = await api.get(`/admin/analytics/ai?range=${range}`)
+      const res = await api.get('/admin/system/health')
       if (res.data.success) {
-        setData(res.data.data)
-        toast.success('System Audit Complete: All nodes synchronized.', { id: 'audit' })
+        const { status, nodes } = res.data.data
+        const healthyNodes = nodes.filter((n: any) => 
+          n.status === 'Healthy' || n.status === 'Operational' || n.status === 'Active' || n.status === 'Optimal'
+        ).length
+        
+        toast.success(`System Audit Complete: ${status}. ${healthyNodes}/${nodes.length} nodes fully synchronized.`, { 
+          id: 'audit',
+          duration: 5000 
+        })
+        
+        const analyticsRes = await api.get(`/admin/analytics/ai?range=${range}`)
+        if (analyticsRes.data.success) {
+          setData(analyticsRes.data.data)
+        }
       }
     } catch (error) {
       console.error('Audit failed', error)
@@ -245,7 +278,7 @@ export default function AnalyticsDashboard() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
                   <AnimatePresence>
-                    {data.powerUsers.map((user: any, index: number) => (
+                    {data.powerUsers.map((user, index: number) => (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}

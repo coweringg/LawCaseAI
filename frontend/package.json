@@ -20,7 +20,7 @@
     "framer-motion": "^12.34.1",
     "jspdf": "^4.2.0",
     "lucide-react": "^0.574.0",
-    "next": "16.1.6",
+    "next": "^16.2.1",
     "postcss": "^8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

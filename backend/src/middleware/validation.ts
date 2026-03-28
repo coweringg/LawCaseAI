@@ -6,6 +6,10 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
   const errors = validationResult(req)
 
   if (!errors.isEmpty()) {
+    console.error('--- VALIDATION ERROR OCCURRED ---');
+    console.error('Incoming req.body:', JSON.stringify(req.body, null, 2));
+    console.error('Errors:', JSON.stringify(errors.array(), null, 2));
+    
     const formattedErrors = errors.array().map(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (error: any) => ({

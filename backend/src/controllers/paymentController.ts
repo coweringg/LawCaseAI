@@ -47,26 +47,13 @@ export const getTransactionHistory = async (req: IAuthRequest, res: Response): P
 }
 
 const getPaddlePriceId = (plan: UserPlan, interval: 'monthly' | 'annual'): string => {
-    const prices: any = {
-        monthly: {
-            [UserPlan.BASIC]: process.env.PADDLE_PRICE_BASIC_MONTHLY || 'pri_basic_monthly',
-            [UserPlan.PROFESSIONAL]: process.env.PADDLE_PRICE_PRO_MONTHLY || 'pri_pro_monthly',
-            [UserPlan.ELITE]: process.env.PADDLE_PRICE_ELITE_MONTHLY || 'pri_elite_monthly',
-            [UserPlan.ENTERPRISE]: process.env.PADDLE_PRICE_ENT_MONTHLY || 'pri_ent_monthly'
-        },
-        annual: {
-            [UserPlan.BASIC]: process.env.PADDLE_PRICE_BASIC_ANNUAL || 'pri_basic_annual',
-            [UserPlan.PROFESSIONAL]: process.env.PADDLE_PRICE_PRO_ANNUAL || 'pri_pro_annual',
-            [UserPlan.ELITE]: process.env.PADDLE_PRICE_ELITE_ANNUAL || 'pri_elite_annual',
-            [UserPlan.ENTERPRISE]: process.env.PADDLE_PRICE_ENT_ANNUAL || 'pri_ent_annual'
-        }
-    }
-    return prices[interval][plan]
+    return config.paddle.prices[interval][plan as 'basic' | 'professional' | 'elite' | 'enterprise'] || ''
 }
 
 export const createCheckoutSession = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
-        const { planId, interval = 'monthly', seats = 1 } = req.body
+        console.log('--- REQ BODY in createCheckoutSession ---', req.body);
+        const { planId, interval = 'monthly', seats = 1, firmName = '' } = req.body
         const userId = req.user?._id
 
         if (!userId) {
@@ -107,20 +94,23 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
             }
         }
 
-        const priceId = getPaddlePriceId(planId as UserPlan, interval)
+        const priceId = getPaddlePriceId(planId as UserPlan, interval as 'monthly' | 'annual')
+        console.log('--- PRICE ID BEING SENT ---', priceId)
+        console.log('--- PRICE ID BEING SENT ---', priceId)
 
         const paddle = getPaddleInstance()
         
         const transaction = await paddle.transactions.create({
             items: [{
                 priceId,
-                quantity: Math.max(1, parseInt(seats))
+                quantity: planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats)) : 1
             }],
             customData: {
                 userId: userId.toString(),
-                planId,
-                interval,
-                seats: seats.toString()
+                planId: planId as string,
+                interval: interval as string,
+                seats: seats.toString(),
+                firmName: firmName as string
             }
         })
 
@@ -136,146 +126,6 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
         controllerLogger.error({ err: error }, 'createCheckoutSession error')
         res.status(500).json({ success: false, message: 'Failed to connect to payment gateway' } as IApiResponse)
     }
-}
-
-export const mockCheckout = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { planId, interval = 'monthly', seats = 1, firmName } = req.body
-        const userId = req.user?._id
-
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-            return
-        }
-
-        const validPlans = Object.values(UserPlan)
-        if (!planId || !validPlans.includes(planId as UserPlan)) {
-            res.status(400).json({ success: false, message: 'The selected plan is invalid.' } as IApiResponse)
-            return
-        }
-
-        const user = await User.findById(userId)
-        if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-            return
-        }
-
-        if (user.organizationId && !user.isOrgAdmin) {
-            res.status(403).json({ success: false, message: 'Your account is managed by your organization administrator. Please contact them for plan changes.' } as IApiResponse)
-            return
-        }
-
-        const isPersonalPlan = [UserPlan.BASIC, UserPlan.PROFESSIONAL, UserPlan.ELITE].includes(planId as any);
-        if (isPersonalPlan && (user.isOrgAdmin || user.organizationId)) {
-            res.status(403).json({ 
-                success: false, 
-                message: 'Your account is associated with an Enterprise organization. You cannot purchase personal plans with this account.' 
-            } as IApiResponse)
-            return
-        }
-
-        if (planId === UserPlan.ENTERPRISE && user.organizationId && user.isOrgAdmin) {
-            const org = await (await import('../models/Organization')).default.findById(user.organizationId);
-            const requestedSeats = parseInt(seats as string) || 1;
-            if (org && requestedSeats < org.usedSeats) {
-                res.status(400).json({ 
-                    success: false, 
-                    message: `Your organization currently has ${org.usedSeats} seats in use. Your new plan must include at least ${org.usedSeats} seats.` 
-                } as IApiResponse)
-                return
-            }
-        }
-
-        user.plan = planId as UserPlan
-        user.planLimit = (config.planLimits as any)[planId]?.maxCases || 0
-        user.billingInterval = interval
-        user.isTrialUsed = true
-
-        const now = new Date()
-        user.currentPeriodStart = now
-        const nextPeriod = new Date(now)
-        if (interval === 'annual') {
-            nextPeriod.setFullYear(nextPeriod.getFullYear() + 1)
-        } else {
-            nextPeriod.setMonth(nextPeriod.getMonth() + 1)
-        }
-        user.currentPeriodEnd = nextPeriod
-
-        const activeCaseCount = await Case.countDocuments({ userId, status: CaseStatus.ACTIVE })
-        user.currentCases = activeCaseCount
-        user.expiredPremium = false
-        user.expiredTrial = false
-
-        if (planId === UserPlan.ENTERPRISE) {
-            const requestedSeats = parseInt(seats as string) || 5;
-            if (!user.organizationId) {
-                const org = new Organization({
-                    name: firmName || `${user.name}'s Firm`,
-                    adminId: user._id,
-                    firmCode: crypto.randomBytes(4).toString('hex').toUpperCase(),
-                    totalSeats: Math.max(5, requestedSeats),
-                    usedSeats: 1,
-                    isActive: true,
-                    currentPeriodEnd: user.currentPeriodEnd
-                })
-                await org.save()
-                user.organizationId = org._id as any
-                user.isOrgAdmin = true
-                user.role = UserRole.ORG_ADMIN
-            } else if (user.isOrgAdmin) {
-                await Organization.findByIdAndUpdate(user.organizationId, {
-                    $max: { totalSeats: Math.max(5, requestedSeats) },
-                    isActive: true,
-                    currentPeriodEnd: user.currentPeriodEnd
-                })
-                await User.updateMany(
-                    { organizationId: user.organizationId },
-                    { $set: { plan: UserPlan.ENTERPRISE, planLimit: config.planLimits.enterprise.maxCases, currentPeriodEnd: user.currentPeriodEnd } }
-                )
-            }
-        }
-
-        const basePrice = interval === 'annual' ? ANNUAL_PRICES[planId as string] : PLAN_PRICES[planId as string];
-        const multiplier = planId === UserPlan.ENTERPRISE ? (parseInt(seats as string) || 5) : 1;
-        const totalAmount = (basePrice || 0) * multiplier;
-
-        if (totalAmount > 0) {
-            await Transaction.create({
-                userId,
-                amount: totalAmount,
-                plan: planId as UserPlan,
-                status: 'succeeded',
-                paymentMethod: 'Mock/Development Checkout',
-                date: new Date()
-            });
-        }
-
-        await user.save()
-
-        res.status(200).json({
-            success: true,
-            message: 'Mock Checkout Successful! Plan has been upgraded.',
-            data: { redirectUrl: '/dashboard?status=success' }
-        } as IApiResponse)
-
-    } catch (error: unknown) {
-        controllerLogger.error({ err: error }, 'mockCheckout error')
-        res.status(500).json({ success: false, message: 'Development mock checkout failed' } as IApiResponse)
-    }
-}
-
-export const confirmPurchase = async (req: IAuthRequest, res: Response): Promise<void> => {
-    res.status(403).json({
-        success: false,
-        message: 'Endpoint deprecated. Fulfillments are now handled securely via Paddle Webhooks.'
-    } as IApiResponse)
-}
-
-export const purchaseBusinessPlan = async (req: IAuthRequest, res: Response): Promise<void> => {
-    res.status(403).json({
-        success: false,
-        message: 'Endpoint deprecated. Fulfillments are now handled securely via Paddle Webhooks.'
-    } as IApiResponse)
 }
 
 export const getOrganizationDetails = async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -317,13 +167,6 @@ export const getOrganizationDetails = async (req: IAuthRequest, res: Response): 
         controllerLogger.error({ err: error }, 'getOrganizationDetails error')
         res.status(500).json({ success: false, message: 'Failed to retrieve organization details' } as IApiResponse)
     }
-}
-
-export const increaseSeats = async (req: IAuthRequest, res: Response): Promise<void> => {
-    res.status(403).json({
-        success: false,
-        message: 'Endpoint deprecated. Fulfillments are now handled securely via Paddle Webhooks.'
-    } as IApiResponse)
 }
 
 export const removeMember = async (req: IAuthRequest, res: Response): Promise<void> => {

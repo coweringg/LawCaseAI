@@ -362,16 +362,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="space-y-4">
-                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Authorization Key (Mock Card)</label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="4111 1111 1111 1111"
-                                                        value={paymentData.cardNumber}
-                                                        onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
-                                                        className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-white font-bold"
-                                                    />
-                                                </div>
+
                                             </div>
 
                                             <div className="space-y-8">

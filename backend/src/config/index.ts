@@ -34,8 +34,28 @@ const envSchema = z.object({
   CLOUDFLARE_R2_PUBLIC_URL: z.string().default(""),
   
   PADDLE_API_KEY: z.string().optional(),
+  PADDLE_SANDBOX_API_KEY: z.string().optional(),
   PADDLE_WEBHOOK_SECRET: z.string().optional(),
+  PADDLE_SANDBOX_WEBHOOK_SECRET: z.string().optional(),
   PADDLE_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+
+  PADDLE_SANDBOX_PRICE_GROWTH_MONTHLY: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_GROWTH_ANNUAL: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_PROFESSIONAL_MONTHLY: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_PROFESSIONAL_ANNUAL: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_ELITE_MONTHLY: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_ELITE_ANNUAL: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_FIRM_MONTHLY: z.string().optional(),
+  PADDLE_SANDBOX_PRICE_FIRM_ANNUAL: z.string().optional(),
+
+  PADDLE_PRICE_GROWTH_MONTHLY: z.string().optional(),
+  PADDLE_PRICE_GROWTH_ANNUAL: z.string().optional(),
+  PADDLE_PRICE_PROFESSIONAL_MONTHLY: z.string().optional(),
+  PADDLE_PRICE_PROFESSIONAL_ANNUAL: z.string().optional(),
+  PADDLE_PRICE_ELITE_MONTHLY: z.string().optional(),
+  PADDLE_PRICE_ELITE_ANNUAL: z.string().optional(),
+  PADDLE_PRICE_FIRM_MONTHLY: z.string().optional(),
+  PADDLE_PRICE_FIRM_ANNUAL: z.string().optional(),
 
   OPENAI_API_KEY: z
     .string()
@@ -83,9 +103,23 @@ export const config = {
     expiresIn: env.JWT_EXPIRES_IN,
   },
   paddle: {
-    apiKey: env.PADDLE_API_KEY,
-    webhookSecret: env.PADDLE_WEBHOOK_SECRET,
+    apiKey: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_API_KEY : env.PADDLE_API_KEY,
+    webhookSecret: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_WEBHOOK_SECRET : env.PADDLE_WEBHOOK_SECRET,
     environment: env.PADDLE_ENVIRONMENT,
+    prices: {
+      monthly: {
+        basic: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_GROWTH_MONTHLY : env.PADDLE_PRICE_GROWTH_MONTHLY,
+        professional: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_PROFESSIONAL_MONTHLY : env.PADDLE_PRICE_PROFESSIONAL_MONTHLY,
+        elite: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_ELITE_MONTHLY : env.PADDLE_PRICE_ELITE_MONTHLY,
+        enterprise: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_FIRM_MONTHLY : env.PADDLE_PRICE_FIRM_MONTHLY
+      },
+      annual: {
+        basic: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_GROWTH_ANNUAL : env.PADDLE_PRICE_GROWTH_ANNUAL,
+        professional: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_PROFESSIONAL_ANNUAL : env.PADDLE_PRICE_PROFESSIONAL_ANNUAL,
+        elite: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_ELITE_ANNUAL : env.PADDLE_PRICE_ELITE_ANNUAL,
+        enterprise: env.PADDLE_ENVIRONMENT === 'sandbox' ? env.PADDLE_SANDBOX_PRICE_FIRM_ANNUAL : env.PADDLE_PRICE_FIRM_ANNUAL
+      }
+    }
   },
   adminCreationKey: env.ADMIN_CREATION_KEY,
 

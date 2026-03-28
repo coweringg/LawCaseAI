@@ -44,7 +44,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 https://lawcaseai-api.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.paddle.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sandbox-cdn.paddle.com https://cdn.paddle.com; img-src 'self' data: https: https://sandbox-cdn.paddle.com https://cdn.paddle.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 https://lawcaseai-api.onrender.com https://api.paddle.com https://sandbox-api.paddle.com https://sandbox-cdn.paddle.com https://cdn.paddle.com; frame-src 'self' https://checkout.paddle.com https://sandbox-checkout.paddle.com https://sandbox-buy.paddle.com https://buy.paddle.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
           }
         ]
       }

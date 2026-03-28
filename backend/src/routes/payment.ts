@@ -2,12 +2,8 @@ import { Router } from 'express'
 import { body, param } from 'express-validator'
 import { 
   createCheckoutSession, 
-  mockCheckout, 
   getTransactionHistory, 
-  purchaseBusinessPlan, 
   getOrganizationDetails, 
-  confirmPurchase,
-  increaseSeats,
   getOrganizationMembers,
   removeMember
 } from '../controllers/paymentController'
@@ -25,41 +21,14 @@ router.get('/history', getTransactionHistory)
 router.get('/organization', getOrganizationDetails)
 
 router.post('/checkout', [
-  body('plan')
-    .notEmpty().withMessage('Plan is required')
+  body('planId')
+    .notEmpty().withMessage('Plan ID is required')
     .isIn(['basic', 'professional', 'elite', 'enterprise']).withMessage('Invalid plan'),
-  body('billingInterval')
+  body('interval')
     .optional()
     .isIn(['monthly', 'annual']).withMessage('Billing interval must be monthly or annual'),
   handleValidationErrors
 ], createCheckoutSession)
-
-router.post('/mock-checkout', [
-  body('planId')
-    .notEmpty().withMessage('Plan ID is required'),
-  handleValidationErrors
-], mockCheckout)
-
-router.post('/confirm-purchase', [
-  body('plan')
-    .notEmpty().withMessage('Plan is required')
-    .isIn(['basic', 'professional', 'elite', 'enterprise']).withMessage('Invalid plan'),
-  handleValidationErrors
-], confirmPurchase)
-
-router.post('/purchase-business', [
-  body('seats')
-    .optional()
-    .isInt({ min: 1, max: 1000 }).withMessage('Seats must be between 1 and 1000'),
-  handleValidationErrors
-], purchaseBusinessPlan)
-
-router.post('/increase-seats', [
-  body('additionalSeats')
-    .notEmpty().withMessage('Additional seats is required')
-    .isInt({ min: 1, max: 100 }).withMessage('Additional seats must be between 1 and 100'),
-  handleValidationErrors
-], increaseSeats)
 
 router.get('/members', getOrganizationMembers)
 

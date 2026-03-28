@@ -224,26 +224,8 @@ export default function Settings() {
     setIsProcessingPayment(true);
 
     if (!paddle) {
-      try {
-        const { data: response } = await api.post("/payments/mock-checkout", {
-          planId: selectedPlanId,
-          seats: planSeats,
-          interval: billingInterval,
-          firmName: paymentData.firmName
-        });
-
-        if (response.success) {
-          toast.success(response.message);
-          setIsPlanModalOpen(false);
-          window.location.href = response.data?.redirectUrl || '/dashboard?status=success';
-        } else {
-          toast.error(response.message || 'Mock checkout failed');
-        }
-      } catch (error: any) {
-        toast.error(error.response?.data?.message || error.message || "Mock checkout error");
-      } finally {
-        setIsProcessingPayment(false);
-      }
+      toast.error("Preparation incomplete or Paddle failed to load.");
+      setIsProcessingPayment(false);
       return;
     }
 
@@ -252,6 +234,7 @@ export default function Settings() {
         planId: selectedPlanId,
         seats: planSeats,
         interval: billingInterval,
+        firmName: paymentData.firmName
       });
 
       if (!response.success || !response.data?.transactionId) {

@@ -1,29 +1,48 @@
-import { initializePaddle, Paddle } from '@paddle/paddle-js';
+import { Paddle } from '@paddle/paddle-js';
 
-let paddleInstance: Paddle | undefined;
-
-export async function getPaddleInstance() {
-  if (paddleInstance) {
-    return paddleInstance;
+declare global {
+  interface Window {
+    Paddle?: Paddle;
   }
+}
 
+let isInitializing = false;
+
+export async function getPaddleInstance(): Promise<Paddle | undefined> {
   const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
   if (!token) {
-    console.warn('NEXT_PUBLIC_PADDLE_CLIENT_TOKEN is missing. Paddle billing forms will not load.');
     return undefined;
   }
 
-  try {
-    paddleInstance = await initializePaddle({
-      environment: process.env.NEXT_PUBLIC_PADDLE_ENV === 'production' ? 'production' : 'sandbox',
-      token: token,
-      eventCallback: function(data) {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  let retries = 0;
+  while (!window.Paddle && retries < 20) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    retries++;
+  }
+
+  const paddleAPI = window.Paddle;
+  if (paddleAPI) {
+    if (!paddleAPI.Initialized && !isInitializing) {
+      isInitializing = true;
+      try {
+        if (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox') {
+          paddleAPI.Environment.set('sandbox');
+        }
+        paddleAPI.Initialize({
+          token
+        });
+      } catch (error) {
+        console.error('Paddle initialization failed', error);
+      } finally {
+        isInitializing = false;
       }
-    });
-
-    return paddleInstance;
-  } catch (error) {
-    console.error('Paddle initialization failed', error);
-    return undefined;
+    }
+    return paddleAPI;
   }
+
+  return undefined;
 }

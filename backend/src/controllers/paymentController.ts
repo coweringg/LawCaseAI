@@ -52,7 +52,7 @@ const getPaddlePriceId = (plan: UserPlan, interval: 'monthly' | 'annual'): strin
 
 export const createCheckoutSession = async (req: IAuthRequest, res: Response): Promise<void> => {
     try {
-        console.log('--- REQ BODY in createCheckoutSession ---', req.body);
+
         const { planId, interval = 'monthly', seats = 1, firmName = '' } = req.body
         const userId = req.user?._id
 
@@ -95,8 +95,6 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
         }
 
         const priceId = getPaddlePriceId(planId as UserPlan, interval as 'monthly' | 'annual')
-        console.log('--- PRICE ID BEING SENT ---', priceId)
-        console.log('--- PRICE ID BEING SENT ---', priceId)
 
         const paddle = getPaddleInstance()
         

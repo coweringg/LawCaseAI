@@ -17,8 +17,6 @@ export const handlePaddleWebhook = async (req: Request, res: Response): Promise<
   try {
     const paddle = getPaddleInstance()
     const secretKey = getWebhookSecret()
-    console.log('--- WEBHOOK SECRET BEING USED ---', secretKey.substring(0, 20))
-    console.log('--- WEBHOOK SECRET LENGTH ---', secretKey.length)
 
     if (!signature) {
       webhookLogger.warn('Missing Paddle signature')
@@ -26,8 +24,7 @@ export const handlePaddleWebhook = async (req: Request, res: Response): Promise<
       return;
     }
 
-    console.log('--- RAW BODY PREVIEW ---', Buffer.isBuffer(req.body) ? 'Buffer' : typeof req.body)
-    console.log('--- SIGNATURE ---', signature)
+
 
     const eventData = await paddle.webhooks.unmarshal(
       req.body.toString(),
@@ -53,7 +50,7 @@ export const handlePaddleWebhook = async (req: Request, res: Response): Promise<
 
     res.status(200).send('OK')
   } catch (error) {
-    console.error('--- PADDLE WEBHOOK VERIFICATION ERROR ---', error)
+
     webhookLogger.error({ err: error }, 'Webhook processing error')
     res.status(400).send('Webhook Error')
   }

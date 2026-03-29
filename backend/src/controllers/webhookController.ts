@@ -24,8 +24,6 @@ export const handlePaddleWebhook = async (req: Request, res: Response): Promise<
       return;
     }
 
-
-
     const eventData = await paddle.webhooks.unmarshal(
       req.body.toString(),
       secretKey,
@@ -169,6 +167,7 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
     user.totalTokensConsumed = 0;
     await user.save(isTransactional ? { session } : {})
 
+    console.log('\n[PADDLE WEBHOOK] raw total received:', transactionData.details?.totals?.total, '| type:', typeof transactionData.details?.totals?.total, '\n');
     const transactionAmount = parseFloat(transactionData.details?.totals?.total || '0') / 100
 
     await Transaction.create([{

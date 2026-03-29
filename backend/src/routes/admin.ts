@@ -187,7 +187,6 @@ router.delete('/knowledge-requests/:id', deleteKnowledgeRequest)
 router.post('/knowledge-requests/bulk-resolve', bulkResolveKnowledgeRequests)
 router.delete('/knowledge-requests/bulk-clear', clearAllKnowledgeRequests)
 
-// Quota Control
 router.get('/quotas', getUsersWithQuotas)
 router.put('/quotas/:userId', updateUserQuotas)
 router.post('/quotas/:userId/reset', resetUserQuotas)

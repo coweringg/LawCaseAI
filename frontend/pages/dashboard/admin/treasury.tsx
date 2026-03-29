@@ -49,14 +49,14 @@ interface TreasuryData {
     growth: number;
   };
   revenueTrend: {
-    _id: string; // date
+    _id: string;
     amount: number;
   }[];
   planDistribution: {
-    _id: string; // plan name
+    _id: string;
     count: number;
     revenue: number;
-    amount?: number; // fallback in case both keys used
+    amount?: number;
   }[];
 }
 

@@ -101,7 +101,12 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
         const calculatedQuantity = planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats as string) || 1) : 1;
         
         if (planId === UserPlan.ENTERPRISE) {
-            console.log('--- ENTERPRISE CHECKOUT ---', { priceId, quantity: calculatedQuantity, planId, interval });
+            controllerLogger.info({ 
+                priceId, 
+                quantity: calculatedQuantity, 
+                planId, 
+                interval 
+            }, '--- ENTERPRISE CHECKOUT DEBUG PADDLE DATA ---');
         }
         
         const transaction = await paddle.transactions.create({

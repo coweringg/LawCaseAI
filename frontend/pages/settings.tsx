@@ -215,8 +215,9 @@ export default function Settings() {
     return 'Credit Card';
   };
 
-  const handleConfirmPurchase = async () => {
-    if (!selectedPlanId) {
+  const handleConfirmPurchase = async (planIdParam?: string) => {
+    const planToProcess = typeof planIdParam === "string" ? planIdParam : selectedPlanId;
+    if (!planToProcess) {
       toast.error("Please select a plan first.");
       return;
     }
@@ -231,7 +232,7 @@ export default function Settings() {
 
     try {
       const { data: response } = await api.post("/payments/checkout", {
-        planId: selectedPlanId,
+        planId: planToProcess,
         seats: planSeats,
         interval: billingInterval,
         firmName: paymentData.firmName

@@ -98,10 +98,16 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
 
         const paddle = getPaddleInstance()
         
+        const calculatedQuantity = planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats as string) || 1) : 1;
+        
+        if (planId === UserPlan.ENTERPRISE) {
+            console.log('--- ENTERPRISE CHECKOUT ---', { priceId, quantity: calculatedQuantity, planId, interval });
+        }
+        
         const transaction = await paddle.transactions.create({
             items: [{
                 priceId,
-                quantity: planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats)) : 1
+                quantity: calculatedQuantity
             }],
             customData: {
                 userId: userId.toString(),

@@ -97,9 +97,7 @@ export const createCheckoutSession = async (req: IAuthRequest, res: Response): P
         const priceId = getPaddlePriceId(planId as UserPlan, interval as 'monthly' | 'annual')
 
         const paddle = getPaddleInstance()
-        
-        const calculatedQuantity = planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats as string) || 1) : 1;
-        
+
         const transaction = await paddle.transactions.create({
             items: [{
                 priceId,

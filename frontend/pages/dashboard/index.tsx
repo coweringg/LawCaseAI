@@ -24,30 +24,38 @@ export default function Dashboard() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get('/dashboard/stats');
-        if (response.data.success) {
-          setDashboardData(response.data.data);
-        }
-      } catch (error: any) {
-        if (error.response && error.response.status === 503) {
-            return;
-        }
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const profileRefreshed = React.useRef(false);
 
-    if (isAuthenticated) {
-      fetchDashboardData();
-      if (router.query.status === 'success') {
-        fetchProfile();
+  const fetchDashboardData = React.useCallback(async () => {
+    try {
+      const response = await api.get('/dashboard/stats');
+      if (response.data.success) {
+        setDashboardData(response.data.data);
       }
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { status: number } };
+      if (axiosError.response && axiosError.response.status === 503) {
+          return;
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAuthenticated, router.query.status, fetchProfile]);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) fetchDashboardData();
+  }, [isAuthenticated, fetchDashboardData]);
+
+  useEffect(() => {
+    if (router.query.status === 'success' && isAuthenticated && !profileRefreshed.current) {
+      profileRefreshed.current = true;
+      setTimeout(async () => {
+        await fetchProfile();
+        await fetchDashboardData();
+        router.replace('/dashboard', undefined, { shallow: true });
+      }, 1500);
+    }
+  }, [router.query.status, isAuthenticated, fetchProfile, fetchDashboardData, router]);
 
   if (!mounted) return null;
 

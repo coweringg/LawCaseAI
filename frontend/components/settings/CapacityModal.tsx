@@ -62,7 +62,7 @@ export const CapacityModal: React.FC<CapacityModalProps> = ({
                                     <button onClick={() => setAdditionalSeats(additionalSeats + 1)} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">+</button>
                                 </div>
                                 <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider text-center">
-                                    Subtotal: ${(additionalSeats * (billingInfo?.interval === 'annual' ? 249 : 300)).toLocaleString()} USD commitment
+                                    Subtotal: ${(additionalSeats * (billingInfo?.interval === 'annual' ? 240 : 300)).toLocaleString()} USD commitment
                                 </p>
                             </div>
 

@@ -19,7 +19,7 @@ export default function Pricing() {
   }, []);
 
   const PLAN_PRICES: Record<string, number> = {
-    basic: 100,
+    basic: 99,
     professional: 199,
     elite: 300,
     enterprise: 300

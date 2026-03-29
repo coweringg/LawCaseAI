@@ -189,7 +189,6 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                             onClick={() => {
                                                                 if (isRestricted || isProcessing) return;
                                                                 setSelectedPlanId(tier.id);
-                                                                setPlanSeats(5);
                                                                 onConfirm(tier.id);
                                                             }}
                                                             disabled={billingInfo?.plan === tier.id || isRestricted || isProcessing}

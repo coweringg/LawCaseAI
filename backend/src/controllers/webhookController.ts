@@ -67,7 +67,9 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
 
   try {
     const customData = transactionData.customData || {}
+    webhookLogger.info({ customData }, 'Processing transaction customData')
     const { userId, planId: newPlan, interval = 'monthly', seats = '1', firmName } = customData
+    webhookLogger.info({ userId, newPlan, interval, seats }, 'Extracted fields from customData')
     
     if (!userId) {
       webhookLogger.warn('Transaction completed without userId in customData')

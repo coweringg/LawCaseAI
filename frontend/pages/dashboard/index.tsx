@@ -14,7 +14,7 @@ import GlobalAuditModal from '@/components/modals/GlobalAuditModal';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, fetchProfile } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -41,8 +41,13 @@ export default function Dashboard() {
       }
     };
 
-    if (isAuthenticated) fetchDashboardData();
-  }, [isAuthenticated]);
+    if (isAuthenticated) {
+      fetchDashboardData();
+      if (router.query.status === 'success') {
+        fetchProfile();
+      }
+    }
+  }, [isAuthenticated, router.query.status, fetchProfile]);
 
   if (!mounted) return null;
 

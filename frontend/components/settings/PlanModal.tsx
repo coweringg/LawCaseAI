@@ -44,8 +44,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
     user
 }) => {
     const PLAN_PRICES: Record<string, number> = { basic: 99, professional: 199, elite: 300, enterprise: 300 };
-    const ANNUAL_PRICES: Record<string, number> = { basic: 79, professional: 159, elite: 249, enterprise: 249 };
-    const ANNUAL_TOTALS: Record<string, number> = { basic: 79 * 12, professional: 159 * 12, elite: 249 * 12, enterprise: 249 * 12 };
+    const ANNUAL_TOTALS: Record<string, number> = { basic: 79 * 12, professional: 159 * 12, elite: 240 * 12, enterprise: 240 * 12 };
 
     const currentUserPlan = user?.plan || billingInfo?.plan;
     const currentUserInterval = user?.billingInterval || 'monthly';
@@ -181,7 +180,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                 [
                                                     { id: 'basic', name: 'Growth', price: interval === 'annual' ? '$79' : '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500', iconBg: 'bg-emerald-500/20' },
                                                     { id: 'professional', name: 'Professional', price: interval === 'annual' ? '$159' : '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary', iconBg: 'bg-primary/20' },
-                                                    { id: 'elite', name: 'Elite', price: interval === 'annual' ? '$249' : '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-amber-500', iconBg: 'bg-amber-500/20' }
+                                                    { id: 'elite', name: 'Elite', price: interval === 'annual' ? '$240' : '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-amber-500', iconBg: 'bg-amber-500/20' }
                                                 ].map((tier) => {
                                                     const isRestricted = user?.isOrgAdmin || user?.organizationId;
                                                     return (
@@ -299,10 +298,10 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                             </div>
                                                             <div className="flex justify-between items-baseline gap-2">
                                                                 <div className="text-right">
-                                                                    <span className="text-3xl font-black text-white tracking-tighter">${(planSeats * (interval === 'annual' ? 249 : 300)).toLocaleString()}</span>
+                                                                    <span className="text-3xl font-black text-white tracking-tighter">${(planSeats * (interval === 'annual' ? 240 : 300)).toLocaleString()}</span>
                                                                     <span className="text-[10px] text-slate-500 font-black block">Total /mo</span>
                                                                     {interval === 'annual' && (
-                                                                        <span className="text-[10px] text-slate-500 font-bold block mt-1">Billed annually (${(planSeats * 249 * 12).toLocaleString()})</span>
+                                                                        <span className="text-[10px] text-slate-500 font-bold block mt-1">Billed annually (${(planSeats * 240 * 12).toLocaleString()})</span>
                                                                     )}
                                                                 </div>
                                                                 <button 

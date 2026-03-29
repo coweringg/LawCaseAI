@@ -28,15 +28,15 @@ export default function Pricing() {
   const ANNUAL_PRICES: Record<string, number> = {
     basic: 79,
     professional: 159,
-    elite: 249,
-    enterprise: 249
+    elite: 240,
+    enterprise: 240
   };
 
   const ANNUAL_TOTALS: Record<string, number> = {
     basic: 79 * 12,
     professional: 159 * 12,
-    elite: 249 * 12,
-     enterprise: 249 * 12
+    elite: 240 * 12,
+     enterprise: 240 * 12
   };
 
   const currentPlanCost = (user?.plan && user.plan !== 'none') 
@@ -54,7 +54,7 @@ export default function Pricing() {
     transition: { duration: 0.6 }
   };
 
-  const businessPrice = seats * (billingInterval === 'annual' ? 249 : 300);
+  const businessPrice = seats * (billingInterval === 'annual' ? 240 : 300);
 
   if (!mounted) {
     return (
@@ -231,20 +231,20 @@ export default function Pricing() {
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Elite</h3>
                   <div className="flex items-baseline gap-2 mb-2">
-                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 * 12 : 300) && (
-                      <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '249' : '300'}</span>
+                    {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 240 * 12 : 300) && (
+                      <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '240' : '300'}</span>
                     )}
-                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '249' : getProratedPrice(300)}</span>
+                    <span className="text-6xl font-black text-white tracking-tighter">${billingInterval === 'annual' ? '240' : getProratedPrice(300)}</span>
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black text-xs uppercase tracking-widest">/mo</span>
                     </div>
                   </div>
                   {billingInterval === 'annual' && (
                     <div className="text-[10px] text-slate-500 font-bold mb-2">
-                      Billed annually (${getProratedPrice(249 * 12)})
+                      Billed annually (${getProratedPrice(240 * 12)})
                     </div>
                   )}
-                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 249 * 12 : 300) && (
+                  {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 240 * 12 : 300) && (
                     <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1 mb-3">Upgrade Proration Applied</div>
                   )}
                   <div className="text-[11px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">

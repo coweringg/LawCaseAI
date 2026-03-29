@@ -49,13 +49,28 @@ export default function Dashboard() {
   useEffect(() => {
     if (router.query.status === 'success' && isAuthenticated && !profileRefreshed.current) {
       profileRefreshed.current = true;
-      setTimeout(async () => {
-        await fetchProfile();
-        await fetchDashboardData();
-        router.replace('/dashboard', undefined, { shallow: true });
-      }, 1500);
+      const initialPlan = user?.plan;
+      const startTime = Date.now();
+      
+      const pollProfile = async () => {
+        const updatedUser = await fetchProfile();
+        const hasPlanChanged = updatedUser && updatedUser.plan !== initialPlan && updatedUser.plan !== 'none';
+        const timeElapsed = Date.now() - startTime;
+
+        if (hasPlanChanged || timeElapsed > 15000) {
+          await fetchDashboardData();
+          router.replace('/dashboard', undefined, { shallow: true });
+          if (!hasPlanChanged && timeElapsed > 15000) {
+          }
+          return;
+        }
+
+        setTimeout(pollProfile, 2000);
+      };
+
+      pollProfile();
     }
-  }, [router.query.status, isAuthenticated, fetchProfile, fetchDashboardData, router]);
+  }, [router.query.status, isAuthenticated, fetchProfile, fetchDashboardData, router, user?.plan]);
 
   if (!mounted) return null;
 

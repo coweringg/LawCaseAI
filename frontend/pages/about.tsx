@@ -122,7 +122,7 @@ export default function About() {
                             {
                                 icon: Gavel,
                                 title: "Legal Rigor",
-                                desc: "Built with the same attention to detail as a federal appeal. No hallucinations, only citations."
+                                desc: "Built with the same attention to detail as a federal appeal. Designed to minimize hallucinations and maximize cited, verifiable outputs."
                             }
                         ].map((v, i) => (
                             <motion.div

@@ -302,47 +302,43 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 lg:py-32 bg-background-dark/50 relative border-y border-white/5">
-        <div className="container-stitch">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4 font-display tracking-tight">Trusted by <span className="text-primary">Elite</span> Partners</h2>
-            <div className="flex justify-center gap-1 text-primary">
-              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={18} fill="currentColor" className="drop-shadow-[0_0_10px_rgba(10,68,184,0.8)]" />)}
-            </div>
+      <section className="py-20 lg:py-32 bg-background-dark/50 relative border-y border-white/5 overflow-hidden">
+        <div className="absolute inset-0 crystallography-pattern opacity-[0.02]"></div>
+        <div className="container-stitch relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 font-display tracking-tight">Trusted Infrastructure for <span className="text-primary">Legal Teams</span></h2>
+            <p className="text-lg text-slate-400 font-medium">Built to meet the rigorous security and compliance standards of modern US law firms.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                text: "LawCaseAI transformed our discovery process. What used to take junior associates weeks now takes minutes with higher accuracy.",
-                author: "Senior Attorney",
-                firm: "Early Access Partner"
+                title: "SOC2 Type II Ready",
+                desc: "Our systems are designed to comply with rigorous security, availability, and confidentiality standards.",
+                icon: Shield
               },
               {
-                text: "The security architecture is what sold us. Professional standards for secure data management are non-negotiable for our team.",
-                author: "Principal Partner",
-                firm: "Beta Customer (Private Firm)"
+                title: "HIPAA Compliant",
+                desc: "Secure handling of sensitive client data and health information with full encryption end-to-end.",
+                icon: Shield
               },
               {
-                text: "Finally, an AI tool that actually understands the nuances of US case law rather than just generating generic summaries.",
-                author: "Lead Counsel",
-                firm: "Legal Technology Advisor"
+                title: "GDPR Aligned",
+                desc: "Strict data privacy controls and sovereignty for international legal professionals and clients.",
+                icon: Shield
               }
-            ].map((t, i) => (
+            ].map((item, i) => (
               <motion.div 
                 key={i} 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1, transition: { delay: i * 0.1, duration: 0.4 } }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }}
                 viewport={{ once: true }}
-                className="h-full"
               >
-                <div className="p-10 premium-glass rounded-[2rem] border border-white/5 flex flex-col justify-between group cursor-default transition-all duration-200 hover:bg-white/[0.04] hover:scale-[1.03] hover:-translate-y-1 will-change-transform transform-gpu h-full">
-                    <p className="mb-8 relative text-lg font-medium text-slate-400 leading-relaxed italic">
-                    &ldquo;{t.text}&rdquo;
-                    </p>
-                    <div className="pt-6 border-t border-white/5">
-                    <p className="text-white font-black text-sm mb-1 uppercase tracking-wider">{t.author}</p>
-                    <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{t.firm}</p>
+                <div className="p-10 premium-glass rounded-[2rem] border border-white/5 h-full hover:bg-white/[0.04] transition-all duration-300 group">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                        <item.icon size={24} />
                     </div>
+                    <h3 className="text-white font-black text-lg mb-4 uppercase tracking-widest">{item.title}</h3>
+                    <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
                 </div>
               </motion.div>
             ))}

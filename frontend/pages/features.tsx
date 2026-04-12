@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { Shield, Zap, Search, Gavel, FileText, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 export default function Features() {
     const [activeTab, setActiveTab] = useState('insights');
@@ -37,10 +37,10 @@ export default function Features() {
 
     return (
         <PublicLayout>
-            <Head>
-                <title>Features - LawCaseAI | Professional AI Legal Intelligence</title>
-                <meta name="description" content="Explore the elite AI capabilities of LawCaseAI, from document insights to automated chronology and jurisprudence research." />
-            </Head>
+            <SEO 
+                title="Features - LawCaseAI | Professional AI Legal Intelligence"
+                description="Explore the elite AI capabilities of LawCaseAI, from document insights to automated chronology and jurisprudence research."
+            />
 
             <section className="relative pt-32 pb-20 overflow-hidden">
                 <div className="container-stitch relative z-10 text-center">
@@ -153,7 +153,7 @@ function InsightsDemo() {
                     <p className="mb-4 text-slate-400">AGREEMENT OF SERVICES - SECTION 4.2</p>
                     <p className="mb-2">&quot;...the Provider shall not be held liable for any damages resulting from system downtime...&quot;</p>
                     <motion.span
-                        initial={{ backgroundColor: "transparent" }}
+                        initial={{ backgroundColor: "rgba(10, 68, 184, 0)" }}
                         animate={{ backgroundColor: "rgba(10, 68, 184, 0.3)" }}
                         transition={{ delay: 1, duration: 1 }}
                         className="px-1 border-b border-primary text-blue-300"

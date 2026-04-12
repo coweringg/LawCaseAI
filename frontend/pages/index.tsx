@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
@@ -8,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import TypewriterText from '@/components/TypewriterText';
 import FloatingGlassCard from '@/components/ui/FloatingGlassCard';
 import { Check, Star, Shield, Gavel, Zap, Users } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -36,11 +36,13 @@ export default function Home() {
 
   return (
     <PublicLayout>
-      <Head>
-        <title>LawCaseAI - Enterprise AI Legal Case Management</title>
-        <meta name="description" content="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firm infrastructure." />
+      <SEO 
+        title="LawCaseAI - Enterprise AI Legal Case Management"
+        description="Professional AI-driven legal case management for US lawyers. Secure, subscription-based platform for modern law firm infrastructure."
+        url={siteUrl}
+      >
         <link rel="canonical" href={siteUrl} />
-      </Head>
+      </SEO>
 
       <main className="flex-grow pt-24 font-sans text-slate-100 bg-background-dark min-h-screen relative overflow-hidden transition-colors duration-500">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">

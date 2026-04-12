@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { Check, Star, Shield, Zap, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import SEO from '@/components/SEO';
 
 export default function Pricing() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
@@ -66,10 +66,10 @@ export default function Pricing() {
 
   return (
     <PublicLayout>
-      <Head>
-        <title>Pricing - LawCaseAI | Invest in Your Practice</title>
-        <meta name="description" content="Simple, transparent pricing for law firms of all sizes. Choice between Personal and Business plans." />
-      </Head>
+      <SEO 
+        title="Pricing - LawCaseAI | Invest in Your Practice"
+        description="Simple, transparent pricing for law firms of all sizes. Choice between Personal and Business plans."
+      />
 
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="container-stitch relative z-10 text-center">

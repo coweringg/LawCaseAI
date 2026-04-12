@@ -10,6 +10,8 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
 
+import SEO from "@/components/SEO";
+
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   
@@ -17,9 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
         <AuthProvider>
-          <Head>
-            <title>LawCaseAI - Legal Intelligence</title>
-          </Head>
+          <SEO />
           <AnimatePresence mode="wait">
             <motion.div
               key={router.route}

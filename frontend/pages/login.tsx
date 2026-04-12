@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
@@ -7,6 +6,7 @@ import toast from 'react-hot-toast'
 import AuthLayout from '@/components/layouts/AuthLayout'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, LogOut, X, MessageCircle } from 'lucide-react'
 import PublicSupportModal from '@/components/modals/PublicSupportModal'
+import SEO from '@/components/SEO'
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -82,9 +82,7 @@ export default function Login() {
   return (
     <>
     <AuthLayout>
-      <Head>
-        <title>Login - LawCaseAI | Secure Workspace</title>
-      </Head>
+      <SEO title="Login - LawCaseAI | Secure Workspace" />
 
       <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-white bg-primary shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">

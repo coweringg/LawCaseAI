@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/utils/api';
@@ -18,6 +17,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
+import SEO from '@/components/SEO';
 
 interface OrderSummary {
   plan: string;
@@ -92,9 +92,7 @@ export default function Checkout() {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>Checkout - Secure Payment | LawCaseAI</title>
-      </Head>
+      <SEO title="Checkout - Secure Payment | LawCaseAI" />
 
       <div className="max-w-6xl mx-auto pt-8 pb-16 px-4">
         <Link href="/pricing" className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-8 group">

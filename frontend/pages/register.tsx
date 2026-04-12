@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
@@ -8,6 +7,7 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 import { validateEmail, validatePassword } from '@/utils/helpers'
 import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building, CheckCircle2, Zap, Shield } from 'lucide-react'
 import { motion } from 'framer-motion'
+import SEO from '@/components/SEO'
 
 export default function Register() {
   const [registrationMode, setRegistrationMode] = useState<'individual' | 'empresa'>('individual')
@@ -126,9 +126,7 @@ export default function Register() {
   if (registrationSuccess) {
     return (
       <AuthLayout>
-        <Head>
-          <title>Account Ready - LawCaseAI</title>
-        </Head>
+        <SEO title="Account Ready - LawCaseAI" />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,9 +195,7 @@ export default function Register() {
 
   return (
     <AuthLayout>
-      <Head>
-        <title>Join LawCaseAI | Secure Legal Intelligence</title>
-      </Head>
+      <SEO title="Join LawCaseAI | Secure Legal Intelligence" />
 
       <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <Link href="/login" className="flex-1">

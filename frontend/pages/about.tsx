@@ -1,9 +1,9 @@
 import React from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { Shield, Zap, Users, Gavel } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 export default function About() {
     const [mounted, setMounted] = React.useState(false);
@@ -27,10 +27,10 @@ export default function About() {
 
     return (
         <PublicLayout>
-            <Head>
-                <title>About Us - LawCaseAI | The Standard in Legal AI</title>
-                <meta name="description" content="Learn about LawCaseAI's mission to revolutionize legal practice management through elite artificial intelligence." />
-            </Head>
+            <SEO 
+                title="About Us - LawCaseAI | The Standard in Legal AI"
+                description="Learn about LawCaseAI's mission to revolutionize legal practice management through elite artificial intelligence."
+            />
 
             <section className="relative pt-32 pb-24 overflow-hidden">
                 <div className="container-stitch relative z-10 text-center">

@@ -115,28 +115,23 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
     checkSMTPConnection(),
   ])
 
-  const [mongo, r2, openai, ai, smtp] = checks
+  const [mongo] = checks
   const allConnected = checks.every((c: any) => c.connected)
-  const anyConnected = checks.some((c: any) => c.connected)
-
-  const overallStatus = allConnected ? 'healthy' : anyConnected ? 'degraded' : 'unhealthy'
+  
   const httpStatus = mongo.connected ? 200 : 503
+  const overallStatus = allConnected ? 'healthy' : 'degraded'
+  
+  const messageMap: Record<string, string> = {
+    healthy: 'Services are operational',
+    degraded: 'Some services are experiencing issues',
+  }
 
   res.status(httpStatus).json({
     success: mongo.connected,
-    message: `Server is ${overallStatus}`,
+    message: messageMap[overallStatus] || 'Service unavailable',
     data: {
       status: overallStatus,
       timestamp: new Date().toISOString(),
-      environment: config.nodeEnv,
-      uptime: process.uptime(),
-      services: {
-        mongodb: mongo,
-        cloudflareR2: r2,
-        openai,
-        ai,
-        smtp,
-      },
     },
   } as IApiResponse)
 })

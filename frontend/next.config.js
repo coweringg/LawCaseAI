@@ -70,7 +70,7 @@ const nextConfig = {
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: isProd ? 'nosniff' : 'none'
           },
           {
             key: 'Referrer-Policy',
@@ -78,9 +78,9 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: cspHeader
+            value: isProd ? cspHeader : ''
           }
-        ]
+        ].filter(h => h.value !== 'none' && h.value !== '')
       }
     ]
   },

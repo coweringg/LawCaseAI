@@ -37,14 +37,20 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
       return
     }
 
+    const updates: any = {}
+    
     if (!req.url.includes('/confirm-purchase')) {
-      User.findByIdAndUpdate(user._id, { lastActivity: new Date() }).exec().catch(() => {})
+      updates.lastActivity = new Date()
     }
 
     const configLimit = (config.planLimits as any)[user.plan]?.maxCases
     if (configLimit !== undefined && user.planLimit !== configLimit) {
       user.planLimit = configLimit
-      User.findByIdAndUpdate(user._id, { planLimit: configLimit }).exec().catch(() => {})
+      updates.planLimit = configLimit
+    }
+
+    if (Object.keys(updates).length > 0) {
+      User.updateOne({ _id: user._id }, { $set: updates }).exec().catch(() => {})
     }
 
     req.user = user

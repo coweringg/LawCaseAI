@@ -42,6 +42,15 @@ export const handlePaddleWebhook = async (req: Request, res: Response): Promise<
       case EventName.TransactionCompleted:
         await handleTransactionCompleted(eventData.data)
         break;
+      case EventName.SubscriptionUpdated:
+        await handleSubscriptionUpdated(eventData.data)
+        break;
+      case EventName.SubscriptionCanceled:
+        await handleSubscriptionCanceled(eventData.data)
+        break;
+      case EventName.SubscriptionPastDue:
+        await handleSubscriptionPastDue(eventData.data)
+        break;
       default:
         webhookLogger.debug({ eventType: eventData.eventType }, 'Unhandled event type')
     }
@@ -192,5 +201,105 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
     throw error
   } finally {
     session.endSession()
+  }
+}
+
+const handleSubscriptionUpdated = async (subscriptionData: any): Promise<void> => {
+  const customData = subscriptionData.customData || {}
+  const userId = customData.userId
+  
+  if (!userId) {
+    webhookLogger.warn('Subscription updated without userId in customData')
+    return
+  }
+
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      webhookLogger.error({ userId }, 'User not found for subscription updated')
+      return
+    }
+
+    if (subscriptionData.currentBillingPeriod?.endsAt) {
+      const nextPeriod = new Date(subscriptionData.currentBillingPeriod.endsAt)
+      user.currentPeriodEnd = nextPeriod
+      user.expiredPremium = false
+      user.expiredTrial = false
+      await user.save()
+      
+      if (user.organizationId && user.isOrgAdmin) {
+        await Organization.findByIdAndUpdate(user.organizationId, { currentPeriodEnd: nextPeriod, isActive: true })
+        await User.updateMany({ organizationId: user.organizationId }, { $set: { currentPeriodEnd: nextPeriod, expiredPremium: false } })
+      }
+      
+      webhookLogger.info({ userId, nextPeriod }, 'Successfully renewed/updated subscription period')
+    }
+  } catch (error) {
+    webhookLogger.error({ err: error, userId }, 'Failed to process subscription.updated event')
+  }
+}
+
+const handleSubscriptionCanceled = async (subscriptionData: any): Promise<void> => {
+  const customData = subscriptionData.customData || {}
+  const userId = customData.userId
+
+  if (!userId) {
+    webhookLogger.warn('Subscription canceled without userId in customData')
+    return
+  }
+
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      webhookLogger.error({ userId }, 'User not found for subscription canceled')
+      return
+    }
+    user.expiredPremium = true
+    await user.save()
+
+    if (user.organizationId && user.isOrgAdmin) {
+      await Organization.findByIdAndUpdate(user.organizationId, { isActive: false })
+      await User.updateMany(
+        { organizationId: user.organizationId },
+        { $set: { expiredPremium: true } }
+      )
+    }
+
+    webhookLogger.info({ userId }, 'Successfully canceled subscription')
+  } catch (error) {
+    webhookLogger.error({ err: error, userId }, 'Failed to process subscription.canceled event')
+  }
+}
+
+const handleSubscriptionPastDue = async (subscriptionData: any): Promise<void> => {
+  const customData = subscriptionData.customData || {}
+  const userId = customData.userId
+
+  if (!userId) {
+    webhookLogger.warn('Subscription past due without userId in customData')
+    return
+  }
+
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      webhookLogger.error({ userId }, 'User not found for subscription past due')
+      return
+    }
+
+    user.expiredPremium = true
+    await user.save()
+
+    if (user.organizationId && user.isOrgAdmin) {
+      await Organization.findByIdAndUpdate(user.organizationId, { isActive: false })
+      await User.updateMany(
+        { organizationId: user.organizationId },
+        { $set: { expiredPremium: true } }
+      )
+    }
+
+    webhookLogger.info({ userId }, 'Successfully flagged subscription as past_due')
+  } catch (error) {
+    webhookLogger.error({ err: error, userId }, 'Failed to process subscription.past_due event')
   }
 }

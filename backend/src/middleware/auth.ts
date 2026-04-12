@@ -15,10 +15,7 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     const token = authHeader?.replace('Bearer ', '') || cookieToken;
 
     if (!token) {
-      res.status(401).json({
-        success: false,
-        message: 'Access denied. No token provided.'
-      })
+      res.status(401).json({ success: false, message: 'Access denied. No token provided.' })
       return
     }
 
@@ -26,110 +23,13 @@ export const authenticate = async (req: IAuthRequest, res: Response, next: NextF
     const user = await User.findById(decoded.userId)
 
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid token. User not found.'
-      })
+      res.status(401).json({ success: false, message: 'Invalid token. User not found.' })
       return
     }
 
     if (user.status !== UserStatus.ACTIVE) {
-      res.status(401).json({
-        success: false,
-        message: 'Account is not active.'
-      })
+      res.status(401).json({ success: false, message: 'Account is not active.' })
       return
-    }
-
-    if (user.plan === UserPlan.TRIAL && user.trialStartedAt) {
-      const trialEnd = new Date(user.trialStartedAt.getTime() + 24 * 60 * 60 * 1000)
-      if (new Date() > trialEnd) {
-        user.plan = UserPlan.NONE
-        user.currentCases = 0
-        user.expiredTrial = true
-        await user.save()
-
-        await Case.updateMany(
-          { userId: user._id, status: CaseStatus.ACTIVE },
-          { $set: { status: CaseStatus.CLOSED } }
-        )
-
-        createNotification({
-          userId: user._id,
-          title: 'Free Trial Ended',
-          message: 'Your 24-hour free evaluation has ended. Purchase a plan to continue.',
-          type: NotificationType.BILLING,
-          priority: NotificationPriority.HIGH,
-          link: '/settings?tab=billing'
-        }).catch(() => {})
-      }
-    }
-
-    if (user.organizationId) {
-      const org = await Organization.findById(user.organizationId)
-      if (org) {
-        const now = new Date()
-        const isOrgExpired = org.currentPeriodEnd && org.currentPeriodEnd < now
-        
-        if (isOrgExpired && org.isActive) {
-          org.isActive = false
-          await org.save()
-          
-          await User.updateMany(
-            { organizationId: user.organizationId },
-            { $set: { plan: UserPlan.NONE, currentCases: 0, expiredPremium: true } }
-          )
-          
-          await Case.updateMany(
-            { organizationId: user.organizationId, status: CaseStatus.ACTIVE },
-            { $set: { status: CaseStatus.CLOSED } }
-          )
-
-          if (user.isOrgAdmin) {
-            const employees = await User.find({ organizationId: user.organizationId, _id: { $ne: user._id } }).select('_id')
-            createNotification({
-              userId: user._id,
-              title: 'Enterprise Subscription Expired',
-              message: `Your Enterprise plan has expired. All ${employees.length} team members have been deactivated. Renew to restore access.`,
-              type: NotificationType.BILLING,
-              priority: NotificationPriority.HIGH,
-              link: '/settings?tab=billing'
-            }).catch(() => {})
-          }
-        }
-
-        if (!org.isActive && user.plan !== UserPlan.NONE) {
-          user.plan = UserPlan.NONE
-          user.currentCases = 0
-          user.expiredPremium = true
-          await user.save()
-          await Case.updateMany(
-            { userId: user._id, status: CaseStatus.ACTIVE },
-            { $set: { status: CaseStatus.CLOSED } }
-          )
-        }
-      }
-    } 
-    else if (user.plan !== UserPlan.NONE && user.plan !== UserPlan.TRIAL && user.currentPeriodEnd && user.currentPeriodEnd < new Date()) {
-      const expiredPlan = user.plan
-      user.plan = UserPlan.NONE
-      user.currentCases = 0
-      user.expiredPremium = true
-      await user.save()
-      
-      await Case.updateMany(
-        { userId: user._id, status: CaseStatus.ACTIVE },
-        { $set: { status: CaseStatus.CLOSED } }
-      )
-
-      createNotification({
-        userId: user._id,
-        title: 'Subscription Expired',
-        message: `Your ${expiredPlan} plan has expired. Renew to restore access.`,
-        type: NotificationType.BILLING,
-        priority: NotificationPriority.HIGH,
-        link: '/settings?tab=billing'
-      }).catch(() => {})
     }
 
     if (decoded.version !== undefined && decoded.version !== user.tokenVersion) {
@@ -170,8 +70,8 @@ export const checkPlanLimit = async (req: IAuthRequest, res: Response, next: Nex
       res.status(401).json({ success: false, message: 'Access denied.' })
       return
     }
-    const user = await User.findById(req.user._id)
-    if (user?.isAtPlanLimit) {
+    
+    if (req.user.isAtPlanLimit) {
       res.status(403).json({ success: false, message: 'Plan limit reached.' })
       return
     }

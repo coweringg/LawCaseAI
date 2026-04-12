@@ -321,6 +321,14 @@ const startServer = async () => {
       logger.info({ ...aiStatus }, `🤖 OpenRouter AI`)
       logger.info({ ...smtpStatus }, `📧 SMTP Email`)
 
+      try {
+        const { startExpirationJob } = await import('./jobs/expirationJob')
+        startExpirationJob()
+        logger.info('⏰ Expiration job scheduled')
+      } catch (err) {
+        logger.error({ err }, '❌ Failed to schedule expiration job')
+      }
+
       logger.info('✨ Server ready to accept connections!')
     })
   } catch (error) {

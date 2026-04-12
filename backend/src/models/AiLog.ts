@@ -62,5 +62,6 @@ const aiLogSchema = new Schema<IAiLog>({
 
 aiLogSchema.index({ timestamp: -1, status: 1 })
 aiLogSchema.index({ provider: 1, timestamp: -1 })
+aiLogSchema.index({ userId: 1, timestamp: -1 })
 
 export default mongoose.model<IAiLog>('AiLog', aiLogSchema)

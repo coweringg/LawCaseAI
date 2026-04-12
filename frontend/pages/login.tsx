@@ -65,10 +65,10 @@ export default function Login() {
         toast.success('Welcome back to LawCaseAI!')
         router.push('/dashboard')
       } else {
-        toast.error('Session expired or credentials changed. Please login manually.')
+        toast.error(result.message || 'Session expired. Please login manually.')
         setShowMainForm(true)
       }
-    } catch (e) {
+    } catch (e: any) {
       toast.error('Failed to log in securely. Please use the main form.')
       setShowMainForm(true)
     } finally {

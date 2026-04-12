@@ -17,7 +17,7 @@ const router = Router()
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 30,
   message: {
     success: false,
     message: 'Too many login attempts from your IP. For your security, access has been temporarily locked. Please wait 15 minutes before trying again.'
@@ -68,8 +68,6 @@ router.post('/saved-login', authLimiter, [
   body('email')
     .isEmail().withMessage('Please provide a valid email address')
     .normalizeEmail(),
-  body('savedLoginToken')
-    .notEmpty().withMessage('Token is required'),
   handleValidationErrors
 ], loginWithSavedToken)
 

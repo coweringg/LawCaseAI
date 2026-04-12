@@ -100,8 +100,22 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    let savedTokens: Record<string, string> = {}
+    if (req.cookies?.saved_tokens) {
+      try {
+        savedTokens = JSON.parse(req.cookies.saved_tokens)
+      } catch (e) {}
+    }
+    savedTokens[user.email] = user.savedLoginToken as string
+    res.cookie('saved_tokens', JSON.stringify(savedTokens), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
     res.status(201).json({
@@ -120,8 +134,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           organizationId: user.organizationId,
           isTrialUsed: user.isTrialUsed
         },
-        token,
-        savedLoginToken: user.savedLoginToken
+        token
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -195,8 +208,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    let savedTokens: Record<string, string> = {}
+    if (req.cookies?.saved_tokens) {
+      try {
+        savedTokens = JSON.parse(req.cookies.saved_tokens)
+      } catch (e) {}
+    }
+    savedTokens[user.email] = user.savedLoginToken as string
+    res.cookie('saved_tokens', JSON.stringify(savedTokens), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
     res.status(200).json({
@@ -218,8 +245,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           expiredPremium: user.expiredPremium,
           expiredTrial: user.expiredTrial
         },
-        token,
-        savedLoginToken: user.savedLoginToken
+        token
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -233,12 +259,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const loginWithSavedToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, savedLoginToken } = req.body
+    const { email } = req.body
+
+    let savedTokens: Record<string, string> = {}
+    if (req.cookies?.saved_tokens) {
+      try {
+        savedTokens = JSON.parse(req.cookies.saved_tokens)
+      } catch (e) {}
+    }
+    const savedLoginToken = savedTokens[email]
 
     if (!email || !savedLoginToken) {
       res.status(400).json({
         success: false,
-        message: 'Email and token are required'
+        message: 'Email and active saved session are required'
       } as IApiResponse)
       return
     }
@@ -291,8 +325,16 @@ export const loginWithSavedToken = async (req: Request, res: Response): Promise<
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    savedTokens[user.email] = newSavedLoginToken as string
+    res.cookie('saved_tokens', JSON.stringify(savedTokens), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
     res.status(200).json({
@@ -314,8 +356,7 @@ export const loginWithSavedToken = async (req: Request, res: Response): Promise<
           expiredPremium: user.expiredPremium,
           expiredTrial: user.expiredTrial
         },
-        token,
-        savedLoginToken: newSavedLoginToken
+        token
       }
     } as IApiResponse)
   } catch (error: unknown) {

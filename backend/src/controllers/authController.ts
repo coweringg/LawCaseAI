@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { Types } from 'mongoose'
 import { User } from '../models'
 import { IApiResponse, IUserRegistration, IUserLogin, UserRole, UserPlan } from '../types'
 import config from '../config'
@@ -22,6 +23,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     let plan = UserPlan.NONE
     let effectiveLawFirm = lawFirm
     let orgPeriodEnd: Date | undefined = undefined
+    let seatIncrementedOrgId: Types.ObjectId | null = null
 
     if (firmCode) {
       const { default: Organization } = await import('../models/Organization')
@@ -57,6 +59,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         return
       }
 
+      seatIncrementedOrgId = org._id
       organizationId = org._id
       plan = UserPlan.ENTERPRISE
       effectiveLawFirm = org.name
@@ -66,19 +69,31 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const now = new Date()
     const nextMonth = orgPeriodEnd || new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
-    const user = new User({
-      name,
-      email,
-      password,
-      lawFirm: effectiveLawFirm,
-      role: 'lawyer',
-      plan,
-      organizationId,
-      currentPeriodStart: now,
-      currentPeriodEnd: nextMonth
-    })
+    let user
+    try {
+      user = new User({
+        name,
+        email,
+        password,
+        lawFirm: effectiveLawFirm,
+        role: 'lawyer',
+        plan,
+        organizationId,
+        currentPeriodStart: now,
+        currentPeriodEnd: nextMonth
+      })
 
-    await user.save()
+      await user.save()
+    } catch (userSaveError) {
+      if (seatIncrementedOrgId) {
+        const { default: Organization } = await import('../models/Organization')
+        await Organization.findOneAndUpdate(
+          { _id: seatIncrementedOrgId, usedSeats: { $gt: 0 } },
+          { $inc: { usedSeats: -1 } }
+        )
+      }
+      throw userSaveError
+    }
 
     const token = user.generateAuthToken()
     const savedLoginToken = crypto.randomBytes(32).toString('hex')

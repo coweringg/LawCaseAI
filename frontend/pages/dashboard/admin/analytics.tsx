@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import {
@@ -51,12 +51,17 @@ interface AnalyticsData {
     messages: number;
   }[];
   powerUsers: {
-    _id: string;
-    name: string;
-    email: string;
-    messageCount: number;
-    lastActive: string;
-  }[];
+    users: {
+        _id: string;
+        name: string;
+        email: string;
+        totalSignals: number;
+        role: string;
+    }[];
+    total: number;
+    page: number;
+    pages: number;
+  };
 }
 
 export default function AnalyticsDashboard() {
@@ -65,6 +70,24 @@ export default function AnalyticsDashboard() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [range, setRange] = useState<'7d' | '30d' | '90d'>('30d')
+  const [powerPage, setPowerPage] = useState(1)
+  const [powerPages, setPowerPages] = useState(1)
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await api.get(`/admin/analytics/ai?range=${range}&powerPage=${powerPage}`)
+      if (res.data.success) {
+        setData(res.data.data)
+        setPowerPages(res.data.data.powerUsers?.pages || 1)
+      }
+    } catch (error) {
+      console.error('Failed to fetch analytics', error)
+      toast.error('Failed to sync analytics streams')
+    } finally {
+      setLoading(false)
+    }
+  }, [range, powerPage])
 
   useEffect(() => {
     if (!isAuthLoading && (!user || user.role !== 'admin')) {
@@ -72,24 +95,10 @@ export default function AnalyticsDashboard() {
       return
     }
 
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const res = await api.get(`/admin/analytics/ai?range=${range}`)
-        if (res.data.success) {
-          setData(res.data.data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch analytics', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     if (user?.role === 'admin') {
       fetchData()
     }
-  }, [user, isAuthLoading, router, range])
+  }, [user, isAuthLoading, router, fetchData])
 
   const handleDeepAudit = async () => {
     toast.loading('Initiating Deep System Audit...', { id: 'audit' })
@@ -278,7 +287,7 @@ export default function AnalyticsDashboard() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
                   <AnimatePresence>
-                    {data.powerUsers.map((user, index: number) => (
+                    {data?.powerUsers?.users?.map((user, index: number) => (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -289,7 +298,7 @@ export default function AnalyticsDashboard() {
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="flex items-center gap-5 relative z-10">
                           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white group-hover:bg-primary/20 group-hover:border-primary/40 transition-all duration-500">
-                            {index + 1}
+                            {(powerPage - 1) * 10 + index + 1}
                           </div>
                           <div className="min-w-0">
                              <p className="text-[12px] font-black text-white group-hover:text-primary transition-colors tracking-tightest truncate max-w-[120px]">{user.name}</p>
@@ -297,13 +306,40 @@ export default function AnalyticsDashboard() {
                           </div>
                         </div>
                         <div className="text-right relative z-10">
-                           <p className="text-[13px] font-black text-white tracking-widest">{user.messageCount}</p>
+                           <p className="text-[13px] font-black text-white tracking-widest">{user.totalSignals}</p>
                            <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Signals</p>
                         </div>
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {data.powerUsers.length === 0 && (
+
+                  {powerPages > 1 && (
+                    <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/5 mt-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={powerPage === 1}
+                        onClick={() => setPowerPage(p => p - 1)}
+                        className="text-[10px] font-black uppercase tracking-widest !bg-white/5 hover:!bg-white/10 border border-white/10 disabled:opacity-30 h-10 px-6 rounded-xl"
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                        {powerPage} / {powerPages}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={powerPage === powerPages}
+                        onClick={() => setPowerPage(p => p + 1)}
+                        className="text-[10px] font-black uppercase tracking-widest !bg-white/5 hover:!bg-white/10 border border-white/10 disabled:opacity-30 h-10 px-6 rounded-xl"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
+
+                  {data.powerUsers.users.length === 0 && (
                      <div className="flex flex-col items-center justify-center h-full gap-4 opacity-40 py-20">
                         <Shield size={32} className="text-slate-700" />
                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] italic">No active power nodes</p>

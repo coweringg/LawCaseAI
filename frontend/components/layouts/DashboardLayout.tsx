@@ -143,10 +143,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         const isAdmin = user.role === 'admin';
 
         if (isAdmin && !isAdminPath) {
-            console.log('[AUTH] Admin restricted to /dashboard/admin. Redirecting...');
             router.push('/dashboard/admin');
         } else if (!isAdmin && isAdminPath) {
-            console.log('[AUTH] Standard user restricted from admin panel. Redirecting...');
             router.push('/dashboard');
         }
     }, [user, router, mounted]);

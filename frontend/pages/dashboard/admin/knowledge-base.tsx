@@ -69,6 +69,11 @@ export default function KnowledgeBase() {
     const [categoryFilter, setCategoryFilter] = useState('')
     const [orgFilter, setOrgFilter] = useState('')
     
+    const [docPage, setDocPage] = useState(1)
+    const [docTotalPages, setDocTotalPages] = useState(1)
+    const [reqPage, setReqPage] = useState(1)
+    const [reqTotalPages, setReqTotalPages] = useState(1)
+
     const [confirmModal, setConfirmModal] = useState<{
         open: boolean
         title: string
@@ -96,13 +101,16 @@ export default function KnowledgeBase() {
         setIsLoading(true)
         try {
             const query = new URLSearchParams({
+                page: docPage.toString(),
+                limit: '10',
                 ...(searchQuery ? { search: searchQuery } : {}),
                 ...(categoryFilter ? { category: categoryFilter } : {}),
                 ...(orgFilter ? { assignedTo: orgFilter } : {})
             })
             const response = await api.get(`/admin/knowledge-base?${query.toString()}`)
             if (response.data.success) {
-                setDocuments(response.data.data)
+                setDocuments(response.data.data.documents || [])
+                setDocTotalPages(response.data.data.pages || 1)
             }
         } catch (error) {
             console.error('Failed to fetch documents:', error)
@@ -110,14 +118,18 @@ export default function KnowledgeBase() {
         } finally {
             setIsLoading(false)
         }
-    }, [searchQuery, categoryFilter, orgFilter])
+    }, [searchQuery, categoryFilter, orgFilter, docPage])
+
+    const [pendingCount, setPendingCount] = useState(0)
 
     const fetchRequests = useCallback(async () => {
         setIsLoading(true)
         try {
-            const response = await api.get('/admin/knowledge-requests')
+            const response = await api.get(`/admin/knowledge-requests?page=${reqPage}&limit=10`)
             if (response.data.success) {
-                setRequests(response.data.data)
+                setRequests(response.data.data.requests || [])
+                setReqTotalPages(response.data.data.pages || 1)
+                setPendingCount(response.data.data.pendingCount || 0)
             }
         } catch (error) {
             console.error('Failed to fetch requests:', error)
@@ -125,13 +137,13 @@ export default function KnowledgeBase() {
         } finally {
             setIsLoading(false)
         }
-    }, [])
+    }, [reqPage])
 
     const fetchOrganizations = async () => {
         try {
-            const response = await api.get('/admin/organizations')
+            const response = await api.get('/admin/organizations?limit=1000')
             if (response.data.success) {
-                setOrganizations(response.data.data)
+                setOrganizations(response.data.data.organizations || [])
             }
         } catch (error) {
             console.error('Failed to fetch organizations:', error)
@@ -511,9 +523,9 @@ export default function KnowledgeBase() {
                         )}
                     >
                         Document Requests
-                        {requests.filter(r => r.status === 'pending').length > 0 && (
+                        {pendingCount > 0 && (
                             <span className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white text-[9px] flex items-center justify-center rounded-full border-2 border-slate-900 font-black animate-bounce shadow-lg shadow-rose-500/40">
-                                {requests.filter(r => r.status === 'pending').length}
+                                {pendingCount}
                             </span>
                         )}
                     </button>
@@ -571,23 +583,77 @@ export default function KnowledgeBase() {
                             </div>
                         </div>
 
-                        <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden min-h-[500px]">
+                        <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden">
                             <Table
                                 data={documents}
                                 columns={documentColumns}
                                 loading={isLoading}
                                 emptyMessage="No documents found in knowledge vault."
                             />
+                            {docTotalPages > 1 && (
+                                <div className="p-6 border-t border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                        Vault Page {docPage} of {docTotalPages}
+                                    </span>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={docPage === 1}
+                                            onClick={() => setDocPage(p => p - 1)}
+                                            className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30"
+                                        >
+                                            Previous
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={docPage === docTotalPages}
+                                            onClick={() => setDocPage(p => p + 1)}
+                                            className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30"
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </>
                 ) : (
-                    <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden min-h-[500px]">
+                    <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden">
                         <Table
                             data={requests}
                             columns={requestColumns}
                             loading={isLoading}
                             emptyMessage="No documentation signals detected."
                         />
+                        {reqTotalPages > 1 && (
+                            <div className="p-6 border-t border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                    Signals Page {reqPage} of {reqTotalPages}
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={reqPage === 1}
+                                        onClick={() => setReqPage(p => p - 1)}
+                                        className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30"
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={reqPage === reqTotalPages}
+                                        onClick={() => setReqPage(p => p + 1)}
+                                        className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30"
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </motion.div>

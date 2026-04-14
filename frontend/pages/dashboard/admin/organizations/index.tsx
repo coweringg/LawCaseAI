@@ -54,12 +54,18 @@ export default function OrganizationsDashboard() {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'expired' | 'expiring'>('all')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+
+  const [totalCount, setTotalCount] = useState(0)
 
   const fetchOrganizations = async () => {
     try {
-      const res = await api.get('/admin/organizations')
+      const res = await api.get(`/admin/organizations?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}`)
       if (res.data.success) {
-        setOrganizations(res.data.data)
+        setOrganizations(res.data.data.organizations || [])
+        setTotalPages(res.data.data.pages || 1)
+        setTotalCount(res.data.data.total || 0)
       }
     } catch (error) {
        console.error('Failed to fetch orgs', error)
@@ -78,7 +84,7 @@ export default function OrganizationsDashboard() {
     if (user?.role === 'admin') {
       fetchOrganizations()
     }
-  }, [user, isAuthLoading, router])
+  }, [user, isAuthLoading, router, page, searchTerm, filterStatus])
 
   const getStatus = (org: Organization) => {
     const now = new Date()
@@ -91,20 +97,7 @@ export default function OrganizationsDashboard() {
     return { label: 'Active', color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: 'check_circle' }
   }
 
-  const filteredOrgs = organizations.filter(org => {
-    const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         org.adminInfo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         org.firmCode.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    if (filterStatus === 'all') return matchesSearch
-    
-    const status = getStatus(org)
-    if (filterStatus === 'active') return matchesSearch && status.label === 'Active'
-    if (filterStatus === 'expired') return matchesSearch && status.label === 'Expired'
-    if (filterStatus === 'expiring') return matchesSearch && status.label === 'Expiring Soon'
-    
-    return matchesSearch
-  })
+  const filteredOrgs = organizations || []
 
   if (loading) {
     return (
@@ -147,7 +140,7 @@ export default function OrganizationsDashboard() {
           >
              <div className="px-4 py-2 premium-glass rounded-xl border border-white/5 flex items-center gap-3">
                 <Building className="w-4 h-4 text-primary" />
-                <span className="text-xl font-black text-white">{organizations.length}</span>
+                <span className="text-xl font-black text-white">{totalCount}</span>
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Active Entities</span>
              </div>
           </motion.div>
@@ -298,6 +291,33 @@ export default function OrganizationsDashboard() {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div className="p-8 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                  Showing Page <span className="text-white">{page}</span> of <span className="text-white">{totalPages}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                    className="text-[10px] font-black uppercase tracking-widest !bg-white/5 hover:!bg-white/10 border border-white/10 disabled:opacity-30 h-10 px-6 rounded-xl"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page === totalPages}
+                    onClick={() => setPage(p => p + 1)}
+                    className="text-[10px] font-black uppercase tracking-widest !bg-white/5 hover:!bg-white/10 border border-white/10 disabled:opacity-30 h-10 px-6 rounded-xl"
+                  >
+                    Next
+                  </Button>
+                </div>
+            </div>
+          )}
         </motion.div>
       </div>
 

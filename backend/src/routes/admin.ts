@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { body, param } from 'express-validator'
 import { 
   getStats, 
   getUsers, 
@@ -26,7 +25,20 @@ import {
 import { authenticate, authorize } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { UserRole } from '../types'
-import { handleValidationErrors } from '../middleware/validation'
+import { validateZod } from '../middleware/validateZod'
+import { 
+  adminUserParamsSchema, 
+  adminUpdateUserSchema, 
+  adminUpdateStatusSchema, 
+  adminUpdatePlanSchema,
+  mongoIdParamSchema,
+  maintenanceSchema,
+  globalAlertSchema,
+  updateOrgCodeSchema,
+  updateSupportStatusSchema,
+  toggleOrgStatusSchema,
+  extendOrgPlanSchema
+} from '../schemas'
 
 import { 
   getAiStats 
@@ -76,49 +88,40 @@ router.get('/stats', getStats)
 router.get('/audit-logs', getAuditLogs)
 router.get('/users', getUsers)
 
-router.get('/users/:id/history', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  handleValidationErrors
-], getUserHistory)
+router.get('/users/:id/history', 
+  validateZod({ params: adminUserParamsSchema }), 
+  getUserHistory
+)
 
-router.put('/users/:id', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  body('name').optional().trim().isLength({ max: 100 }).withMessage('Name cannot exceed 100 characters'),
-  body('email').optional().isEmail().withMessage('Invalid email').normalizeEmail(),
-  body('lawFirm').optional().trim().isLength({ max: 200 }).withMessage('Law firm name cannot exceed 200 characters'),
-  handleValidationErrors
-], updateUser)
+router.put('/users/:id', 
+  validateZod({ params: adminUserParamsSchema, body: adminUpdateUserSchema }), 
+  updateUser
+)
 
-router.delete('/users/:id', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  handleValidationErrors
-], deleteUser)
+router.delete('/users/:id', 
+  validateZod({ params: adminUserParamsSchema }), 
+  deleteUser
+)
 
-router.put('/users/:id/status', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .isIn(['active', 'disabled', 'suspended']).withMessage('Invalid status'),
-  handleValidationErrors
-], updateUserStatus)
+router.put('/users/:id/status', 
+  validateZod({ params: adminUserParamsSchema, body: adminUpdateStatusSchema }), 
+  updateUserStatus
+)
 
-router.put('/users/:id/plan', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  body('plan')
-    .notEmpty().withMessage('Plan is required')
-    .isIn(['none', 'basic', 'professional', 'elite', 'enterprise']).withMessage('Invalid plan'),
-  handleValidationErrors
-], updateUserPlan)
+router.put('/users/:id/plan', 
+  validateZod({ params: adminUserParamsSchema, body: adminUpdatePlanSchema }), 
+  updateUserPlan
+)
 
-router.post('/users/:id/logout', [
-  param('id').isMongoId().withMessage('Invalid user ID'),
-  handleValidationErrors
-], logoutUser)
+router.post('/users/:id/logout', 
+  validateZod({ params: adminUserParamsSchema }), 
+  logoutUser
+)
 
-router.delete('/audit-logs/:id', [
-  param('id').isMongoId().withMessage('Invalid audit log ID'),
-  handleValidationErrors
-], deleteAuditLog)
+router.delete('/audit-logs/:id', 
+  validateZod({ params: mongoIdParamSchema }), 
+  deleteAuditLog
+)
 
 router.delete('/audit-logs', clearAuditLogs)
 
@@ -132,47 +135,44 @@ router.get('/system/health', getSystemHealth)
 
 router.get('/organizations', getAllOrganizations)
 router.get('/organizations/:id', getOrganizationDetails)
-router.patch('/organizations/:id/status', toggleOrganizationStatus)
-router.post('/organizations/:id/extend', extendOrganizationPlan)
+router.patch('/organizations/:id/status', 
+  validateZod({ params: mongoIdParamSchema, body: toggleOrgStatusSchema }),
+  toggleOrganizationStatus
+)
+router.post('/organizations/:id/extend', 
+  validateZod({ params: mongoIdParamSchema, body: extendOrgPlanSchema }),
+  extendOrganizationPlan
+)
 
 router.get('/ai-health', getAiHealthMetrics)
 router.patch('/ai-health/logs/:id/resolve', resolveAiError)
 
-router.post('/system/maintenance', [
-  body('active').isBoolean().withMessage('Active must be a boolean'),
-  body('message').optional().trim().isLength({ max: 500 }).withMessage('Message cannot exceed 500 characters'),
-  handleValidationErrors
-], toggleMaintenance)
+router.post('/system/maintenance', 
+  validateZod({ body: maintenanceSchema }), 
+  toggleMaintenance
+)
 
-router.post('/system/alert', [
-  body('message').optional().trim().isLength({ max: 500 }).withMessage('Alert message cannot exceed 500 characters'),
-  body('type').optional().isIn(['info', 'warning', 'error', 'success']).withMessage('Invalid alert type'),
-  handleValidationErrors
-], updateGlobalAlert)
+router.post('/system/alert', 
+  validateZod({ body: globalAlertSchema }), 
+  updateGlobalAlert
+)
 
-router.put('/organizations/:id/code', [
-  param('id').isMongoId().withMessage('Invalid organization ID'),
-  body('firmCode')
-    .trim()
-    .notEmpty().withMessage('Firm code is required')
-    .isLength({ min: 3, max: 20 }).withMessage('Firm code must be 3-20 characters'),
-  handleValidationErrors
-], updateOrganizationCode)
+router.put('/organizations/:id/code', 
+  validateZod({ params: mongoIdParamSchema, body: updateOrgCodeSchema }), 
+  updateOrganizationCode
+)
 
 router.get('/support', getSupportRequests)
 
-router.put('/support/:id/status', [
-  param('id').isMongoId().withMessage('Invalid support request ID'),
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .isIn(['pending', 'resolved']).withMessage('Invalid status'),
-  handleValidationErrors
-], updateSupportRequestStatus)
+router.put('/support/:id/status', 
+  validateZod({ params: mongoIdParamSchema, body: updateSupportStatusSchema }), 
+  updateSupportRequestStatus
+)
 
-router.delete('/support/:id', [
-  param('id').isMongoId().withMessage('Invalid support request ID'),
-  handleValidationErrors
-], deleteSupportRequest)
+router.delete('/support/:id', 
+  validateZod({ params: mongoIdParamSchema }), 
+  deleteSupportRequest
+)
 
 router.delete('/support', clearSupportRequests)
 

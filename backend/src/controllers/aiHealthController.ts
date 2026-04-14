@@ -5,11 +5,14 @@ import mongoose from 'mongoose'
 
 export const getAiHealthMetrics = async (req: express.Request, res: express.Response): Promise<void> => {
   try {
+    const { logPage = 1, logLimit = 10 } = req.query
+    const skip = (Number(logPage) - 1) * Number(logLimit)
+
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 
-    const [providerMetrics, logs, generalMetrics] = await Promise.all([
+    const [providerMetrics, logs, generalMetrics, totalLogs] = await Promise.all([
       AiLog.aggregate([
         { $match: { timestamp: { $gte: twentyFourHoursAgo } } },
         {
@@ -25,7 +28,8 @@ export const getAiHealthMetrics = async (req: express.Request, res: express.Resp
       ]),
       AiLog.find({})
         .sort({ timestamp: -1 })
-        .limit(20)
+        .skip(skip)
+        .limit(Number(logLimit))
         .populate('userId', 'email')
         .lean(),
       AiLog.aggregate([
@@ -56,7 +60,8 @@ export const getAiHealthMetrics = async (req: express.Request, res: express.Resp
             ]
           }
         }
-      ])
+      ]),
+      AiLog.countDocuments({})
     ])
 
     const providers = providerMetrics.map(p => {
@@ -84,7 +89,12 @@ export const getAiHealthMetrics = async (req: express.Request, res: express.Resp
       success: true,
       data: {
         providers,
-        recentLogs: logs,
+        recentLogs: {
+          logs,
+          total: totalLogs,
+          page: Number(logPage),
+          pages: Math.ceil(totalLogs / Number(logLimit))
+        },
         stats: {
           requests24h: facet.last24h[0]?.count || 0,
           requests7d: facet.last7d[0]?.count || 0,

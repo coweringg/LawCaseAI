@@ -31,7 +31,12 @@ interface AiLogEntry {
 
 interface AiHealthData {
   providers: AiProvider[]
-  recentLogs: AiLogEntry[]
+  recentLogs: {
+    logs: AiLogEntry[]
+    total: number
+    page: number
+    pages: number
+  }
   stats: {
     requests24h: number
     requests7d: number
@@ -45,10 +50,11 @@ const AiHealthMonitor = () => {
   const [data, setData] = useState<AiHealthData | null>(null)
   const [loading, setLoading] = useState(true)
   const [lastRefreshed, setLastRefreshed] = useState(new Date())
+  const [logPage, setLogPage] = useState(1)
 
   const fetchData = async () => {
     try {
-      const response = await api.get('/admin/ai-health')
+      const response = await api.get(`/admin/ai-health?logPage=${logPage}&logLimit=10`)
       if (response.data.success) {
         setData(response.data.data)
         setLastRefreshed(new Date())
@@ -74,7 +80,7 @@ const AiHealthMonitor = () => {
     fetchData()
     const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [logPage])
 
   if (loading && !data) {
     return (
@@ -170,7 +176,7 @@ const AiHealthMonitor = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {data?.recentLogs.map((log) => (
+                {data?.recentLogs?.logs?.map((log) => (
                   <tr key={log._id} className="hover:bg-white/5 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
@@ -226,6 +232,29 @@ const AiHealthMonitor = () => {
               </tbody>
             </table>
           </div>
+          {data && data.recentLogs.pages > 1 && (
+            <div className="p-4 border-t border-white/10 flex items-center justify-between bg-white/5">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                Page {data.recentLogs.page} of {data.recentLogs.pages}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={logPage === 1}
+                  onClick={() => setLogPage(p => p - 1)}
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 hover:bg-white/10 transition-all text-white"
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={logPage === data.recentLogs.pages}
+                  onClick={() => setLogPage(p => p + 1)}
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 hover:bg-white/10 transition-all text-white"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>

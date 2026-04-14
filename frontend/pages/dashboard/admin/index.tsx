@@ -58,6 +58,7 @@ interface AdminUser {
   planLimit: number
   currentCases: number
   status: 'active' | 'disabled' | 'suspended'
+  role?: string
   organizationId?: string
   isOrgAdmin?: boolean
   firmCode?: string
@@ -158,6 +159,10 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
+  const [userPage, setUserPage] = useState(1)
+  const [userLimit, setUserLimit] = useState(10)
+  const [userTotalPages, setUserTotalPages] = useState(1)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
@@ -178,7 +183,7 @@ export default function AdminDashboard() {
   const [actionFilter, setActionFilter] = useState('')
   const [targetTypeFilter, setTargetTypeFilter] = useState('')
   const [logPage, setLogPage] = useState(1)
-  const [logLimit, setLogLimit] = useState(20)
+  const [logLimit, setLogLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [showDiffModal, setShowDiffModal] = useState(false)
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
@@ -189,6 +194,7 @@ export default function AdminDashboard() {
   const [signalSubTab, setSignalSubTab] = useState<'public' | 'user'>('public')
   const [publicSubjectFilter, setPublicSubjectFilter] = useState('')
   const [supportPage, setSupportPage] = useState(1)
+  const [supportTotalPages, setSupportTotalPages] = useState(1)
   const [totalSupportRequests, setTotalSupportRequests] = useState(0)
   const [selectedSupportRequest, setSelectedSupportRequest] = useState<SupportRequest | null>(null)
   const [showSupportDetailModal, setShowSupportDetailModal] = useState(false)
@@ -211,14 +217,21 @@ export default function AdminDashboard() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await api.get('/admin/users')
+      const query = new URLSearchParams({
+        page: userPage.toString(),
+        limit: userLimit.toString(),
+        ...(searchTerm ? { search: searchTerm } : {}),
+        ...(roleFilter !== 'all' ? { role: roleFilter } : {})
+      })
+      const response = await api.get(`/admin/users?${query.toString()}`)
       if (response.data.success) {
         setUsers(response.data.data.users || [])
+        setUserTotalPages(response.data.data.pages || 1)
       }
     } catch (error) {
       console.error('Failed to fetch users:', error)
     }
-  }, [])
+  }, [userPage, userLimit, searchTerm, roleFilter])
 
   const fetchStats = useCallback(async () => {
     try {
@@ -246,9 +259,9 @@ export default function AdminDashboard() {
       })
       const response = await api.get(`/admin/audit-logs?${query.toString()}`)
       if (response.data.success) {
-        if (category === 'admin') setAdminLogs(response.data.data.logs)
-        else setPlatformLogs(response.data.data.logs)
-        setTotalPages(response.data.data.totalPages || 1)
+        if (category === 'admin') setAdminLogs(response.data.data.logs || [])
+        else setPlatformLogs(response.data.data.logs || [])
+        setTotalPages(response.data.data.pages || 1)
       }
     } catch (error) {
       console.error('Failed to fetch audit logs:', error)
@@ -289,22 +302,34 @@ export default function AdminDashboard() {
   const fetchSupportRequests = useCallback(async () => {
     setIsSupportLoading(true)
     try {
+      let typeParam = ''
+      if (signalSubTab === 'public') {
+        typeParam = 'login_issue'
+      } else {
+        if (supportTypeFilter !== 'all') {
+          typeParam = supportTypeFilter
+        }
+      }
+
       const query = new URLSearchParams({
         page: supportPage.toString(),
-        limit: '100',
-        ...(supportStatusFilter ? { status: supportStatusFilter } : {})
+        limit: '10',
+        ...(typeParam ? { type: typeParam } : {}),
+        ...(supportStatusFilter ? { status: supportStatusFilter } : {}),
+        ...(signalSubTab === 'public' && publicSubjectFilter ? { subject: publicSubjectFilter } : {})
       })
       const response = await api.get(`/admin/support?${query.toString()}`)
       if (response.data.success) {
         setSupportRequests(response.data.data.requests)
         setTotalSupportRequests(response.data.data.total)
+        setSupportTotalPages(response.data.data.pages || 1)
       }
     } catch (error) {
       console.error('Failed to fetch support requests:', error)
     } finally {
       setIsSupportLoading(false)
     }
-  }, [supportPage, supportStatusFilter])
+  }, [supportPage, supportStatusFilter, signalSubTab, supportTypeFilter, publicSubjectFilter])
 
   useEffect(() => {
     const initDashboard = async () => {
@@ -333,12 +358,21 @@ export default function AdminDashboard() {
   }, [user, isAuthLoading, router, fetchUsers, fetchStats, fetchAuditLogs, fetchSupportRequests])
 
   useEffect(() => {
+    if (activeTab === 'users' && user?.role === 'admin') {
+      const timer = setTimeout(() => {
+        fetchUsers()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [activeTab, searchTerm, roleFilter, userPage, fetchUsers, user?.role])
+
+  useEffect(() => {
     if (activeTab === 'history' && user?.role === 'admin') {
       fetchAuditLogs(activeHistoryTab)
     } else if (activeTab === 'support' && user?.role === 'admin') {
       fetchSupportRequests()
     }
-  }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs, fetchSupportRequests])
+  }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs, fetchSupportRequests, logPage, supportPage, supportStatusFilter, signalSubTab, supportTypeFilter, publicSubjectFilter])
 
   const handleDeleteLog = async (logId: string) => {
     setConfirmConfig({
@@ -610,11 +644,7 @@ export default function AdminDashboard() {
     setShowEditModal(true)
   }
 
-  const filteredUsers = Array.isArray(users) ? users.filter(user =>
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.lawFirm?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) : []
+  const displayUsers = Array.isArray(users) ? users : []
 
   const userColumns = [
     {
@@ -635,7 +665,15 @@ export default function AdminDashboard() {
               )} title={isOnline ? 'Online' : 'Offline'} />
             </div>
             <div>
-              <p className="font-bold text-white tracking-tight">{value}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-bold text-white tracking-tight">{value}</p>
+                {item.role === 'admin' && (
+                  <span className="bg-primary/20 text-primary text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded flex items-center shadow-[0_0_10px_rgba(var(--primary),0.2)]">
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    Admin
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-400 font-medium">{item.email}</p>
             </div>
           </div>
@@ -1093,26 +1131,102 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, scale: 0.98 }}
               className="space-y-8 relative z-10"
             >
-              <div className="premium-glass p-4 rounded-3xl border border-white/10 shadow-2xl">
-                <div className="relative">
-                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-500 w-6 h-6" />
-                  <input
-                    type="text"
-                    placeholder="Identify network entity by name, stream, or law firm..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-16 pr-8 py-5 bg-white/[0.02] border border-white/5 rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] text-[15px] font-bold text-white placeholder-slate-600 transition-all uppercase tracking-widest"
-                  />
+              <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5 w-fit">
+                  <button
+                    onClick={() => {
+                      setRoleFilter('all')
+                      setUserPage(1)
+                    }}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                      roleFilter === 'all'
+                        ? "bg-slate-500/20 text-slate-300 border border-slate-500/20 shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    All Entities
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRoleFilter('admin')
+                      setUserPage(1)
+                    }}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                      roleFilter === 'admin'
+                        ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Administrators
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRoleFilter('user')
+                      setUserPage(1)
+                    }}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                      roleFilter === 'user'
+                        ? "bg-secondary/20 text-secondary border border-secondary/20 shadow-lg shadow-secondary/10"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Standard Users
+                  </button>
                 </div>
-              </div>
 
-              <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[600px]">
-                <Table
-                  data={filteredUsers}
-                  columns={userColumns}
-                  emptyMessage="Initial search returned no matching entities."
-                />
-              </div>
+                <div className="premium-glass p-4 rounded-3xl border border-white/10 shadow-2xl">
+                  <div className="relative">
+                    <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-500 w-6 h-6" />
+                    <input
+                      type="text"
+                      placeholder="Identify network entity by name, stream, or law firm..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value)
+                        setUserPage(1)
+                      }}
+                      className="w-full pl-16 pr-8 py-5 bg-white/[0.02] border border-white/5 rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] text-[15px] font-bold text-white placeholder-slate-600 transition-all uppercase tracking-widest"
+                    />
+                  </div>
+                </div>
+
+                <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[600px]">
+                  <Table
+                    data={displayUsers}
+                    columns={userColumns}
+                    emptyMessage="Initial search returned no matching entities."
+                  />
+
+                  {userTotalPages > 1 && (
+                    <div className="flex items-center justify-between px-8 py-6 border-t border-white/5 bg-white/[0.01]">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Page {userPage} of {userTotalPages}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="none"
+                          size="sm"
+                          disabled={userPage === 1}
+                          onClick={() => setUserPage(p => p - 1)}
+                          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          variant="none"
+                          size="sm"
+                          disabled={userPage === userTotalPages}
+                          onClick={() => setUserPage(p => p + 1)}
+                          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
             </motion.div>
           ) : activeTab === 'history' ? (
             <motion.div 
@@ -1338,29 +1452,35 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5">
-                  <button
-                    onClick={() => setSignalSubTab('public')}
-                    className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
-                      signalSubTab === 'public'
-                        ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10"
-                        : "text-slate-500 hover:text-slate-300"
-                    )}
-                  >
-                    Public Signals
-                  </button>
-                  <button
-                    onClick={() => setSignalSubTab('user')}
-                    className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
-                      signalSubTab === 'user'
-                        ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
-                        : "text-slate-500 hover:text-slate-300"
-                    )}
-                  >
-                    User Signals
-                  </button>
-                </div>
+                    <button
+                      onClick={() => {
+                        setSignalSubTab('public')
+                        setSupportPage(1)
+                      }}
+                      className={cn(
+                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                        signalSubTab === 'public'
+                          ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10"
+                          : "text-slate-500 hover:text-slate-300"
+                      )}
+                    >
+                      Public Signals
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSignalSubTab('user')
+                        setSupportPage(1)
+                      }}
+                      className={cn(
+                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                        signalSubTab === 'user'
+                          ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                          : "text-slate-500 hover:text-slate-300"
+                      )}
+                    >
+                      User Signals
+                    </button>
+                  </div>
               </div>
 
               {signalSubTab === 'public' && (
@@ -1391,7 +1511,10 @@ export default function AdminDashboard() {
                       ].map(s => (
                         <button
                           key={s.id}
-                          onClick={() => setPublicSubjectFilter(s.id)}
+                          onClick={() => {
+                            setPublicSubjectFilter(s.id)
+                            setSupportPage(1)
+                          }}
                           className={cn(
                             "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                             publicSubjectFilter === s.id
@@ -1408,7 +1531,10 @@ export default function AdminDashboard() {
                       <div className="relative group">
                         <select
                           value={supportStatusFilter}
-                          onChange={(e) => setSupportStatusFilter(e.target.value)}
+                          onChange={(e) => {
+                            setSupportStatusFilter(e.target.value)
+                            setSupportPage(1)
+                          }}
                           className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
                         >
                           <option value="" className="bg-slate-900">All Nodes</option>
@@ -1444,15 +1570,39 @@ export default function AdminDashboard() {
 
                   <div className="premium-glass border border-orange-500/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[400px]">
                     <Table 
-                      data={supportRequests.filter(r => {
-                        if (r.type !== 'login_issue') return false
-                        if (publicSubjectFilter && r.subject !== publicSubjectFilter) return false
-                        return true
-                      })}
+                      data={supportRequests}
                       columns={supportColumns}
                       loading={isSupportLoading}
                       emptyMessage="No public login signals detected."
                     />
+
+                    {supportTotalPages > 1 && (
+                      <div className="flex items-center justify-between px-8 py-6 border-t border-white/5 bg-white/[0.01]">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                          Page {supportPage} of {supportTotalPages}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="none"
+                            size="sm"
+                            disabled={supportPage === 1 || isSupportLoading}
+                            onClick={() => setSupportPage(p => p - 1)}
+                            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                          >
+                            Previous
+                          </Button>
+                          <Button
+                            variant="none"
+                            size="sm"
+                            disabled={supportPage === supportTotalPages || isSupportLoading}
+                            onClick={() => setSupportPage(p => p + 1)}
+                            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -1483,7 +1633,10 @@ export default function AdminDashboard() {
                       ].map(sType => (
                         <button
                           key={sType.id}
-                          onClick={() => setSupportTypeFilter(sType.id as any)}
+                          onClick={() => {
+                            setSupportTypeFilter(sType.id as any)
+                            setSupportPage(1)
+                          }}
                           className={cn(
                             "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                             supportTypeFilter === sType.id 
@@ -1500,7 +1653,10 @@ export default function AdminDashboard() {
                       <div className="relative group">
                         <select
                           value={supportStatusFilter}
-                          onChange={(e) => setSupportStatusFilter(e.target.value)}
+                          onChange={(e) => {
+                            setSupportStatusFilter(e.target.value)
+                            setSupportPage(1)
+                          }}
                           className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
                         >
                           <option value="" className="bg-slate-900">All Nodes</option>
@@ -1536,15 +1692,39 @@ export default function AdminDashboard() {
 
                   <div className="premium-glass border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[400px]">
                     <Table 
-                      data={supportRequests.filter(r => {
-                        if (supportTypeFilter === 'system_error') return r.type === 'system_error'
-                        if (supportTypeFilter === 'feature_uplink') return r.type === 'feature_uplink'
-                        return r.type !== 'login_issue'
-                      })}
+                      data={supportRequests}
                       columns={supportColumns}
                       loading={isSupportLoading}
                       emptyMessage="No user signals detected in current spectrum."
                     />
+
+                    {supportTotalPages > 1 && (
+                      <div className="flex items-center justify-between px-8 py-6 border-t border-white/5 bg-white/[0.01]">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                          Page {supportPage} of {supportTotalPages}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="none"
+                            size="sm"
+                            disabled={supportPage === 1 || isSupportLoading}
+                            onClick={() => setSupportPage(p => p - 1)}
+                            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                          >
+                            Previous
+                          </Button>
+                          <Button
+                            variant="none"
+                            size="sm"
+                            disabled={supportPage === supportTotalPages || isSupportLoading}
+                            onClick={() => setSupportPage(p => p + 1)}
+                            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}

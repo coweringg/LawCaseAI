@@ -49,6 +49,8 @@ interface UserQuota {
 const QuotaControl: React.FC = () => {
     const [users, setUsers] = useState<UserQuota[]>([])
     const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
     const [search, setSearch] = useState('')
     const [planFilter, setPlanFilter] = useState('all')
     const [customFilter, setCustomFilter] = useState('all')
@@ -64,20 +66,23 @@ const QuotaControl: React.FC = () => {
     const fetchUsers = useCallback(async () => {
         try {
             const params = new URLSearchParams()
+            params.append('page', page.toString())
+            params.append('limit', '10')
             if (search) params.append('search', search)
             if (planFilter !== 'all') params.append('plan', planFilter)
             if (customFilter === 'custom') params.append('customOnly', 'true')
             
             const res = await api.get(`/admin/quotas?${params.toString()}`)
             if (res.data.success) {
-                setUsers(res.data.data)
+                setUsers(res.data.data.users || [])
+                setTotalPages(res.data.data.pages || 1)
             }
         } catch (error) {
             toast.error('Failed to synchronize user metrics')
         } finally {
             setLoading(false)
         }
-    }, [search, planFilter, customFilter])
+    }, [search, planFilter, customFilter, page])
 
     useEffect(() => {
         fetchUsers()
@@ -218,7 +223,7 @@ const QuotaControl: React.FC = () => {
                         </div>
                     ) : (
                         <AnimatePresence mode="popLayout">
-                            {users.map((user, idx) => (
+                            {users?.map((user, idx) => (
                                 <motion.div 
                                     key={user._id}
                                     initial={{ opacity: 0, x: -20 }}
@@ -336,6 +341,34 @@ const QuotaControl: React.FC = () => {
                                 </motion.div>
                             ))}
                         </AnimatePresence>
+                    )}
+
+                    {!loading && totalPages > 1 && (
+                        <div className="flex items-center justify-between bg-white/5 backdrop-blur-3xl p-8 rounded-[40px] border border-white/10 shadow-2xl mt-6">
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                                Synchronized Result Page <span className="text-white">{page}</span> of <span className="text-white">{totalPages}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(p => p - 1)}
+                                    className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 h-12 px-8 rounded-2xl"
+                                >
+                                    Previous Stream
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage(p => p + 1)}
+                                    className="text-[10px] font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 h-12 px-8 rounded-2xl"
+                                >
+                                    Next Stream
+                                </Button>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

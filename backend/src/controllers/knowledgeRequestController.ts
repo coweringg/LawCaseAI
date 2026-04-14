@@ -33,12 +33,30 @@ export const createKnowledgeRequest = async (req: Request, res: Response) => {
 
 export const getAdminKnowledgeRequests = async (req: Request, res: Response) => {
     try {
-        const requests = await KnowledgeRequest.find()
-            .sort({ createdAt: -1 })
-            .populate('userId', 'name email')
-            .populate('organizationId', 'name')
-        
-        return res.json({ success: true, data: requests })
+        const { page = 1, limit = 10 } = req.query
+        const skip = (Number(page) - 1) * Number(limit)
+
+        const [requests, total, pendingCount] = await Promise.all([
+            KnowledgeRequest.find()
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit))
+                .populate('userId', 'name email')
+                .populate('organizationId', 'name'),
+            KnowledgeRequest.countDocuments(),
+            KnowledgeRequest.countDocuments({ status: 'pending' })
+        ])
+
+        return res.json({ 
+            success: true, 
+            data: {
+                requests,
+                total,
+                pendingCount,
+                page: Number(page),
+                pages: Math.ceil(total / Number(limit))
+            } 
+        })
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to retrieve documentation requests' })
     }

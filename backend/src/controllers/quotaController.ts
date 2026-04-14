@@ -1,11 +1,11 @@
 import { Request, Response } from 'express'
-import User from '../models/User'
-import AuditLog from '../models/AuditLog'
+import { User, AuditLog } from '../models'
 import { IAuthRequest } from '../types'
 
 export const getUsersWithQuotas = async (req: Request, res: Response) => {
     try {
-        const { search, plan, customOnly } = req.query
+        const { search, plan, customOnly, page = 1, limit = 10 } = req.query
+        const skip = (Number(page) - 1) * Number(limit)
         
         const query: any = {}
         if (search) {
@@ -14,12 +14,16 @@ export const getUsersWithQuotas = async (req: Request, res: Response) => {
                 { email: { $regex: search, $options: 'i' } }
             ]
         }
-        if (plan) query.plan = plan
+        if (plan && plan !== 'all') query.plan = plan
         if (customOnly === 'true') query.customLimits = { $exists: true, $ne: null }
 
         const users = await User.find(query)
             .select('name email plan customLimits currentCases totalTokensConsumed totalStorageUsed')
             .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit))
+
+        const total = await User.countDocuments(query)
 
         const formattedUsers = users.map(user => {
             const u = user.toObject({ virtuals: true })
@@ -43,7 +47,15 @@ export const getUsersWithQuotas = async (req: Request, res: Response) => {
             }
         })
 
-        return res.json({ success: true, data: formattedUsers })
+        return res.json({ 
+            success: true, 
+            data: {
+                users: formattedUsers,
+                total,
+                page: Number(page),
+                pages: Math.ceil(total / Number(limit))
+            } 
+        })
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to synchronize quota metrics' })
     }

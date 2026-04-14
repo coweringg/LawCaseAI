@@ -6,10 +6,19 @@ import { logAction } from '../utils/auditLogger'
 
 export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { search, page = 1, limit = 10 } = req.query
+    const { search, page = 1, limit = 10, role } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
     const query: Record<string, unknown> = { status: { $ne: UserStatus.DELETED } }
+    
+    if (role && role !== 'all') {
+      if (role === 'admin') {
+        query.role = UserRole.ADMIN
+      } else if (role === 'user') {
+        query.role = { $ne: UserRole.ADMIN }
+      }
+    }
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -44,7 +53,8 @@ export const getUsers = async (req: IAuthRequest, res: Response): Promise<void> 
         users: enrichedUsers,
         total,
         page: Number(page),
-        pages: Math.ceil(total / Number(limit))
+        pages: Math.ceil(total / Number(limit)),
+        debugQuery: query
       }
     } as IApiResponse)
   } catch (error: unknown) {
@@ -424,7 +434,7 @@ export const getAuditLogs = async (req: IAuthRequest, res: Response): Promise<vo
   try {
     const { 
       page = 1, 
-      limit = 50, 
+      limit = 10, 
       category, 
       search, 
       startDate, 
@@ -571,7 +581,7 @@ export const logoutUser = async (req: IAuthRequest, res: Response): Promise<void
 
 export const getSupportRequests = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { type, status, page = 1, limit = 20 } = req.query
+    const { type, status, page = 1, limit = 10 } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
     const query: Record<string, unknown> = {}

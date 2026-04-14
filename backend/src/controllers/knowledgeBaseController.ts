@@ -7,7 +7,8 @@ import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from
 
 export const getKnowledgeDocuments = async (req: Request, res: Response) => {
     try {
-        const { category, assignedTo, search } = req.query
+        const { category, assignedTo, search, page = 1, limit = 10 } = req.query
+        const skip = (Number(page) - 1) * Number(limit)
         const query: any = {}
 
         if (category) query.category = category
@@ -21,9 +22,21 @@ export const getKnowledgeDocuments = async (req: Request, res: Response) => {
 
         const documents = await KnowledgeDocument.find(query)
             .sort({ uploadDate: -1 })
+            .skip(skip)
+            .limit(Number(limit))
             .populate('uploadedBy', 'name email')
 
-        return res.json({ success: true, data: documents })
+        const total = await KnowledgeDocument.countDocuments(query)
+
+        return res.json({ 
+            success: true, 
+            data: {
+                documents,
+                total,
+                page: Number(page),
+                pages: Math.ceil(total / Number(limit))
+            } 
+        })
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to retrieve knowledge base documents' })
     }

@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { param } from 'express-validator'
 import { getChatHistory, clearChatHistory } from '../controllers/chatController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
-import { handleValidationErrors } from '../middleware/validation'
 import { checkTrialStatus } from '../middleware/trialMiddleware'
+import { validateZod } from '../middleware/validateZod'
+import { caseIdParamSchema } from '../schemas'
 
 const router = Router()
 
@@ -12,14 +12,14 @@ router.use(authenticate)
 router.use(checkAndResetQuotas)
 router.use(checkTrialStatus)
 
-router.get('/case/:caseId', [
-  param('caseId').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], getChatHistory)
+router.get('/case/:caseId',
+  validateZod({ params: caseIdParamSchema }),
+  getChatHistory
+)
 
-router.delete('/case/:caseId', [
-  param('caseId').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], clearChatHistory)
+router.delete('/case/:caseId',
+  validateZod({ params: caseIdParamSchema }),
+  clearChatHistory
+)
 
 export default router

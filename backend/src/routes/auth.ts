@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { body } from 'express-validator'
 import rateLimit from 'express-rate-limit'
 import {
   register,
@@ -11,7 +10,8 @@ import {
 } from '../controllers/authController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
-import { handleValidationErrors, validateRequest } from '../middleware/validation'
+import { validateZod } from '../middleware/validateZod'
+import { registerSchema, registerAdminSchema, loginSchema, savedLoginSchema } from '../schemas'
 
 const router = Router()
 
@@ -26,50 +26,25 @@ const authLimiter = rateLimit({
   legacyHeaders: false
 })
 
-router.post('/register', authLimiter, [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ max: 100 }).withMessage('Name cannot exceed 100 characters'),
-  body('email')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  body('password')
-    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
-    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-    .matches(/\d/).withMessage('Password must contain at least one number'),
-  body('lawFirm')
-    .trim()
-    .notEmpty().withMessage('Law firm name is required')
-    .isLength({ max: 200 }).withMessage('Law firm name cannot exceed 200 characters'),
-  handleValidationErrors
-], register)
+router.post('/register', authLimiter,
+  validateZod({ body: registerSchema }),
+  register
+)
 
-router.post('/register-admin', [
-  validateRequest,
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Please provide a valid email address').normalizeEmail(),
-  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('lawFirm').trim().notEmpty().withMessage('Law firm name is required'),
-  handleValidationErrors
-], registerAdmin)
+router.post('/register-admin',
+  validateZod({ body: registerAdminSchema }),
+  registerAdmin
+)
 
-router.post('/login', authLimiter, [
-  body('email')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  body('password')
-    .notEmpty().withMessage('Password is required'),
-  handleValidationErrors
-], login)
+router.post('/login', authLimiter,
+  validateZod({ body: loginSchema }),
+  login
+)
 
-router.post('/saved-login', authLimiter, [
-  body('email')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  handleValidationErrors
-], loginWithSavedToken)
+router.post('/saved-login', authLimiter,
+  validateZod({ body: savedLoginSchema }),
+  loginWithSavedToken
+)
 
 router.post('/refresh', authenticate, checkAndResetQuotas, refreshToken)
 router.post('/logout', authenticate, checkAndResetQuotas, logout)

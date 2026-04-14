@@ -5,7 +5,33 @@ import mongoose from 'mongoose'
 
 export const getAllOrganizations = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { page = 1, limit = 10, search = '', status = 'all' } = req.query
+    const skip = (Number(page) - 1) * Number(limit)
+
+    const match: Record<string, any> = {}
+    if (search) {
+      match.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { firmCode: { $regex: search, $options: 'i' } }
+      ]
+    }
+
+    if (status !== 'all') {
+      const now = new Date()
+      if (status === 'active') {
+        match.isActive = true
+        match.currentPeriodEnd = { $gte: now }
+      } else if (status === 'expired') {
+        match.currentPeriodEnd = { $lt: now }
+      } else if (status === 'expiring') {
+        const soon = new Date()
+        soon.setDate(soon.getDate() + 7)
+        match.currentPeriodEnd = { $gte: now, $lt: soon }
+      }
+    }
+
     const organizations = await Organization.aggregate([
+      { $match: match },
       {
         $lookup: {
           from: 'users',
@@ -15,7 +41,10 @@ export const getAllOrganizations = async (req: Request, res: Response): Promise<
         }
       },
       {
-        $unwind: '$adminInfo'
+        $unwind: {
+          path: '$adminInfo',
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $project: {
@@ -30,15 +59,22 @@ export const getAllOrganizations = async (req: Request, res: Response): Promise<
           'adminInfo.plan': 1
         }
       },
-      {
-        $sort: { createdAt: -1 }
-      }
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: Number(limit) }
     ])
+
+    const total = await Organization.countDocuments(match)
 
     res.status(200).json({
       success: true,
       message: 'Organizations retrieved successfully',
-      data: organizations
+      data: {
+        organizations,
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit))
+      }
     } as IApiResponse)
   } catch (error: any) {
     res.status(500).json({

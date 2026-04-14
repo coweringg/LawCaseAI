@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { body, param } from 'express-validator'
 import { createCase, getCases, getCaseStats, getCaseById, updateCase, deleteCase, reactivateCase } from '../controllers/caseController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
-import { handleValidationErrors } from '../middleware/validation'
+import { validateZod } from '../middleware/validateZod'
+import { createCaseSchema, updateCaseSchema, caseParamsSchema } from '../schemas'
 
 const router = Router()
 
@@ -14,71 +14,29 @@ router.get('/', getCases)
 
 router.get('/stats', getCaseStats)
 
-router.post('/', [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Case name is required')
-    .isLength({ max: 200 }).withMessage('Case name cannot exceed 200 characters'),
-  body('client')
-    .trim()
-    .notEmpty().withMessage('Client name is required')
-    .isLength({ max: 200 }).withMessage('Client name cannot exceed 200 characters'),
-  body('description')
-    .optional()
-    .trim()
-    .isLength({ max: 5000 }).withMessage('Description cannot exceed 5000 characters'),
-  body('practiceArea')
-    .optional()
-    .trim()
-    .isLength({ max: 100 }).withMessage('Practice area cannot exceed 100 characters'),
-  body('status')
-    .optional()
-    .isIn(['active', 'pending', 'discovery'])
-    .withMessage('Invalid status provided'),
-  body('complexity')
-    .optional()
-    .isIn(['1', '2', '3'])
-    .withMessage('Invalid complexity level'),
-  handleValidationErrors
-], createCase)
+router.post('/',
+  validateZod({ body: createCaseSchema }),
+  createCase
+)
 
-router.get('/:id', [
-  param('id').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], getCaseById)
+router.get('/:id',
+  validateZod({ params: caseParamsSchema }),
+  getCaseById
+)
 
-router.put('/:id', [
-  param('id').isMongoId().withMessage('Invalid case ID'),
-  body('name')
-    .optional()
-    .trim()
-    .isLength({ max: 200 }).withMessage('Case name cannot exceed 200 characters'),
-  body('client')
-    .optional()
-    .trim()
-    .isLength({ max: 200 }).withMessage('Client name cannot exceed 200 characters'),
-  body('description')
-    .optional()
-    .trim()
-    .isLength({ max: 5000 }).withMessage('Description cannot exceed 5000 characters'),
-  body('status')
-    .optional()
-    .isIn(['active', 'closed', 'archived', 'pending', 'discovery']).withMessage('Invalid case status'),
-  body('complexity')
-    .optional()
-    .isIn(['1', '2', '3'])
-    .withMessage('Invalid complexity level'),
-  handleValidationErrors
-], updateCase)
+router.put('/:id',
+  validateZod({ params: caseParamsSchema, body: updateCaseSchema }),
+  updateCase
+)
 
-router.put('/:id/reactivate', [
-  param('id').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], reactivateCase)
+router.put('/:id/reactivate',
+  validateZod({ params: caseParamsSchema }),
+  reactivateCase
+)
 
-router.delete('/:id', [
-  param('id').isMongoId().withMessage('Invalid case ID'),
-  handleValidationErrors
-], deleteCase)
+router.delete('/:id',
+  validateZod({ params: caseParamsSchema }),
+  deleteCase
+)
 
 export default router

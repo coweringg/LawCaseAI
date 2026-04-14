@@ -30,7 +30,7 @@ export function Table<T extends Record<string, any>>({
     )
   }
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="text-center py-8 text-secondary-500">
         {emptyMessage}
@@ -56,7 +56,7 @@ export function Table<T extends Record<string, any>>({
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <tr key={index} className="hover:bg-white/[0.02] transition-colors group">
               {columns.map((column) => (
                 <td

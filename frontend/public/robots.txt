@@ -1,0 +1,33 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+
+# Public pages — allowed
+Allow: /
+Allow: /about
+Allow: /features
+Allow: /pricing
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+
+# Auth pages — block indexing
+Disallow: /login
+Disallow: /register
+Disallow: /onboarding
+
+# Private app pages — block indexing
+Disallow: /dashboard
+Disallow: /cases
+Disallow: /calendar
+Disallow: /settings
+Disallow: /search
+Disallow: /knowledge-base
+Disallow: /checkout
+Disallow: /success
+
+# API routes — block indexing
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://lawcaseai.com/sitemap.xml

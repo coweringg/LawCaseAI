@@ -47,6 +47,7 @@ import webhookRoutes from './routes/webhook'
 import notificationRoutes from './routes/notification'
 import knowledgeBaseRoutes from './routes/knowledgeBase'
 import { planRateLimiter } from './middleware/rateLimiter'
+import { errorHandler } from './middleware/errorHandler'
 
 const app = express()
 
@@ -158,60 +159,7 @@ app.use('*', (req: express.Request, res: express.Response) => {
   } as IApiResponse)
 })
 
-app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction): void => {
-  void _next
-  logger.error({ err: error, method: req.method, url: req.url }, 'Unhandled error')
-  if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
-    const validationError = error as MongooseValidationError
-    const errors = Object.values(validationError.errors).map((err: MongooseValidationFieldError) => ({
-      field: err.path,
-      message: err.message
-    }))
-
-    res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      error: errors
-    } as IApiResponse)
-    return
-  }
-
-  if (error && typeof error === 'object' && 'name' in error && error.name === 'JsonWebTokenError') {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid token'
-    } as IApiResponse)
-    return
-  }
-
-  if (error && typeof error === 'object' && 'code' in error) {
-    const multerError = error as MulterError
-    if (multerError.code === 'LIMIT_FILE_SIZE') {
-      res.status(400).json({
-        success: false,
-        message: 'File too large. Maximum size is 10MB'
-      } as IApiResponse)
-      return
-    }
-
-    if (multerError.code === 'LIMIT_FILE_COUNT') {
-      res.status(400).json({
-        success: false,
-        message: 'Too many files'
-      } as IApiResponse)
-      return
-    }
-  }
-
-  const customError = error as CustomError
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-  const statusCode = customError.statusCode || 500
-
-  res.status(statusCode).json({
-    success: false,
-    message: errorMessage
-  } as IApiResponse)
-})
+app.use(errorHandler)
 
 const checkMongoDBConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {

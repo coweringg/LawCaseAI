@@ -4,19 +4,16 @@ import { User } from '../models'
 import { IApiResponse, IUserRegistration, IUserLogin, UserRole, UserPlan } from '../types'
 import config from '../config'
 import { logAction } from '../utils/auditLogger'
+import AppError from '../utils/appError'
+import catchAsync from '../utils/catchAsync'
 import crypto from 'crypto'
 
-export const register = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const register = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { name, email, password, lawFirm, firmCode }: IUserRegistration = req.body
 
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
-      res.status(400).json({
-        success: false,
-        message: 'An account with this email already exists. Please try logging in instead.'
-      } as IApiResponse)
-      return
+      throw new AppError('An account with this email already exists. Please try logging in instead.', 400)
     }
 
     let organizationId = null
@@ -37,26 +34,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       if (!org) {
         const checkOrg = await Organization.findOne({ firmCode: firmCode.toUpperCase() })
         if (!checkOrg) {
-          res.status(400).json({
-            success: false,
-            message: 'The firm code provided is invalid.'
-          } as IApiResponse)
-          return
+          throw new AppError('The firm code provided is invalid.', 400)
         }
         
         if (checkOrg.usedSeats >= checkOrg.totalSeats) {
-          res.status(400).json({
-            success: false,
-            message: 'Firm seat limit reached.'
-          } as IApiResponse)
-          return
+          throw new AppError('Firm seat limit reached.', 400)
         }
 
-        res.status(400).json({
-          success: false,
-          message: 'The organization is currently inactive.'
-        } as IApiResponse)
-        return
+        throw new AppError('The organization is currently inactive.', 400)
       }
 
       seatIncrementedOrgId = org._id
@@ -152,26 +137,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         token
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Registration failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
+})
 
-export const login = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const login = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { email, password }: IUserLogin = req.body
 
     const user = await User.findByEmail(email)
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      } as IApiResponse)
-      return
+      throw new AppError('Invalid email or password', 401)
     }
 
     if (user.status !== 'active') {
@@ -183,20 +156,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         message = 'Your account has been deleted. Please contact support for more information.'
       }
 
-      res.status(401).json({
-        success: false,
-        message
-      } as IApiResponse)
-      return
+      throw new AppError(message, 401)
     }
 
     const isMatch = await user.comparePassword(password)
     if (!isMatch) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      } as IApiResponse)
-      return
+      throw new AppError('Invalid email or password', 401)
     }
 
     const token = user.generateAuthToken()
@@ -263,17 +228,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         token
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Login failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
+})
 
-export const loginWithSavedToken = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const loginWithSavedToken = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body
 
     let savedTokens: Record<string, string> = {}
@@ -285,36 +242,20 @@ export const loginWithSavedToken = async (req: Request, res: Response): Promise<
     const savedLoginToken = savedTokens[email]
 
     if (!email || !savedLoginToken) {
-      res.status(400).json({
-        success: false,
-        message: 'Email and active saved session are required'
-      } as IApiResponse)
-      return
+      throw new AppError('Email and active saved session are required', 400)
     }
 
     const user = await User.findOne({ email }).select('+password +savedLoginToken')
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid credential token'
-      } as IApiResponse)
-      return
+      throw new AppError('Invalid credential token', 401)
     }
 
     if (user.status !== 'active') {
-      res.status(401).json({
-        success: false,
-        message: 'Account is not active'
-      } as IApiResponse)
-      return
+      throw new AppError('Account is not active', 401)
     }
 
     if (!user.savedLoginToken || user.savedLoginToken !== savedLoginToken) {
-      res.status(401).json({
-        success: false,
-        message: 'Saved login token has expired or is invalid'
-      } as IApiResponse)
-      return
+      throw new AppError('Saved login token has expired or is invalid', 401)
     }
 
     const token = user.generateAuthToken()
@@ -374,16 +315,9 @@ export const loginWithSavedToken = async (req: Request, res: Response): Promise<
         token
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Login failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
-export const refreshToken = async (req: Request, res: Response): Promise<void> => {
-  try {
+})
+
+export const refreshToken = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const user = (req as { user?: unknown }).user as { generateAuthToken: () => string }
 
     const token = user.generateAuthToken()
@@ -393,17 +327,9 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       message: 'Token refreshed successfully',
       data: { token }
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Token refresh failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
+})
 
-export const logout = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const logout = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const user = (req as any).user
     if (user) {
       await User.findByIdAndUpdate(user._id, { $unset: { lastActivity: 1 } })
@@ -415,36 +341,20 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: 'Logout successful'
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Logout failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
+})
 
-export const registerAdmin = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const registerAdmin = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const adminKey = req.header('X-Admin-Key')
 
     if (!adminKey || adminKey !== config.adminCreationKey) {
-      res.status(403).json({
-        success: false,
-        message: 'Access denied. Invalid administrative key.'
-      } as IApiResponse)
-      return
+      throw new AppError('Access denied. Invalid administrative key.', 403)
     }
 
     const { name, email, password, lawFirm }: IUserRegistration = req.body
 
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
-      res.status(400).json({
-        success: false,
-        message: 'An account with this email already exists. Please try logging in instead.'
-      } as IApiResponse)
-      return
+      throw new AppError('An account with this email already exists. Please try logging in instead.', 400)
     }
 
     const now = new Date()
@@ -489,11 +399,4 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
         }
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Admin creation failed'
-    res.status(500).json({
-      success: false,
-      message: errorMessage
-    } as IApiResponse)
-  }
-}
+})

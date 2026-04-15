@@ -7,389 +7,318 @@ import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from
 import config from '../config'
 import PDFDocument from 'pdfkit'
 import { Document, Packer, Paragraph, TextRun } from 'docx'
+import AppError from '../utils/appError'
+import catchAsync from '../utils/catchAsync'
 
-export const uploadFile = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { caseId } = req.body
-        const isTemporary = req.body.isTemporary === 'true' || req.body.isTemporary === true
-        const file = req.file
-        const userId = req.user?._id
+export const uploadFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { caseId } = req.body
+    const isTemporary = req.body.isTemporary === 'true' || req.body.isTemporary === true
+    const file = req.file
+    const userId = req.user?._id
 
-        if (!userId || !file || !caseId) {
-            res.status(400).json({ success: false, message: 'Unable to upload file. Please ensure you have selected a valid file and case.' } as IApiResponse)
-            return
-        }
-
-        const lawyerCase = await Case.findOne({ _id: caseId, userId })
-        if (!lawyerCase) {
-            res.status(404).json({ success: false, message: 'The specified case could not be found for file association.' } as IApiResponse)
-            return
-        }
-
-        const user = req.user || await User.findById(userId)
-        const plan = user?.plan || 'none'
-        const limits = (config.planLimits as any)[plan] || config.planLimits.basic
-
-        if (!isTemporary && lawyerCase.fileCount >= limits.maxFilesPerCase) {
-            res.status(403).json({ 
-                success: false, 
-                message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
-            } as IApiResponse)
-            return
-        }
-
-        if (file.size > limits.maxFileSize) {
-            res.status(403).json({ 
-                success: false, 
-                message: `The file you are trying to upload exceeds the maximum file size for your current plan (${Math.round(limits.maxFileSize / 1024 / 1024)}MB). Please upgrade to upload larger files.` 
-            } as IApiResponse)
-            return
-        }
-
-        if (!isTemporary && user && (lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
-            res.status(403).json({ 
-                success: false, 
-                message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.` 
-            } as IApiResponse)
-            return
-        }
-
-        const key = generateFileKey(userId.toString(), caseId, file.originalname)
-        const url = await saveFileToStorage(file, key)
-
-        let extractedText = ''
-        if (file.mimetype === 'application/pdf') {
-            const rawText = await extractTextFromPDF(file.buffer)
-            extractedText = cleanExtractedText(rawText)
-        } else if (file.mimetype === 'text/plain') {
-            const rawText = extractTextFromPlainText(file.buffer)
-            extractedText = cleanExtractedText(rawText)
-        }
-
-        const newCaseFile = new CaseFile({
-            name: file.originalname,
-            originalName: file.originalname,
-            size: file.size,
-            type: file.mimetype,
-            url,
-            key,
-            caseId,
-            userId,
-            extractedText,
-            isTemporary
-        })
-
-        await newCaseFile.save()
-
-        if (!isTemporary) {
-            lawyerCase.fileCount += 1
-            lawyerCase.totalStorageUsed += file.size
-            await lawyerCase.save()
-
-            await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
-        }
-
-        if (!isTemporary) {
-            await logAction({
-                adminId: userId,
-                adminName: lawyerCase.name, 
-                targetId: newCaseFile._id,
-                targetName: newCaseFile.name,
-                targetType: 'case',
-                category: 'platform',
-                action: 'FILE_UPLOADED',
-                after: { fileName: file.originalname, caseName: lawyerCase.name },
-                description: `User uploaded file "${file.originalname}" to case "${lawyerCase.name}"`
-            })
-        }
-
-        res.status(201).json({
-            success: true,
-            message: 'File uploaded successfully',
-            data: newCaseFile
-        } as IApiResponse)
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to upload file'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+    if (!userId || !file || !caseId) {
+        throw new AppError('Unable to upload file. Please ensure you have selected a valid file and case.', 400)
     }
-}
 
-export const getCaseFiles = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { caseId } = req.params
-        const userId = req.user?._id
-
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-            return
-        }
-
-        const files = await CaseFile.find({ 
-            caseId, 
-            userId, 
-            $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] 
-        }).sort({ createdAt: -1 })
-
-        res.status(200).json({
-            success: true,
-            data: files
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to fetch files' } as IApiResponse)
+    const lawyerCase = await Case.findOne({ _id: caseId, userId })
+    if (!lawyerCase) {
+        throw new AppError('The specified case could not be found for file association.', 404)
     }
-}
 
-export const deleteFile = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { fileId } = req.params
-        const userId = req.user?._id
+    const user = req.user || await User.findById(userId)
+    const plan = user?.plan || 'none'
+    const limits = (config.planLimits as any)[plan] || config.planLimits.basic
 
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-            return
-        }
-
-        const file = await CaseFile.findOne({ _id: fileId, userId })
-        if (!file) {
-            res.status(404).json({ success: false, message: 'File not found' } as IApiResponse)
-            return
-        }
-
-        await deleteFromStorage(file.key)
-
-        await CaseFile.deleteOne({ _id: fileId })
-
-        if (!file.isTemporary) {
-            await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1, totalStorageUsed: -file.size } })
-            await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -file.size } })
-        }
-
-        await logAction({
-            adminId: userId,
-            adminName: 'System', 
-            targetId: file._id,
-            targetName: file.name,
-            targetType: 'case',
-            category: 'platform',
-            action: 'FILE_DELETED',
-            description: `User deleted file "${file.name}"`
-        })
-
-        res.status(200).json({
-            success: true,
-            message: 'File deleted successfully'
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to delete file' } as IApiResponse)
+    if (!isTemporary && lawyerCase.fileCount >= limits.maxFilesPerCase) {
+        throw new AppError(`You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units).`, 403)
     }
-}
 
-export const deleteMultipleFiles = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { fileIds } = req.body
-        const userId = req.user?._id
-
-        if (!userId || !Array.isArray(fileIds) || fileIds.length === 0) {
-            res.status(400).json({ success: false, message: 'Invalid or empty file collection' } as IApiResponse)
-            return
-        }
-
-        const files = await CaseFile.find({ _id: { $in: fileIds }, userId })
-        if (files.length === 0) {
-            res.status(404).json({ success: false, message: 'No valid units found for purging' } as IApiResponse)
-            return
-        }
-
-        const caseIds = [...new Set(files.map(f => f.caseId.toString()))]
-
-        for (const file of files) {
-            await deleteFromStorage(file.key)
-        }
-
-        await CaseFile.deleteMany({ _id: { $in: fileIds }, userId })
-
-        for (const cId of caseIds) {
-            const caseFiles = files.filter(f => f.caseId.toString() === cId && !f.isTemporary)
-            const count = caseFiles.length
-            const totalSize = caseFiles.reduce((sum, f) => sum + f.size, 0)
-
-            if (count > 0) {
-                await Case.updateOne({ _id: cId }, { $inc: { fileCount: -count, totalStorageUsed: -totalSize } })
-                await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -totalSize } })
-            }
-        }
-
-        await logAction({
-            adminId: userId,
-            adminName: 'System',
-            targetName: 'Multiple Units',
-            targetType: 'case',
-            category: 'platform',
-            action: 'BULK_FILE_DELETED',
-            description: `User performed bulk purge of ${files.length} units`
-        })
-
-        res.status(200).json({
-            success: true,
-            message: `${files.length} units successfully purged from repository`
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to execute bulk purge' } as IApiResponse)
+    if (file.size > limits.maxFileSize) {
+        throw new AppError(`The file exceeds the maximum size allowed for your plan (${Math.round(limits.maxFileSize / 1024 / 1024)}MB).`, 403)
     }
-}
 
-export const renameFile = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { fileId } = req.params
-        const { name } = req.body
-        const userId = req.user?._id
-
-        if (!userId || !name) {
-            res.status(400).json({ success: false, message: 'File ID and new name are required' } as IApiResponse)
-            return
-        }
-
-        const file = await CaseFile.findOne({ _id: fileId, userId })
-        if (!file) {
-            res.status(404).json({ success: false, message: 'File not found' } as IApiResponse)
-            return
-        }
-
-        const oldName = file.name
-        file.name = name
-        await file.save()
-
-        await logAction({
-            adminId: userId,
-            adminName: 'System',
-            targetId: file._id,
-            targetName: name,
-            targetType: 'case',
-            category: 'platform',
-            action: 'FILE_RENAMED',
-            description: `User renamed file from "${oldName}" to "${name}"`
-        })
-
-        res.status(200).json({
-            success: true,
-            message: 'File renamed successfully',
-            data: file
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to rename file' } as IApiResponse)
+    if (!isTemporary && user && (lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
+        throw new AppError(`This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB).`, 403)
     }
-}
 
-export const toggleStarFile = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { fileId } = req.params
-        const userId = req.user?._id
+    const key = generateFileKey(userId.toString(), caseId, file.originalname)
+    const url = await saveFileToStorage(file, key)
 
-        if (!userId) {
-            res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-            return
-        }
-
-        const file = await CaseFile.findOne({ _id: fileId, userId })
-        if (!file) {
-            res.status(404).json({ success: false, message: 'File not found' } as IApiResponse)
-            return
-        }
-
-        file.isStarred = !file.isStarred
-        await file.save()
-
-        res.status(200).json({
-            success: true,
-            message: file.isStarred ? 'File starred' : 'File unstarred',
-            data: file
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to toggle star status' } as IApiResponse)
+    let extractedText = ''
+    if (file.mimetype === 'application/pdf') {
+        const rawText = await extractTextFromPDF(file.buffer)
+        extractedText = cleanExtractedText(rawText)
+    } else if (file.mimetype === 'text/plain') {
+        const rawText = extractTextFromPlainText(file.buffer)
+        extractedText = cleanExtractedText(rawText)
     }
-}
 
-export const commitFile = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { fileId, newFileName } = req.body
-        const userId = req.user?._id
+    const newCaseFile = new CaseFile({
+        name: file.originalname,
+        originalName: file.originalname,
+        size: file.size,
+        type: file.mimetype,
+        url,
+        key,
+        caseId,
+        userId,
+        extractedText,
+        isTemporary
+    })
 
-        if (!userId || !fileId) {
-            res.status(400).json({ success: false, message: 'File ID is required to commit.' } as IApiResponse)
-            return
-        }
+    await newCaseFile.save()
 
-        const file = await CaseFile.findOne({ _id: fileId, userId })
-        if (!file) {
-            res.status(404).json({ success: false, message: 'File not found' } as IApiResponse)
-            return
-        }
-
-        if (!file.isTemporary) {
-            res.status(400).json({ success: false, message: 'File is already saved to documents.' } as IApiResponse)
-            return
-        }
-
-        const lawyerCase = await Case.findOne({ _id: file.caseId, userId })
-        if (!lawyerCase) {
-             res.status(404).json({ success: false, message: 'Associated case not found.' } as IApiResponse)
-             return
-        }
-
-        const user = req.user || await User.findById(userId)
-        const plan = user?.plan || 'none'
-        const limits = (config.planLimits as any)[plan] || config.planLimits.basic
-
-        if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
-             res.status(403).json({ 
-                 success: false, 
-                 message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
-             } as IApiResponse)
-             return
-        }
-
-        if ((lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
-             res.status(403).json({ 
-                 success: false, 
-                 message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.` 
-             } as IApiResponse)
-             return
-        }
-
-        if (newFileName && typeof newFileName === 'string' && newFileName.trim() !== '') {
-            file.name = newFileName.trim()
-        }
-
-        file.isTemporary = false
-        await file.save()
-
-        lawyerCase.fileCount += 1
-        lawyerCase.totalStorageUsed += file.size
-        await lawyerCase.save()
-
+    if (!isTemporary) {
+        await Case.findByIdAndUpdate(caseId, { $inc: { fileCount: 1, totalStorageUsed: file.size } })
         await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
 
         await logAction({
             adminId: userId,
-            adminName: lawyerCase.name,
-            targetId: file._id,
-            targetName: file.name,
+            adminName: lawyerCase.name, 
+            targetId: newCaseFile._id,
+            targetName: newCaseFile.name,
             targetType: 'case',
             category: 'platform',
             action: 'FILE_UPLOADED',
-            after: { fileName: file.originalName, caseName: lawyerCase.name },
-            description: `User saved temporary file "${file.originalName}" to case documents.`
+            after: { fileName: file.originalname, caseName: lawyerCase.name },
+            description: `User uploaded file "${file.originalname}" to case "${lawyerCase.name}"`
         })
-
-        res.status(200).json({
-            success: true,
-            message: 'File saved to documents successfully.',
-            data: file
-        } as IApiResponse)
-    } catch (error: unknown) {
-        res.status(500).json({ success: false, message: 'Failed to save file.' } as IApiResponse)
     }
-}
+
+    res.status(201).json({
+        success: true,
+        message: 'File uploaded successfully',
+        data: newCaseFile
+    } as IApiResponse)
+})
+
+export const getCaseFiles = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { caseId } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+        throw new AppError('Unauthorized', 401)
+    }
+
+    const files = await CaseFile.find({ 
+        caseId, 
+        userId, 
+        $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] 
+    }).sort({ createdAt: -1 })
+
+    res.status(200).json({
+        success: true,
+        data: files
+    } as IApiResponse)
+})
+
+export const deleteFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { fileId } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+        throw new AppError('Unauthorized', 401)
+    }
+
+    const file = await CaseFile.findOne({ _id: fileId, userId })
+    if (!file) {
+        throw new AppError('File not found', 404)
+    }
+
+    await deleteFromStorage(file.key)
+    await CaseFile.deleteOne({ _id: fileId })
+
+    if (!file.isTemporary) {
+        await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1, totalStorageUsed: -file.size } })
+        await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -file.size } })
+    }
+
+    await logAction({
+        adminId: userId,
+        adminName: 'System', 
+        targetId: file._id,
+        targetName: file.name,
+        targetType: 'case',
+        category: 'platform',
+        action: 'FILE_DELETED',
+        description: `User deleted file "${file.name}"`
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'File deleted successfully'
+    } as IApiResponse)
+})
+
+export const deleteMultipleFiles = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { fileIds } = req.body
+    const userId = req.user?._id
+
+    if (!userId || !Array.isArray(fileIds) || fileIds.length === 0) {
+        throw new AppError('Invalid or empty file collection', 400)
+    }
+
+    const files = await CaseFile.find({ _id: { $in: fileIds }, userId })
+    if (files.length === 0) {
+        throw new AppError('No valid units found for purging', 404)
+    }
+
+    const caseIds = [...new Set(files.map(f => f.caseId.toString()))]
+
+    for (const file of files) {
+        await deleteFromStorage(file.key)
+    }
+
+    await CaseFile.deleteMany({ _id: { $in: fileIds }, userId })
+
+    for (const cId of caseIds) {
+        const caseFiles = files.filter(f => f.caseId.toString() === cId && !f.isTemporary)
+        const count = caseFiles.length
+        const totalSize = caseFiles.reduce((sum, f) => sum + f.size, 0)
+
+        if (count > 0) {
+            await Case.updateOne({ _id: cId }, { $inc: { fileCount: -count, totalStorageUsed: -totalSize } })
+            await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: -totalSize } })
+        }
+    }
+
+    await logAction({
+        adminId: userId,
+        adminName: 'System',
+        targetName: 'Multiple Units',
+        targetType: 'case',
+        category: 'platform',
+        action: 'BULK_FILE_DELETED',
+        description: `User performed bulk purge of ${files.length} units`
+    })
+
+    res.status(200).json({
+        success: true,
+        message: `${files.length} units successfully purged from repository`
+    } as IApiResponse)
+})
+
+export const renameFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { fileId } = req.params
+    const { name } = req.body
+    const userId = req.user?._id
+
+    if (!userId || !name) {
+        throw new AppError('File ID and new name are required', 400)
+    }
+
+    const file = await CaseFile.findOne({ _id: fileId, userId })
+    if (!file) {
+        throw new AppError('File not found', 404)
+    }
+
+    const oldName = file.name
+    file.name = name
+    await file.save()
+
+    await logAction({
+        adminId: userId,
+        adminName: 'System',
+        targetId: file._id,
+        targetName: name,
+        targetType: 'case',
+        category: 'platform',
+        action: 'FILE_RENAMED',
+        description: `User renamed file from "${oldName}" to "${name}"`
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'File renamed successfully',
+        data: file
+    } as IApiResponse)
+})
+
+export const toggleStarFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { fileId } = req.params
+    const userId = req.user?._id
+
+    if (!userId) {
+        throw new AppError('Unauthorized', 401)
+    }
+
+    const file = await CaseFile.findOne({ _id: fileId, userId })
+    if (!file) {
+        throw new AppError('File not found', 404)
+    }
+
+    file.isStarred = !file.isStarred
+    await file.save()
+
+    res.status(200).json({
+        success: true,
+        message: file.isStarred ? 'File starred' : 'File unstarred',
+        data: file
+    } as IApiResponse)
+})
+
+export const commitFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { fileId, newFileName } = req.body
+    const userId = req.user?._id
+
+    if (!userId || !fileId) {
+        throw new AppError('File ID is required to commit.', 400)
+    }
+
+    const file = await CaseFile.findOne({ _id: fileId, userId })
+    if (!file) {
+        throw new AppError('File not found', 404)
+    }
+
+    if (!file.isTemporary) {
+        throw new AppError('File is already saved to documents.', 400)
+    }
+
+    const lawyerCase = await Case.findOne({ _id: file.caseId, userId })
+    if (!lawyerCase) {
+         throw new AppError('Associated case not found.', 404)
+    }
+
+    const user = req.user || await User.findById(userId)
+    const plan = user?.plan || 'none'
+    const limits = (config.planLimits as any)[plan] || config.planLimits.basic
+
+    if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
+         throw new AppError(`You have reached the maximum document limit per case for your plan (${limits.maxFilesPerCase} units).`, 403)
+    }
+
+    if ((lawyerCase.totalStorageUsed || 0) + file.size > limits.maxTotalStorage) {
+         throw new AppError(`This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB).`, 403)
+    }
+
+    if (newFileName && typeof newFileName === 'string' && newFileName.trim() !== '') {
+        file.name = newFileName.trim()
+    }
+
+    file.isTemporary = false
+    await file.save()
+
+    await Case.findByIdAndUpdate(file.caseId, { $inc: { fileCount: 1, totalStorageUsed: file.size } })
+    await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: file.size } })
+
+    await logAction({
+        adminId: userId,
+        adminName: lawyerCase.name,
+        targetId: file._id,
+        targetName: file.name,
+        targetType: 'case',
+        category: 'platform',
+        action: 'FILE_UPLOADED',
+        after: { fileName: file.originalName, caseName: lawyerCase.name },
+        description: `User saved temporary file "${file.originalName}" to case documents.`
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'File saved to documents successfully.',
+        data: file
+    } as IApiResponse)
+})
 
 const cleanAIContent = (text: string): string => {
     return text
@@ -399,189 +328,86 @@ const cleanAIContent = (text: string): string => {
         .trim();
 };
 
-export const createFileFromText = async (req: IAuthRequest, res: Response): Promise<void> => {
-    try {
-        const { caseId, name, content, type } = req.body
-        const userId = req.user?._id
+export const createFileFromText = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { caseId, name, content, type } = req.body
+    const userId = req.user?._id
 
-        if (!userId || !caseId || !name || !content) {
-            res.status(400).json({ success: false, message: 'Case ID, name, and content are required.' } as IApiResponse)
-            return
-        }
-
-        const lawyerCase = await Case.findOne({ _id: caseId, userId })
-        if (!lawyerCase) {
-            res.status(404).json({ success: false, message: 'Case not found.' } as IApiResponse)
-            return
-        }
-
-        const user = req.user || await User.findById(userId)
-        const plan = user?.plan || 'none'
-        const limits = (config.planLimits as any)[plan] || config.planLimits.basic
-
-        if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
-            res.status(403).json({ 
-                success: false, 
-                message: `You have reached the maximum document limit per case for your current plan (${limits.maxFilesPerCase} units). Please upgrade your plan to increase this limit.` 
-            } as IApiResponse)
-            return
-        }
-
-        const estimatedSize = Buffer.byteLength(content, 'utf8')
-        if ((lawyerCase.totalStorageUsed || 0) + estimatedSize > limits.maxTotalStorage) {
-            res.status(403).json({
-                success: false,
-                message: `This case has reached its total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.`
-            } as IApiResponse)
-            return
-        }
-
-        if (user && (user.totalStorageUsed || 0) + estimatedSize > limits.maxTotalStorage) {
-            res.status(403).json({
-                success: false,
-                message: `You have reached your total storage capacity (${Math.round(limits.maxTotalStorage / 1024 / 1024)}MB). Please upgrade your plan to increase this limit.`
-            } as IApiResponse)
-            return
-        }
-
-        let finalBuffer: Buffer
-        let finalMimeType: string
-        let fileName: string
-
-        if (type === 'application/pdf') {
-            finalMimeType = 'application/pdf'
-            fileName = name.endsWith('.pdf') ? name : `${name}.pdf`
-            
-            const cleanContent = cleanAIContent(content)
-            
-            const doc = new PDFDocument({ margin: 50 })
-            const chunks: Buffer[] = []
-            doc.on('data', (chunk) => chunks.push(chunk))
-            
-            doc.fillColor('#2563eb')
-               .fontSize(22)
-               .text('LAWCASE AI', { align: 'left' })
-            
-            doc.fillColor('#64748b')
-               .fontSize(8)
-               .text('NEURAL ANALYSIS UNIT • CONFIDENTIAL', { align: 'right' })
-               .moveDown(2)
-            
-            doc.strokeColor('#e2e8f0')
-               .lineWidth(1)
-               .moveTo(50, doc.y)
-               .lineTo(550, doc.y)
-               .stroke()
-               .moveDown(2)
-
-            doc.fillColor('#1e293b')
-               .fontSize(16)
-               .font('Helvetica-Bold')
-               .text(name.replace('.pdf', ''), { align: 'left' })
-               .moveDown(1)
-            
-            doc.fillColor('#334155')
-               .fontSize(11)
-               .font('Helvetica')
-               .lineGap(4)
-               .text(cleanContent, {
-                   align: 'justify',
-                   indent: 0,
-                   paragraphGap: 10
-               })
-            
-            doc.end()
-            
-            await new Promise((resolve) => doc.on('end', resolve))
-            finalBuffer = Buffer.concat(chunks)
-        } else if (type?.includes('word')) {
-            finalMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            fileName = name.endsWith('.docx') ? name : `${name}.docx`
-            
-            const doc = new Document({
-                sections: [{
-                    properties: {},
-                    children: [
-                        new Paragraph({
-                            children: [new TextRun({ text: name, bold: true, size: 32, color: '2563eb' })],
-                            spacing: { after: 400 }
-                        }),
-                        ...cleanAIContent(content).split('\n').map((line: string) => {
-                            if (!line.trim()) return new Paragraph({ spacing: { after: 200 } });
-                            
-                            const isHeading = line.startsWith('###') || line.startsWith('##');
-                            const cleanLine = line.replace(/^#+\s/, '');
-                            
-                            return new Paragraph({
-                                children: [new TextRun({ 
-                                    text: cleanLine, 
-                                    bold: isHeading, 
-                                    size: isHeading ? 28 : 22 
-                                })],
-                                spacing: { after: 200 }
-                            });
-                        })
-                    ],
-                }],
-            })
-            finalBuffer = await Packer.toBuffer(doc)
-        } else {
-            finalMimeType = 'text/markdown'
-            fileName = name.endsWith('.md') || name.endsWith('.txt') ? name : `${name}.md`
-            finalBuffer = Buffer.from(content)
-        }
-
-        const key = generateFileKey(userId.toString(), caseId, fileName)
-        
-        const mockFile = {
-            buffer: finalBuffer,
-            originalname: fileName,
-            mimetype: finalMimeType,
-            size: finalBuffer.length
-        } as Express.Multer.File
-
-        const url = await saveFileToStorage(mockFile, key)
-
-        const newCaseFile = new CaseFile({
-            name: fileName,
-            originalName: fileName,
-            size: finalBuffer.length,
-            type: finalMimeType,
-            url,
-            key,
-            caseId,
-            userId,
-            extractedText: content,
-            isTemporary: false
-        })
-
-        await newCaseFile.save()
-
-        lawyerCase.fileCount += 1
-        lawyerCase.totalStorageUsed += finalBuffer.length
-        await lawyerCase.save()
-
-        await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: finalBuffer.length } })
-
-        await logAction({
-            adminId: userId,
-            adminName: lawyerCase.name,
-            targetId: newCaseFile._id,
-            targetName: newCaseFile.name,
-            targetType: 'case',
-            category: 'platform',
-            action: 'FILE_UPLOADED',
-            after: { fileName: newCaseFile.name, caseName: lawyerCase.name },
-            description: `User saved AI analysis summary as "${newCaseFile.name}" (${finalMimeType})`
-        })
-
-        res.status(201).json({
-            success: true,
-            message: `Summary saved as ${fileName} successfully.`,
-            data: newCaseFile
-        } as IApiResponse)
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to create file from text'
-        res.status(500).json({ success: false, message: errorMessage } as IApiResponse)
+    if (!userId || !caseId || !name || !content) {
+        throw new AppError('Case ID, name, and content are required.', 400)
     }
-}
+
+    const lawyerCase = await Case.findOne({ _id: caseId, userId })
+    if (!lawyerCase) {
+        throw new AppError('Case not found.', 404)
+    }
+
+    const user = req.user || await User.findById(userId)
+    const plan = user?.plan || 'none'
+    const limits = (config.planLimits as any)[plan] || config.planLimits.basic
+
+    const estimatedSize = Buffer.byteLength(content, 'utf8')
+    if (lawyerCase.fileCount >= limits.maxFilesPerCase) {
+        throw new AppError(`Maximum document limit reached (${limits.maxFilesPerCase} units).`, 403)
+    }
+
+    if ((lawyerCase.totalStorageUsed || 0) + estimatedSize > limits.maxTotalStorage) {
+        throw new AppError('Storage limit reached for this case.', 403)
+    }
+
+    let finalBuffer: Buffer
+    let finalMimeType: string
+    let fileName: string
+
+    if (type === 'application/pdf') {
+        finalMimeType = 'application/pdf'
+        fileName = name.endsWith('.pdf') ? name : `${name}.pdf`
+        const cleanContent = cleanAIContent(content)
+        const doc = new PDFDocument({ margin: 50 })
+        const chunks: Buffer[] = []
+        doc.on('data', (chunk) => chunks.push(chunk))
+        
+        doc.fillColor('#2563eb').fontSize(22).text('LAWCASE AI', { align: 'left' })
+        doc.fillColor('#64748b').fontSize(8).text('NEURAL ANALYSIS UNIT • CONFIDENTIAL', { align: 'right' }).moveDown(2)
+        doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(50, doc.y).lineTo(550, doc.y).stroke().moveDown(2)
+        doc.fillColor('#1e293b').fontSize(16).font('Helvetica-Bold').text(name.replace('.pdf', ''), { align: 'left' }).moveDown(1)
+        doc.fillColor('#334155').fontSize(11).font('Helvetica').lineGap(4).text(cleanContent, { align: 'justify', paragraphGap: 10 })
+        
+        doc.end()
+        await new Promise((resolve) => doc.on('end', resolve))
+        finalBuffer = Buffer.concat(chunks)
+    } else if (type?.includes('word')) {
+        finalMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        fileName = name.endsWith('.docx') ? name : `${name}.docx`
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({ children: [new TextRun({ text: name, bold: true, size: 32, color: '2563eb' })], spacing: { after: 400 } }),
+                    ...cleanAIContent(content).split('\n').map((line: string) => {
+                        const isHeading = line.startsWith('###') || line.startsWith('##');
+                        return new Paragraph({ children: [new TextRun({ text: line.replace(/^#+\s/, ''), bold: isHeading, size: isHeading ? 28 : 22 })], spacing: { after: 200 } });
+                    })
+                ],
+            }],
+        })
+        finalBuffer = await Packer.toBuffer(doc)
+    } else {
+        finalMimeType = 'text/markdown'
+        fileName = name.endsWith('.md') ? name : `${name}.md`
+        finalBuffer = Buffer.from(content)
+    }
+
+    const key = generateFileKey(userId.toString(), caseId, fileName)
+    const url = await saveFileToStorage({ buffer: finalBuffer, originalname: fileName, mimetype: finalMimeType } as any, key)
+
+    const newCaseFile = new CaseFile({ name: fileName, originalName: fileName, size: finalBuffer.length, type: finalMimeType, url, key, caseId, userId, extractedText: content, isTemporary: false })
+    await newCaseFile.save()
+
+    await Case.findByIdAndUpdate(caseId, { $inc: { fileCount: 1, totalStorageUsed: finalBuffer.length } })
+    await User.findByIdAndUpdate(userId, { $inc: { totalStorageUsed: finalBuffer.length } })
+
+    await logAction({
+        adminId: userId, adminName: lawyerCase.name, targetId: newCaseFile._id, targetName: newCaseFile.name, targetType: 'case', category: 'platform', action: 'FILE_UPLOADED', description: `User saved AI analysis as "${newCaseFile.name}"`
+    })
+
+    res.status(201).json({ success: true, message: 'File created successfully', data: newCaseFile })
+})

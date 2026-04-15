@@ -2,20 +2,14 @@ import { Response } from 'express'
 import { User, SupportRequest, Case, Organization } from '../models'
 import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus, UserPlan } from '../types'
 import { logAction } from '../utils/auditLogger'
-import logger from '../utils/logger'
 import config from '../config'
+import AppError from '../utils/appError'
+import catchAsync from '../utils/catchAsync'
 
-const controllerLogger = logger.child({ module: 'user-controller' })
-
-export const getProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     res.status(200).json({
@@ -50,24 +44,12 @@ export const getProfile = async (req: IAuthRequest, res: Response): Promise<void
         expiredTrial: user.expiredTrial
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'getProfile error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve profile'
-    } as IApiResponse)
-  }
-}
+})
 
-export const updateProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { name, lawFirm, email } = req.body
@@ -75,11 +57,7 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email })
       if (existingUser) {
-        res.status(400).json({
-          success: false,
-          message: 'Email address is already in use'
-        } as IApiResponse)
-        return
+        throw new AppError('Email address is already in use', 400)
       }
     }
 
@@ -101,11 +79,7 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
     )
 
     if (!updatedUser) {
-      res.status(404).json({
-        success: false,
-        message: 'User not found'
-      } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     await logAction({
@@ -148,44 +122,24 @@ export const updateProfile = async (req: IAuthRequest, res: Response): Promise<v
         maxTotalStorage: (config.planLimits as any)[updatedUser.plan]?.maxTotalStorage || 0
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'updateProfile error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update profile'
-    } as IApiResponse)
-  }
-}
+})
 
-export const changePassword = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const changePassword = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { currentPassword, newPassword } = req.body
 
     const userWithPassword = await User.findById(user._id).select('+password')
     if (!userWithPassword) {
-      res.status(404).json({
-        success: false,
-        message: 'User not found'
-      } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     const isMatch = await userWithPassword.comparePassword(currentPassword)
     if (!isMatch) {
-      res.status(400).json({
-        success: false,
-        message: 'Current password is incorrect'
-      } as IApiResponse)
-      return
+      throw new AppError('Current password is incorrect', 400)
     }
 
     userWithPassword.password = newPassword
@@ -206,24 +160,12 @@ export const changePassword = async (req: IAuthRequest, res: Response): Promise<
       success: true,
       message: 'Password changed successfully'
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'changePassword error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to change password'
-    } as IApiResponse)
-  }
-}
+})
 
-export const updateNotifications = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const updateNotifications = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const notifications: INotificationSettings = req.body
@@ -240,11 +182,7 @@ export const updateNotifications = async (req: IAuthRequest, res: Response): Pro
     )
 
     if (!updatedUser) {
-      res.status(404).json({
-        success: false,
-        message: 'User not found'
-      } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     await logAction({
@@ -268,24 +206,12 @@ export const updateNotifications = async (req: IAuthRequest, res: Response): Pro
         marketingEmails: updatedUser.marketingEmails
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'updateNotifications error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update notification preferences'
-    } as IApiResponse)
-  }
-}
+})
 
-export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const getBillingInfo = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const activeCaseCount = await Case.countDocuments({ userId: user._id, status: 'active' })
@@ -312,34 +238,18 @@ export const getBillingInfo = async (req: IAuthRequest, res: Response): Promise<
       message: 'Billing info retrieved successfully',
       data: billingInfo
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'getBillingInfo error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve billing info'
-    } as IApiResponse)
-  }
-}
+})
 
-export const submitSupportRequest = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const submitSupportRequest = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: 'User not authenticated'
-      } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { type, subject, description } = req.body
 
     if (!type || !subject || !description) {
-      res.status(400).json({
-        success: false,
-        message: 'Please provide support type, subject and description'
-      } as IApiResponse)
-      return
+      throw new AppError('Please provide support type, subject and description', 400)
     }
 
     const supportRequest = new SupportRequest({
@@ -370,21 +280,12 @@ export const submitSupportRequest = async (req: IAuthRequest, res: Response): Pr
       message: 'Support request submitted successfully. Our team will contact you soon.',
       data: supportRequest
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'submitSupportRequest error')
-    res.status(500).json({
-      success: false,
-      message: 'Failed to submit support request'
-    } as IApiResponse)
-  }
-}
+})
 
-export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const addPaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { brand, last4, expiryMonth, expiryYear } = req.body
@@ -425,18 +326,12 @@ export const addPaymentMethod = async (req: IAuthRequest, res: Response): Promis
         defaultPaymentMethodId: user.defaultPaymentMethodId
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'addPaymentMethod error')
-    res.status(500).json({ success: false, message: 'Failed to add payment method' } as IApiResponse)
-  }
-}
+})
 
-export const removePaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const removePaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { id } = req.params
@@ -468,26 +363,19 @@ export const removePaymentMethod = async (req: IAuthRequest, res: Response): Pro
         defaultPaymentMethodId: user.defaultPaymentMethodId
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'removePaymentMethod error')
-    res.status(500).json({ success: false, message: 'Failed to remove payment method' } as IApiResponse)
-  }
-}
+})
 
-export const setDefaultPaymentMethod = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const setDefaultPaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     const { id } = req.params
 
     const exists = user.paymentMethods.some(pm => pm.id === id)
     if (!exists) {
-      res.status(404).json({ success: false, message: 'Payment method not found' } as IApiResponse)
-      return
+      throw new AppError('Payment method not found', 404)
     }
 
     user.defaultPaymentMethodId = id
@@ -500,34 +388,20 @@ export const setDefaultPaymentMethod = async (req: IAuthRequest, res: Response):
         defaultPaymentMethodId: user.defaultPaymentMethodId
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'setDefaultPaymentMethod error')
-    res.status(500).json({ success: false, message: 'Failed to set default payment method' } as IApiResponse)
-  }
-}
+})
 
-export const activateTrial = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const activateTrial = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      res.status(401).json({ success: false, message: 'User not authenticated' } as IApiResponse)
-      return
+      throw new AppError('User not authenticated', 401)
     }
 
     if (user.isTrialUsed) {
-      res.status(400).json({ 
-        success: false, 
-        message: 'Trial has already been used on this account. Please subscribe to a plan to continue.' 
-      } as IApiResponse)
-      return
+      throw new AppError('Trial has already been used on this account. Please subscribe to a plan to continue.', 400)
     }
 
     if (user.plan !== UserPlan.NONE) {
-      res.status(400).json({ 
-        success: false, 
-        message: 'A trial cannot be activated while an active plan is in place.' 
-      } as IApiResponse)
-      return
+      throw new AppError('A trial cannot be activated while an active plan is in place.', 400)
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -542,8 +416,7 @@ export const activateTrial = async (req: IAuthRequest, res: Response): Promise<v
     )
 
     if (!updatedUser) {
-      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     await logAction({
@@ -566,8 +439,4 @@ export const activateTrial = async (req: IAuthRequest, res: Response): Promise<v
         isTrialUsed: updatedUser.isTrialUsed
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'activateTrial error')
-    res.status(500).json({ success: false, message: 'Failed to activate trial' } as IApiResponse)
-  }
-}
+})

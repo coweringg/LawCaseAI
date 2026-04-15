@@ -4,42 +4,30 @@ import { IApiResponse, CaseStatus, IAuthRequest, UserPlan, EventPriority, Notifi
 import { logAction } from '../utils/auditLogger'
 import { createNotification } from '../utils/notification'
 import { deleteFromStorage } from '../utils/fileUpload'
-import logger from '../utils/logger'
+import AppError from '../utils/appError'
+import catchAsync from '../utils/catchAsync'
 
-const controllerLogger = logger.child({ module: 'case-controller' })
-
-export const createCase = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const createCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { name, client, description, practiceArea, status, complexity, keyDates } = req.body
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     if (user.plan === UserPlan.NONE) {
-      res.status(403).json({
-        success: false,
-        message: 'You do not have an active plan. Please subscribe to a plan to start creating cases.'
-      } as IApiResponse)
-      return
+      throw new AppError('You do not have an active plan. Please subscribe to a plan to start creating cases.', 403)
     }
 
     const isTrial = user.plan === UserPlan.TRIAL
 
     if (isTrial && user.trialCaseId) {
-      res.status(403).json({
-        success: false,
-        message: 'Your free trial is limited to one single case/matter. Please upgrade to a paid plan to create more cases.'
-      } as IApiResponse)
-      return
+      throw new AppError('Your free trial is limited to one single case/matter. Please upgrade to a paid plan to create more cases.', 403)
     }
 
     const validStatuses = Object.values(CaseStatus)
@@ -72,7 +60,6 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
           status: 'active'
         }))
       await Promise.allSettled(eventPromises)
-      controllerLogger.info({ caseId: newCase._id, count: eventPromises.length }, 'Auto-created calendar events from key dates')
     }
 
     const userUpdate: any = { $inc: { currentCases: 1 } }
@@ -108,19 +95,13 @@ export const createCase = async (req: IAuthRequest, res: Response): Promise<void
       message: 'Case created successfully',
       data: newCase
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'createCase error')
-    res.status(500).json({ success: false, message: 'Failed to create case' } as IApiResponse)
-  }
-}
+})
 
-export const getCases = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const getCases = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const page = Math.max(1, parseInt(req.query.page as string) || 1)
@@ -164,18 +145,12 @@ export const getCases = async (req: IAuthRequest, res: Response): Promise<void> 
         pages: Math.ceil(total / limit)
       }
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'getCases error')
-    res.status(500).json({ success: false, message: 'Failed to fetch cases' } as IApiResponse)
-  }
-}
+})
 
-export const getCaseStats = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const getCaseStats = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const stats = await Case.aggregate([
@@ -206,19 +181,14 @@ export const getCaseStats = async (req: IAuthRequest, res: Response): Promise<vo
       success: true,
       data: formattedStats
     } as IApiResponse)
-  } catch (error: unknown) {
-    res.status(500).json({ success: false, message: 'Failed to fetch stats' } as IApiResponse)
-  }
-}
+})
 
-export const getCaseById = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const getCaseById = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const caseData = await Case.findOne({ _id: id, userId })
@@ -236,40 +206,31 @@ export const getCaseById = async (req: IAuthRequest, res: Response): Promise<voi
     }
 
     if (!caseData) {
-      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
-      return
+      throw new AppError('Case not found', 404)
     }
 
     res.status(200).json({
       success: true,
       data: caseData
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'getCaseById error')
-    res.status(500).json({ success: false, message: 'Failed to fetch case' } as IApiResponse)
-  }
-}
+})
 
-export const updateCase = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const currentCase = await Case.findOne({ _id: id, userId })
     if (!currentCase) {
-      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
-      return
+      throw new AppError('Case not found', 404)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     const { name, client, description, status, practiceArea } = req.body
@@ -289,16 +250,15 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
         if (currentCase.status === CaseStatus.ACTIVE) {
           await User.updateOne({ _id: userId }, { $inc: { currentCases: -1 } })
         }
-        const archiveResult = await Event.updateMany(
+        await Event.updateMany(
           { caseId: id, userId, status: 'active' },
           { $set: { status: 'closed' } }
         )
-        controllerLogger.info({ caseId: id, archived: archiveResult.modifiedCount }, 'Archived events on user case closure')
         
         await createNotification({
           userId,
           title: 'Case Closed',
-          message: `Workspace for "${currentCase.name}" has been sealed. ${archiveResult.modifiedCount} calendar events were archived.`,
+          message: `Workspace for "${currentCase.name}" has been sealed. Calendar events were archived.`,
           type: NotificationType.CASE_UPDATE,
           priority: NotificationPriority.LOW,
           link: '/cases'
@@ -310,8 +270,7 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
     }
 
     if (Object.keys(allowedUpdates).length === 0) {
-      res.status(400).json({ success: false, message: 'No valid fields to update' } as IApiResponse)
-      return
+      throw new AppError('No valid fields to update', 400)
     }
 
     const updatedCase = await Case.findOneAndUpdate(
@@ -321,8 +280,7 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
     )
 
     if (!updatedCase) {
-      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
-      return
+      throw new AppError('Case not found', 404)
     }
 
     if (status === CaseStatus.ACTIVE && currentCase.status !== CaseStatus.ACTIVE) {
@@ -343,7 +301,7 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       if (isClosing) actionType = 'CASE_CLOSED'
       if (isArchiving) actionType = 'CASE_STATUS_CHANGE'
       
-      const description = isClosing 
+      const descriptionStr = isClosing 
         ? `User ${user.email} closed case: "${updatedCase.name}"`
         : `User ${user.email} changed case "${updatedCase.name}" status from ${currentCase.status} to ${updatedCase.status}`
 
@@ -357,7 +315,7 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
         action: actionType,
         before: beforeState,
         after: { status: updatedCase.status, email: user.email },
-        description
+        description: descriptionStr
       })
     }
 
@@ -366,37 +324,28 @@ export const updateCase = async (req: IAuthRequest, res: Response): Promise<void
       message: 'Case updated successfully',
       data: updatedCase
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'updateCase error')
-    res.status(500).json({ success: false, message: 'Failed to update case' } as IApiResponse)
-  }
-}
+})
 
-export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     const caseToDelete = await Case.findOne({ _id: id, userId })
     if (!caseToDelete) {
-      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
-      return
+      throw new AppError('Case not found', 404)
     }
 
     if (caseToDelete.status !== CaseStatus.CLOSED) {
-      res.status(400).json({ success: false, message: 'Only closed cases can be permanently deleted.' } as IApiResponse)
-      return
+      throw new AppError('Only closed cases can be permanently deleted.', 400)
     }
 
     const files = await CaseFile.find({ caseId: id, userId })
@@ -406,7 +355,7 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
         try {
           await deleteFromStorage(file.key)
         } catch (storageError) {
-          controllerLogger.error({ err: storageError, fileId: file._id }, 'deleteCase: failed to delete file from storage')
+          // Keep going even if some files fail to delete from storage
         }
       }
       if (!file.isTemporary && file.size) {
@@ -442,59 +391,41 @@ export const deleteCase = async (req: IAuthRequest, res: Response): Promise<void
       success: true,
       message: 'Case permanently deleted successfully.'
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'deleteCase error')
-    res.status(500).json({ success: false, message: 'Failed to delete case' } as IApiResponse)
-  }
-}
+})
 
-export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<void> => {
-  try {
+export const reactivateCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized' } as IApiResponse)
-      return
+      throw new AppError('Unauthorized', 401)
     }
 
     const currentCase = await Case.findOne({ _id: id, userId })
     if (!currentCase) {
-      res.status(404).json({ success: false, message: 'Case not found' } as IApiResponse)
-      return
+      throw new AppError('Case not found', 404)
     }
 
     if (currentCase.status !== CaseStatus.CLOSED) {
-      res.status(400).json({ success: false, message: 'Only closed cases can be reactivated.' } as IApiResponse)
-      return
+      throw new AppError('Only closed cases can be reactivated.', 400)
     }
 
     if (currentCase.closedByUser) {
-      res.status(403).json({
-        success: false,
-        message: 'This case was permanently sealed by you and cannot be reactivated. You can create a new case instead.'
-      } as IApiResponse)
-      return
+      throw new AppError('This case was permanently sealed by you and cannot be reactivated. You can create a new case instead.', 403)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' } as IApiResponse)
-      return
+      throw new AppError('User not found', 404)
     }
 
     if (user.plan === UserPlan.NONE) {
-      res.status(403).json({ success: false, message: 'Subscribe to a plan to reactivate cases.' } as IApiResponse)
-      return
+      throw new AppError('Subscribe to a plan to reactivate cases.', 403)
     }
 
     const maxAllowedCases = user.maxCases || user.planLimit
     if (user.currentCases >= maxAllowedCases) {
-      res.status(403).json({
-        success: false,
-        message: `You have reached the case limit for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade your plan to reactivate more cases, or wait until your next billing cycle for your limit to be replenished.`
-      } as IApiResponse)
-      return
+      throw new AppError(`You have reached the case limit for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade your plan to reactivate more cases.`, 403)
     }
 
     currentCase.status = CaseStatus.ACTIVE
@@ -511,16 +442,15 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
 
     await currentCase.save()
 
-    const restoreResult = await Event.updateMany(
+    await Event.updateMany(
       { caseId: id, userId, status: 'closed' },
       { $set: { status: 'active' } }
     )
-    controllerLogger.info({ caseId: id, restored: restoreResult.modifiedCount }, 'Restored events on case reactivation')
 
     await createNotification({
       userId,
       title: 'Case Reactivated',
-      message: `Case "${currentCase.name}" is now active again. ${restoreResult.modifiedCount} archived events have been restored.`,
+      message: `Case "${currentCase.name}" is now active again. Archived events have been restored.`,
       type: NotificationType.CASE_UPDATE,
       priority: NotificationPriority.MEDIUM,
       link: `/cases/${id}`
@@ -543,8 +473,4 @@ export const reactivateCase = async (req: IAuthRequest, res: Response): Promise<
       message: 'Case reactivated successfully',
       data: currentCase
     } as IApiResponse)
-  } catch (error: unknown) {
-    controllerLogger.error({ err: error }, 'reactivateCase error')
-    res.status(500).json({ success: false, message: 'Failed to reactivate case' } as IApiResponse)
-  }
-}
+})

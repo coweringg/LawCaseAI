@@ -1,144 +1,91 @@
 import { Request, Response } from 'express'
 import KnowledgeDocument from '../models/KnowledgeDocument'
-import Organization from '../models/Organization'
 import User from '../models/User'
 import { saveFileToStorage, deleteFromStorage } from '../utils/fileUpload'
 import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from '../utils/pdfUtils'
+import AppError from '../utils/appError'
+import catchAsync from '../utils/catchAsync'
 
-export const getKnowledgeDocuments = async (req: Request, res: Response) => {
-    try {
-        const { category, assignedTo, search, page = 1, limit = 10 } = req.query
-        const skip = (Number(page) - 1) * Number(limit)
-        const query: any = {}
+export const getKnowledgeDocuments = catchAsync(async (req: Request, res: Response) => {
+    const { category, assignedTo, search, page = 1, limit = 10 } = req.query
+    const skip = (Number(page) - 1) * Number(limit)
+    const query: any = {}
 
-        if (category) query.category = category
-        if (assignedTo) query.assignedTo = assignedTo
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
-            ]
-        }
-
-        const documents = await KnowledgeDocument.find(query)
-            .sort({ uploadDate: -1 })
-            .skip(skip)
-            .limit(Number(limit))
-            .populate('uploadedBy', 'name email')
-
-        const total = await KnowledgeDocument.countDocuments(query)
-
-        return res.json({ 
-            success: true, 
-            data: {
-                documents,
-                total,
-                page: Number(page),
-                pages: Math.ceil(total / Number(limit))
-            } 
-        })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: 'Failed to retrieve knowledge base documents' })
+    if (category) query.category = category
+    if (assignedTo) query.assignedTo = assignedTo
+    if (search) {
+        query.$or = [{ name: { $regex: search, $options: 'i' } }, { category: { $regex: search, $options: 'i' } }]
     }
-}
 
-export const getUserLibrary = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as any).user.userId || (req as any).user.id
-        const user = await User.findById(userId)
-        
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' })
-        }
+    const [documents, total] = await Promise.all([
+        KnowledgeDocument.find(query).sort({ uploadDate: -1 }).skip(skip).limit(Number(limit)).populate('uploadedBy', 'name email'),
+        KnowledgeDocument.countDocuments(query)
+    ])
 
-        const { category, search } = req.query
-        const query: any = {
-            $or: [
-                { assignedTo: 'all' }
-            ]
-        }
+    res.status(200).json({ 
+        success: true, 
+        data: { documents, total, page: Number(page), pages: Math.ceil(total / Number(limit)) } 
+    })
+})
 
-        if (user.organizationId) {
-            query.$or.push({ assignedTo: user.organizationId })
-        }
+export const getUserLibrary = catchAsync(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId || (req as any).user.id
+    const user = await User.findById(userId)
+    if (!user) throw new AppError('User not found', 404)
 
-        if (category) query.category = category
-        if (search) {
-            query.$or.push({ name: { $regex: search, $options: 'i' } })
-            query.$or.push({ category: { $regex: search, $options: 'i' } })
-        }
+    const { category, search } = req.query
+    const query: any = { $or: [{ assignedTo: 'all' }] }
 
-        const documents = await KnowledgeDocument.find(query)
-            .sort({ uploadDate: -1 })
-            .select('-fileKey -extractedText')
-
-        return res.json({ success: true, data: documents })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: 'Failed to access legal library' })
+    if (user.organizationId) {
+        query.$or.push({ assignedTo: user.organizationId })
     }
-}
 
-export const uploadKnowledgeDocument = async (req: Request, res: Response) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No document file provided' })
-        }
-
-        const { name, category, assignedTo } = req.body
-        const userId = (req as any).user.id
-        const fileKey = `knowledge-base/${Date.now()}-${req.file.originalname}`
-        const fileUrl = await saveFileToStorage(req.file, fileKey)
-
-        let extractedText = ''
-        if (req.file.mimetype === 'application/pdf') {
-            extractedText = await extractTextFromPDF(req.file.buffer)
-        } else if (req.file.mimetype === 'text/plain') {
-            extractedText = extractTextFromPlainText(req.file.buffer)
-        }
-        extractedText = cleanExtractedText(extractedText)
-
-        const newDoc = await KnowledgeDocument.create({
-            name,
-            category,
-            assignedTo: assignedTo || 'all',
-            fileUrl,
-            fileKey,
-            fileSize: req.file.size,
-            fileType: req.file.mimetype,
-            uploadedBy: userId,
-            extractedText
-        })
-
-        return res.status(201).json({ success: true, data: newDoc })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: 'Failed to execute document uplink' })
+    if (category) query.category = category
+    if (search) {
+        query.$or.push({ name: { $regex: search, $options: 'i' } })
+        query.$or.push({ category: { $regex: search, $options: 'i' } })
     }
-}
 
-export const deleteKnowledgeDocument = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const document = await KnowledgeDocument.findById(id)
+    const documents = await KnowledgeDocument.find(query).sort({ uploadDate: -1 }).select('-fileKey -extractedText')
+    res.status(200).json({ success: true, data: documents })
+})
 
-        if (!document) {
-            return res.status(404).json({ success: false, message: 'Document not found' })
-        }
+export const uploadKnowledgeDocument = catchAsync(async (req: Request, res: Response) => {
+    if (!req.file) throw new AppError('No document file provided', 400)
 
-        await deleteFromStorage(document.fileKey)
-        await KnowledgeDocument.findByIdAndDelete(id)
+    const { name, category, assignedTo } = req.body
+    const userId = (req as any).user.id
+    const fileKey = `knowledge-base/${Date.now()}-${req.file.originalname}`
+    const fileUrl = await saveFileToStorage(req.file, fileKey)
 
-        return res.json({ success: true, message: 'Document permanently purged from knowledge vault' })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: 'Failed to delete knowledge document' })
+    let extractedText = ''
+    if (req.file.mimetype === 'application/pdf') {
+        extractedText = await extractTextFromPDF(req.file.buffer)
+    } else if (req.file.mimetype === 'text/plain') {
+        extractedText = extractTextFromPlainText(req.file.buffer)
     }
-}
+    extractedText = cleanExtractedText(extractedText)
 
-export const incrementDocumentAccess = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        await KnowledgeDocument.findByIdAndUpdate(id, { $inc: { accessCount: 1 } })
-        return res.json({ success: true })
-    } catch (error) {
-        return res.status(500).json({ success: false })
-    }
-}
+    const newDoc = await KnowledgeDocument.create({
+        name, category, assignedTo: assignedTo || 'all', fileUrl, fileKey, fileSize: req.file.size, fileType: req.file.mimetype, uploadedBy: userId, extractedText
+    })
+
+    res.status(201).json({ success: true, data: newDoc })
+})
+
+export const deleteKnowledgeDocument = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    const document = await KnowledgeDocument.findById(id)
+    if (!document) throw new AppError('Document not found', 404)
+
+    await deleteFromStorage(document.fileKey)
+    await KnowledgeDocument.findByIdAndDelete(id)
+
+    res.status(200).json({ success: true, message: 'Document permanently purged' })
+})
+
+export const incrementDocumentAccess = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    await KnowledgeDocument.findByIdAndUpdate(id, { $inc: { accessCount: 1 } })
+    res.status(200).json({ success: true })
+})

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
-import { AiLog, User } from '../models'
+import { AiLog } from '../models'
 import { IApiResponse } from '../types'
+import catchAsync from '../utils/catchAsync'
 
-export const getAiStats = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getAiStats = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { range = '30d', powerPage = 1, powerLimit = 10 } = req.query
     const pLimit = Number(powerLimit)
     const pPage = Number(powerPage) || 1
@@ -103,11 +103,4 @@ export const getAiStats = async (req: Request, res: Response): Promise<void> => 
         }
       }
     } as IApiResponse)
-
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch analytics'
-    } as IApiResponse)
-  }
-}
+})

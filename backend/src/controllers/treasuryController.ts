@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { Transaction } from '../models'
 import { IApiResponse } from '../types'
+import catchAsync from '../utils/catchAsync'
 
-export const getTreasuryStats = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getTreasuryStats = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { range = 'month' } = req.query
     const now = new Date()
     let startDate: Date
@@ -24,67 +24,41 @@ export const getTreasuryStats = async (req: Request, res: Response): Promise<voi
         break
     }
 
-    const totalRevenueAgg = await Transaction.aggregate([
-      { $match: { status: 'succeeded' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } }
-    ])
-    const totalRevenue = totalRevenueAgg[0]?.total || 0
-
-    const rangeRevenueAgg = await Transaction.aggregate([
-      { 
-        $match: { 
-          status: 'succeeded',
-          date: { $gte: startDate }
-        } 
-      },
-      { $group: { _id: null, total: { $sum: '$amount' } } }
-    ])
-    const mrr = rangeRevenueAgg[0]?.total || 0
-
-    const revenueTrend = await Transaction.aggregate([
-      {
-        $match: {
-          status: 'succeeded',
-          date: { $gte: startDate }
-        }
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-          amount: { $sum: '$amount' }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ])
-
-    const planDistribution = await Transaction.aggregate([
-        { $match: { status: 'succeeded' } },
-        { $group: { _id: '$plan', count: { $sum: 1 }, revenue: { $sum: '$amount' } } }
+    const [totalRevenueAgg, rangeRevenueAgg, revenueTrend, planDistribution] = await Promise.all([
+        Transaction.aggregate([
+          { $match: { status: 'succeeded' } },
+          { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]),
+        Transaction.aggregate([
+          { $match: { status: 'succeeded', date: { $gte: startDate } } },
+          { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]),
+        Transaction.aggregate([
+          { $match: { status: 'succeeded', date: { $gte: startDate } } },
+          { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }, amount: { $sum: '$amount' } } },
+          { $sort: { _id: 1 } }
+        ]),
+        Transaction.aggregate([
+          { $match: { status: 'succeeded' } },
+          { $group: { _id: '$plan', count: { $sum: 1 }, revenue: { $sum: '$amount' } } }
+        ])
     ])
 
     res.status(200).json({
       success: true,
       data: {
         kpi: {
-          totalRevenue,
-          mrr,
+          totalRevenue: totalRevenueAgg[0]?.total || 0,
+          mrr: rangeRevenueAgg[0]?.total || 0,
           growth: 12
         },
         revenueTrend,
         planDistribution
       }
     } as IApiResponse)
+})
 
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch treasury stats'
-    } as IApiResponse)
-  }
-}
-
-export const exportTreasuryCSV = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const exportTreasuryCSV = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const transactions = await Transaction.find({ status: 'succeeded' })
       .sort({ date: -1 })
       .populate('userId', 'name email')
@@ -101,11 +75,4 @@ export const exportTreasuryCSV = async (req: Request, res: Response): Promise<vo
     res.setHeader('Content-Type', 'text/csv')
     res.setHeader('Content-Disposition', 'attachment; filename=treasury_ledger.csv')
     res.status(200).send(csv)
-
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to export CSV'
-    } as IApiResponse)
-  }
-}
+})

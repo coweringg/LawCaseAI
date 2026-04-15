@@ -1,10 +1,9 @@
 import * as express from 'express'
 import { AiLog } from '../models'
-import { IApiResponse, IAiHealthData, IAiHealthProvider } from '../types'
-import mongoose from 'mongoose'
+import { IApiResponse } from '../types'
+import catchAsync from '../utils/catchAsync'
 
-export const getAiHealthMetrics = async (req: express.Request, res: express.Response): Promise<void> => {
-  try {
+export const getAiHealthMetrics = catchAsync(async (req: express.Request, res: express.Response): Promise<void> => {
     const { logPage = 1, logLimit = 10 } = req.query
     const skip = (Number(logPage) - 1) * Number(logLimit)
 
@@ -104,20 +103,10 @@ export const getAiHealthMetrics = async (req: express.Request, res: express.Resp
         }
       }
     } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch AI health metrics'
-    } as IApiResponse)
-  }
-}
+})
 
-export const resolveAiError = async (req: express.Request, res: express.Response): Promise<void> => {
-  try {
+export const resolveAiError = catchAsync(async (req: express.Request, res: express.Response): Promise<void> => {
     const { id } = req.params
     await AiLog.findByIdAndUpdate(id, { resolved: true })
     res.status(200).json({ success: true, message: 'Status updated' } as IApiResponse)
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message })
-  }
-}
+})

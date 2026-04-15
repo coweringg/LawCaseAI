@@ -139,7 +139,6 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
         }
     ]).catch(() => {});
 
-    // Update tokens/hours in background
     const tokensProcessed = aiRes.tokens || countTokens(message);
     trackAIUsage(req.user?._id?.toString(), currentCase._id.toString(), tokensProcessed, 0.1);
 

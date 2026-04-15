@@ -25,7 +25,7 @@ export class AIService {
       apiKey: config.ai.apiKey,
       baseURL: config.ai.baseURL,
       defaultHeaders: {
-        "HTTP-Referer": "https://lawcaseai.com",
+        "HTTP-Referer": "https://lawcaseai-gamma.vercel.app",
         "X-Title": "LawCaseAI",
       }
     })

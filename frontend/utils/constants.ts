@@ -26,8 +26,8 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
-  CASES: '/dashboard/cases',
-  CASE_DETAIL: '/dashboard/cases/[id]',
-  SETTINGS: '/dashboard/settings',
+  CASES: '/cases',
+  CASE_DETAIL: '/cases/[id]',
+  SETTINGS: '/settings',
   ADMIN: '/admin'
 }

@@ -50,8 +50,10 @@ export const createEvent = catchAsync(async (req: IAuthRequest, res: Response): 
     }
 
     const eventDate = new Date(start)
-    if (eventDate < new Date()) {
-        throw new AppError('Legal events and deadlines cannot be scheduled in the past.', 400)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    if (eventDate < today) {
+        throw new AppError('Legal events and deadlines cannot be scheduled in a previous date.', 400)
     }
 
     const safeEventData: Record<string, unknown> = {

@@ -30,4 +30,4 @@ Disallow: /success
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://lawcaseai.com/sitemap.xml
+Sitemap: https://lawcaseai-gamma.vercel.app/sitemap.xml

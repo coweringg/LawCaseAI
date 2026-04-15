@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter as useNextRouter } from 'next/router';
+import { useRouter as useAppRouter, usePathname as useAppPathname } from 'next/navigation';
 import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardStats } from '@/hooks/useSettings';
@@ -41,7 +42,16 @@ const TimeDisplay = memo(() => {
 TimeDisplay.displayName = 'TimeDisplay';
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-    const router = useRouter();
+    const appRouter = useAppRouter();
+    const appPathname = useAppPathname();
+    
+    const [pathname, setPathname] = useState<string | null>(null);
+
+    useEffect(() => {
+        setPathname(appPathname || window.location.pathname);
+    }, [appPathname]);
+    
+    const router = appRouter;
     const { user, isAuthenticated, logout } = useAuth();
     const { data: dashboardData, refetch: refetchDashboardStats } = useDashboardStats(!!user && isAuthenticated);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
@@ -59,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         if (isAuthenticated && mounted) {
             refetchDashboardStats();
         }
-    }, [router.pathname, isAuthenticated, mounted, refetchDashboardStats]);
+    }, [pathname, isAuthenticated, mounted, refetchDashboardStats]);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<{ cases: Array<{ id: string; title: string; subtitle: string; status: string }>; files: Array<{ id: string; caseId: string; title: string; subtitle: string }> }>({ cases: [], files: [] });
@@ -139,7 +149,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     useEffect(() => {
         if (!mounted || !user) return;
 
-        const isAdminPath = router.pathname.startsWith('/dashboard/admin');
+        const isAdminPath = pathname?.startsWith('/dashboard/admin');
         const isAdmin = user.role === 'admin';
 
         if (isAdmin && !isAdminPath) {
@@ -147,7 +157,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         } else if (!isAdmin && isAdminPath) {
             router.push('/dashboard');
         }
-    }, [user, router, mounted]);
+    }, [user, router, mounted, pathname]);
 
     const handleDismissBanner = () => {
         setIsBannerVisible(false);
@@ -165,8 +175,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     const isActive = (path: string, exact = false) => {
-        if (exact) return router.pathname === path;
-        return router.pathname === path || router.pathname.startsWith(`${path}/`);
+        if (exact) return pathname === path;
+        return pathname === path || pathname?.startsWith(`${path}/`);
     };
 
     const usagePercentage = dashboardData?.cases?.usagePercentage || 0;
@@ -370,7 +380,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     </Link>
                                 </div>
                             )}
-                            {router.pathname !== '/settings' && (
+                            {pathname !== '/settings' && (
                                 <div className="flex items-center gap-3 px-3 py-4 border-t border-white/5 mt-2">
                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
                                         {user?.name?.charAt(0) || 'U'}
@@ -551,6 +561,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                         ))}
                                                                     </div>
                                                                 )}
+                                                                <Link href={`/search?q=${encodeURIComponent(searchQuery)}`}>
+                                                                    <div className="mt-4 p-4 text-center border-t border-white/5 hover:bg-primary/10 rounded-b-2xl transition-all group/all">
+                                                                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] group-hover/all:tracking-[0.4em] transition-all">View All Intelligence Vectors</span>
+                                                                    </div>
+                                                                </Link>
                                                             </div>
                                                         )}
                                                     </div>

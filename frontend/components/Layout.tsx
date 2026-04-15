@@ -61,7 +61,7 @@ export function Layout({ children }: LayoutProps) {
                   Dashboard
                 </Link>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings"
                   className="text-secondary-600 hover:text-secondary-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Settings
@@ -101,7 +101,7 @@ export function Layout({ children }: LayoutProps) {
                     Dashboard
                   </Link>
                   <Link
-                    href="/dashboard/settings"
+                    href="/settings"
                     className="block px-3 py-2 rounded-md text-base font-medium text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50"
                   >
                     Settings

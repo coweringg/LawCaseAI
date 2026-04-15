@@ -82,7 +82,8 @@
   },
   "overrides": {
     "fast-xml-parser": "5.5.9",
-    "brace-expansion": "^2.0.1"
+    "brace-expansion": "^2.0.1",
+    "minimatch": "^9.0.5"
   },
   "engines": {
     "node": ">=18.0.0"

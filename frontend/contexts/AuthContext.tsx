@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useRouter } from "next/router";
+import { useRouter, usePathname } from "next/navigation";
 import api from "@/utils/api";
 import { User } from "@/types";
 
@@ -75,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
   const router = useRouter();
+  const pathname = usePathname();
 
   const isAuthenticated = !!user;
 
@@ -122,21 +123,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
-    if (!isLoading) {
-      const currentPath = router.pathname;
+    if (!isLoading && pathname) {
       const authenticated = !!user;
 
-      if (authenticated && restrictedRoutes.includes(currentPath)) {
+      if (authenticated && restrictedRoutes.includes(pathname)) {
         router.push(user.role === "admin" ? "/dashboard/admin" : "/dashboard");
         return;
       }
 
-      if (!authenticated && !publicRoutes.includes(currentPath)) {
+      if (!authenticated && !publicRoutes.includes(pathname)) {
         router.push("/login");
         return;
       }
     }
-  }, [router, user, isLoading]);
+  }, [pathname, user, isLoading, router]);
 
   const login = async (
     email: string,

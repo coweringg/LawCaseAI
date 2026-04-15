@@ -38,7 +38,7 @@ export function DashboardNav({ currentPage = 'cases' }: DashboardNavProps) {
             Cases
           </Link>
           <Link
-            href="/dashboard/settings"
+            href="/settings"
             className={`sidebar-item ${currentPage === 'settings'
                 ? 'sidebar-item-active'
                 : 'sidebar-item-inactive'

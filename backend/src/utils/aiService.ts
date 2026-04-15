@@ -3,6 +3,7 @@ import config from '../config'
 import { IChatResponse } from '../types'
 import logger from './logger'
 import { User, AiLog } from '../models'
+import { countTokens } from './tokenCounter'
 
 const aiLogger = logger.child({ module: 'ai-service' })
 
@@ -47,7 +48,7 @@ export class AIService {
     errorMessage?: string;
   }) {
     try {
-      const provider = this.modelName.includes('openai') || this.modelName.includes('gpt') ? 'openai' : 'openrouter';
+      const provider = (this.modelName.includes(':') || this.modelName.includes('/')) ? 'openrouter' : 'openai';
       
       await AiLog.create({
         userId: data.userId,
@@ -146,7 +147,7 @@ export class AIService {
       
       const aiResponse = response.choices[0]?.message?.content || 'I apologize, but I could not generate a response at this time.'
       
-      const totalTokens = response.usage?.total_tokens || Math.ceil((prompt.length + aiResponse.length + systemPrompt.length) / 4)
+      const totalTokens = response.usage?.total_tokens || countTokens(prompt + aiResponse + systemPrompt);
 
       if (userId) {
         this.updateUserTokens(userId, totalTokens).catch((err: any) => 
@@ -235,7 +236,7 @@ export class AIService {
       const endTime = Date.now()
       const responseTime = endTime - startTime
       const content = response.choices[0]?.message?.content || '{}'
-      const totalTokens = response.usage?.total_tokens || Math.ceil((documentContent.length + content.length) / 4)
+      const totalTokens = response.usage?.total_tokens || countTokens(documentContent + content);
       
       let analysis
       try {
@@ -329,7 +330,7 @@ export class AIService {
       const endTime = Date.now()
       const responseTime = endTime - startTime
       const content = response.choices[0]?.message?.content || '{}'
-      const totalTokens = response.usage?.total_tokens || Math.ceil((globalContext.length + content.length) / 4)
+      const totalTokens = response.usage?.total_tokens || countTokens(globalContext + content);
       
       let analysis
       try {

@@ -57,12 +57,9 @@ const envSchema = z.object({
   PADDLE_PRICE_FIRM_MONTHLY: z.string().optional(),
   PADDLE_PRICE_FIRM_ANNUAL: z.string().optional(),
 
-  OPENAI_API_KEY: z
-    .string()
-    .min(1, "OPENAI_API_KEY is required in production")
-    .default(""),
-  OPENAI_MODEL_PRIMARY: z.string().default("gpt-4o-mini"),
-  OPENAI_MODEL_ELITE: z.string().default("gpt-4o"),
+  OPENAI_API_KEY: z.string().default(""),
+  OPENAI_MODEL_PRIMARY: z.string().default("google/gemini-2.0-flash-001"),
+  OPENAI_MODEL_ELITE: z.string().default("anthropic/claude-3-opus"),
   OPENROUTER_API_KEY: z.string().min(1, "OPENROUTER_API_KEY is required"),
   OPENROUTER_MODEL: z.string().default('google/gemini-2.0-flash-001'),
 
@@ -131,10 +128,10 @@ export const config = {
     publicUrl: env.CLOUDFLARE_R2_PUBLIC_URL,
   },
 
-  openai: {
+  baseAi: {
     apiKey: process.env.OPENAI_API_KEY || "",
-    primaryModel: process.env.OPENAI_MODEL_PRIMARY || "gpt-4o-mini",
-    eliteModel: process.env.OPENAI_MODEL_ELITE || "gpt-4o",
+    primaryModel: process.env.OPENAI_MODEL_PRIMARY || "google/gemini-2.0-flash-001",
+    eliteModel: process.env.OPENAI_MODEL_ELITE || "anthropic/claude-3.5-sonnet",
   },
   ai: {
     apiKey: env.OPENROUTER_API_KEY,

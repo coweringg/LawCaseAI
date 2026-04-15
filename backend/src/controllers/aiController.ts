@@ -7,12 +7,45 @@ import { logAction } from '@/utils/auditLogger'
 import config from '@/config'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
+import logger from '../utils/logger'
+import { countTokens } from '../utils/tokenCounter'
 
 const aiService = AIService.getInstance()
 
+const trackAIUsage = (userId: string | undefined, caseId: string | undefined, tokensProcessed: number, minHours: number): void => {
+    const validMinHours = minHours ?? 0.1;
+    const hoursToInc = Math.max(validMinHours, Math.round((tokensProcessed / 10000) * 10) / 10);
+    
+    const promises = [];
+    if (userId) {
+        promises.push(
+            User.findByIdAndUpdate(userId, {
+                $inc: { 
+                    hoursSavedByAI: hoursToInc,
+                    hoursSavedToday: hoursToInc,
+                    totalTokensConsumed: Math.round(tokensProcessed)
+                }
+            })
+        );
+    }
+    if (caseId) {
+        promises.push(
+            Case.findByIdAndUpdate(caseId, {
+                $inc: {
+                    totalTokensConsumed: Math.round(tokensProcessed)
+                }
+            })
+        );
+    }
+    
+    Promise.all(promises).catch((error: any) => {
+        logger.error({ err: error, userId, caseId }, `Error in trackAIUsage: ${error.message || 'Unknown error'}`);
+    });
+};
+
 export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { message, caseId, temporaryFileId } = req.body
-
+ 
     if (!message || !caseId) {
         throw new AppError('Both a message and a valid Case ID are required to consult the AI.', 400)
     }
@@ -80,7 +113,6 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
         relatedType = 'application/pdf';
     }
 
-    // Persist messages in background
     const userTimestamp = new Date()
     const aiTimestamp = new Date(userTimestamp.getTime() + 500)
     ChatMessage.create([
@@ -108,23 +140,8 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
     ]).catch(() => {});
 
     // Update tokens/hours in background
-    const tokensProcessed = aiRes.tokens || (message.length / 4);
-    const hoursToInc = Math.max(0.1, Math.round((tokensProcessed / 10000) * 10) / 10);
-    
-    Promise.all([
-        User.findByIdAndUpdate(req.user?._id, {
-            $inc: { 
-                hoursSavedByAI: hoursToInc,
-                hoursSavedToday: hoursToInc,
-                totalTokensConsumed: Math.round(tokensProcessed)
-            }
-        }),
-        Case.findByIdAndUpdate(currentCase._id, {
-            $inc: {
-                totalTokensConsumed: Math.round(tokensProcessed)
-            }
-        })
-    ]).catch(() => {});
+    const tokensProcessed = aiRes.tokens || countTokens(message);
+    trackAIUsage(req.user?._id?.toString(), currentCase._id.toString(), tokensProcessed, 0.1);
 
     await logAction({
         adminId: req.user?._id as any,
@@ -166,7 +183,6 @@ export const analyzeCaseFile = catchAsync(async (req: IAuthRequest, res: Respons
     const content = file.extractedText || `Filename: ${file.name}. (No text could be extracted).`
     const analysis = await aiService.analyzeDocument(content, req.user?._id?.toString())
 
-    // Background updates
     ChatMessage.create([
         {
             content: `[AI ANALYSIS REQUEST] Document: ${file.name}`,
@@ -191,23 +207,8 @@ export const analyzeCaseFile = catchAsync(async (req: IAuthRequest, res: Respons
         }
     ]).catch(() => {});
 
-    const estimatedTokens = content.length / 4;
-    const hoursToInc = Math.max(0.5, Math.round((estimatedTokens / 10000) * 10) / 10);
-
-    Promise.all([
-        User.findByIdAndUpdate(req.user?._id, {
-            $inc: { 
-                hoursSavedByAI: hoursToInc,
-                hoursSavedToday: hoursToInc,
-                totalTokensConsumed: Math.round(estimatedTokens)
-            }
-        }),
-        Case.findByIdAndUpdate(file.caseId, {
-            $inc: {
-                totalTokensConsumed: Math.round(estimatedTokens)
-            }
-        })
-    ]).catch(() => {});
+    const estimatedTokens = countTokens(content);
+    trackAIUsage(req.user?._id?.toString(), file.caseId.toString(), estimatedTokens, 0.5);
 
     await logAction({
         adminId: req.user?._id as any,
@@ -249,23 +250,8 @@ export const getCaseSummary = catchAsync(async (req: IAuthRequest, res: Response
 
     const aiRes = await aiService.generateResponse(prompt, context, req.user?._id?.toString())
 
-    const tokensProcessed = aiRes.tokens || (prompt.length + context.length) / 4
-    const hoursToInc = Math.max(0.2, Math.round((tokensProcessed / 10000) * 10) / 10)
-    
-    Promise.all([
-        User.findByIdAndUpdate(req.user?._id, {
-            $inc: { 
-                hoursSavedByAI: hoursToInc,
-                hoursSavedToday: hoursToInc,
-                totalTokensConsumed: Math.round(tokensProcessed)
-            }
-        }),
-        Case.findByIdAndUpdate(currentCase._id, {
-            $inc: {
-                totalTokensConsumed: Math.round(tokensProcessed)
-            }
-        })
-    ]).catch(() => {});
+    const tokensProcessed = aiRes.tokens || countTokens(prompt + context);
+    trackAIUsage(req.user?._id?.toString(), currentCase._id.toString(), tokensProcessed, 0.2);
 
     res.status(200).json({
         success: true,
@@ -299,16 +285,8 @@ export const globalAudit = catchAsync(async (req: IAuthRequest, res: Response): 
 
     const auditResults = await aiService.globalAudit(globalContext, userId?.toString())
 
-    const estimatedTokens = globalContext.length / 4 + 2000
-    const hoursToInc = Math.max(1, Math.round((estimatedTokens / 10000) * 10) / 10)
-    
-    User.findByIdAndUpdate(userId, {
-        $inc: { 
-            hoursSavedByAI: hoursToInc,
-            hoursSavedToday: hoursToInc,
-            totalTokensConsumed: Math.round(estimatedTokens)
-        }
-    }).catch(() => {});
+    const estimatedTokens = countTokens(globalContext) + 2000;
+    trackAIUsage(userId?.toString(), undefined, estimatedTokens, 1);
 
     res.status(200).json({
         success: true,

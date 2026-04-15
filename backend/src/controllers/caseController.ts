@@ -355,7 +355,6 @@ export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): P
         try {
           await deleteFromStorage(file.key)
         } catch (storageError) {
-          // Keep going even if some files fail to delete from storage
         }
       }
       if (!file.isTemporary && file.size) {

@@ -9,16 +9,33 @@ import { useRouter } from "next/router";
 import api from "@/utils/api";
 import { User } from "@/types";
 
+export interface SavedAccount {
+  name: string;
+  email: string;
+  initials: string;
+}
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: unknown;
+    };
+  };
+  message?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (
     email: string,
     password: string,
-  ) => Promise<{ success: boolean; message: string; error?: any }>;
+  ) => Promise<{ success: boolean; message: string; error?: unknown }>;
   register: (
-    userData: any,
-  ) => Promise<{ success: boolean; message: string; error?: any }>;
+    userData: Record<string, unknown>,
+  ) => Promise<{ success: boolean; message: string; error?: unknown }>;
   logout: () => void;
   updateProfile: (userData: {
     name: string;
@@ -26,12 +43,12 @@ interface AuthContextType {
     email: string;
   }) => Promise<{ success: boolean; message: string }>;
   changePassword: (
-    passwordData: any,
+    passwordData: Record<string, unknown>,
   ) => Promise<{ success: boolean; message: string }>;
   fetchProfile: () => Promise<User | null>;
   updateUser: (userData: Partial<User>) => void;
   isAuthenticated: boolean;
-  savedAccounts: any[];
+  savedAccounts: SavedAccount[];
   loginWithSavedAccount: (
     index: number,
   ) => Promise<{ success: boolean; message: string }>;
@@ -56,7 +73,7 @@ const restrictedRoutes = ["/pricing", "/about", "/features", "/login"];
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [savedAccounts, setSavedAccounts] = useState<any[]>([]);
+  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
   const router = useRouter();
 
   const isAuthenticated = !!user;
@@ -69,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return response.data.data;
       }
       return null;
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       if (error?.response?.status !== 401) {
         console.warn("Profile fetch failed:", error?.message);
       }
@@ -123,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (
     email: string,
     password: string,
-  ): Promise<{ success: boolean; message: string; error?: any }> => {
+  ): Promise<{ success: boolean; message: string; error?: unknown }> => {
     try {
       const response = await api.post("/auth/login", { email, password });
 
@@ -142,7 +160,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       saveAccountToLocal(data.user.name, email);
 
       return { success: true, message: message || "Login successful" };
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return {
         success: false,
         message: error.response?.data?.message || "Login failed",
@@ -152,8 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (
-    userData: any,
-  ): Promise<{ success: boolean; message: string; error?: any }> => {
+    userData: Record<string, unknown>,
+  ): Promise<{ success: boolean; message: string; error?: unknown }> => {
     try {
       const response = await api.post("/auth/register", userData);
 
@@ -169,10 +188,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      saveAccountToLocal(data.user.name, userData.email);
+      saveAccountToLocal(data.user.name, userData.email as string);
 
       return { success: true, message: message || "Registration successful" };
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return {
         success: false,
         message: error.response?.data?.message || "Registration failed",
@@ -192,9 +212,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const saveAccountToLocal = (name: string, email: string) => {
     try {
       const stored = localStorage.getItem("lawcase_saved_accounts");
-      let accounts = stored ? JSON.parse(stored) : [];
+      let accounts: SavedAccount[] = stored ? JSON.parse(stored) : [];
 
-      accounts = accounts.filter((acc: any) => acc.email !== email);
+      accounts = accounts.filter((acc: SavedAccount) => acc.email !== email);
 
       accounts.unshift({
         name,
@@ -239,7 +259,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       saveAccountToLocal(data.user.name, account.email);
 
       return { success: true, message: message || "Login successful" };
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       removeSavedAccount(index);
       return {
         success: false,
@@ -277,7 +298,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         success: false,
         message: response.data.message || "Failed to update profile",
       };
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return {
         success: false,
         message: error.response?.data?.message || "Network error",
@@ -286,12 +308,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const changePassword = async (
-    passwordData: any,
+    passwordData: Record<string, unknown>,
   ): Promise<{ success: boolean; message: string }> => {
     try {
       const response = await api.put("/user/password", passwordData);
       return { success: true, message: response.data.message };
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return {
         success: false,
         message: error.response?.data?.message || "Failed to change password",

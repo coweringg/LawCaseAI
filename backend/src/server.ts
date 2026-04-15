@@ -111,7 +111,7 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
   const checks = await Promise.all([
     checkMongoDBConnection(),
     checkCloudflareR2Connection(),
-    checkOpenAIConnection(),
+    checkBaseAIConnection(),
     checkAIConnection(),
     checkSMTPConnection(),
   ])
@@ -198,16 +198,16 @@ const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; mess
   }
 }
 
-const checkOpenAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
+const checkBaseAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
-    if (config.openai.apiKey) {
-      return { connected: true, message: 'OpenAI API configured' }
+    if (config.baseAi.apiKey) {
+      return { connected: true, message: 'Base AI API configured' }
     } else {
-      return { connected: false, message: 'OpenAI API not configured' }
+      return { connected: false, message: 'Base AI API not configured' }
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    return { connected: false, message: `OpenAI API check failed: ${errorMessage}` }
+    return { connected: false, message: `Base AI API check failed: ${errorMessage}` }
   }
 }
 
@@ -227,9 +227,9 @@ const checkSMTPConnection = async (): Promise<{ connected: boolean; message: str
 const checkAIConnection = async (): Promise<{ connected: boolean; message: string }> => {
   try {
     if (config.ai.apiKey) {
-      return { connected: true, message: 'OpenRouter AI configured' }
+      return { connected: true, message: 'AI service configured' }
     } else {
-      return { connected: false, message: 'OpenRouter AI not configured' }
+      return { connected: false, message: 'AI service not configured' }
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
@@ -250,17 +250,17 @@ const startServer = async () => {
 
       logger.info('🔍 Checking service connections...')
 
-      const [mongoStatus, r2Status, openaiStatus, aiStatus, smtpStatus] = await Promise.all([
+      const [mongoStatus, r2Status, baseAiStatus, aiStatus, smtpStatus] = await Promise.all([
         checkMongoDBConnection(),
         checkCloudflareR2Connection(),
-        checkOpenAIConnection(),
+        checkBaseAIConnection(),
         checkAIConnection(),
         checkSMTPConnection(),
       ])
 
       logger.info({ ...mongoStatus }, `🗄️  MongoDB Atlas`)
       logger.info({ ...r2Status }, `☁️  Cloudflare R2`)
-      logger.info({ ...openaiStatus }, `🤖 OpenAI API`)
+      logger.info({ ...baseAiStatus }, `🤖 Base AI API`)
       logger.info({ ...aiStatus }, `🤖 OpenRouter AI`)
       logger.info({ ...smtpStatus }, `📧 SMTP Email`)
 

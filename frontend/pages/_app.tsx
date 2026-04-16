@@ -6,11 +6,11 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/contexts/AuthContext";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
 
-import SEO from "@/components/SEO";
+import SEO from "@/components/layouts/SEO";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();

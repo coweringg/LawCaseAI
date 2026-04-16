@@ -22,11 +22,11 @@ export default function GlobalError({
       </div>
       
       <h1 className="text-4xl font-black font-display tracking-tightest mb-4">
-        ALGO SALIÓ <span className="text-rose-500 italic">MAL</span>
+        SOMETHING WENT <span className="text-rose-500 italic">WRONG</span>
       </h1>
       
       <p className="text-slate-400 max-w-md mx-auto mb-12 font-medium leading-relaxed">
-        Se ha producido un error crítico en el motor de la aplicación. No te preocupes, tus datos están seguros.
+        A critical error occurred in the application engine. Don&apos;t worry, your data is secure.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -35,7 +35,7 @@ export default function GlobalError({
           className="flex items-center gap-2 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-slate-200 transition-all active:scale-95 shadow-xl shadow-white/5"
         >
           <RefreshCw size={14} className="animate-spin-slow" />
-          Reintentar Carga
+          Retry Loading
         </button>
         
         <Link
@@ -43,7 +43,7 @@ export default function GlobalError({
           className="flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white/10 transition-all active:scale-95"
         >
           <Home size={14} />
-          Volver al Inicio
+          Return to Home
         </Link>
       </div>
 

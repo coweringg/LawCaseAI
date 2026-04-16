@@ -3,7 +3,8 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Shield, ArrowLeft, Gavel, DollarSign, RefreshCcw, HelpCircle } from 'lucide-react'
+import { Shield, Gavel, DollarSign, RefreshCcw, HelpCircle, ChevronRight } from 'lucide-react'
+import Footer from '@/components/layouts/Footer'
 
 export default function RefundClient() {
   const lastUpdated = 'March 10, 2026'
@@ -148,33 +149,16 @@ export default function RefundClient() {
           </div>
 
           <div className="mt-16 text-center">
-            <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">
-              <ArrowLeft size={14} />
-              Return to Infrastructure Index
+            <Link href="/privacy" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">
+              <Shield size={14} />
+              Review Privacy Protocol
+              <ChevronRight size={14} />
             </Link>
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-white/5 py-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-2 opacity-50">
-              <Gavel size={16} />
-              <span className="font-bold tracking-tight">LawCaseAI</span>
-            </div>
-            <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest text-balance text-center md:text-left">
-              © 2026 LawCaseAI Infrastructure. All Rights Reserved.
-            </p>
-          </div>
-          <div className="flex items-center gap-8 text-center flex-wrap justify-center">
-            <Link href="/terms" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Terms of Service</Link>
-            <Link href="/privacy" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Privacy Policy</Link>
-            <Link href="/refund" className="text-primary text-[10px] font-black uppercase tracking-widest">Refund Policy</Link>
-            <Link href="/login?support=true" className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">Contact Support</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer variant="legal" />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import TypewriterText from '@/components/TypewriterText';
+import TypewriterText from '@/components/ui/TypewriterText';
 import FloatingGlassCard from '@/components/ui/FloatingGlassCard';
 import { Check, Star, Shield, Gavel, Zap, Users } from 'lucide-react';
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Footer from './Footer';
 
 interface PublicLayoutProps {
     children: React.ReactNode;
@@ -91,39 +92,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 <span className="material-icons-round text-xl">arrow_upward</span>
             </button>
 
-            <footer className="bg-background-dark text-slate-400 py-8 border-t border-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-6 gap-x-8 mb-8">
-                        <div className="col-span-2 lg:col-span-2">
-                            <Link href="/" className="flex items-center gap-2 mb-2 group">
-                                <div className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
-                                    <span className="material-icons-round text-xl leading-none">gavel</span>
-                                </div>
-                                <span className="text-xl font-bold text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
-                            </Link>
-                            <p className="mb-4 text-sm max-w-xs">
-                                Premium AI-powered case management platform tailored for the complexities of the US legal system.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="text-white font-semibold mb-2">Product</h3>
-                            <ul className="space-y-2 text-sm">
-                                <li><Link href="/features" className="hover:text-primary transition-colors">Features</Link></li>
-                                <li><Link href="/pricing" className="hover:text-primary transition-colors">Plans</Link></li>
-                                <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="border-t border-slate-800 pt-6 flex flex-col md:flex-row justify-between items-center text-xs">
-                        <p>© 2026 LawCaseAI. All rights reserved. Professional Software.</p>
-                        <div className="flex space-x-6 mt-4 md:mt-0">
-                            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-                            <Link href="/refund" className="hover:text-white transition-colors">Refund Policy</Link>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <Footer variant="public" />
         </div>
     </div>
     );

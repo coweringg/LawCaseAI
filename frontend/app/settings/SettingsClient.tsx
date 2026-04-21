@@ -4,11 +4,11 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
-import api from "@/utils/api";
+import api from "@/lib/api";
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { getPaddleInstance } from "@/utils/paddle";
+import { getPaddleInstance } from "@/lib/paddle";
 import { Paddle } from "@paddle/paddle-js";
 
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
@@ -323,7 +323,7 @@ function SettingsContent() {
             System Configuration
           </h1>
           <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em]">
-            Neural Interface • Security Protocols • Billing Units
+            Neural Interface â€¢ Security Protocols â€¢ Billing Units
           </p>
         </div>
 

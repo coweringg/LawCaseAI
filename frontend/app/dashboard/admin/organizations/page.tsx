@@ -1,6 +1,7 @@
+"use client"
+
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import {
   Search,
   Users,
@@ -21,7 +22,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Table } from '@/components/ui/Table'
@@ -114,10 +115,6 @@ export default function OrganizationsDashboard() {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>Organizations | LawCaseAI Admin</title>
-      </Head>
-
       <div className="max-w-[1600px] mx-auto space-y-8 pb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <motion.div

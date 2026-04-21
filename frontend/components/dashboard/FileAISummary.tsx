@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { Loader2, X, FileText, Download, ExternalLink, RefreshCw, Zap, Shield, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import api from '@/utils/api';
+import api from '@/lib/api';
 
 interface FileAISummaryProps {
     file: any;

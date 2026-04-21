@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import {

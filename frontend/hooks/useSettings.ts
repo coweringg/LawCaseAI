@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import api from '@/utils/api';
+import api from '@/lib/api';
 
 export const useOrganizationDetails = (enabled: boolean) => {
     return useQuery({

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Skeleton } from '@/components/ui/Skeleton';
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useForm } from 'react-hook-form'

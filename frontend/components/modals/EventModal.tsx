@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar as CalendarIcon, Clock, Type, AlertCircle, MapPin, Loader2, ChevronDown, ListFilter, ShieldAlert, Briefcase, CheckCircle2, Trash2 } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
-import api from '@/utils/api';
+import api from '@/lib/api';
 
 interface EventModalProps {
     isOpen: boolean;

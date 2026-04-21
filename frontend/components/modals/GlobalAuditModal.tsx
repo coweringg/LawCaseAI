@@ -14,7 +14,7 @@ import {
   Layers,
   Search
 } from 'lucide-react';
-import api from '@/utils/api';
+import api from '@/lib/api';
 
 interface GlobalAuditModalProps {
   isOpen: boolean;
@@ -240,7 +240,7 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                         className="p-5 bg-red-500/5 border border-red-500/20 rounded-2xl hover:border-red-500/40 transition-all"
                       >
                          <p className="text-[13px] text-red-200/90 leading-relaxed font-medium">
-                            <span className="text-red-500 mr-2">●</span>
+                            <span className="text-red-500 mr-2">â—</span>
                             {risk}
                          </p>
                       </motion.div>

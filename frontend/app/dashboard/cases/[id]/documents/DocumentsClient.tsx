@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import FileGrid from '@/components/dashboard/FileGrid';
 import FileAISummary from '@/components/dashboard/FileAISummary';
 import { useAuth } from '@/contexts/AuthContext';

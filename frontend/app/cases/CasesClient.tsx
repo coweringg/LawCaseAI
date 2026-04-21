@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import { Loader2, Folder, Briefcase, Shield, Scale, Plus, Sparkles, ArrowRight } from 'lucide-react';

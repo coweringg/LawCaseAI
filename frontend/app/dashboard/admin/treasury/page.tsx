@@ -1,6 +1,7 @@
+"use client"
+
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import {
   BarChart,
   Bar,
@@ -33,7 +34,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
@@ -128,10 +129,6 @@ export default function TreasuryDashboard() {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>Treasury Vault | LawCaseAI</title>
-      </Head>
-
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
         <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
         

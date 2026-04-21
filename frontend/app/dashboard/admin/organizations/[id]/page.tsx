@@ -1,6 +1,7 @@
+"use client"
+
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useRouter, useParams } from 'next/navigation'
 import {
   ArrowLeft,
   Building,
@@ -30,7 +31,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
@@ -76,7 +77,8 @@ interface OrganizationDetail {
 export default function OrganizationDetailPage() {
   const { user, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
-  const { id } = router.query
+  const params = useParams()
+  const id = params?.id
   
   const [loading, setLoading] = useState(true)
   const [org, setOrg] = useState<OrganizationDetail | null>(null)
@@ -158,10 +160,6 @@ export default function OrganizationDetailPage() {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>{org.name} | Admin Node Viewer</title>
-      </Head>
-
       <div className="max-w-[1600px] mx-auto space-y-8 pb-12 font-display">
         <div className="flex items-center justify-between">
            <button 

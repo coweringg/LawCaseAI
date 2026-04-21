@@ -1,5 +1,6 @@
+"use client"
+
 import React, { useState, useEffect, useCallback } from 'react'
-import Head from 'next/head'
 import { 
   BookOpen, 
   CloudUpload, 
@@ -12,10 +13,13 @@ import {
   FileText,
   RotateCcw,
   MoreVertical,
-  File
+  File,
+  AlertTriangle, 
+  CheckCircle2, 
+  XCircle
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
@@ -55,8 +59,6 @@ interface KnowledgeRequest {
     createdAt: string
 }
 
-import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
-
 export default function KnowledgeBase() {
     const [documents, setDocuments] = useState<KnowledgeDocument[]>([])
     const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -92,7 +94,7 @@ export default function KnowledgeBase() {
 
     const [uploadData, setUploadData] = useState({
         name: '',
-        category: 'other',
+        category: 'other' as const,
         assignedTo: 'all',
         file: null as File | null
     })
@@ -454,10 +456,6 @@ export default function KnowledgeBase() {
 
     return (
         <DashboardLayout>
-            <Head>
-                <title>Knowledge Base | LawCaseAI Admin</title>
-            </Head>
-
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

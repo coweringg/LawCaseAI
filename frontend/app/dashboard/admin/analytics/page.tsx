@@ -1,6 +1,7 @@
+"use client"
+
 import React, { useState, useEffect, useCallback } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import {
   BarChart,
   Bar,
@@ -31,7 +32,7 @@ import {
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'react-hot-toast'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
@@ -141,10 +142,6 @@ export default function AnalyticsDashboard() {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>AI Analytics | LawCaseAI Admin</title>
-      </Head>
-
       <div className="p-8 md:p-12 max-w-7xl mx-auto space-y-12 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
           <div className="space-y-2">

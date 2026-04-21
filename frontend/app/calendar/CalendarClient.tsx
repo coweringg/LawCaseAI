@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { subDays } from 'date-fns';
 import { toast } from 'react-hot-toast';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import EventModal from '@/components/modals/EventModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -621,7 +621,7 @@ export default function CalendarClient() {
                                                             setCurrentDate(eDate);
                                                             handleOpenModal(undefined, event);
                                                             toast.success(`Opening ${format(eDate, 'MMM d')}`, {
-                                                                icon: '⚖️',
+                                                                icon: 'âš–ï¸',
                                                                 style: { borderRadius: '16px', background: '#0f172a', color: '#fff' }
                                                             });
                                                         }, 100);

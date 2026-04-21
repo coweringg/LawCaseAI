@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import api from "@/utils/api";
+import api from "@/lib/api";
 import { User } from "@/types";
 
 export interface SavedAccount {

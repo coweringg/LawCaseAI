@@ -1,5 +1,6 @@
+"use client"
+
 import React, { useState, useEffect, useCallback } from 'react'
-import Head from 'next/head'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Settings2 as Tune, 
@@ -21,11 +22,10 @@ import {
     ArrowLeft
 } from 'lucide-react'
 import Link from 'next/link'
-import api from '@/utils/api'
-import { Button } from '../../../components/ui/Button'
-import { Modal } from '../../../components/ui/Modal'
+import api from '@/lib/api'
+import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { toast } from 'react-hot-toast'
-import dynamic from 'next/dynamic'
 
 interface UserQuota {
     _id: string
@@ -141,10 +141,6 @@ const QuotaControl: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] text-slate-200 pb-20">
-            <Head>
-                <title>Quota Control | LawCaseAI Administrative Panel</title>
-            </Head>
-
             <div className="max-w-[1600px] mx-auto px-6 pt-8">
                 <Link href="/dashboard/admin" className="inline-block group mb-6">
                     <motion.div 
@@ -227,7 +223,7 @@ const QuotaControl: React.FC = () => {
                                 <motion.div 
                                     key={user._id}
                                     initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.05 }}
                                     className="bg-white/5 backdrop-blur-2xl p-8 rounded-[40px] border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all group shadow-2xl relative overflow-hidden"
                                 >

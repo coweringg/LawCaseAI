@@ -1,8 +1,9 @@
+"use client"
+
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
-import api from '@/utils/api'
+import api from '@/lib/api'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 
@@ -94,10 +95,6 @@ const AiHealthMonitor = () => {
 
   return (
     <DashboardLayout>
-      <Head>
-        <title>AI Health Monitor | Admin | LawCaseAI</title>
-      </Head>
-
       <div className="space-y-8 pb-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

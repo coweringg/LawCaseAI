@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';

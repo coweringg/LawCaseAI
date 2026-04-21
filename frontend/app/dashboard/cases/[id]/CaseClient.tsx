@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
     Loader2, 

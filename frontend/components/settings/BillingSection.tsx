@@ -3,7 +3,7 @@ import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud, Zap, Shie
 import { toast } from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
-import api from '@/utils/api';
+import api from '@/lib/api';
 
 interface BillingSectionProps {
     billingInfo: any;

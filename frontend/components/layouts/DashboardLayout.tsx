@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
 import { useRouter as useNextRouter } from 'next/router';
 import { useRouter as useAppRouter, usePathname as useAppPathname } from 'next/navigation';
-import api from '@/utils/api';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardStats } from '@/hooks/useSettings';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -69,7 +69,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default(""),
 
   RATE_LIMIT_WINDOW_MS: z.string().default("300000"),
-  RATE_LIMIT_MAX_REQUESTS: z.string().default("10000"),
+  RATE_LIMIT_MAX_REQUESTS: z.string().default("1000"),
 
   FRONTEND_URL: z.string().default("http://localhost:3000"),
 });

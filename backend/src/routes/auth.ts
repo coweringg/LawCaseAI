@@ -17,7 +17,7 @@ const router = Router()
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 30,
+  max: 10,
   message: {
     success: false,
     message: 'Too many login attempts from your IP. For your security, access has been temporarily locked. Please wait 15 minutes before trying again.'

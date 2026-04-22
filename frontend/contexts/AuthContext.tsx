@@ -155,7 +155,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, message } = response.data;
 
       setUser(data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
 
       saveAccountToLocal(data.user.name, email);
 
@@ -186,7 +185,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, message } = response.data;
 
       setUser(data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
 
       saveAccountToLocal(data.user.name, userData.email as string);
 
@@ -204,7 +202,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     api.post("/auth/logout").finally(() => {
       setUser(null);
-      localStorage.removeItem("user");
       router.push("/login");
     });
   };
@@ -254,7 +251,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, message } = response.data;
 
       setUser(data.user);
-      localStorage.setItem("user", JSON.stringify(data.user));
 
       saveAccountToLocal(data.user.name, account.email);
 

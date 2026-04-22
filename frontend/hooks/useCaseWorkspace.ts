@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useCaseWorkspace() {
     const params = useParams();
@@ -16,22 +16,12 @@ export function useCaseWorkspace() {
     const queryClient = useQueryClient();
 
     const [activeTab, setActiveTab] = useState<'summary' | 'search' | 'notes'>('summary');
-    const [isLoading, setIsLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
-    const [isSending, setIsSending] = useState(false);
-    const [isLoadingSummary, setIsLoadingSummary] = useState(false);
-    const [isSavingSummary, setIsSavingSummary] = useState(false);
     const [isUploadingTemp, setIsUploadingTemp] = useState(false);
     const [isDraggingChat, setIsDraggingChat] = useState(false);
     const [isDraggingSidebar, setIsDraggingSidebar] = useState(false);
-
-    const [caseData, setCaseData] = useState<any>(null);
-    const [files, setFiles] = useState<any[]>([]);
-    const [chatMessages, setChatMessages] = useState<any[]>([]);
     const [userInput, setUserInput] = useState('');
-    const [caseSummary, setCaseSummary] = useState<string | null>(null);
     const [isTrialCase, setIsTrialCase] = useState(false);
-    const [isTrialExpired, setIsTrialExpired] = useState(false);
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [commitModalOpen, setCommitModalOpen] = useState(false);
@@ -53,7 +43,46 @@ export function useCaseWorkspace() {
     const chatEndRef = useRef<HTMLDivElement>(null);
     const initialLoadDone = useRef(false);
 
+    const { data: caseData, isLoading: isCaseLoading } = useQuery({
+        queryKey: ['case', id],
+        queryFn: async () => {
+            const response = await api.get(`/cases/${id}`);
+            return response.data.data;
+        },
+        enabled: !!id && isAuthenticated
+    });
+
+    const { data: files = [], isLoading: isFilesLoading } = useQuery({
+        queryKey: ['caseFiles', id],
+        queryFn: async () => {
+            const response = await api.get(`/files/case/${id}`);
+            return response.data.data || [];
+        },
+        enabled: !!id && isAuthenticated
+    });
+
+    const { data: chatMessages = [], isLoading: isChatLoading } = useQuery({
+        queryKey: ['caseChat', id],
+        queryFn: async () => {
+            const response = await api.get(`/chat/case/${id}`);
+            if (response.data.success) {
+                return response.data.data.map((m: any) => ({
+                    role: m.sender,
+                    content: m.content,
+                    timestamp: new Date(m.timestamp),
+                    model: m.metadata?.model,
+                    suggestsSaving: m.metadata?.suggestsSaving,
+                    relatedFileType: m.metadata?.relatedFileType
+                }));
+            }
+            return [];
+        },
+        enabled: !!id && isAuthenticated
+    });
+
+    const isTrialExpired = caseData?.error === 'TRIAL_EXPIRED' || caseData?.error === 'TRIAL_LOCKED';
     const isCaseLocked = isTrialExpired || (caseData?.status && caseData.status !== 'active');
+    const caseSummary = caseData?.summary || null;
 
     useEffect(() => {
         setMounted(true);
@@ -102,134 +131,208 @@ export function useCaseWorkspace() {
                 scrollToBottom("smooth");
             }
         }
-    }, [chatMessages, isSending]);
+    }, [chatMessages]);
 
-    useEffect(() => {
-        const fetchCaseData = async () => {
-            if (!id || !isAuthenticated) return;
-            try {
-                const [caseRes, filesRes, chatRes] = await Promise.all([
-                    api.get(`/cases/${id}`),
-                    api.get(`/files/case/${id}`),
-                    api.get(`/chat/case/${id}`)
-                ]);
-
-                const cData = caseRes.data;
-                const fData = filesRes.data;
-                const chData = chatRes.data;
-
-                if (cData.error === 'TRIAL_EXPIRED' || cData.error === 'TRIAL_LOCKED') {
-                    setIsTrialExpired(true);
-                }
-
-                if (cData.success) {
-                    setCaseData(cData.data);
-                    if (cData.data.summary) {
-                        setCaseSummary(cData.data.summary);
-                    }
-                }
-                if (fData.success) setFiles(fData.data);
-                if (chData.success) {
-                    const formattedMessages = chData.data.map((m: any) => ({
-                        role: m.sender,
-                        content: m.content,
-                        timestamp: new Date(m.timestamp),
-                        model: m.metadata?.model,
-                        suggestsSaving: m.metadata?.suggestsSaving,
-                        relatedFileType: m.metadata?.relatedFileType
-                    }));
-                    setChatMessages(formattedMessages);
-                }
-            } catch (error) {
-                console.error('Error fetching case workspace data:', error);
-            } finally {
-                setIsLoading(false);
+    const sendMessageMutation = useMutation({
+        mutationFn: async ({ content, tempFileId }: { content: string, tempFileId: string | null }) => {
+            return api.post('/ai/chat', {
+                message: content,
+                caseId: id,
+                temporaryFileId: tempFileId
+            });
+        },
+        onMutate: async ({ content }) => {
+            await queryClient.cancelQueries({ queryKey: ['caseChat', id] });
+            const previousChat = queryClient.getQueryData(['caseChat', id]);
+            const userMessage = { role: 'user', content, timestamp: new Date(), isPending: true };
+            queryClient.setQueryData(['caseChat', id], (old: any) => [...(old || []), userMessage]);
+            setUserInput('');
+            return { previousChat };
+        },
+        onSuccess: (response) => {
+            const data = response.data;
+            if (data.success) {
+                queryClient.invalidateQueries({ queryKey: ['caseChat', id] });
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
             }
-        };
-
-        fetchCaseData();
-    }, [id, isAuthenticated, queryClient]);
-
-    const uploadFileProtocol = async (file: File, isTemporary: boolean) => {
-        if (!id || !isAuthenticated) return;
-
-        if (isTemporary) {
-            setAttachingFile(file);
-            setIsUploadingTemp(true);
-        } else {
-            setIsLoading(true);
+        },
+        onError: (err, variables, context) => {
+            if (context?.previousChat) {
+                queryClient.setQueryData(['caseChat', id], context.previousChat);
+            }
+            toast.error('Failed to transmit signal');
         }
+    });
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('caseId', id as string);
-        formData.append('isTemporary', isTemporary.toString());
-
-        try {
-            const res = await api.post('/files/upload', formData, {
+    const uploadFileMutation = useMutation({
+        mutationFn: async ({ file, isTemporary }: { file: File, isTemporary: boolean }) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('caseId', id as string);
+            formData.append('isTemporary', isTemporary.toString());
+            return api.post('/files/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
+        },
+        onSuccess: (res, { isTemporary }) => {
             if (res.data.success) {
                 if (isTemporary) {
                     setTemporaryFileId(res.data.data.id);
                     toast.success('Analysis unit ready');
                 } else {
-                    setFiles(prev => [res.data.data, ...prev]);
+                    queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
                     toast.success('Unit saved to repository');
+                    setAttachingFile(null); // Clear preview if it was a direct sidebar upload
                 }
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
-                queryClient.invalidateQueries({ queryKey: ['billing'] });
             } else {
                 toast.error(res.data.message || 'Failed to stage unit');
-                if (isTemporary) setAttachingFile(null);
+                setAttachingFile(null);
+                setTemporaryFileId(null);
             }
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            toast.error('Network error during upload');
-            if (isTemporary) setAttachingFile(null);
-        } finally {
-            if (isTemporary) setIsUploadingTemp(false);
-            else setIsLoading(false);
+        },
+        onError: () => {
+            setAttachingFile(null);
+            setTemporaryFileId(null);
+        },
+        onSettled: () => {
+            setIsUploadingTemp(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    });
+
+    const commitFileMutation = useMutation({
+        mutationFn: async () => {
+            if (summaryToSave) {
+                return api.post('/files/create-from-text', {
+                    caseId: id,
+                    name: commitFileName || 'Case Summary',
+                    content: summaryToSave.content,
+                    type: summaryToSave.type
+                });
+            } else {
+                return api.post('/files/commit', {
+                    fileId: fileToCommit,
+                    newFileName: commitFileName
+                });
+            }
+        },
+        onSuccess: (res) => {
+            const data = res.data;
+            if (data.success) {
+                toast.success(data.message);
+                queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
+                setCommitModalOpen(false);
+                setFileToCommit(null);
+                setSummaryToSave(null);
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+            } else {
+                toast.error(data.message);
+            }
+        }
+    });
+
+    const deleteFileMutation = useMutation({
+        mutationFn: async (fileId: string) => {
+            return api.delete(`/files/${fileId}`);
+        },
+        onSuccess: () => {
+            toast.success('Unit purged');
+            queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
+            setDeleteModalOpen(false);
+            setFileToDelete(null);
+        }
+    });
+
+    const renameFileMutation = useMutation({
+        mutationFn: async ({ fileId, name }: { fileId: string, name: string }) => {
+            return api.put(`/files/${fileId}`, { name });
+        },
+        onSuccess: () => {
+            toast.success('Unit updated');
+            queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
+            setRenameModalOpen(false);
+            setFileToRename(null);
+        }
+    });
+
+    const summaryMutation = useMutation({
+        mutationFn: async () => {
+            return api.get(`/ai/summary/${id}`);
+        },
+        onSuccess: () => {
+            toast.success('Summary updated');
+            queryClient.invalidateQueries({ queryKey: ['case', id] });
+        }
+    });
+
+    const closeCaseMutation = useMutation({
+        mutationFn: async () => {
+            return api.put(`/cases/${id}`, { status: 'closed' });
+        },
+        onSuccess: (response) => {
+            if (response.data.success) {
+                toast.success('Case closed');
+                setTimeout(() => router.push('/cases'), 1500);
+            }
+        }
+    });
+
+    const handleSendMessage = async () => {
+        if (isCaseLocked) {
+            toast.error('This case is locked.');
+            return;
+        }
+        if ((!userInput.trim() && !temporaryFileId) || sendMessageMutation.isPending || !id) return;
+
+        let content = userInput.trim();
+        if (attachingFile) {
+            content = `[Attached Unit: ${attachingFile.name}] ${content}`.trim();
+        }
+        if (!content && attachingFile) {
+            content = `[Attached Unit: ${attachingFile.name}] Please process this incoming signal.`;
+        }
+
+        const tempFileId = temporaryFileId;
+        setAttachingFile(null);
+        setTemporaryFileId(null);
+        
+        sendMessageMutation.mutate({ content, tempFileId });
     };
 
     const handleAttachFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (isTrialCase && files.length >= 10) {
-            toast.error('Trial limit reached: Maximum 10 units per evaluation matter.');
+            toast.error('Trial limit reached.');
             return;
         }
         if (isCaseLocked) {
-            toast.error('This case is locked. Reactivate it to continue.');
+            toast.error('Case locked.');
             return;
         }
         const file = e.target.files?.[0];
         if (!file) return;
-        await uploadFileProtocol(file, true);
-    };
-
-    const handleDragOver = (e: React.DragEvent, setter: (val: boolean) => void) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setter(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent, setter: (val: boolean) => void) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setter(false);
+        setAttachingFile(file);
+        setIsUploadingTemp(true);
+        uploadFileMutation.mutate({ file, isTemporary: true });
     };
 
     const handleDrop = async (e: React.DragEvent, isTemporary: boolean, setter: (val: boolean) => void) => {
         e.preventDefault();
         e.stopPropagation();
         setter(false);
-
         const file = e.dataTransfer.files?.[0];
         if (file) {
-            await uploadFileProtocol(file, isTemporary);
+            if (isTrialCase && files.length >= 10) {
+                toast.error('Trial limit reached. Purge units to continue.');
+                return;
+            }
+            if (isTemporary) {
+                setAttachingFile(file);
+                setIsUploadingTemp(true);
+            }
+            uploadFileMutation.mutate({ file, isTemporary });
         }
     };
 
@@ -240,206 +343,16 @@ export function useCaseWorkspace() {
         setCommitModalOpen(true);
     };
 
-    const executeCommitFile = async () => {
-        if ((!fileToCommit && !summaryToSave) || !id || isSavingSummary) return;
-
-        if (isCaseLocked) {
-            toast.error('This case is locked. Reactivate it to continue.');
-            setCommitModalOpen(false);
-            return;
-        }
-        if (isTrialCase && files.length >= 10) {
-            toast.error('Trial limit reached: Maximum 10 units per evaluation matter.');
-            setCommitModalOpen(false);
-            return;
-        }
-
-        setIsSavingSummary(true);
-        try {
-            let res;
-            if (summaryToSave) {
-                res = await api.post('/files/create-from-text', {
-                    caseId: id,
-                    name: commitFileName || 'Case Summary',
-                    content: summaryToSave.content,
-                    type: summaryToSave.type
-                });
-            } else {
-                res = await api.post('/files/commit', {
-                    fileId: fileToCommit,
-                    newFileName: commitFileName
-                });
-            }
-
-            const data = res.data;
-            if (data.success) {
-                toast.success(data.message);
-                setFiles(prev => [data.data, ...prev]);
-                setCommitModalOpen(false);
-                setFileToCommit(null);
-                setSummaryToSave(null);
-                queryClient.invalidateQueries({ queryKey: ['case', id] });
-                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
-                queryClient.invalidateQueries({ queryKey: ['billing'] });
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error('Failed to save to repository');
-        } finally {
-            setIsSavingSummary(false);
-            setCommitModalOpen(false);
-            setFileToCommit(null);
-            setCommitFileName('');
-        }
-    };
-
-    const handleDeleteFile = async () => {
-        if (!fileToDelete || !id || !isAuthenticated) return;
-        try {
-            const res = await api.delete(`/files/${fileToDelete._id}`);
-            if (res.data.success) {
-                toast.success('Unit purged from repository');
-                setFiles(prev => prev.filter(f => f._id !== fileToDelete._id));
-                queryClient.invalidateQueries({ queryKey: ['case', id] });
-                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
-                queryClient.invalidateQueries({ queryKey: ['billing'] });
-            } else {
-                toast.error(res.data.message || 'Failed to purge unit');
-            }
-        } catch (error) {
-            console.error('Error deleting file:', error);
-            toast.error('Network error during deletion');
-        } finally {
-            setDeleteModalOpen(false);
-            setFileToDelete(null);
-        }
-    };
-
-    const handleRenameFile = async () => {
-        if (!fileToRename || !newFileName.trim() || !id || !isAuthenticated) return;
-        try {
-            const endpoint = `/files/${fileToRename._id}`;
-            const res = await api.put(endpoint, { name: newFileName.trim() });
-            if (res.data.success) {
-                toast.success('Unit identity updated');
-                setFiles(prev => prev.map(f => f._id === fileToRename._id ? { ...f, name: newFileName.trim() } : f));
-            } else {
-                toast.error(res.data.message || 'Failed to update identity');
-            }
-        } catch (error) {
-            console.error('Error renaming file:', error);
-            toast.error('Network error during rename');
-        } finally {
-            setRenameModalOpen(false);
-            setFileToRename(null);
-        }
-    };
-
-    const handleSendMessage = async () => {
-        if (isCaseLocked) {
-            toast.error('This case is locked. Reactivate it to continue.');
-            return;
-        }
-        if ((!userInput.trim() && !temporaryFileId) || isSending || !id || !isAuthenticated) return;
-
-        let content = userInput.trim();
-        if (attachingFile) {
-            content = `[Attached Unit: ${attachingFile.name}] ${content}`.trim();
-        }
-        if (!content && attachingFile) {
-             content = `[Attached Unit: ${attachingFile.name}] Please process this incoming signal.`;
-        }
-
-        const userMessage = { role: 'user', content, timestamp: new Date(), isPending: true };
-        
-        setChatMessages(prev => [...prev, userMessage]);
-        setUserInput('');
-        setIsSending(true);
-
-        const currentTempFileId = temporaryFileId;
-        const currentTempFileType = attachingFile?.type || 'text/markdown';
-        setAttachingFile(null);
-        setTemporaryFileId(null);
-
-        try {
-            const response = await api.post('/ai/chat', {
-                message: content,
-                caseId: id,
-                temporaryFileId: currentTempFileId
-            });
-
-            const data = response.data;
-            if (data.success) {
-                const aiMessage = {
-                    role: 'ai',
-                    content: data.data.response,
-                    timestamp: new Date(),
-                    model: data.data.model,
-                    suggestsSaving: data.data.suggestsSaving,
-                    relatedFileType: data.data.relatedFileType || currentTempFileType
-                };
-                setChatMessages(prev => {
-                    const withoutPending = prev.map(m => m.isPending ? { ...m, isPending: false } : m);
-                    return [...withoutPending, aiMessage];
-                });
-                queryClient.invalidateQueries({ queryKey: ['case', id] });
-                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
-                queryClient.invalidateQueries({ queryKey: ['billing'] });
-            } else {
-                toast.error(data.message || 'AI failed to respond');
-                setChatMessages(prev => prev.map(m => m.isPending ? { ...m, isPending: false } : m));
-            }
-        } catch (error) {
-            toast.error('Network error during AI chat');
-        } finally {
-            setIsSending(false);
-        }
-    };
-
-    const handleGenerateSummary = async () => {
-        if (!id || !isAuthenticated) return;
-        setIsLoadingSummary(true);
-        try {
-            const response = await api.get(`/ai/summary/${id}`);
-            const data = response.data;
-            if (data.success) {
-                setCaseSummary(data.data.summary);
-                toast.success('Summary updated');
-                queryClient.invalidateQueries({ queryKey: ['case', id] });
-                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
-                queryClient.invalidateQueries({ queryKey: ['billing'] });
-            }
-        } catch (error) {
-            toast.error('Failed to generate summary');
-        } finally {
-            setIsLoadingSummary(false);
-        }
-    };
-
-    const handleCloseCase = async () => {
-        if (!id || !isAuthenticated) return;
-
-        try {
-            const response = await api.put(`/cases/${id}`, { status: 'closed' });
-            const data = response.data;
-            if (data.success) {
-                setCaseData(data.data);
-                toast.success('Case closed successfully');
-                setTimeout(() => {
-                    router.push('/cases');
-                }, 1500);
-            }
-        } catch (error) {
-            toast.error('Failed to close case');
-        }
-    };
-
     return {
         activeTab, setActiveTab,
-        isLoading, isAuthLoading, mounted,
-        isSending, isLoadingSummary, isSavingSummary, isUploadingTemp,
-        isDraggingChat, setIsDraggingChat, isDraggingSidebar, setIsDraggingSidebar,
+        isLoading: isCaseLoading || isFilesLoading || isAuthLoading,
+        mounted,
+        isSending: sendMessageMutation.isPending,
+        isLoadingSummary: summaryMutation.isPending,
+        isSavingSummary: commitFileMutation.isPending,
+        isUploadingTemp,
+        isDraggingChat, setIsDraggingChat,
+        isDraggingSidebar, setIsDraggingSidebar,
         caseData, files, chatMessages, userInput, setUserInput,
         caseSummary, isTrialCase, isTrialExpired, isCaseLocked,
         isConfirmModalOpen, setIsConfirmModalOpen,
@@ -456,13 +369,20 @@ export function useCaseWorkspace() {
         newFileName, setNewFileName,
         fileToDelete, setFileToDelete,
         activeFileMenu, setActiveFileMenu,
-
         fileInputRef, chatEndRef,
 
         handleOpenFile, handleDownloadFile,
-        handleAttachFile, handleDragOver, handleDragLeave, handleDrop,
-        handleSaveSummary, executeCommitFile, handleDeleteFile, handleRenameFile,
-        handleSendMessage, handleGenerateSummary, handleCloseCase,
+        handleAttachFile,
+        handleDragOver: (e: React.DragEvent, s: (v: boolean) => void) => { e.preventDefault(); s(true); },
+        handleDragLeave: (e: React.DragEvent, s: (v: boolean) => void) => { e.preventDefault(); s(false); },
+        handleDrop,
+        handleSaveSummary,
+        executeCommitFile: () => commitFileMutation.mutate(),
+        handleDeleteFile: () => deleteFileMutation.mutate(fileToDelete?._id),
+        handleRenameFile: () => renameFileMutation.mutate({ fileId: fileToRename?._id, name: newFileName }),
+        handleSendMessage,
+        handleGenerateSummary: () => summaryMutation.mutate(),
+        handleCloseCase: () => closeCaseMutation.mutate(),
         id
     };
 }

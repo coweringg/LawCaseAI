@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface AdminUser {
   id: string
@@ -110,49 +111,46 @@ interface SupportRequest {
 export function useAdminDashboard() {
   const router = useRouter()
   const { user, isLoading: isAuthLoading } = useAuth()
-  const [users, setUsers] = useState<AdminUser[]>([])
-  const [stats, setStats] = useState<AdminStats | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
+
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
   const [userPage, setUserPage] = useState(1)
   const [userLimit, setUserLimit] = useState(10)
-  const [userTotalPages, setUserTotalPages] = useState(1)
+
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [userHistory, setUserHistory] = useState<UserHistory | null>(null)
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false)
   const [editData, setEditData] = useState({ name: '', email: '', password: '', lawFirm: '', firmCode: '' })
   const [editError, setEditError] = useState<string | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
+
   const [activeTab, setActiveTab] = useState<'users' | 'history' | 'support'>('users')
   const [activeHistoryTab, setActiveHistoryTab] = useState<'admin' | 'platform'>('admin')
   const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'cases' | 'payments' | 'activity' | 'members' | 'ia'>('overview')
-  const [adminLogs, setAdminLogs] = useState<AuditLogEntry[]>([])
-  const [platformLogs, setPlatformLogs] = useState<AuditLogEntry[]>([])
-  const [isLogsLoading, setIsLogsLoading] = useState(false)
+
   const [logSearchTerm, setLogSearchTerm] = useState('')
+  const [debouncedLogSearchTerm, setDebouncedLogSearchTerm] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [actionFilter, setActionFilter] = useState('')
   const [targetTypeFilter, setTargetTypeFilter] = useState('')
   const [logPage, setLogPage] = useState(1)
   const [logLimit, setLogLimit] = useState(10)
-  const [totalPages, setTotalPages] = useState(1)
+
   const [showDiffModal, setShowDiffModal] = useState(false)
   const [selectedLogForDiff, setSelectedLogForDiff] = useState<AuditLogEntry | null>(null)
-  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([])
-  const [isSupportLoading, setIsSupportLoading] = useState(false)
+
   const [supportTypeFilter, setSupportTypeFilter] = useState<'all' | 'system_error' | 'feature_uplink' | 'login_issue'>('all')
   const [supportStatusFilter, setSupportStatusFilter] = useState('')
   const [signalSubTab, setSignalSubTab] = useState<'public' | 'user'>('public')
   const [publicSubjectFilter, setPublicSubjectFilter] = useState('')
   const [supportPage, setSupportPage] = useState(1)
-  const [supportTotalPages, setSupportTotalPages] = useState(1)
-  const [totalSupportRequests, setTotalSupportRequests] = useState(0)
   const [selectedSupportRequest, setSelectedSupportRequest] = useState<SupportRequest | null>(null)
   const [showSupportDetailModal, setShowSupportDetailModal] = useState(false)
+
+  const [showPlanModal, setShowPlanModal] = useState(false)
+
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -167,103 +165,68 @@ export function useAdminDashboard() {
     onConfirm: () => {},
     variant: 'danger'
   })
-  const [showPlanModal, setShowPlanModal] = useState(false)
-  const [isPlanUpdating, setIsPlanUpdating] = useState(false)
 
-  const fetchUsers = useCallback(async () => {
-    try {
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedLogSearchTerm(logSearchTerm), 500)
+    return () => clearTimeout(timer)
+  }, [logSearchTerm])
+
+  const { data: usersData, isLoading: isUsersLoading } = useQuery({
+    queryKey: ['adminUsers', userPage, userLimit, debouncedSearchTerm, roleFilter],
+    queryFn: async () => {
       const query = new URLSearchParams({
         page: userPage.toString(),
         limit: userLimit.toString(),
-        ...(searchTerm ? { search: searchTerm } : {}),
+        ...(debouncedSearchTerm ? { search: debouncedSearchTerm } : {}),
         ...(roleFilter !== 'all' ? { role: roleFilter } : {})
       })
       const response = await api.get(`/admin/users?${query.toString()}`)
-      if (response.data.success) {
-        setUsers(response.data.data.users || [])
-        setUserTotalPages(response.data.data.pages || 1)
-      }
-    } catch (error) {
-      console.error('Failed to fetch users:', error)
-    }
-  }, [userPage, userLimit, searchTerm, roleFilter])
+      return response.data.data
+    },
+    enabled: !!user && user.role === 'admin'
+  })
 
-  const fetchStats = useCallback(async () => {
-    try {
+  const { data: stats, isLoading: isStatsLoading } = useQuery({
+    queryKey: ['adminStats'],
+    queryFn: async () => {
       const response = await api.get('/admin/stats')
-      if (response.data.success) {
-        setStats(response.data.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch admin stats:', error)
-    }
-  }, [])
+      return response.data.data
+    },
+    enabled: !!user && user.role === 'admin'
+  })
 
-  const fetchAuditLogs = useCallback(async (category: 'admin' | 'platform' = activeHistoryTab) => {
-    setIsLogsLoading(true)
-    try {
+  const { data: logsData, isLoading: isLogsLoading } = useQuery({
+    queryKey: ['adminLogs', activeHistoryTab, logPage, logLimit, debouncedLogSearchTerm, startDate, endDate, actionFilter, targetTypeFilter],
+    queryFn: async () => {
       const query = new URLSearchParams({
-        category,
+        category: activeHistoryTab,
         page: logPage.toString(),
         limit: logLimit.toString(),
-        ...(logSearchTerm ? { search: logSearchTerm } : {}),
+        ...(debouncedLogSearchTerm ? { search: debouncedLogSearchTerm } : {}),
         ...(startDate ? { startDate } : {}),
         ...(endDate ? { endDate } : {}),
         ...(actionFilter ? { action: actionFilter } : {}),
         ...(targetTypeFilter ? { targetType: targetTypeFilter } : {})
       })
       const response = await api.get(`/admin/audit-logs?${query.toString()}`)
-      if (response.data.success) {
-        if (category === 'admin') setAdminLogs(response.data.data.logs || [])
-        else setPlatformLogs(response.data.data.logs || [])
-        setTotalPages(response.data.data.pages || 1)
-      }
-    } catch (error) {
-      console.error('Failed to fetch audit logs:', error)
-    } finally {
-      setIsLogsLoading(false)
-    }
-  }, [activeHistoryTab, logSearchTerm, startDate, endDate, actionFilter, targetTypeFilter, logPage, logLimit])
+      return response.data.data
+    },
+    enabled: !!user && user.role === 'admin' && activeTab === 'history'
+  })
 
-  const handleExportCSV = async () => {
-    try {
-      const query = new URLSearchParams({
-        category: activeHistoryTab,
-        export: 'csv',
-        ...(logSearchTerm ? { search: logSearchTerm } : {}),
-        ...(startDate ? { startDate } : {}),
-        ...(endDate ? { endDate } : {}),
-        ...(actionFilter ? { action: actionFilter } : {}),
-        ...(targetTypeFilter ? { targetType: targetTypeFilter } : {})
-      })
-      
-      const response = await api.get(`/admin/audit-logs?${query.toString()}`, {
-        responseType: 'blob'
-      })
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `audit-logs-${activeHistoryTab}-${new Date().toISOString().split('T')[0]}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    } catch (error) {
-      console.error('CSV Export failed:', error)
-      toast.error('Failed to export CSV')
-    }
-  }
-
-  const fetchSupportRequests = useCallback(async () => {
-    setIsSupportLoading(true)
-    try {
+  const { data: supportData, isLoading: isSupportLoading } = useQuery({
+    queryKey: ['adminSupport', supportPage, supportStatusFilter, signalSubTab, supportTypeFilter, publicSubjectFilter],
+    queryFn: async () => {
       let typeParam = ''
       if (signalSubTab === 'public') {
         typeParam = 'login_issue'
-      } else {
-        if (supportTypeFilter !== 'all') {
-          typeParam = supportTypeFilter
-        }
+      } else if (supportTypeFilter !== 'all') {
+        typeParam = supportTypeFilter
       }
 
       const query = new URLSearchParams({
@@ -274,316 +237,164 @@ export function useAdminDashboard() {
         ...(signalSubTab === 'public' && publicSubjectFilter ? { subject: publicSubjectFilter } : {})
       })
       const response = await api.get(`/admin/support?${query.toString()}`)
-      if (response.data.success) {
-        setSupportRequests(response.data.data.requests)
-        setTotalSupportRequests(response.data.data.total)
-        setSupportTotalPages(response.data.data.pages || 1)
-      }
-    } catch (error) {
-      console.error('Failed to fetch support requests:', error)
-    } finally {
-      setIsSupportLoading(false)
+      return response.data.data
+    },
+    enabled: !!user && user.role === 'admin' && activeTab === 'support'
+  })
+
+  const { data: userHistory, isLoading: isHistoryLoading } = useQuery({
+    queryKey: ['userHistory', selectedUser?.id],
+    queryFn: async () => {
+      if (!selectedUser?.id) return null
+      const response = await api.get(`/admin/users/${selectedUser.id}/history`)
+      return response.data.data
+    },
+    enabled: !!selectedUser?.id && showHistoryModal
+  })
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ userId, status }: { userId: string, status: string }) => {
+      return api.put(`/admin/users/${userId}/status`, { status })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+      toast.success('User status updated')
     }
-  }, [supportPage, supportStatusFilter, signalSubTab, supportTypeFilter, publicSubjectFilter])
+  })
 
-  useEffect(() => {
-    const initDashboard = async () => {
-      if (!isAuthLoading) {
-        if (!user || user.role !== 'admin') {
-          router.push('/dashboard')
-        } else {
-          try {
-            await Promise.all([
-              fetchUsers(),
-              fetchStats(),
-              fetchAuditLogs('admin'),
-              fetchAuditLogs('platform'),
-              fetchSupportRequests()
-            ])
-          } catch (error) {
-            console.error('Initialization error:', error)
-          } finally {
-            setIsLoading(false)
-          }
-        }
-      }
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return api.delete(`/admin/users/${userId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] })
+      toast.success('User terminated successfully')
     }
-    
-    initDashboard()
-  }, [user, isAuthLoading, router, fetchUsers, fetchStats, fetchAuditLogs, fetchSupportRequests])
+  })
 
-  useEffect(() => {
-    if (activeTab === 'users' && user?.role === 'admin') {
-      const timer = setTimeout(() => {
-        fetchUsers()
-      }, 500)
-      return () => clearTimeout(timer)
+  const updatePlanMutation = useMutation({
+    mutationFn: async ({ userId, plan }: { userId: string, plan: string }) => {
+      return api.put(`/admin/users/${userId}/plan`, { plan })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+      setShowPlanModal(false)
+      setSelectedUser(null)
+      toast.success('Plan updated successfully')
     }
-  }, [activeTab, searchTerm, roleFilter, userPage, fetchUsers, user?.role])
+  })
 
-  useEffect(() => {
-    if (activeTab === 'history' && user?.role === 'admin') {
-      fetchAuditLogs(activeHistoryTab)
-    } else if (activeTab === 'support' && user?.role === 'admin') {
-      fetchSupportRequests()
-    }
-  }, [activeTab, activeHistoryTab, user?.role, fetchAuditLogs, fetchSupportRequests, logPage, supportPage, supportStatusFilter, signalSubTab, supportTypeFilter, publicSubjectFilter])
-
-  const handleDeleteLog = async (logId: string) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Purge Audit Log',
-      message: 'Are you sure you want to delete this specific audit entry from the permanent archives?',
-      confirmText: 'Purge Now',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          const response = await api.delete(`/admin/audit-logs/${logId}`)
-          if (response.data.success) {
-            if (activeHistoryTab === 'admin') {
-              setAdminLogs(prev => prev.filter(l => l._id !== logId))
-            } else {
-              setPlatformLogs(prev => prev.filter(l => l._id !== logId))
-            }
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-          }
-        } catch (error) {
-          console.error('Failed to delete log entry:', error)
-        }
-      }
-    })
-  }
-
-  const handleClearLogs = async () => {
-    const categoryName = activeHistoryTab === 'admin' ? 'Administrative Records' : 'User Movement Logs'
-    setConfirmConfig({
-      isOpen: true,
-      title: 'System-Wide Cleanup',
-      message: `Are you CERTAIN you want to DELETE ALL ${categoryName}? This action is irreversible and will completely empty the selected history.`,
-      confirmText: 'Wipe History',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          const response = await api.delete(`/admin/audit-logs?category=${activeHistoryTab}`)
-          if (response.data.success) {
-            if (activeHistoryTab === 'admin') setAdminLogs([])
-            else setPlatformLogs([])
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-          }
-        } catch (error) {
-          console.error('Failed to clear logs:', error)
-        }
-      }
-    })
-  }
-
-  const handleUpdatePlan = async (userId: string, plan: string) => {
-    setIsPlanUpdating(true)
-    try {
-      const response = await api.put(`/admin/users/${userId}/plan`, { plan })
-      if (response.data.success) {
-        setUsers(prev => prev.map(user =>
-          user.id === userId ? { ...user, plan: plan as any } : user
-        ))
-        setShowPlanModal(false)
-        setSelectedUser(null)
-        toast.success(`Plan updated to ${plan} successfully`)
-      }
-    } catch (error) {
-      console.error('Failed to update plan:', error)
-      toast.error('Failed to update user plan')
-    } finally {
-      setIsPlanUpdating(false)
-    }
-  }
-
-  const fetchUserHistory = useCallback(async (userId: string) => {
-    setIsHistoryLoading(true)
-    try {
-      const response = await api.get(`/admin/users/${userId}/history`)
-      if (response.data.success) {
-        setUserHistory(response.data.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch user history:', error)
-    } finally {
-      setIsHistoryLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (activeTab === 'history' && user?.role === 'admin') {
-      const timer = setTimeout(() => {
-        fetchAuditLogs(activeHistoryTab)
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [activeTab, activeHistoryTab, logSearchTerm, startDate, endDate, user?.role, fetchAuditLogs])
-
-  const handleUserStatusChange = async (userId: string, status: 'active' | 'disabled') => {
-    try {
-      const response = await api.put(`/admin/users/${userId}/status`, { status })
-
-      if (response.data.success) {
-        setUsers(prev => prev.map(user =>
-          user.id === userId ? { ...user, status } : user
-        ))
-      }
-    } catch (error) {
-      console.error('Failed to update user status:', error)
-    }
-  }
-
-  const handleDeleteUser = async (userId: string) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Terminate User Identity',
-      message: 'Are you absolutely sure you want to permanently delete this user? This protocol cannot be undone, and the user will lose all platform access immediately.',
-      confirmText: 'Permanently Delete',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          const response = await api.delete(`/admin/users/${userId}`)
-          if (response.data.success) {
-            setUsers(prev => prev.filter(u => u.id !== userId))
-            fetchStats()
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-          }
-        } catch (error) {
-          console.error('Failed to delete user:', error)
-        }
-      }
-    })
-  }
-
-  const handleForceLogout = async (userId: string) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Remote Session Termination',
-      message: 'Are you sure you want to terminate all active sessions for this user? The user will be required to re-authenticate to regain access.',
-      confirmText: 'Invalidate Sessions',
-      variant: 'warning',
-      onConfirm: async () => {
-        try {
-          const response = await api.post(`/admin/users/${userId}/logout`)
-          if (response.data.success) {
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-          }
-        } catch (error) {
-          console.error('Failed to force logout:', error)
-        }
-      }
-    })
-  }
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedUser) return
-
-    setIsUpdating(true)
-    setEditError(null)
-    
-    try {
-      const payload: Partial<typeof editData> = { ...editData }
+  const editUserMutation = useMutation({
+    mutationFn: async ({ userId, data }: { userId: string, data: any }) => {
+      const payload = { ...data }
       if (!payload.password) delete payload.password
-
-      const response = await api.put(`/admin/users/${selectedUser.id}`, payload, {
-        validateStatus: (status) => status < 500
-      })
-
-      if (response.status === 200 && response.data.success) {
-        if (selectedUser.isOrgAdmin && selectedUser.organizationId && editData.firmCode !== selectedUser.firmCode) {
-          try {
-            await api.put(`/admin/organizations/${selectedUser.organizationId}/code`, { 
-              firmCode: editData.firmCode 
-            })
-          } catch (orgError: any) {
-            console.error('Failed to update firm code:', orgError)
-            const errorMsg = orgError.response?.data?.message || 'Failed to update organization code'
-            setEditError(errorMsg)
-            setIsUpdating(false)
-            return
-          }
-        }
-        
-        await fetchUsers()
-        setShowEditModal(false)
-        setSelectedUser(null)
-        toast.success('User protocol updated successfully')
-      } else if (response.status === 400) {
-        setEditError(response.data.message || 'Failed to update user')
+      return api.put(`/admin/users/${userId}`, payload)
+    },
+    onSuccess: async (_, { userId, data }) => {
+      if (selectedUser?.isOrgAdmin && selectedUser.organizationId && data.firmCode !== selectedUser.firmCode) {
+        await api.put(`/admin/organizations/${selectedUser.organizationId}/code`, { firmCode: data.firmCode })
       }
-    } catch (error: any) {
-      console.error('Failed to update user:', error)
-      setEditError(error.response?.data?.message || 'Failed to update user')
-    } finally {
-      setIsUpdating(false)
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+      setShowEditModal(false)
+      setSelectedUser(null)
+      toast.success('User protocol updated')
+    },
+    onError: (error: any) => {
+      setEditError(error.response?.data?.message || 'Update failed')
     }
-  }
+  })
 
-  const handleResolveSupport = async (requestId: string) => {
+  const forceLogoutMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return api.post(`/admin/users/${userId}/logout`)
+    },
+    onSuccess: () => {
+      toast.success('Sessions invalidated')
+    }
+  })
+
+  const deleteLogMutation = useMutation({
+    mutationFn: async (logId: string) => {
+      return api.delete(`/admin/audit-logs/${logId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminLogs'] })
+      toast.success('Log purged')
+    }
+  })
+
+  const clearLogsMutation = useMutation({
+    mutationFn: async (category: string) => {
+      return api.delete(`/admin/audit-logs?category=${category}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminLogs'] })
+      toast.success('History wiped')
+    }
+  })
+
+  const resolveSupportMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      return api.put(`/admin/support/${requestId}/status`, { status: 'resolved' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminSupport'] })
+      toast.success('Resolved')
+    }
+  })
+
+  const deleteSupportMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      return api.delete(`/admin/support/${requestId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminSupport'] })
+      toast.success('Deleted')
+    }
+  })
+
+  const clearSupportMutation = useMutation({
+    mutationFn: async (type: string) => {
+      return api.delete(`/admin/support?type=${type}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminSupport'] })
+      toast.success('Support cleared')
+    }
+  })
+
+  const users = usersData?.users || []
+  const userTotalPages = usersData?.pages || 1
+  const adminLogs = activeHistoryTab === 'admin' ? (logsData?.logs || []) : []
+  const platformLogs = activeHistoryTab === 'platform' ? (logsData?.logs || []) : []
+  const totalPages = logsData?.pages || 1
+  const supportRequests = supportData?.requests || []
+  const supportTotalPages = supportData?.pages || 1
+  const totalSupportRequests = supportData?.total || 0
+
+  const handleExportCSV = async () => {
     try {
-      const response = await api.put(`/admin/support/${requestId}/status`, { status: 'resolved' })
-      if (response.data.success) {
-        setSupportRequests(prev => prev.map(req => 
-          req._id === requestId ? { ...req, status: 'resolved' } : req
-        ))
-        toast.success('Support request marked as resolved')
-      }
+      const query = new URLSearchParams({
+        category: activeHistoryTab,
+        export: 'csv',
+        ...(debouncedLogSearchTerm ? { search: debouncedLogSearchTerm } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+        ...(actionFilter ? { action: actionFilter } : {}),
+        ...(targetTypeFilter ? { targetType: targetTypeFilter } : {})
+      })
+      const response = await api.get(`/admin/audit-logs?${query.toString()}`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `audit-logs-${activeHistoryTab}-${new Date().toISOString().split('T')[0]}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     } catch (error) {
-      console.error('Failed to resolve support request:', error)
-      toast.error('Failed to update status')
+      toast.error('Export failed')
     }
-  }
-
-  const handleDeleteSupport = async (requestId: string) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Delete Support Signal',
-      message: 'Are you sure you want to permanently delete this support request? This action cannot be undone.',
-      confirmText: 'Delete Signal',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          const response = await api.delete(`/admin/support/${requestId}`)
-          if (response.data.success) {
-            setSupportRequests(prev => prev.filter(r => r._id !== requestId))
-            setTotalSupportRequests(prev => prev - 1)
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-            toast.success('Support request deleted')
-          }
-        } catch (error) {
-          console.error('Failed to delete support request:', error)
-          toast.error('Failed to delete request')
-        }
-      }
-    })
-  }
-
-  const handleClearSupport = async (typeOverride?: string) => {
-    const finalType = typeOverride || supportTypeFilter
-    const categoryName = finalType === 'system_error' ? 'System Errors' : finalType === 'feature_uplink' ? 'Feature Uplinks' : finalType === 'login_issue' ? 'Public Signals' : 'All Signals'
-    
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Signal Cleanup',
-      message: `Are you sure you want to delete ALL ${categoryName}? This action will permanently wipe this section.`,
-      confirmText: 'Wipe All',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          const response = await api.delete(`/admin/support?type=${finalType}`)
-          if (response.data.success) {
-            await fetchSupportRequests()
-            setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-            toast.success(`Cleared all ${categoryName}`)
-          }
-        } catch (error) {
-          console.error('Failed to clear support requests:', error)
-          toast.error('Failed to clear requests')
-        }
-      }
-    })
   }
 
   const openEditModal = (user: AdminUser) => {
@@ -599,74 +410,146 @@ export function useAdminDashboard() {
     setShowEditModal(true)
   }
 
-  
+  useEffect(() => {
+    if (!isAuthLoading && (!user || user.role !== 'admin')) {
+      router.push('/dashboard')
+    }
+  }, [user, isAuthLoading, router])
 
   return {
-    users, setUsers,
-    stats, setStats,
-    isLoading, setIsLoading,
+    users, stats, adminLogs, platformLogs, supportRequests, userHistory,
+    isLoading: isAuthLoading || isUsersLoading || isStatsLoading,
+    isLogsLoading, isSupportLoading, isHistoryLoading,
+    isUpdating: editUserMutation.isPending,
+    isPlanUpdating: updatePlanMutation.isPending,
     searchTerm, setSearchTerm,
     roleFilter, setRoleFilter,
     userPage, setUserPage,
     userLimit, setUserLimit,
-    userTotalPages, setUserTotalPages,
-    selectedUser, setSelectedUser,
-    showEditModal, setShowEditModal,
-    showHistoryModal, setShowHistoryModal,
-    userHistory, setUserHistory,
-    isHistoryLoading, setIsHistoryLoading,
-    editData, setEditData,
-    editError, setEditError,
-    isUpdating, setIsUpdating,
+    userTotalPages,
+    logPage, setLogPage,
+    logLimit, setLogLimit,
+    totalPages,
+    supportPage, setSupportPage,
+    supportTotalPages,
+    totalSupportRequests,
     activeTab, setActiveTab,
     activeHistoryTab, setActiveHistoryTab,
     activeDetailTab, setActiveDetailTab,
-    adminLogs, setAdminLogs,
-    platformLogs, setPlatformLogs,
-    isLogsLoading, setIsLogsLoading,
+    signalSubTab, setSignalSubTab,
+    selectedUser, setSelectedUser,
+    showEditModal, setShowEditModal,
+    showHistoryModal, setShowHistoryModal,
+    showDiffModal, setShowDiffModal,
+    selectedLogForDiff, setSelectedLogForDiff,
+    showSupportDetailModal, setShowSupportDetailModal,
+    selectedSupportRequest, setSelectedSupportRequest,
+    showPlanModal, setShowPlanModal,
+    editData, setEditData,
+    editError, setEditError,
     logSearchTerm, setLogSearchTerm,
     startDate, setStartDate,
     endDate, setEndDate,
     actionFilter, setActionFilter,
     targetTypeFilter, setTargetTypeFilter,
-    logPage, setLogPage,
-    logLimit, setLogLimit,
-    totalPages, setTotalPages,
-    showDiffModal, setShowDiffModal,
-    selectedLogForDiff, setSelectedLogForDiff,
-    supportRequests, setSupportRequests,
-    isSupportLoading, setIsSupportLoading,
     supportTypeFilter, setSupportTypeFilter,
     supportStatusFilter, setSupportStatusFilter,
-    signalSubTab, setSignalSubTab,
     publicSubjectFilter, setPublicSubjectFilter,
-    supportPage, setSupportPage,
-    supportTotalPages, setSupportTotalPages,
-    totalSupportRequests, setTotalSupportRequests,
-    selectedSupportRequest, setSelectedSupportRequest,
-    showSupportDetailModal, setShowSupportDetailModal,
     confirmConfig, setConfirmConfig,
-    showPlanModal, setShowPlanModal,
-    isPlanUpdating, setIsPlanUpdating,
-    fetchUsers,
-    fetchStats,
-    fetchAuditLogs,
+    handleUserStatusChange: (id: string, s: string) => updateStatusMutation.mutate({ userId: id, status: s }),
+    handleDeleteUser: (id: string) => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Terminate User Identity',
+        message: 'Permanent deletion protocol. Action is irreversible.',
+        confirmText: 'Permanently Delete',
+        variant: 'danger',
+        onConfirm: () => {
+          deleteUserMutation.mutate(id)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
+    handleUpdatePlan: (id: string, p: string) => updatePlanMutation.mutate({ userId: id, plan: p }),
+    handleEditSubmit: (e: React.FormEvent) => {
+      e.preventDefault()
+      if (selectedUser) editUserMutation.mutate({ userId: selectedUser.id, data: editData })
+    },
+    handleForceLogout: (id: string) => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Invalidate Sessions',
+        message: 'Force remote logout for all active sessions?',
+        confirmText: 'Invalidate',
+        variant: 'warning',
+        onConfirm: () => {
+          forceLogoutMutation.mutate(id)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
+    handleDeleteLog: (id: string) => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Purge Log',
+        message: 'Remove this entry from the database?',
+        confirmText: 'Purge',
+        variant: 'danger',
+        onConfirm: () => {
+          deleteLogMutation.mutate(id)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
+    handleClearLogs: () => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Wipe History',
+        message: `DELETE ALL ${activeHistoryTab === 'admin' ? 'Administrative' : 'Platform'} records?`,
+        confirmText: 'Wipe All',
+        variant: 'danger',
+        onConfirm: () => {
+          clearLogsMutation.mutate(activeHistoryTab)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
+    handleResolveSupport: (id: string) => resolveSupportMutation.mutate(id),
+    handleDeleteSupport: (id: string) => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Delete Signal',
+        message: 'Permanently delete this support request?',
+        confirmText: 'Delete',
+        variant: 'danger',
+        onConfirm: () => {
+          deleteSupportMutation.mutate(id)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
+    handleClearSupport: (type?: string) => {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Clear Signals',
+        message: 'Delete ALL requests in this category?',
+        confirmText: 'Clear All',
+        variant: 'danger',
+        onConfirm: () => {
+          clearSupportMutation.mutate(type || supportTypeFilter)
+          setConfirmConfig(p => ({ ...p, isOpen: false }))
+        }
+      })
+    },
     handleExportCSV,
-    fetchSupportRequests,
-    handleDeleteLog,
-    handleClearLogs,
-    handleUpdatePlan,
-    fetchUserHistory,
-    handleUserStatusChange,
-    handleDeleteUser,
-    handleForceLogout,
-    handleEditSubmit,
-    handleResolveSupport,
-    handleDeleteSupport,
-    handleClearSupport,
     openEditModal,
+    fetchUserHistory: (id: string) => {
+      const u = users.find((u: AdminUser) => u.id === id);
+      if (u) setSelectedUser(u);
+      setShowHistoryModal(true);
+    },
+    setUserHistory: () => {},
     user,
-    isAuthLoading,
-    api
+    isAuthLoading
   };
 }

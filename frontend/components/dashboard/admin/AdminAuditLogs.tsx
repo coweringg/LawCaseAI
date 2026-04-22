@@ -29,7 +29,6 @@ interface AdminAuditLogsProps {
   handleExportCSV: () => void
   handleDeleteLog: (id: string) => void
   handleClearLogs: () => void
-  fetchAuditLogs: (category?: 'admin' | 'platform') => void | Promise<void>
 }
 
 export function AdminAuditLogs({
@@ -38,7 +37,7 @@ export function AdminAuditLogs({
   actionFilter, setActionFilter, targetTypeFilter, setTargetTypeFilter,
   logPage, setLogPage, totalPages, isLogsLoading,
   setSelectedLogForDiff, setShowDiffModal,
-  handleExportCSV, handleDeleteLog, handleClearLogs, fetchAuditLogs
+  handleExportCSV, handleDeleteLog, handleClearLogs
 }: AdminAuditLogsProps) {
   const auditColumns = [
     {
@@ -311,16 +310,6 @@ export function AdminAuditLogs({
                     ))}
                   </div>
                   
-                  <motion.button
-                    whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => fetchAuditLogs(activeHistoryTab)}
-                    disabled={isLogsLoading}
-                    className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
-                  >
-                    <RotateCcw size={16} className={cn(isLogsLoading && "animate-spin")} />
-                  </motion.button>
-
                   <motion.button
                     whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.95 }}

@@ -346,6 +346,7 @@ export function useCaseWorkspace() {
     return {
         activeTab, setActiveTab,
         isLoading: isCaseLoading || isFilesLoading || isAuthLoading,
+        isAuthLoading,
         mounted,
         isSending: sendMessageMutation.isPending,
         isLoadingSummary: summaryMutation.isPending,

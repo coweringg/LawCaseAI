@@ -175,7 +175,6 @@ export default function CaseClient() {
                     onChange={handleAttachFile}
                 />
 
-                {/* Floating File Menu */}
                 <AnimatePresence>
                     {activeFileMenu && (
                         <>
@@ -189,7 +188,7 @@ export default function CaseClient() {
                             >
                                 <button 
                                     onClick={() => {
-                                        const file = files.find(f => f._id === activeFileMenu.id);
+                                        const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         setFileToRename(file);
                                         setNewFileName(file?.name || '');
                                         setRenameModalOpen(true);
@@ -202,7 +201,7 @@ export default function CaseClient() {
                                 </button>
                                 <button 
                                     onClick={() => {
-                                        const file = files.find(f => f._id === activeFileMenu.id);
+                                        const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         if (file) handleDownloadFile(file.url, file.name);
                                         setActiveFileMenu(null);
                                     }} 
@@ -213,7 +212,7 @@ export default function CaseClient() {
                                  </button>
                                  <button 
                                     onClick={() => {
-                                        const file = files.find(f => f._id === activeFileMenu.id);
+                                        const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         setFileToDelete(file);
                                         setDeleteModalOpen(true);
                                         setActiveFileMenu(null);

@@ -36,11 +36,11 @@ export default function AdminDashboardPage() {
     publicSubjectFilter, setPublicSubjectFilter, supportPage, setSupportPage,
     supportTotalPages, selectedSupportRequest, setSelectedSupportRequest,
     showSupportDetailModal, setShowSupportDetailModal, confirmConfig, setConfirmConfig,
-    showPlanModal, setShowPlanModal, isPlanUpdating, handleExportCSV, fetchAuditLogs,
+    showPlanModal, setShowPlanModal, isPlanUpdating, handleExportCSV,
     handleDeleteLog, handleClearLogs, handleUpdatePlan, fetchUserHistory,
     handleUserStatusChange, handleDeleteUser, handleForceLogout, handleEditSubmit,
     handleResolveSupport, handleDeleteSupport, handleClearSupport, openEditModal,
-    user, isAuthLoading, fetchSupportRequests, fetchUsers, fetchStats, isLoading,
+    user, isAuthLoading, isLoading,
     stats, setUserHistory
   } = useAdminDashboard();
 
@@ -142,7 +142,6 @@ export default function AdminDashboardPage() {
               setSelectedLogForDiff={setSelectedLogForDiff} setShowDiffModal={setShowDiffModal}
               handleExportCSV={handleExportCSV}
               handleDeleteLog={handleDeleteLog} handleClearLogs={handleClearLogs}
-              fetchAuditLogs={fetchAuditLogs}
             />
           ) : activeTab === 'support' ? (
             <AdminSupportRequests
@@ -158,7 +157,6 @@ export default function AdminDashboardPage() {
               handleResolveSupport={handleResolveSupport}
               handleDeleteSupport={handleDeleteSupport}
               handleClearSupport={handleClearSupport}
-              fetchSupportRequests={fetchSupportRequests}
             />
           ) : (
             <motion.div 

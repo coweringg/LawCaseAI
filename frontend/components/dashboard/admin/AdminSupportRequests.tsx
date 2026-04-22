@@ -25,7 +25,6 @@ interface AdminSupportRequestsProps {
   handleResolveSupport: (id: string) => void
   handleDeleteSupport: (id: string) => void
   handleClearSupport: (type?: string) => void
-  fetchSupportRequests: () => void
 }
 
 export function AdminSupportRequests({
@@ -35,7 +34,7 @@ export function AdminSupportRequests({
   publicSubjectFilter, setPublicSubjectFilter,
   supportPage, setSupportPage, supportTotalPages,
   isSupportLoading, setSelectedSupportRequest, setShowSupportDetailModal,
-  handleResolveSupport, handleDeleteSupport, handleClearSupport, fetchSupportRequests
+  handleResolveSupport, handleDeleteSupport, handleClearSupport
 }: AdminSupportRequestsProps) {
   const supportColumns = [
     {
@@ -253,16 +252,6 @@ export function AdminSupportRequests({
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
-                whileTap={{ scale: 0.95 }}
-                onClick={fetchSupportRequests}
-                disabled={isSupportLoading}
-                className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
-              >
-                <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
-              </motion.button>
-
-              <motion.button
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleClearSupport('login_issue')}
@@ -373,16 +362,6 @@ export function AdminSupportRequests({
                   <Filter size={12} />
                 </div>
               </div>
-
-              <motion.button
-                whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
-                whileTap={{ scale: 0.95 }}
-                onClick={fetchSupportRequests}
-                disabled={isSupportLoading}
-                className="p-3 bg-white/[0.02] border border-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-xl"
-              >
-                <RotateCcw size={16} className={cn(isSupportLoading && "animate-spin")} />
-              </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", transition: { duration: 0.15 } }}

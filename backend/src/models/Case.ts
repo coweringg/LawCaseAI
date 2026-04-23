@@ -67,6 +67,10 @@ const caseSchema = new Schema<ICase>({
   closedByUser: {
     type: Boolean,
     default: false
+  },
+  summary: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true,

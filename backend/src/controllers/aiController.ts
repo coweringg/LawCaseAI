@@ -243,19 +243,47 @@ export const getCaseSummary = catchAsync(async (req: IAuthRequest, res: Response
         throw new AppError('AI processing limit reached for this case.', 403)
     }
 
-    const files = await CaseFile.find({ caseId })
-    const context = `Case Name: ${currentCase.name}\nClient: ${currentCase.client || 'N/A'}\nPractice Area: ${currentCase.practiceArea || 'General'}\nFiles: ${files.map(f => f.name).join(', ')}`
-    const prompt = "Please provide a high-level executive summary of this case based on the provided metadata."
+    const files = await CaseFile.find({ caseId }).select('name extractedText').limit(5)
+    const hasFiles = files.length > 0
+    const filesSummary = hasFiles 
+        ? files.map(f => `- ${f.name}: ${f.extractedText ? f.extractedText.substring(0, 300) + '...' : 'No text content available'}`).join('\n')
+        : 'No documents have been uploaded to this case yet.'
+    
+    const context = `Case Name: ${currentCase.name}\nClient: ${currentCase.client || 'N/A'}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'No description provided'}\n\nUploaded Units:\n${filesSummary}`
+    
+    const prompt = `Please provide a high-level executive summary (Case Synopsis) of this case. 
+    ${hasFiles ? 'Analyze the uploaded documents and provide a strategic overview.' : 'Based on the case details provided, outline the scope of this legal matter.'}
+    Format: A single professional paragraph, concise and direct. 
+    If you don't have enough information, generate a professional placeholder summary based on the case name and client.`
 
     const aiRes = await aiService.generateResponse(prompt, context, req.user?._id?.toString())
+    let summaryText = aiRes.response?.trim()
+
+    if (!summaryText || summaryText.length < 10) {
+        summaryText = `Neural Synopsis for ${currentCase.name}: Analysis staged. Please upload legal documentation units to expand the strategic overview.`
+    }
+
+    await Case.findByIdAndUpdate(currentCase._id, { $set: { summary: summaryText } });
 
     const tokensProcessed = aiRes.tokens || countTokens(prompt + context);
     trackAIUsage(req.user?._id?.toString(), currentCase._id.toString(), tokensProcessed, 0.2);
 
+    await logAction({
+        adminId: req.user?._id as any,
+        adminName: req.user?.name || 'User',
+        targetId: currentCase._id as any,
+        targetName: currentCase.name,
+        targetType: 'case',
+        category: 'platform',
+        action: 'UPDATE',
+        description: `AI generated synopsis for case "${currentCase.name}"`
+    })
+
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.status(200).json({
         success: true,
         data: {
-            summary: aiRes.response,
+            summary: summaryText,
             lastUpdated: new Date()
         }
     })

@@ -262,9 +262,18 @@ export function useCaseWorkspace() {
         mutationFn: async () => {
             return api.get(`/ai/summary/${id}`);
         },
-        onSuccess: () => {
-            toast.success('Summary updated');
-            queryClient.invalidateQueries({ queryKey: ['case', id] });
+        onSuccess: (res) => {
+            if (res.data.success) {
+                const newSummary = res.data.data.summary;
+                toast.success('Summary updated');
+                
+                queryClient.setQueryData(['case', id], (old: any) => {
+                    if (!old) return old;
+                    return { ...old, summary: newSummary };
+                });
+                
+                setIsSummaryModalOpen(true);
+            }
         }
     });
 

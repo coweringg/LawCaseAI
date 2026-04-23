@@ -80,17 +80,22 @@ export function CaseRightSidebar({
                                 </div>
 
                                 {caseSummary ? (
-                                    <div className="space-y-4 relative z-10">
-                                        <div className="text-[10px] text-slate-400 font-medium leading-relaxed tracking-tightest line-clamp-3">
-                                            {caseSummary}
-                                        </div>
+                                    <div className="space-y-3 relative z-10">
                                         <motion.button
-                                            whileHover={{ scale: 1.02, backgroundColor: "rgba(37,99,235,0.1)" }}
+                                            whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(37,99,235,0.3)" }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={onViewFullAnalysis}
-                                            className="w-full py-2.5 border border-primary/30 rounded-xl text-[10px] font-bold text-primary tracking-widest hover:border-primary transition-all"
+                                            className="w-full group relative overflow-hidden bg-primary/10 border border-primary/30 hover:border-primary/60 p-5 rounded-[1.5rem] transition-all text-center"
                                         >
-                                            View Full Analysis
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mx-auto mb-3 shadow-inner group-hover:scale-110 transition-transform">
+                                                <span className="material-icons-round text-2xl">psychology</span>
+                                            </div>
+                                            <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-1">Neural Synopsis</h4>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Intelligence Ready</p>
+                                            </div>
                                         </motion.button>
                                     </div>
                                 ) : (

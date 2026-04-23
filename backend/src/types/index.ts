@@ -207,6 +207,7 @@ export interface ICase extends Document {
   totalTokensConsumed: number
   totalStorageUsed: number
   closedByUser?: boolean
+  summary?: string
 }
 
 export interface ICaseFile extends Document {

@@ -209,6 +209,8 @@ export const getCaseById = catchAsync(async (req: IAuthRequest, res: Response): 
       throw new AppError('Case not found', 404)
     }
 
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+
     res.status(200).json({
       success: true,
       data: caseData

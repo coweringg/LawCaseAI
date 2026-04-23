@@ -50,15 +50,19 @@ export const createCase = catchAsync(async (req: IAuthRequest, res: Response): P
     if (keyDates && Array.isArray(keyDates) && keyDates.length > 0) {
       const eventPromises = keyDates
         .filter((kd: any) => kd.date && kd.title)
-        .map((kd: any) => Event.create({
-          title: kd.title,
-          start: new Date(kd.date),
-          type: kd.type || 'other',
-          priority: 'medium',
-          caseId: newCase._id,
-          userId,
-          status: 'active'
-        }))
+        .map((kd: any) => {
+          const dateObj = new Date(`${kd.date}T12:00:00.000Z`);
+          
+          return Event.create({
+            title: kd.title,
+            start: dateObj,
+            type: kd.type || 'other',
+            priority: 'medium',
+            caseId: newCase._id,
+            userId,
+            status: 'active'
+          });
+        })
       await Promise.allSettled(eventPromises)
     }
 

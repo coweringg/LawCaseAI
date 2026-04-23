@@ -30,8 +30,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="space-y-8"
         >
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">

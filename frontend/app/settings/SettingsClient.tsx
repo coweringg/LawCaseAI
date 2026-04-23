@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import api from "@/lib/api";
 
@@ -34,9 +34,12 @@ function SettingsContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [activeTab, setActiveTab] = useState(() => {
-    return searchParams?.get('tab') || 'profile';
-  });
+  const activeTab = searchParams?.get('tab') || 'profile';
+  const setActiveTab = (id: string) => {
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set('tab', id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
   const [mounted, setMounted] = useState(false);
   const [paddle, setPaddle] = useState<Paddle>();
 
@@ -106,12 +109,7 @@ function SettingsContent() {
     });
   }, []);
 
-  useEffect(() => {
-    const tabFromUrl = searchParams?.get('tab');
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl);
-    }
-  }, [searchParams, activeTab]);
+  // URL is now the source of truth, no need for sync effect
 
   useEffect(() => {
     if (mounted && user?.organizationId && !user?.isOrgAdmin && activeTab === "billing") {
@@ -320,10 +318,10 @@ function SettingsContent() {
       >
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight font-display mb-2">
-            System Configuration
+            Settings
           </h1>
           <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em]">
-            Neural Interface â€¢ Security Protocols â€¢ Billing Units
+            Profile • Security • Billing • Organization
           </p>
         </div>
 
@@ -331,53 +329,52 @@ function SettingsContent() {
           <SettingsSidebar
             tabs={tabs}
             activeTab={activeTab}
-            setActiveTab={(id) => {
-              setActiveTab(id);
-              const params = new URLSearchParams(searchParams?.toString());
-              params.set('tab', id);
-              router.replace(`${pathname}?${params.toString()}`);
-            }}
+            setActiveTab={setActiveTab}
             user={user}
             onLogout={logout}
             onOpenSupport={() => setIsSupportModalOpen(true)}
           />
 
-          <div className="lg:col-span-3 space-y-4">
-            {activeTab === "profile" && (
-              <ProfileSection user={user} updateProfile={updateProfile} />
-            )}
-            {activeTab === "security" && (
-              <SecuritySection changePassword={changePassword} />
-            )}
-            {activeTab === "organization" && user?.isOrgAdmin && (
-              <OrganizationSection
-                orgData={orgData}
-                isLoadingOrg={!!isLoadingMembers || !orgData}
-                members={members || []}
-                isLoadingMembers={isLoadingMembers}
-                onRefreshMembers={refetchMembers}
-                onRemoveMember={handleRemoveMember}
-                onIncreaseCapacity={() => setIsCapacityModalOpen(true)}
-                currentUserId={user?.id || ""}
-              />
-            )}
-            {activeTab === "billing" && (
-              <BillingSection
-                billingInfo={billingInfo}
-                orgData={orgData}
-                purchaseHistory={purchaseHistory || []}
-                isLoadingHistory={!purchaseHistory}
-                isTrialUsed={user?.isTrialUsed}
-                onUpgradePlan={() => {
-                  setModalStep("selection");
-                  setIsPlanModalOpen(true);
-                }}
-                onUpdatePayment={() => {}}
-                onSetDefaultCard={() => {}}
-                onRemoveCard={() => {}}
-                formatDate={(d: any) => new Date(d).toLocaleDateString()}
-              />
-            )}
+          <div className="lg:col-span-3 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {activeTab === "profile" && (
+                <ProfileSection key="profile" user={user} updateProfile={updateProfile} />
+              )}
+              {activeTab === "security" && (
+                <SecuritySection key="security" changePassword={changePassword} />
+              )}
+              {activeTab === "organization" && user?.isOrgAdmin && (
+                <OrganizationSection
+                  key="organization"
+                  orgData={orgData}
+                  isLoadingOrg={!!isLoadingMembers || !orgData}
+                  members={members || []}
+                  isLoadingMembers={isLoadingMembers}
+                  onRefreshMembers={refetchMembers}
+                  onRemoveMember={handleRemoveMember}
+                  onIncreaseCapacity={() => setIsCapacityModalOpen(true)}
+                  currentUserId={user?.id || ""}
+                />
+              )}
+              {activeTab === "billing" && (
+                <BillingSection
+                  key="billing"
+                  billingInfo={billingInfo}
+                  orgData={orgData}
+                  purchaseHistory={purchaseHistory || []}
+                  isLoadingHistory={!purchaseHistory}
+                  isTrialUsed={user?.isTrialUsed}
+                  onUpgradePlan={() => {
+                    setModalStep("selection");
+                    setIsPlanModalOpen(true);
+                  }}
+                  onUpdatePayment={() => {}}
+                  onSetDefaultCard={() => {}}
+                  onRemoveCard={() => {}}
+                  formatDate={(d: any) => new Date(d).toLocaleDateString()}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </motion.div>

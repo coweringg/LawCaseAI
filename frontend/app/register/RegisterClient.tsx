@@ -115,7 +115,7 @@ function RegisterContent() {
 
   if (registrationSuccess) {
     return (
-      <AuthLayout>
+      <AuthLayout noScroll>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -183,7 +183,7 @@ function RegisterContent() {
   }
 
   return (
-    <AuthLayout>
+    <AuthLayout noScroll>
       <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
         <Link href="/login" className="flex-1">
           <button className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-slate-500 hover:text-slate-200 transition-all duration-500">

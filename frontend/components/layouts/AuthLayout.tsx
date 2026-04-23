@@ -5,11 +5,12 @@ import { motion } from 'framer-motion';
 interface AuthLayoutProps {
     children: React.ReactNode;
     sideContent?: React.ReactNode;
+    noScroll?: boolean;
 }
 
-export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
+export default function AuthLayout({ children, sideContent, noScroll = false }: AuthLayoutProps) {
     return (
-        <div className="bg-[#060910] text-slate-100 antialiased h-screen w-full flex overflow-hidden font-display transition-colors duration-200">
+        <div className={`bg-[#060910] text-slate-100 antialiased h-screen w-full flex overflow-hidden font-display transition-colors duration-200 ${noScroll ? 'fixed inset-0' : ''}`}>
             <div className="hidden lg:flex w-[45%] bg-[#060910] relative flex-col justify-between overflow-hidden border-r border-white/5 shadow-2xl">
                 <div className="absolute inset-0 z-0 overflow-hidden">
                     <div className="absolute inset-0 mesh-gradient opacity-60"></div>
@@ -93,7 +94,7 @@ export default function AuthLayout({ children, sideContent }: AuthLayoutProps) {
                 </div>
             </div>
 
-            <div className="w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-y-auto scrollbar-hide">
+            <div className={`w-full lg:w-[55%] h-full bg-[#060910] flex flex-col items-center justify-center p-4 sm:p-8 relative ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'} scrollbar-hide`}>
                 <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center">

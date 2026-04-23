@@ -187,8 +187,9 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
     if (showTrialMock) {
         return (
             <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="premium-glass p-8 rounded-[3rem] border border-white/10 text-center space-y-8 max-w-2xl mx-auto"
             >
                 <div className="flex justify-center">
@@ -284,14 +285,16 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="space-y-8"
         >
             {!isTrialUsed && billingInfo?.plan === 'none' && (
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden group shadow-[0_0_50px_-10px_rgba(37,99,235,0.3)]"
                 >
                     <div className="absolute top-0 right-10 bg-primary text-white text-[9px] font-black px-5 py-2 rounded-b-xl uppercase tracking-widest shadow-lg">Special Offer</div>

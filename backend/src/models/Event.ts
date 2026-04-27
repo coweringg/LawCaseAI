@@ -51,6 +51,10 @@ const eventSchema = new Schema<IEvent>({
         type: String,
         enum: Object.values(EventStatus),
         default: EventStatus.ACTIVE
+    },
+    metadata: {
+        type: Schema.Types.Mixed,
+        default: {}
     }
 }, {
     timestamps: true

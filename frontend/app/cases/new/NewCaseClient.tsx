@@ -46,16 +46,16 @@ export default function NewCaseClient() {
         complexity: '2',
         court: '',
     });
-    const [keyDates, setKeyDates] = useState<{ title: string; date: string; type: string }[]>([]);
+    const [keyDates, setKeyDates] = useState<{ title: string; date: string; type: string; priority: string; hasTime?: boolean; time?: string }[]>([]);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const addKeyDate = () => setKeyDates(prev => [...prev, { title: '', date: '', type: 'deadline' }]);
+    const addKeyDate = () => setKeyDates(prev => [...prev, { title: '', date: '', type: 'deadline', priority: 'medium', hasTime: false, time: '09:00' }]);
     const removeKeyDate = (idx: number) => setKeyDates(prev => prev.filter((_, i) => i !== idx));
-    const updateKeyDate = (idx: number, field: string, value: string) => {
+    const updateKeyDate = (idx: number, field: string, value: any) => {
         if (field === 'date' && value && value.length >= 10) {
             const dateParts = value.split('-');
             const year = parseInt(dateParts[0]);
@@ -86,7 +86,21 @@ export default function NewCaseClient() {
         try {
             const payload: any = { ...formData };
             if (keyDates.length > 0) {
-                payload.keyDates = keyDates.filter(kd => kd.title && kd.date);
+                payload.keyDates = keyDates
+                    .filter(kd => kd.title && kd.date)
+                    .map((kd: any) => {
+                        const localDateTime = kd.hasTime && kd.time 
+                            ? `${kd.date}T${kd.time}:00` 
+                            : `${kd.date}T12:00:00`;
+                        
+                        const dateObj = new Date(localDateTime);
+                        
+                        return {
+                            ...kd,
+                            priority: kd.priority || 'medium',
+                            isoDate: dateObj.toISOString()
+                        };
+                    });
             }
             const response = await api.post('/cases', payload);
             const data = response.data;
@@ -447,18 +461,39 @@ export default function NewCaseClient() {
                                                                     onChange={(e) => updateKeyDate(idx, 'title', e.target.value)}
                                                                     className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                                                 />
-                                                                <div className="flex gap-3">
-                                                                    <input
-                                                                        type="date"
-                                                                        value={kd.date}
-                                                                        min={new Date().toISOString().split('T')[0]}
-                                                                        onChange={(e) => updateKeyDate(idx, 'date', e.target.value)}
-                                                                        className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none [color-scheme:light] dark:[color-scheme:dark]"
-                                                                    />
+                                                                <div className="flex flex-wrap gap-3">
+                                                                    <div className="flex-1 min-w-[140px]">
+                                                                        <input
+                                                                            type="date"
+                                                                            value={kd.date}
+                                                                            min={new Date().toISOString().split('T')[0]}
+                                                                            onChange={(e) => updateKeyDate(idx, 'date', e.target.value)}
+                                                                            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none [color-scheme:light] dark:[color-scheme:dark]"
+                                                                        />
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex items-center gap-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => updateKeyDate(idx, 'hasTime', !kd.hasTime)}
+                                                                            className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all ${kd.hasTime ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+                                                                        >
+                                                                            {kd.hasTime ? 'Timed' : 'All Day'}
+                                                                        </button>
+                                                                        {kd.hasTime && (
+                                                                            <input
+                                                                                type="time"
+                                                                                value={kd.time}
+                                                                                onChange={(e) => updateKeyDate(idx, 'time', e.target.value)}
+                                                                                className="bg-transparent border-none text-xs font-bold text-primary focus:ring-0 outline-none p-0 [color-scheme:light] dark:[color-scheme:dark]"
+                                                                            />
+                                                                        )}
+                                                                    </div>
+
                                                                     <select
                                                                         value={kd.type}
                                                                         onChange={(e) => updateKeyDate(idx, 'type', e.target.value)}
-                                                                        className="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none cursor-pointer"
+                                                                        className="flex-1 min-w-[120px] px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none cursor-pointer"
                                                                     >
                                                                         <option value="deadline">Deadline</option>
                                                                         <option value="hearing">Hearing</option>
@@ -466,6 +501,23 @@ export default function NewCaseClient() {
                                                                         <option value="review">Review</option>
                                                                         <option value="consultation">Consultation</option>
                                                                         <option value="other">Other</option>
+                                                                    </select>
+                                                                    
+                                                                    <select
+                                                                        value={kd.priority}
+                                                                        onChange={(e) => updateKeyDate(idx, 'priority', e.target.value)}
+                                                                        className={`w-[110px] px-3 py-2.5 rounded-lg border text-xs font-extrabold uppercase tracking-wider focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer text-center ${
+                                                                            kd.priority === 'critical' ? 'bg-red-100 text-red-700 border-red-500 dark:bg-red-900/30 dark:text-red-400' : 
+                                                                            kd.priority === 'high' ? 'bg-orange-100 text-orange-700 border-orange-500 dark:bg-orange-900/30 dark:text-orange-400' : 
+                                                                            kd.priority === 'medium' ? 'bg-amber-100 text-amber-700 border-amber-500 dark:bg-amber-900/30 dark:text-amber-400' :
+                                                                            kd.priority === 'low' ? 'bg-emerald-100 text-emerald-700 border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                                                                            'bg-slate-100 text-slate-700 border-slate-500 dark:bg-slate-800 dark:text-slate-300'
+                                                                        }`}
+                                                                    >
+                                                                        <option value="low" className="bg-white dark:bg-slate-900 text-emerald-600">Low</option>
+                                                                        <option value="medium" className="bg-white dark:bg-slate-900 text-amber-600">Medium</option>
+                                                                        <option value="high" className="bg-white dark:bg-slate-900 text-orange-600">High</option>
+                                                                        <option value="critical" className="bg-white dark:bg-slate-900 text-red-600">Critical</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -551,7 +603,9 @@ export default function NewCaseClient() {
                                                                     </div>
                                                                     <div className="min-w-0">
                                                                         <div className="text-[10px] font-bold text-slate-900 dark:text-white truncate uppercase tracking-tight">{kd.title || 'Untitled Event'}</div>
-                                                                        <div className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">{kd.date} &bull; {kd.type}</div>
+                                                                        <div className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">
+                                                                            {kd.date} &bull; {kd.type} &bull; <span className={kd.priority === 'high' || kd.priority === 'critical' ? 'text-amber-500' : kd.priority === 'low' ? 'text-emerald-500' : ''}>{kd.priority}</span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             ))}

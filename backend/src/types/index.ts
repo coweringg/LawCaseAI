@@ -257,6 +257,7 @@ export interface IEvent extends Document {
   location?: string
   isAllDay: boolean
   status: EventStatus
+  metadata?: any
   createdAt: Date
   updatedAt: Date
 }

@@ -24,12 +24,26 @@ export const getEvents = catchAsync(async (req: IAuthRequest, res: Response): Pr
 
     const events = await Event.find(query).sort({ start: 1 }).lean()
     const now = new Date()
-    const eventsWithStatus = events.map(event => ({
-        ...event,
-        status: (event.status === 'active' && new Date(event.start as Date) < now)
-            ? 'closed'
-            : event.status
-    }))
+    const eventsWithStatus = events.map(event => {
+        if (event.status !== 'active') return event;
+
+        const eventStart = new Date(event.start as Date);
+        const hasTime = (event as any).metadata?.hasTime ?? !(event as any).isAllDay;
+        let shouldClose = false;
+
+        if (hasTime) {
+            shouldClose = eventStart < now;
+        } else {
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const eventDayStart = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+            shouldClose = todayStart > eventDayStart;
+        }
+
+        return {
+            ...event,
+            status: shouldClose ? 'closed' : event.status
+        };
+    })
 
     res.status(200).json({
         success: true,

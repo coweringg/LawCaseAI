@@ -25,7 +25,11 @@ export const createCaseSchema = z.object({
   keyDates: z.array(z.object({
     title: z.string(),
     date: z.string(),
-    type: z.string().optional()
+    type: z.string().optional(),
+    hasTime: z.boolean().optional(),
+    time: z.string().optional(),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+    isoDate: z.string().optional()
   })).optional()
 })
 

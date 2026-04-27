@@ -109,8 +109,6 @@ function SettingsContent() {
     });
   }, []);
 
-  // URL is now the source of truth, no need for sync effect
-
   useEffect(() => {
     if (mounted && user?.organizationId && !user?.isOrgAdmin && activeTab === "billing") {
       setActiveTab("profile");

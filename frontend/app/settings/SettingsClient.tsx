@@ -154,6 +154,13 @@ function SettingsContent() {
       params.delete('seats');
       router.replace(`${pathname}${params.toString() ? '?' + params.toString() : ''}`);
     }
+
+    if (mounted && searchParams?.get('status') === 'success') {
+      toast.success("Payment successful! Your account has been updated.");
+      const params = new URLSearchParams(searchParams?.toString());
+      params.delete('status');
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
   }, [mounted, searchParams, user, router, pathname]);
 
   const handleSupportSubmit = async (e: React.FormEvent) => {
@@ -210,7 +217,9 @@ function SettingsContent() {
         settings: {
           displayMode: "overlay",
           theme: "dark",
-          successUrl: `${window.location.origin}/dashboard?status=success`
+          successUrl: planToProcess === 'enterprise' 
+            ? `${window.location.origin}/settings?tab=organization&status=success`
+            : `${window.location.origin}/dashboard?status=success`
         }
       });
       
@@ -266,7 +275,7 @@ function SettingsContent() {
         settings: {
           displayMode: "overlay",
           theme: "dark",
-          successUrl: `${window.location.origin}/settings?tab=organization`
+          successUrl: `${window.location.origin}/settings?tab=organization&status=success`
         }
       });
     } catch (error: any) {

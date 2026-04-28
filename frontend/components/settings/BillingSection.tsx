@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud, Zap, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud, Zap, Shield, ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
@@ -16,6 +16,8 @@ interface BillingSectionProps {
     onRemoveCard: (id: string) => void;
     formatDate: (date: string) => string;
     isTrialUsed?: boolean;
+    onCancelSubscription?: () => void;
+    user?: any;
 }
 
 const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
@@ -179,13 +181,15 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
     onSetDefaultCard,
     onRemoveCard,
     formatDate,
-    isTrialUsed = false
+    isTrialUsed = false,
+    onCancelSubscription,
+    user
 }) => {
     const [showTrialMock, setShowTrialMock] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
 
     if (showTrialMock) {
-        return (
+    return (
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -284,12 +288,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-8"
-        >
+        <div className="space-y-8">
             {!isTrialUsed && billingInfo?.plan === 'none' && (
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -431,7 +430,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-white/5">
+                        <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -444,6 +443,20 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                         billingInfo?.plan === 'none' ? 'Select Plan' : 
                                             billingInfo?.plan === 'trial' ? 'Upgrade Plan' : 'Enhance Protocol'}
                             </motion.button>
+
+                            {billingInfo?.plan !== 'none' && billingInfo?.plan !== 'trial' && (
+                                <button
+                                    onClick={onCancelSubscription}
+                                    disabled={user?.willCancelAtPeriodEnd || orgData?.willCancelAtPeriodEnd}
+                                    className={`text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        user?.willCancelAtPeriodEnd || orgData?.willCancelAtPeriodEnd
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-500 hover:text-red-500'
+                                    }`}
+                                >
+                                    {user?.willCancelAtPeriodEnd || orgData?.willCancelAtPeriodEnd ? 'Cancellation Pending' : 'Cancel Subscription'}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -571,6 +584,6 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                     </table>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };

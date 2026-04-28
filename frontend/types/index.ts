@@ -22,6 +22,8 @@ export interface User {
   billingInterval?: 'monthly' | 'annual'
   expiredPremium?: boolean
   expiredTrial?: boolean
+  willCancelAtPeriodEnd?: boolean
+  paddleSubscriptionId?: string
 }
 
 export interface IOrganization {
@@ -32,6 +34,8 @@ export interface IOrganization {
   usedSeats: number
   isActive: boolean
   isOrgAdmin: boolean
+  willCancelAtPeriodEnd?: boolean
+  paddleSubscriptionId?: string
 }
 
 export interface DashboardDeadline {

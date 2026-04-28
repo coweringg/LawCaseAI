@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
@@ -20,6 +20,8 @@ import { SupportModal } from "@/components/settings/SupportModal";
 import { ConfirmModal } from "@/components/settings/ConfirmModal";
 import { PlanModal } from "@/components/settings/PlanModal";
 import { CapacityModal } from "@/components/settings/CapacityModal";
+import { DowngradeCapacityModal } from "@/components/settings/DowngradeCapacityModal";
+import { ShieldAlert } from "lucide-react";
 
 import {
   useOrganizationDetails,
@@ -29,7 +31,7 @@ import {
 } from "@/hooks/useSettings";
 
 function SettingsContent() {
-  const { user, updateProfile, changePassword, logout } = useAuth();
+  const { user, updateProfile, changePassword, logout, updateUser, fetchProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -44,7 +46,7 @@ function SettingsContent() {
   const [paddle, setPaddle] = useState<Paddle>();
 
   const { data: orgData, refetch: refetchOrg } = useOrganizationDetails(
-    activeTab === "organization" && !!user?.isOrgAdmin,
+    (activeTab === "organization" || activeTab === "billing") && !!user?.isOrgAdmin,
   );
   const { data: billingInfo, refetch: refetchBilling } = useBillingInfo();
   const { data: purchaseHistory } = usePurchaseHistory();
@@ -59,6 +61,9 @@ function SettingsContent() {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
+  const [isDowngradeModalOpen, setIsDowngradeModalOpen] = useState(false);
+  const [downgradeSeatsCount, setDowngradeSeatsCount] = useState(1);
+  const [isProcessingDowngrade, setIsProcessingDowngrade] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     title: "",
@@ -116,6 +121,8 @@ function SettingsContent() {
     }
   }, [mounted, user, activeTab, router]);
 
+  const hasProcessedSuccess = useRef(false);
+  
   useEffect(() => {
     if (mounted && searchParams?.get('openPlan') === "true") {
       const planId = searchParams?.get('planId');
@@ -155,18 +162,43 @@ function SettingsContent() {
       router.replace(`${pathname}${params.toString() ? '?' + params.toString() : ''}`);
     }
 
-    if (mounted && searchParams?.get('status') === 'success') {
-      toast.success("Payment successful! Your account has been updated.");
-      const params = new URLSearchParams(searchParams?.toString());
-      params.delete('status');
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    if (mounted && searchParams?.get('status') === 'success' && !hasProcessedSuccess.current) {
+      hasProcessedSuccess.current = true;
+      const isOrgTab = searchParams?.get('tab') === 'organization';
       
-      refetchOrg();
-      refetchBilling();
-      setTimeout(() => {
-        refetchOrg();
-        refetchBilling();
-      }, 2500);
+      const loadingToast = toast.loading("Updating account permissions...");
+      
+      (async () => {
+        try {
+          let updatedUser = null;
+          let attempts = 0;
+          const maxAttempts = 15;
+          
+          while (attempts < maxAttempts) {
+            updatedUser = await fetchProfile();
+            
+            if (isOrgTab && updatedUser?.isOrgAdmin) break;
+            if (!isOrgTab && updatedUser?.plan !== 'none') break;
+            
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+
+          await refetchOrg();
+          await refetchBilling();
+          
+          toast.success("Payment successful! Your account has been updated.", { id: loadingToast });
+          
+          const params = new URLSearchParams(searchParams?.toString());
+          params.delete('status');
+          router.replace(`${pathname}${params.toString() ? '?' + params.toString() : ''}`);
+        } catch (error) {
+          toast.error("Error refreshing profile. Please reload the page.", { id: loadingToast });
+          const params = new URLSearchParams(searchParams?.toString());
+          params.delete('status');
+          router.replace(`${pathname}${params.toString() ? '?' + params.toString() : ''}`);
+        }
+      })();
     }
   }, [mounted, searchParams, user, router, pathname]);
 
@@ -292,6 +324,61 @@ function SettingsContent() {
     }
   };
 
+  const handleDowngradeSeats = async () => {
+    const unusedSeats = (orgData?.totalSeats || 0) - (orgData?.usedSeats || 0);
+    if (unusedSeats <= 0) {
+      toast.error("No unused seats to remove.");
+      return;
+    }
+    setDowngradeSeatsCount(1);
+    setIsDowngradeModalOpen(true);
+  };
+
+  const confirmDowngradeSeats = async () => {
+    try {
+      setIsProcessingDowngrade(true);
+      const res = await api.post('/payments/downgrade', { seatsToRemove: downgradeSeatsCount });
+      if (res.data.success) {
+        toast.success(res.data.message);
+        refetchOrg();
+        refetchBilling();
+        setIsDowngradeModalOpen(false);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Failed to remove seats");
+    } finally {
+      setIsProcessingDowngrade(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Cancel Subscription",
+      message: "Are you sure you want to cancel your subscription? It will remain active until the end of your current billing cycle.",
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const res = await api.post('/payments/cancel');
+          if (res.data.success) {
+            toast.success(res.data.message);
+            
+            // Re-fetch all data to ensure UI consistency
+            await fetchProfile();
+            await refetchOrg();
+            await refetchBilling();
+            
+            // Manual state update as fallback to ensure immediate button disable
+            updateUser({ willCancelAtPeriodEnd: true });
+          }
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || error.message || "Failed to cancel subscription");
+        }
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
   const tabs = [
     { id: "profile", label: "Profile", icon: "person", color: "primary" },
     ...(user?.isOrgAdmin
@@ -350,6 +437,33 @@ function SettingsContent() {
           />
 
           <div className="lg:col-span-3 overflow-hidden">
+            {(activeTab === 'billing') && (user?.willCancelAtPeriodEnd || 
+              orgData?.willCancelAtPeriodEnd || 
+              billingInfo?.willCancelAtPeriodEnd || 
+              billingInfo?.organization?.willCancelAtPeriodEnd ||
+              orgData?.status === 'canceled' ||
+              billingInfo?.status === 'canceled' ||
+              billingInfo?.organization?.status === 'canceled'
+             ) && (
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-6 rounded-[2rem] bg-red-500/10 border border-red-500/20 flex items-start gap-4 mb-8"
+                >
+                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
+                        <ShieldAlert size={20} />
+                    </div>
+                    <div>
+                        <h4 className="text-sm font-black text-white uppercase tracking-tight">Subscription Scheduled for Cancellation</h4>
+                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            You canceled your subscription on <span className="text-white font-bold">{new Date((user as any)?.canceledAt || orgData?.canceledAt || billingInfo?.canceledAt || billingInfo?.organization?.canceledAt || Date.now()).toLocaleDateString()}</span>. 
+                            Your access will remain active until <span className="text-white font-bold">{new Date((user as any)?.currentPeriodEnd || orgData?.currentPeriodEnd || billingInfo?.currentPeriodEnd || billingInfo?.organization?.currentPeriodEnd || Date.now()).toLocaleDateString()}</span>. 
+                            After this date, no further charges will be processed and your plan will revert to the evaluation tier.
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
             <AnimatePresence mode="wait">
               {activeTab === "profile" && (
                 <ProfileSection key="profile" user={user} updateProfile={updateProfile} />
@@ -367,6 +481,8 @@ function SettingsContent() {
                   onRefreshMembers={refetchMembers}
                   onRemoveMember={handleRemoveMember}
                   onIncreaseCapacity={() => setIsCapacityModalOpen(true)}
+                  onDowngradeCapacity={handleDowngradeSeats}
+                  onCancelSubscription={handleCancelSubscription}
                   currentUserId={user?.id || ""}
                 />
               )}
@@ -385,8 +501,20 @@ function SettingsContent() {
                   onUpdatePayment={() => {}}
                   onSetDefaultCard={() => {}}
                   onRemoveCard={() => {}}
-                  formatDate={(d: any) => new Date(d).toLocaleDateString()}
+                  formatDate={(d: any) => {
+                    if (!d) return "Processing...";
+                    const date = new Date(d);
+                    return isNaN(date.getTime()) ? "Processing..." : date.toLocaleDateString();
+                  }}
+                  onCancelSubscription={handleCancelSubscription}
+                  user={user}
                 />
+              )}
+              {activeTab === "organization" && !user?.isOrgAdmin && (
+                <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                  <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest animate-pulse">Syncing Firm Permissions...</p>
+                </div>
               )}
             </AnimatePresence>
           </div>
@@ -430,16 +558,14 @@ function SettingsContent() {
         user={user}
       />
 
-      <CapacityModal
-        isOpen={isCapacityModalOpen}
-        onClose={() => setIsCapacityModalOpen(false)}
-        additionalSeats={additionalSeats}
-        setAdditionalSeats={setAdditionalSeats}
-        paymentData={paymentData}
-        setPaymentData={setPaymentData}
-        isProcessing={isIncreasingSeats}
-        onConfirm={handleIncreaseCapacity}
-        billingInfo={billingInfo}
+      <DowngradeCapacityModal
+        isOpen={isDowngradeModalOpen}
+        onClose={() => setIsDowngradeModalOpen(false)}
+        seatsToRemove={downgradeSeatsCount}
+        setSeatsToRemove={setDowngradeSeatsCount}
+        maxAvailable={(orgData?.totalSeats || 0) - (orgData?.usedSeats || 0)}
+        isProcessing={isProcessingDowngrade}
+        onConfirm={confirmDowngradeSeats}
       />
     </DashboardLayout>
   );

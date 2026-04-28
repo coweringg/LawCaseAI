@@ -125,7 +125,7 @@ export interface IOrganization extends Document {
   firmCode: string
   isActive: boolean
   currentPeriodEnd?: Date
-  stripeSubscriptionId?: string
+  paddleSubscriptionId?: string
   createdAt: Date
   updatedAt: Date
 }

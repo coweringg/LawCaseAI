@@ -8,7 +8,8 @@ export const checkoutSchema = z.object({
   interval: z.enum(['monthly', 'annual'], {
     message: 'Billing interval must be monthly or annual'
   }).optional(),
-  seats: z.number().int().min(1).optional()
+  seats: z.number().int().min(1).optional(),
+  firmName: z.string().optional()
 })
 
 export const memberIdParamsSchema = z.object({

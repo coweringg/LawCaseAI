@@ -85,8 +85,39 @@ export const getOrganizationDetails = catchAsync(async (req: IAuthRequest, res: 
 
     res.status(200).json({
         success: true,
-        data: { id: org._id, name: org.name, firmCode: org.firmCode, totalSeats: org.totalSeats, usedSeats: org.usedSeats, isActive: org.isActive, isOrgAdmin: user.isOrgAdmin }
+        data: { 
+            id: org._id, 
+            name: org.name, 
+            firmCode: org.firmCode, 
+            totalSeats: org.totalSeats, 
+            usedSeats: org.usedSeats, 
+            isActive: org.isActive, 
+            isOrgAdmin: user.isOrgAdmin,
+            willCancelAtPeriodEnd: org.willCancelAtPeriodEnd || false,
+            status: org.isActive ? 'active' : 'canceled',
+            currentPeriodEnd: org.currentPeriodEnd
+        }
     })
+
+    if (org.willCancelAtPeriodEnd && !org.currentPeriodEnd && org.paddleSubscriptionId) {
+        (async () => {
+            try {
+                const paddle = getPaddleInstance();
+                const sub = await paddle.subscriptions.get(org.paddleSubscriptionId as string);
+                const isScheduledCancel = sub.scheduledChange?.action === 'cancel';
+                
+                if (isScheduledCancel || sub.status === 'canceled') {
+                    const endDate = sub.nextBilledAt || sub.currentBillingPeriod?.endsAt;
+                    await Organization.findByIdAndUpdate(org._id, { 
+                        willCancelAtPeriodEnd: true,
+                        currentPeriodEnd: endDate ? new Date(endDate) : org.currentPeriodEnd
+                    });
+                }
+            } catch (e) {
+                console.error('[Auto-Repair Org] Failed:', e);
+            }
+        })();
+    }
 })
 
 export const removeMember = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -140,3 +171,235 @@ export const getOrganizationMembers = catchAsync(async (req: IAuthRequest, res: 
     const members = await User.find({ organizationId: admin.organizationId }).select('name email role plan')
     res.status(200).json({ success: true, data: members })
 })
+
+export const cancelSubscription = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const user = await User.findById(req.user?._id);
+    if (!user) throw new AppError('User not found', 404);
+
+    let paddleSubscriptionId = user.paddleSubscriptionId;
+
+    if (user.isOrgAdmin && user.organizationId) {
+        const org = await Organization.findById(user.organizationId);
+        if (org && org.paddleSubscriptionId) {
+            paddleSubscriptionId = org.paddleSubscriptionId;
+            org.willCancelAtPeriodEnd = true;
+            await org.save();
+        }
+    } else {
+        user.willCancelAtPeriodEnd = true;
+        await user.save();
+    }
+
+    let subscriptionId = paddleSubscriptionId;
+
+    if (!subscriptionId) {
+        console.log('[Cancel] No ID found in DB, searching Paddle for email:', user.email);
+        try {
+            const paddle = getPaddleInstance();
+            const customerCollection = paddle.customers.list({ email: [user.email] });
+            const customers = await customerCollection.next();
+            
+            console.log('[Cancel] Paddle customer search returned:', customers?.length || 0, 'customers');
+            
+            if (customers && customers.length > 0) {
+                const customer = customers[0];
+                console.log('[Cancel] Found customer:', customer.id, 'searching for subscriptions...');
+                const subCollection = paddle.subscriptions.list({ 
+                    customerId: [customer.id], 
+                    status: ['active', 'past_due', 'trialing'] 
+                });
+                const subs = await subCollection.next();
+                
+                console.log('[Cancel] Paddle subscription search returned:', subs?.length || 0, 'subscriptions');
+                
+                if (subs && subs.length > 0) {
+                    const sub = subs[0];
+                    subscriptionId = sub.id;
+                    console.log('[Cancel] Auto-synced subscription ID:', subscriptionId);
+                    
+                    user.paddleSubscriptionId = subscriptionId;
+                    await user.save();
+                    
+                    const orgId = user.organizationId;
+                    if (orgId) {
+                        await Organization.findByIdAndUpdate(orgId, { paddleSubscriptionId: subscriptionId });
+                    }
+                }
+            }
+        } catch (syncError: any) {
+            console.error('[Cancel] Auto-sync encountered an error:', syncError.message);
+        }
+    }
+
+    if (!subscriptionId) {
+        throw new AppError('No active Paddle subscription found. If you just subscribed, please wait a moment or refresh. If the problem persists, please re-subscribe.', 400);
+    }
+
+    try {
+        const paddle = getPaddleInstance();
+        const updatedSub = await paddle.subscriptions.cancel(subscriptionId, {
+            effectiveFrom: 'next_billing_period'
+        });
+
+        const nextBillDate = updatedSub.nextBilledAt ? new Date(updatedSub.nextBilledAt) : undefined;
+        
+        if (user.isOrgAdmin && user.organizationId) {
+            await Organization.findByIdAndUpdate(user.organizationId, { 
+                willCancelAtPeriodEnd: true,
+                currentPeriodEnd: nextBillDate,
+                canceledAt: new Date()
+            });
+        } else {
+            user.willCancelAtPeriodEnd = true;
+            user.currentPeriodEnd = nextBillDate;
+            (user as any).canceledAt = new Date();
+            await user.save();
+        }
+
+    } catch (error: any) {
+        if (error.message.includes('scheduled_change') || error.message.includes('pending scheduled changes')) {
+            try {
+                const paddle = getPaddleInstance();
+                const sub = await paddle.subscriptions.get(subscriptionId);
+                const nextBillDate = sub.nextBilledAt ? new Date(sub.nextBilledAt) : undefined;
+                
+                if (user.isOrgAdmin && user.organizationId) {
+                    await Organization.findByIdAndUpdate(user.organizationId, { 
+                        willCancelAtPeriodEnd: true,
+                        currentPeriodEnd: nextBillDate,
+                        canceledAt: new Date()
+                    });
+                } else {
+                    user.willCancelAtPeriodEnd = true;
+                    user.currentPeriodEnd = nextBillDate;
+                    (user as any).canceledAt = new Date();
+                    await user.save();
+                }
+                
+                res.status(200).json({
+                    success: true,
+                    message: 'Subscription sync successful. Cancellation is already pending.'
+                });
+                return;
+            } catch (syncError) {
+                console.error('[Cancel Sync] Failed:', syncError);
+            }
+        }
+        
+        console.error('[Cancel] Paddle API Error:', error.message);
+        throw new AppError(`Failed to cancel subscription: ${error.message}`, 400);
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Subscription will be canceled at the end of the current billing period.'
+    });
+});
+
+export const downgradeSeats = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const user = await User.findById(req.user?._id);
+    const { seatsToRemove } = req.body;
+
+    if (!user || !user.isOrgAdmin || !user.organizationId) {
+        throw new AppError('Only organization admins can downgrade seats', 403);
+    }
+
+    if (!seatsToRemove || typeof seatsToRemove !== 'number' || seatsToRemove <= 0) {
+        throw new AppError('Invalid number of seats to remove.', 400);
+    }
+
+    const org = await Organization.findById(user.organizationId);
+    if (!org) throw new AppError('Organization not found', 404);
+
+    let subscriptionId = org.paddleSubscriptionId || user.paddleSubscriptionId;
+    console.log('[Downgrade] subscriptionId:', subscriptionId, 'orgId:', org.paddleSubscriptionId, 'userId:', user.paddleSubscriptionId);
+    
+    if (!subscriptionId) {
+        console.log('[Downgrade] No ID found in DB, searching Paddle for email:', user.email);
+        try {
+            const paddle = getPaddleInstance();
+            const customerCollection = paddle.customers.list({ email: [user.email] });
+            const customers = await customerCollection.next();
+            
+            console.log('[Downgrade] Paddle customer search returned:', customers?.length || 0, 'customers');
+            
+            if (customers && customers.length > 0) {
+                const customer = customers[0];
+                console.log('[Downgrade] Found customer:', customer.id, 'searching for subscriptions...');
+                const subCollection = paddle.subscriptions.list({ 
+                    customerId: [customer.id], 
+                    status: ['active', 'past_due', 'trialing'] 
+                });
+                const subs = await subCollection.next();
+                
+                console.log('[Downgrade] Paddle subscription search returned:', subs?.length || 0, 'subscriptions');
+                
+                if (subs && subs.length > 0) {
+                    const sub = subs[0];
+                    subscriptionId = sub.id;
+                    console.log('[Downgrade] Auto-synced subscription ID:', subscriptionId);
+                    
+                    user.paddleSubscriptionId = subscriptionId;
+                    await user.save();
+                    
+                    org.paddleSubscriptionId = subscriptionId;
+                    await org.save();
+                }
+            }
+        } catch (syncError: any) {
+            console.error('[Downgrade] Auto-sync encountered an error:', syncError.message);
+        }
+    }
+
+    if (!subscriptionId) {
+        throw new AppError('No active Paddle subscription found. If you just subscribed, please wait a moment or refresh. If the problem persists, please re-subscribe.', 400);
+    }
+
+    const unusedSeats = org.totalSeats - org.usedSeats;
+    console.log('[Downgrade] total:', org.totalSeats, 'used:', org.usedSeats, 'unused:', unusedSeats, 'requested:', seatsToRemove);
+    if (seatsToRemove > unusedSeats) {
+        throw new AppError(`Cannot remove more seats than are currently unused (${unusedSeats}).`, 400);
+    }
+
+    const newTotalSeats = org.totalSeats - seatsToRemove;
+    if (newTotalSeats < 1) {
+       throw new AppError('Must have at least 1 seat.', 400);
+    }
+
+    try {
+        const paddle = getPaddleInstance();
+        const subscription = await paddle.subscriptions.get(subscriptionId);
+        if (!subscription.items || subscription.items.length === 0) {
+            throw new AppError('Could not fetch subscription items from Paddle.', 400);
+        }
+        const mainItem = subscription.items[0];
+        const priceId = mainItem.price?.id;
+
+        if (!priceId) {
+            throw new AppError('Could not identify price ID for the subscription.', 400);
+        }
+
+        console.log('[Downgrade] Updating Paddle subscription', subscriptionId, 'priceId:', priceId, 'to quantity', newTotalSeats);
+        await paddle.subscriptions.update(subscriptionId, {
+            items: [
+                {
+                    priceId: priceId,
+                    quantity: newTotalSeats
+                }
+            ],
+            prorationBillingMode: 'prorated_next_billing_period'
+        });
+    } catch (paddleError: any) {
+        console.error('[Downgrade] Paddle API Error:', paddleError.message, paddleError.response?.data);
+        throw new AppError(`Paddle Error: ${paddleError.message}`, 400);
+    }
+
+    org.totalSeats = newTotalSeats;
+    await org.save();
+
+    res.status(200).json({
+        success: true,
+        message: `Successfully removed ${seatsToRemove} unused seats. Your next bill will reflect ${newTotalSeats} seats.`,
+        data: { totalSeats: newTotalSeats }
+    });
+});

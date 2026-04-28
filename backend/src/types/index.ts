@@ -126,6 +126,8 @@ export interface IOrganization extends Document {
   isActive: boolean
   currentPeriodEnd?: Date
   paddleSubscriptionId?: string
+  willCancelAtPeriodEnd?: boolean
+  canceledAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -170,6 +172,9 @@ export interface IUser extends Document {
   billingInterval?: 'monthly' | 'annual'
   currentPeriodStart?: Date
   currentPeriodEnd?: Date
+  paddleSubscriptionId?: string
+  willCancelAtPeriodEnd?: boolean
+  canceledAt?: Date
   isTrialUsed?: boolean
   trialStartedAt?: Date
   trialCaseId?: Types.ObjectId

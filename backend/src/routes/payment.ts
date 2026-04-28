@@ -4,7 +4,9 @@ import {
   getTransactionHistory, 
   getOrganizationDetails, 
   getOrganizationMembers,
-  removeMember
+  removeMember,
+  cancelSubscription,
+  downgradeSeats
 } from '../controllers/paymentController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
@@ -31,5 +33,8 @@ router.delete('/members/:memberId',
   validateZod({ params: memberIdParamsSchema }),
   removeMember
 )
+
+router.post('/cancel', cancelSubscription)
+router.post('/downgrade', downgradeSeats)
 
 export default router

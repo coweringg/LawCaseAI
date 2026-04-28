@@ -5,11 +5,12 @@ import { logAction } from '../utils/auditLogger'
 import config from '../config'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
+import { getPaddleInstance } from '../utils/paddle'
 
 export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
-    const user = req.user
+    const user = await User.findById(req.user?._id).select('-password');
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('User not found', 404)
     }
 
     res.status(200).json({
@@ -41,7 +42,9 @@ export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): P
         maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
         billingInterval: user.billingInterval || 'monthly',
         expiredPremium: user.expiredPremium,
-        expiredTrial: user.expiredTrial
+        expiredTrial: user.expiredTrial,
+        willCancelAtPeriodEnd: user.willCancelAtPeriodEnd || false,
+        canceledAt: (user as any).canceledAt
       }
     } as IApiResponse)
 })
@@ -119,7 +122,8 @@ export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response)
         totalTokensConsumed: updatedUser.totalTokensConsumed,
         totalStorageUsed: updatedUser.totalStorageUsed,
         maxTokens: (config.planLimits as any)[updatedUser.plan]?.maxTokens || 0,
-        maxTotalStorage: (config.planLimits as any)[updatedUser.plan]?.maxTotalStorage || 0
+        maxTotalStorage: (config.planLimits as any)[updatedUser.plan]?.maxTotalStorage || 0,
+        willCancelAtPeriodEnd: updatedUser.willCancelAtPeriodEnd || false
       }
     } as IApiResponse)
 })
@@ -230,7 +234,9 @@ export const getBillingInfo = catchAsync(async (req: IAuthRequest, res: Response
       maxTokens: (config.planLimits as any)[user.plan]?.maxTokens || 0,
       totalStorageUsed: user.totalStorageUsed,
       maxTotalStorage: (config.planLimits as any)[user.plan]?.maxTotalStorage || 0,
-      organization: user.organizationId ? await Organization.findById(user.organizationId).select('name usedSeats totalSeats isActive currentPeriodEnd') : null
+      willCancelAtPeriodEnd: user.willCancelAtPeriodEnd || false,
+      canceledAt: (user as any).canceledAt || null,
+      organization: user.organizationId ? await Organization.findById(user.organizationId).select('name usedSeats totalSeats isActive currentPeriodEnd willCancelAtPeriodEnd canceledAt') : null
     }
 
     res.status(200).json({
@@ -238,6 +244,50 @@ export const getBillingInfo = catchAsync(async (req: IAuthRequest, res: Response
       message: 'Billing info retrieved successfully',
       data: billingInfo
     } as IApiResponse)
+
+    if (user.willCancelAtPeriodEnd && !user.currentPeriodEnd && user.paddleSubscriptionId) {
+        (async () => {
+            try {
+                const paddle = getPaddleInstance();
+                const sub = await paddle.subscriptions.get(user.paddleSubscriptionId as string);
+                const isScheduledCancel = sub.scheduledChange?.action === 'cancel';
+
+                if (isScheduledCancel || sub.status === 'canceled') {
+                    const endDate = sub.nextBilledAt || sub.currentBillingPeriod?.endsAt;
+                    await User.findByIdAndUpdate(user._id, { 
+                        willCancelAtPeriodEnd: true,
+                        currentPeriodEnd: endDate ? new Date(endDate) : user.currentPeriodEnd
+                    });
+                }
+            } catch (e) {
+                console.error('[Auto-Repair User] Failed:', e);
+            }
+        })();
+    }
+
+    const org = billingInfo.organization;
+    if (org && org.willCancelAtPeriodEnd && !org.currentPeriodEnd) {
+        (async () => {
+            try {
+                const fullOrg = await Organization.findById(org._id);
+                if (fullOrg && fullOrg.paddleSubscriptionId) {
+                    const paddle = getPaddleInstance();
+                    const sub = await paddle.subscriptions.get(fullOrg.paddleSubscriptionId);
+                    const isScheduledCancel = sub.scheduledChange?.action === 'cancel';
+
+                    if (isScheduledCancel || sub.status === 'canceled') {
+                        const endDate = sub.nextBilledAt || sub.currentBillingPeriod?.endsAt;
+                        await Organization.findByIdAndUpdate(org._id, { 
+                            willCancelAtPeriodEnd: true,
+                            currentPeriodEnd: endDate ? new Date(endDate) : org.currentPeriodEnd
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('[Auto-Repair Org-in-User] Failed:', e);
+            }
+        })();
+    }
 })
 
 export const submitSupportRequest = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {

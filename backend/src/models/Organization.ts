@@ -39,6 +39,13 @@ const organizationSchema = new Schema<IOrganization>({
   },
   paddleSubscriptionId: {
     type: String
+  },
+  willCancelAtPeriodEnd: {
+    type: Boolean,
+    default: false
+  },
+  canceledAt: {
+    type: Date
   }
 }, {
   timestamps: true

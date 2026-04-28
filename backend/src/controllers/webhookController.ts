@@ -160,6 +160,7 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
         }
         
         user.totalTokensConsumed = 0;
+        if (subscriptionId) user.paddleSubscriptionId = subscriptionId;
         await user.save(isTransactional ? { session } : {})
 
         const transactionAmount = parseFloat(transactionData.details?.totals?.total || '0') / 100
@@ -182,18 +183,33 @@ const handleSubscriptionUpdated = async (subscriptionData: any): Promise<void> =
     const user = await User.findById(userId)
     if (!user) return
 
+    user.paddleSubscriptionId = subscriptionData.id;
+    const willCancel = subscriptionData.scheduledChange?.action === 'cancel';
+    user.willCancelAtPeriodEnd = willCancel;
+
     if (subscriptionData.currentBillingPeriod?.endsAt) {
         const nextPeriod = new Date(subscriptionData.currentBillingPeriod.endsAt)
         user.currentPeriodEnd = nextPeriod
-        user.expiredPremium = false
+        user.expiredPremium = (subscriptionData.status === 'canceled' || subscriptionData.status === 'past_due');
         user.expiredTrial = false
-        await user.save()
         
         if (user.organizationId && user.isOrgAdmin) {
-            await Organization.findByIdAndUpdate(user.organizationId, { currentPeriodEnd: nextPeriod, isActive: true })
-            await User.updateMany({ organizationId: user.organizationId }, { $set: { currentPeriodEnd: nextPeriod, expiredPremium: false } })
+            const updateData: any = { 
+                currentPeriodEnd: nextPeriod, 
+                isActive: subscriptionData.status === 'active',
+                paddleSubscriptionId: subscriptionData.id,
+                willCancelAtPeriodEnd: willCancel
+            };
+            
+            if (subscriptionData.items?.[0]?.quantity) {
+                updateData.totalSeats = subscriptionData.items[0].quantity;
+            }
+
+            await Organization.findByIdAndUpdate(user.organizationId, updateData)
+            await User.updateMany({ organizationId: user.organizationId }, { $set: { currentPeriodEnd: nextPeriod, expiredPremium: user.expiredPremium } })
         }
     }
+    await user.save()
 }
 
 const handleSubscriptionCanceled = async (subscriptionData: any): Promise<void> => {
@@ -205,10 +221,11 @@ const handleSubscriptionCanceled = async (subscriptionData: any): Promise<void> 
     if (!user) return
 
     user.expiredPremium = true
+    user.willCancelAtPeriodEnd = false
     await user.save()
 
     if (user.organizationId && user.isOrgAdmin) {
-        await Organization.findByIdAndUpdate(user.organizationId, { isActive: false })
+        await Organization.findByIdAndUpdate(user.organizationId, { isActive: false, willCancelAtPeriodEnd: false })
         await User.updateMany({ organizationId: user.organizationId }, { $set: { expiredPremium: true } })
     }
 }

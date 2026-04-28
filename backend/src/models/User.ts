@@ -139,6 +139,16 @@ const userSchema = new Schema<IUser>({
   currentPeriodEnd: {
     type: Date
   },
+  paddleSubscriptionId: {
+    type: String
+  },
+  willCancelAtPeriodEnd: {
+    type: Boolean,
+    default: false
+  },
+  canceledAt: {
+    type: Date
+  },
   isTrialUsed: {
     type: Boolean,
     default: false

@@ -66,7 +66,7 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
 
     try {
         const customData = transactionData.customData || {}
-        const { userId, planId: newPlan, interval = 'monthly', seats = '1', firmName } = customData
+        const { userId, planId: newPlan, interval = 'monthly', firmName, isExpansion } = customData
         
         if (!userId) {
             if (isTransactional) await session.abortTransaction()
@@ -81,6 +81,34 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
 
         const validPlans = Object.values(UserPlan)
         const plan = validPlans.includes(newPlan as UserPlan) ? (newPlan as UserPlan) : user.plan
+        const subscriptionId = transactionData.subscriptionId || transactionData.subscription_id || null
+
+        let actualQuantity = 1;
+        if (transactionData.items && transactionData.items.length > 0 && transactionData.items[0].quantity) {
+            actualQuantity = transactionData.items[0].quantity;
+        } else if (transactionData.details?.lineItems && transactionData.details.lineItems.length > 0 && transactionData.details.lineItems[0].quantity) {
+            actualQuantity = transactionData.details.lineItems[0].quantity;
+        } else if (customData.seats) {
+            actualQuantity = parseInt(customData.seats, 10) || 1;
+        }
+
+        if (isExpansion === 'true' && plan === UserPlan.ENTERPRISE && user.organizationId) {
+            await Organization.findByIdAndUpdate(
+                user.organizationId,
+                { 
+                    $inc: { totalSeats: actualQuantity },
+                    ...(subscriptionId ? { paddleSubscriptionId: subscriptionId } : {})
+                },
+                { session: isTransactional ? session : undefined }
+            )
+
+            const transactionAmount = parseFloat(transactionData.details?.totals?.total || '0') / 100
+            await Transaction.create([{ userId, amount: transactionAmount, plan: plan, status: 'succeeded', paymentMethod: 'Paddle Billing', date: new Date() }], isTransactional ? { session } : {})
+
+            webhookLogger.info({ userId, seatIncrement: actualQuantity, orgId: user.organizationId.toString() }, 'Seat expansion completed')
+            if (isTransactional) await session.commitTransaction()
+            return
+        }
 
         user.plan = plan
         user.planLimit = (config.planLimits as any)[plan]?.maxCases || 0
@@ -104,18 +132,24 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
             const org = await Organization.create([{
                 name: firmName || user.lawFirm || 'My Premium Firm',
                 adminId: userId,
-                totalSeats: parseInt(seats, 10) || 1,
+                totalSeats: actualQuantity,
                 usedSeats: 1,
                 firmCode,
                 isActive: true,
-                currentPeriodEnd: nextPeriod
+                currentPeriodEnd: nextPeriod,
+                ...(subscriptionId ? { paddleSubscriptionId: subscriptionId } : {})
             }], isTransactional ? { session } : {})
 
             user.role = UserRole.ORG_ADMIN
             user.isOrgAdmin = true
             user.organizationId = org[0]._id
         } else if (plan === UserPlan.ENTERPRISE && user.organizationId) {
-            await Organization.findByIdAndUpdate(user.organizationId, { $inc: { totalSeats: parseInt(seats, 10) || 1 }, isActive: true, currentPeriodEnd: nextPeriod }, { session: isTransactional ? session : undefined })
+            await Organization.findByIdAndUpdate(user.organizationId, { 
+                $inc: { totalSeats: actualQuantity }, 
+                isActive: true, 
+                currentPeriodEnd: nextPeriod,
+                ...(subscriptionId ? { paddleSubscriptionId: subscriptionId } : {})
+            }, { session: isTransactional ? session : undefined })
             await User.updateMany({ organizationId: user.organizationId }, { $set: { plan: UserPlan.ENTERPRISE, planLimit: (config.planLimits as any)[plan]?.maxCases || 0, currentPeriodEnd: nextPeriod, expiredPremium: false } }, { session: isTransactional ? session : undefined })
         }
         

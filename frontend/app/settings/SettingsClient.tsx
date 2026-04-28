@@ -160,6 +160,13 @@ function SettingsContent() {
       const params = new URLSearchParams(searchParams?.toString());
       params.delete('status');
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      
+      refetchOrg();
+      refetchBilling();
+      setTimeout(() => {
+        refetchOrg();
+        refetchBilling();
+      }, 2500);
     }
   }, [mounted, searchParams, user, router, pathname]);
 
@@ -279,7 +286,7 @@ function SettingsContent() {
         }
       });
     } catch (error: any) {
-      toast.error(error.message || "Failed to increase capacity");
+      toast.error(error.response?.data?.message || error.message || "Failed to increase capacity");
     } finally {
       setIsIncreasingSeats(false);
     }

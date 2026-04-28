@@ -38,12 +38,11 @@ export const createCheckoutSession = catchAsync(async (req: IAuthRequest, res: R
         throw new AppError('Enterprise accounts cannot transition to personal plans directly. Please use a separate account.', 403)
     }
 
-    if (planId === UserPlan.ENTERPRISE && user?.organizationId && user?.isOrgAdmin) {
-        const org = await Organization.findById(user.organizationId);
-        const requestedSeats = parseInt(seats as string) || 1;
-        if (org && requestedSeats < org.totalSeats) {
-            throw new AppError(`New plan must include at least ${org.totalSeats} seats.`, 400)
-        }
+    const isExpansion = planId === UserPlan.ENTERPRISE && !!user?.organizationId && !!user?.isOrgAdmin;
+    const seatCount = Math.max(1, parseInt(seats as string) || 1);
+
+    if (planId === UserPlan.ENTERPRISE && !isExpansion && seatCount < 5) {
+        throw new AppError('Enterprise plans require a minimum of 5 seats.', 400)
     }
 
     const priceId = getPaddlePriceId(planId as UserPlan, interval as 'monthly' | 'annual')
@@ -52,14 +51,15 @@ export const createCheckoutSession = catchAsync(async (req: IAuthRequest, res: R
     const transaction = await paddle.transactions.create({
         items: [{
             priceId,
-            quantity: planId === UserPlan.ENTERPRISE ? Math.max(1, parseInt(seats as string) || 1) : 1
+            quantity: planId === UserPlan.ENTERPRISE ? seatCount : 1
         }],
         customData: {
             userId: userId.toString(),
             planId: planId as string,
             interval: interval as string,
-            seats: seats.toString(),
-            firmName: firmName as string
+            seats: seatCount.toString(),
+            firmName: firmName as string,
+            isExpansion: isExpansion ? 'true' : 'false'
         }
     })
 

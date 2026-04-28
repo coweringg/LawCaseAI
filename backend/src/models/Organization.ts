@@ -37,7 +37,7 @@ const organizationSchema = new Schema<IOrganization>({
   currentPeriodEnd: {
     type: Date
   },
-  stripeSubscriptionId: {
+  paddleSubscriptionId: {
     type: String
   }
 }, {

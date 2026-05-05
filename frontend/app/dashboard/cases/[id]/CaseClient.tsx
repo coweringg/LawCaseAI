@@ -62,7 +62,7 @@ export default function CaseClient() {
                 animate="visible"
                 className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative"
             >
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                 {isTrialExpired && <LockedTrialOverlay status={caseData?.status} />}
                 
                 <CaseHeader 
@@ -217,7 +217,7 @@ export default function CaseClient() {
                                         setDeleteModalOpen(true);
                                         setActiveFileMenu(null);
                                     }} 
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all mt-1"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all mt-1"
                                  >
                                     <Trash2 size={14} />
                                     Purge Signal

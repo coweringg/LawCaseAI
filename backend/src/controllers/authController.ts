@@ -13,7 +13,7 @@ export const register = catchAsync(async (req: Request, res: Response): Promise<
 
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
-      throw new AppError('An account with this email already exists. Please try logging in instead.', 400)
+      throw new AppError('Identity conflict detected: This email is already bound to an active terminal.', 400)
     }
 
     let organizationId = null
@@ -34,14 +34,14 @@ export const register = catchAsync(async (req: Request, res: Response): Promise<
       if (!org) {
         const checkOrg = await Organization.findOne({ firmCode: firmCode.toUpperCase() })
         if (!checkOrg) {
-          throw new AppError('The firm code provided is invalid.', 400)
+          throw new AppError('Authentication failed: The provided organizational uplink code is invalid.', 400)
         }
         
         if (checkOrg.usedSeats >= checkOrg.totalSeats) {
-          throw new AppError('Firm seat limit reached.', 400)
+          throw new AppError('Capacity error: The target organization has reached its maximum allocated operational seats.', 400)
         }
 
-        throw new AppError('The organization is currently inactive.', 400)
+        throw new AppError('Access denied: The target organizational node is currently offline or suspended.', 400)
       }
 
       seatIncrementedOrgId = org._id
@@ -144,16 +144,16 @@ export const login = catchAsync(async (req: Request, res: Response): Promise<voi
 
     const user = await User.findByEmail(email)
     if (!user) {
-      throw new AppError('Invalid email or password', 401)
+      throw new AppError('Authentication failed: Invalid credentials provided.', 401)
     }
 
     if (user.status !== 'active') {
-      let message = 'Account is not active'
+      let message = 'Access denied: Your account terminal is currently inactive.'
       
       if (user.status === 'disabled') {
-        message = 'Your account has been disabled. Please contact support for more information.'
+        message = 'Access revoked: Your account has been disabled. Contact support to re-establish connection.'
       } else if (user.status === 'deleted') {
-        message = 'Your account has been deleted. Please contact support for more information.'
+        message = 'Access denied: Your account profile has been permanently purged from the system.'
       }
 
       throw new AppError(message, 401)
@@ -161,7 +161,7 @@ export const login = catchAsync(async (req: Request, res: Response): Promise<voi
 
     const isMatch = await user.comparePassword(password)
     if (!isMatch) {
-      throw new AppError('Invalid email or password', 401)
+      throw new AppError('Authentication failed: Invalid credentials provided.', 401)
     }
 
     const token = user.generateAuthToken()
@@ -242,20 +242,20 @@ export const loginWithSavedToken = catchAsync(async (req: Request, res: Response
     const savedLoginToken = savedTokens[email]
 
     if (!email || !savedLoginToken) {
-      throw new AppError('Email and active saved session are required', 400)
+      throw new AppError('Validation failed: Email and active session token are required to initialize uplink.', 400)
     }
 
     const user = await User.findOne({ email }).select('+password +savedLoginToken')
     if (!user) {
-      throw new AppError('Invalid credential token', 401)
+      throw new AppError('Authentication failed: The provided session token is invalid or corrupted.', 401)
     }
 
     if (user.status !== 'active') {
-      throw new AppError('Account is not active', 401)
+      throw new AppError('Access denied: Your account terminal is currently inactive.', 401)
     }
 
     if (!user.savedLoginToken || user.savedLoginToken !== savedLoginToken) {
-      throw new AppError('Saved login token has expired or is invalid', 401)
+      throw new AppError('Session expired: Your authorization token has expired. Please re-authenticate.', 401)
     }
 
     const token = user.generateAuthToken()
@@ -347,14 +347,14 @@ export const registerAdmin = catchAsync(async (req: Request, res: Response): Pro
     const adminKey = req.header('X-Admin-Key')
 
     if (!adminKey || adminKey !== config.adminCreationKey) {
-      throw new AppError('Access denied. Invalid administrative key.', 403)
+      throw new AppError('Access denied: Invalid administrative override key provided.', 403)
     }
 
     const { name, email, password, lawFirm }: IUserRegistration = req.body
 
     const existingUser = await User.findOne({ email, status: { $ne: 'deleted' } })
     if (existingUser) {
-      throw new AppError('An account with this email already exists. Please try logging in instead.', 400)
+      throw new AppError('Identity conflict detected: This email is already bound to an active terminal.', 400)
     }
 
     const now = new Date()

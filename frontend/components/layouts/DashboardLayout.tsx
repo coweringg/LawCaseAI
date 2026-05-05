@@ -8,6 +8,7 @@ import { useDashboardStats } from '@/hooks/useSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import ExpirationModal from '@/components/modals/ExpirationModal';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 import { DashboardStats } from '@/types';
 
 interface DashboardLayoutProps {
@@ -32,7 +33,7 @@ const TimeDisplay = memo(() => {
                     {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </p>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_0_20px_rgba(10,68,184,0.4)] border border-white/20">
+            <div className="w-11 h-11 rounded-xl bg-primary text-background-dark flex items-center justify-center shadow-[0_0_20px_rgba(0,230,118,0.4)] border border-white/20">
                 <span className="material-icons-round text-2xl">schedule</span>
             </div>
         </div>
@@ -191,16 +192,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <motion.div
                         animate={{ opacity: [0.1, 0.2, 0.1], scale: [1, 1.1, 1] }}
                         transition={{ duration: 5, repeat: Infinity }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-600/20 rounded-full blur-[150px]"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-rose-600/20 rounded-full blur-[150px]"
                     />
                 </div>
                 <div className="z-10 text-center px-4 max-w-lg">
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-24 h-24 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-2xl shadow-red-900/20"
+                        className="w-24 h-24 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-rose-500/20 shadow-2xl shadow-rose-900/20"
                     >
-                        <span className="material-icons-round text-5xl text-red-500">engineering</span>
+                        <span className="material-icons-round text-5xl text-rose-500">engineering</span>
                     </motion.div>
                     <h1 className="text-4xl font-black mb-4 tracking-tight">System Under Maintenance</h1>
                     <p className="text-slate-400 text-lg leading-relaxed mb-8">
@@ -227,10 +228,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     return (
-        <div className="bg-[#05060a] text-slate-100 font-display h-screen w-full flex flex-col overflow-hidden relative">
+        <div className="bg-background-dark text-slate-100 font-display h-screen w-full flex flex-col overflow-hidden relative">
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 mesh-gradient opacity-60" />
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.02] scale-150 rotate-12" />
+                <div className="absolute inset-0 bg-background-dark" />
+                <div className="absolute inset-0 micro-grid opacity-30" />
                 
                 <motion.div
                     animate={{ 
@@ -248,7 +249,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         rotate: [45, 0, 45]
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute -bottom-[10%] -left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]"
+                    className="absolute -bottom-[10%] -left-[10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px]"
                 />
             </div>
             {showWarning && (
@@ -302,12 +303,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex flex-1 overflow-hidden relative z-10 min-h-0">
                 <aside className={`w-64 flex-shrink-0 premium-glass !bg-transparent !border-y-0 !border-l-0 border-r border-white/10 text-slate-400 hidden lg:flex h-full relative overflow-hidden transition-all duration-150`}>
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+                    <div className="absolute inset-0 micro-grid opacity-30 z-0 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full justify-between w-full">
                         <div>
                             <div className="h-16 flex items-center px-6 mb-4">
-                                <Link href={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard'} className="flex items-center gap-2 text-primary dark:text-white">
-                                    <span className="material-icons-round text-3xl text-primary">gavel</span>
+                                <Link href={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard'} className="flex items-center gap-2.5 text-white">
+                                    <MonolithLogo size={32} glowIntensity="md" />
                                     <span className="text-xl font-extrabold tracking-tight">LawCase<span className="text-primary">AI</span></span>
                                 </Link>
                             </div>
@@ -332,7 +333,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         <motion.div
                                             whileHover={{ x: 6, backgroundColor: "rgba(255,255,255,0.03)", transition: { duration: 0.15 } }}
                                             className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-150 border group cursor-pointer relative overflow-hidden ${isActive(item.href, (item as any).exact)
-                                                ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_30px_rgba(10,68,184,0.1)]'
+                                                ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_30px_rgba(0,230,118,0.1)]'
                                                 : 'text-slate-500 hover:text-slate-200 border-transparent'}`}
                                         >
                                             <span className={`material-icons-round text-[22px] transition-all duration-150 ${isActive(item.href, (item as any).exact) ? 'text-primary scale-110' : 'text-slate-600 group-hover:text-slate-300'}`}>
@@ -344,7 +345,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             {isActive(item.href, (item as any).exact) && (
                                                 <motion.div 
                                                     layoutId="activeNav" 
-                                                    className="absolute left-0 w-1 h-8 bg-primary rounded-r-full shadow-[0_0_15px_rgba(10,68,184,0.6)]" 
+                                                    className="absolute left-0 w-1 h-8 bg-primary rounded-r-full shadow-[0_0_15px_rgba(0,230,118,0.6)]" 
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                 />
@@ -366,7 +367,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                             initial={{ width: 0 }}
                                             animate={{ width: `${usagePercentage}%` }}
                                             transition={{ duration: 1.5, ease: "easeOut" }}
-                                            className="bg-gradient-to-r from-primary to-blue-500 h-full rounded-full"
+                                            className="bg-primary h-full rounded-full"
                                         ></motion.div>
                                     </div>
                                     <Link href="/settings?tab=billing" className="block w-full">
@@ -382,7 +383,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             )}
                             {pathname !== '/settings' && (
                                 <div className="flex items-center gap-3 px-3 py-4 border-t border-white/5 mt-2">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
+                                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background-dark font-bold shadow-lg shadow-primary/20">
                                         {user?.name?.charAt(0) || 'U'}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -391,7 +392,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     </div>
                                     <button
                                         onClick={logout}
-                                        className="text-slate-500 hover:text-red-500 transition-colors"
+                                        className="text-slate-500 hover:text-rose-500 transition-colors"
                                         title="Log Out"
                                     >
                                         <span className="material-icons-round text-xl">logout</span>
@@ -417,14 +418,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 animate={{ x: 0 }}
                                 exit={{ x: '-100%' }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="fixed left-0 top-0 bottom-0 w-72 bg-[#060910] border-r border-white/10 z-[70] lg:hidden flex flex-col"
+                                className="fixed left-0 top-0 bottom-0 w-72 bg-background-dark border-r border-white/10 z-[70] lg:hidden flex flex-col"
                             >
-                                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+                                <div className="absolute inset-0 micro-grid opacity-30 z-0 pointer-events-none"></div>
                                 <div className="relative z-10 flex flex-col h-full">
                                     <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-icons-round text-3xl text-primary">gavel</span>
-                                            <span className="text-xl font-extrabold tracking-tight text-white">LawCaseAI</span>
+                                        <div className="flex items-center gap-2.5">
+                                            <MonolithLogo size={32} glowIntensity="md" />
+                                            <span className="text-xl font-extrabold tracking-tight text-white">LawCase<span className="text-primary">AI</span></span>
                                         </div>
                                         <button onClick={() => setIsMobileMenuOpen(false)} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400">
                                             <span className="material-icons-round">close</span>
@@ -453,7 +454,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         ))}
                                     </nav>
                                     <div className="p-6 border-t border-white/5">
-                                        <button onClick={logout} className="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-red-500/10 text-red-500 font-bold uppercase text-[10px] tracking-widest border border-red-500/20">
+                                        <button onClick={logout} className="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-rose-500/10 text-rose-500 font-bold uppercase text-[10px] tracking-widest border border-rose-500/20">
                                             <span className="material-icons-round text-lg">logout</span>
                                             Sign Out
                                         </button>
@@ -511,7 +512,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute top-full left-0 right-0 mt-3 glass-dark border border-white/10 rounded-3xl shadow-2xl z-50 max-h-[400px] overflow-hidden backdrop-blur-3xl"
+                                                    className="absolute top-full left-0 right-0 mt-3 bg-[#0a0e14] border border-white/10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] z-50 max-h-[400px] overflow-hidden"
                                                 >
                                                     <div className="p-2 overflow-y-auto max-h-[390px]">
                                                         {isSearching ? (
@@ -544,15 +545,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                                 )}
                                                                 {searchResults.files.length > 0 && (
                                                                     <div className={searchResults.cases.length > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
-                                                                        <div className="px-5 py-3 text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Documents</div>
+                                                                        <div className="px-5 py-3 text-[9px] font-black text-primary uppercase tracking-[0.3em] border-b border-white/5 mb-2">Matched Documents</div>
                                                                         {searchResults.files.map(f => (
                                                                             <Link href={`/dashboard/cases/${f.caseId}`} key={f.id}>
                                                                                 <div className="px-5 py-4 hover:bg-white/5 rounded-2xl transition-all duration-300 flex items-center gap-4 cursor-pointer group/item">
-                                                                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-white/5 group-hover/item:border-blue-500/30 group-hover/item:bg-blue-500/20 transition-all">
-                                                                                        <span className="material-icons-round text-blue-400 text-xl">description</span>
+                                                                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-white/5 group-hover/item:border-primary/30 group-hover/item:bg-primary/20 transition-all">
+                                                                                        <span className="material-icons-round text-primary text-xl">description</span>
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <p className="text-sm font-black text-white truncate group-hover/item:text-blue-400 transition-colors">{f.title}</p>
+                                                                                        <p className="text-sm font-black text-white truncate group-hover/item:text-primary transition-colors">{f.title}</p>
                                                                                         <p className="text-[10px] text-slate-500 truncate uppercase font-bold tracking-widest mt-0.5">{f.subtitle}</p>
                                                                                     </div>
                                                                                     <span className="material-icons-round text-slate-600 text-sm group-hover/item:translate-x-1 transition-transform">arrow_forward</span>
@@ -579,9 +580,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                         <NotificationBell />
                                         <Link href="/cases/new">
                                             <motion.button
-                                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(10,68,184,0.4)", transition: { duration: 0.15 } }}
+                                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,230,118,0.4)", transition: { duration: 0.15 } }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="flex items-center gap-2 lg:gap-3 px-4 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(10,68,184,0.2)] border border-white/20"
+                                                className="flex items-center gap-2 lg:gap-3 px-4 lg:px-8 py-2.5 lg:py-3 bg-primary text-background-dark rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_0_20px_rgba(0,230,118,0.2)] border border-white/20"
                                             >
                                                 <span className="material-icons-round text-base lg:text-lg">add</span>
                                                 <span className="hidden sm:inline">Initialize Case</span>
@@ -594,7 +595,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
                     </header>
 
-                    <div className="flex-1 overflow-y-auto p-4 lg:p-6 relative z-10 scrollbar-hide">
+                    <div className="flex-1 overflow-y-auto p-4 lg:p-6 relative z-10">
                         <div className="w-full mx-auto min-h-full">
                             {children}
                         </div>

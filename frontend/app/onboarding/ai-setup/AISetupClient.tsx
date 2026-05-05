@@ -14,6 +14,7 @@ import {
   Brain
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 
 function AISetupContent() {
     const router = useRouter();
@@ -53,15 +54,13 @@ function AISetupContent() {
 
     return (
         <div className="bg-[#05060a] font-display min-h-screen flex flex-col relative overflow-hidden">
-            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0"></div>
+            <div className="absolute inset-0 micro-grid opacity-[0.03] z-0"></div>
             <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
             <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-600/5 rounded-full blur-[120px]"></div>
 
             <header className="w-full py-6 px-10 flex justify-between items-center border-b border-white/5 relative z-10 backdrop-blur-md">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-primary/20">
-                        <span className="material-icons-round text-white">gavel</span>
-                    </div>
+                    <MonolithLogo size={40} glowIntensity="lg" />
                     <span className="text-xl font-black text-white tracking-tightest">LawCase<span className="text-primary">AI</span></span>
                 </div>
                 <div className="flex items-center gap-6">

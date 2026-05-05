@@ -24,11 +24,11 @@ export const LockedTrialOverlay: React.FC<LockedTrialOverlayProps> = ({ isTrialE
         className="relative max-w-lg w-full premium-glass rounded-[3rem] border border-white/10 p-12 text-center shadow-2xl space-y-8"
       >
         <div className="flex justify-center">
-          <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center relative ${isClosed ? 'bg-red-500/10 text-red-400' : isPending ? 'bg-amber-500/10 text-amber-500' : isDiscovery ? 'bg-purple-500/10 text-purple-400' : 'bg-primary/10 text-primary'}`}>
+          <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center relative ${isClosed ? 'bg-rose-500/10 text-rose-400' : isPending ? 'bg-amber-500/10 text-amber-500' : isDiscovery ? 'bg-purple-500/10 text-purple-400' : 'bg-primary/10 text-primary'}`}>
             {isClosed ? <XCircle size={48} /> : isPending ? <Clock size={48} /> : isDiscovery ? <Search size={48} /> : <Lock size={48} />}
-            <div className={`absolute -top-2 -right-2 w-8 h-8 bg-background-dark rounded-full flex items-center justify-center border ${isClosed ? 'border-red-500/20' : isPending ? 'border-amber-500/20' : isDiscovery ? 'border-purple-500/20' : 'border-primary/20'} anim-pulse`}>
+            <div className={`absolute -top-2 -right-2 w-8 h-8 bg-background-dark rounded-full flex items-center justify-center border ${isClosed ? 'border-rose-500/20' : isPending ? 'border-amber-500/20' : isDiscovery ? 'border-purple-500/20' : 'border-primary/20'} anim-pulse`}>
                 {isClosed 
-                  ? <Lock size={14} className="text-red-400" />
+                  ? <Lock size={14} className="text-rose-400" />
                   : isPending
                   ? <Lock size={14} className="text-amber-500" />
                   : isDiscovery
@@ -45,7 +45,7 @@ export const LockedTrialOverlay: React.FC<LockedTrialOverlayProps> = ({ isTrialE
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed">
             {isClosed
-              ? <>This case was <span className="text-red-400 font-bold italic">permanently sealed</span>. It cannot be reopened or reactivated. All data is preserved for reference purposes only.</>
+              ? <>This case was <span className="text-rose-400 font-bold italic">permanently sealed</span>. It cannot be reopened or reactivated. All data is preserved for reference purposes only.</>
               : isPending
                 ? <>This case is currently <span className="text-amber-500 font-bold italic">pending</span> and awaiting activation. Return to the dashboard to mark it as active and unlock full workspace features.</>
               : isDiscovery
@@ -59,7 +59,7 @@ export const LockedTrialOverlay: React.FC<LockedTrialOverlayProps> = ({ isTrialE
 
         <div className="grid grid-cols-2 gap-4 pb-4">
             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
-                {isClosed ? <Archive size={20} className="text-red-400" /> : isPending ? <Clock size={20} className="text-amber-500" /> : isDiscovery ? <Search size={20} className="text-purple-400" /> : <Shield size={20} className="text-primary" />}
+                {isClosed ? <Archive size={20} className="text-rose-400" /> : isPending ? <Clock size={20} className="text-amber-500" /> : isDiscovery ? <Search size={20} className="text-purple-400" /> : <Shield size={20} className="text-primary" />}
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                   {isClosed ? 'Archived' : isPending ? 'Awaiting Startup' : isDiscovery ? 'Pre-trial Data' : 'Secure Data'}
                 </span>

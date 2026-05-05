@@ -10,7 +10,7 @@ import { getPaddleInstance } from '../utils/paddle'
 export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = await User.findById(req.user?._id).select('-password');
     if (!user) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     res.status(200).json({
@@ -52,7 +52,7 @@ export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): P
 export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { name, lawFirm, email } = req.body
@@ -60,7 +60,7 @@ export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response)
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email })
       if (existingUser) {
-        throw new AppError('Email address is already in use', 400)
+        throw new AppError('Identity conflict detected: This email is already bound to an active terminal.', 400)
       }
     }
 
@@ -82,7 +82,7 @@ export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response)
     )
 
     if (!updatedUser) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     await logAction({
@@ -131,19 +131,19 @@ export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response)
 export const changePassword = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { currentPassword, newPassword } = req.body
 
     const userWithPassword = await User.findById(user._id).select('+password')
     if (!userWithPassword) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     const isMatch = await userWithPassword.comparePassword(currentPassword)
     if (!isMatch) {
-      throw new AppError('Current password is incorrect', 400)
+      throw new AppError('Authentication failed: Current security passcode is incorrect.', 400)
     }
 
     userWithPassword.password = newPassword
@@ -169,7 +169,7 @@ export const changePassword = catchAsync(async (req: IAuthRequest, res: Response
 export const updateNotifications = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const notifications: INotificationSettings = req.body
@@ -215,7 +215,7 @@ export const updateNotifications = catchAsync(async (req: IAuthRequest, res: Res
 export const getBillingInfo = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const activeCaseCount = await Case.countDocuments({ userId: user._id, status: 'active' })
@@ -293,13 +293,13 @@ export const getBillingInfo = catchAsync(async (req: IAuthRequest, res: Response
 export const submitSupportRequest = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { type, subject, description } = req.body
 
     if (!type || !subject || !description) {
-      throw new AppError('Please provide support type, subject and description', 400)
+      throw new AppError('Validation failed: Incomplete telemetry data provided for support node routing.', 400)
     }
 
     const supportRequest = new SupportRequest({
@@ -335,7 +335,7 @@ export const submitSupportRequest = catchAsync(async (req: IAuthRequest, res: Re
 export const addPaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { brand, last4, expiryMonth, expiryYear } = req.body
@@ -381,7 +381,7 @@ export const addPaymentMethod = catchAsync(async (req: IAuthRequest, res: Respon
 export const removePaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { id } = req.params
@@ -418,14 +418,14 @@ export const removePaymentMethod = catchAsync(async (req: IAuthRequest, res: Res
 export const setDefaultPaymentMethod = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { id } = req.params
 
     const exists = user.paymentMethods.some(pm => pm.id === id)
     if (!exists) {
-      throw new AppError('Payment method not found', 404)
+      throw new AppError('Resource unavailable: The requested payment node could not be located.', 404)
     }
 
     user.defaultPaymentMethodId = id
@@ -443,15 +443,15 @@ export const setDefaultPaymentMethod = catchAsync(async (req: IAuthRequest, res:
 export const activateTrial = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const user = req.user
     if (!user) {
-      throw new AppError('User not authenticated', 401)
+      throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     if (user.isTrialUsed) {
-      throw new AppError('Trial has already been used on this account. Please subscribe to a plan to continue.', 400)
+      throw new AppError('Evaluation limit reached: Free evaluation phase has already been exhausted for this identity. Upgrade required.', 400)
     }
 
     if (user.plan !== UserPlan.NONE) {
-      throw new AppError('A trial cannot be activated while an active plan is in place.', 400)
+      throw new AppError('Protocol violation: Evaluation phases cannot be executed while an active subscription matrix is deployed.', 400)
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -466,7 +466,7 @@ export const activateTrial = catchAsync(async (req: IAuthRequest, res: Response)
     )
 
     if (!updatedUser) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     await logAction({

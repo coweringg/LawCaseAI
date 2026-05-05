@@ -36,7 +36,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
             className="space-y-8"
         >
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
                 <div className="p-5 border-b border-white/5 bg-white/[0.02]">
                     <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
                         <User className="text-primary" size={20} />
@@ -48,7 +48,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Legal Name</label>
                             <div className="relative group">
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                <div className="absolute -inset-0.5 bg-primary/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
                                 <input
                                     type="text"
                                     value={profileData.name}
@@ -94,7 +94,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={isSubmitting}
-                            className="inline-flex items-center justify-center px-8 py-3 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
+                            className="inline-flex items-center justify-center px-8 py-3 bg-primary text-background-dark text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 gap-3"
                         >
                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={18} />}
                             Commit Changes

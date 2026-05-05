@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Footer from './Footer';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 
 interface PublicLayoutProps {
     children: React.ReactNode;
@@ -33,19 +34,19 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col relative overflow-hidden">
             <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 mesh-gradient opacity-40 dark:opacity-100" />
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full animate-slow-glow" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-600/10 rounded-full animate-slow-glow" style={{ animationDelay: '-5s' }} />
+                <div className="absolute inset-0 bg-background-dark" />
+                <div className="absolute inset-0 micro-grid" />
+                <div className="hero-glow" />
             </div>
 
             <div className="relative z-10 flex flex-col min-h-screen">
-            <nav className="fixed w-full z-50 top-0 start-0 border-b border-primary/10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md">
+            <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-6xl z-50 bg-black/40 backdrop-blur-[24px] border border-white/5 rounded-full transition-all duration-300">
                 <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-4 py-3">
-                    <Link href="/" className="flex items-center gap-2 rtl:space-x-reverse group">
-                        <div className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform duration-150 shadow-lg shadow-primary/20">
-                            <span className="material-icons-round text-xl leading-none">gavel</span>
+                    <Link href="/" className="flex items-center gap-2.5 rtl:space-x-reverse group">
+                        <div className="w-8 h-8 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                            <MonolithLogo size={32} glowIntensity="md" />
                         </div>
-                        <span className="self-center text-xl font-bold whitespace-nowrap text-primary dark:text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
+                        <span className="self-center text-xl font-bold whitespace-nowrap text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
                     </Link>
                     <div className="flex md:order-2 space-x-3 md:space-x-4 rtl:space-x-reverse">
                         <Link href="/login">
@@ -78,7 +79,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 </div>
             </nav>
 
-            <main className="flex-grow pt-16">
+            <main className="flex-grow pt-0">
                 {children}
             </main>
 

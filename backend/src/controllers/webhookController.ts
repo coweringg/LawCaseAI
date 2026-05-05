@@ -19,7 +19,7 @@ export const handlePaddleWebhook = catchAsync(async (req: Request, res: Response
     const secretKey = getWebhookSecret()
 
     if (!signature) {
-        throw new AppError('Missing Paddle signature', 400)
+        throw new AppError('Authentication failed: Cryptographic payload signature missing from origin node.', 400)
     }
 
     const eventData = await paddle.webhooks.unmarshal(
@@ -29,7 +29,7 @@ export const handlePaddleWebhook = catchAsync(async (req: Request, res: Response
     )
 
     if (!eventData) {
-        throw new AppError('Invalid event', 400)
+        throw new AppError('Protocol violation: Unrecognized event payload structure detected.', 400)
     }
 
     webhookLogger.info({ eventType: eventData.eventType }, 'Received Paddle webhook')

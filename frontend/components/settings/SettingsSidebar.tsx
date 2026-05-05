@@ -21,7 +21,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
     return (
         <div className="md:col-span-1 space-y-4">
             <div className="glass-dark border border-white/10 rounded-[32px] p-3 sticky top-32 overflow-hidden">
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
                 <div className="relative z-10 space-y-2">
                     {tabs
                         .filter(tab => tab.id !== 'organization' || user?.isOrgAdmin)
@@ -32,7 +32,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all relative group ${activeTab === tab.id
-                                        ? 'bg-primary text-white shadow-xl shadow-primary/20'
+                                        ? 'bg-primary text-background-dark shadow-xl shadow-primary/20'
                                         : 'text-slate-500 hover:text-white hover:bg-white/5'
                                     }`}
                             >
@@ -43,14 +43,14 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                                         style={{ willChange: 'opacity, transform' }}
                                     />
                                 )}
-                                <span className={`material-icons-round text-xl ${activeTab === tab.id ? 'text-white' : `text-${tab.color}`}`}>
+                                <span className={`material-icons-round text-xl ${activeTab === tab.id ? 'text-background-dark' : `text-${tab.color}`}`}>
                                     {tab.icon}
                                 </span>
                                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">{tab.label}</span>
                                 {activeTab === tab.id && (
                                     <motion.div
                                         layoutId="activeTabIndicator"
-                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]"
+                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-background-dark shadow-[0_0_10px_rgba(0,0,0,0.5)]"
                                     />
                                 )}
                             </motion.button>
@@ -62,7 +62,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                         <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover/support:bg-primary/20 transition-all duration-700"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-1">
-                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
+                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]" />
                                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Priority Auth</span>
                             </div>
                             <p className="text-[10px] text-white font-bold leading-relaxed uppercase tracking-wider mb-4">
@@ -82,7 +82,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
                 <div className="mt-2 pt-2 border-t border-white/5 px-2 pb-2">
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl">
                         <div className="flex items-center gap-2 mb-1">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]" />
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Protocol Active</span>
                         </div>
                         <p className="text-[10px] text-white font-bold leading-relaxed uppercase tracking-wider">
@@ -93,10 +93,10 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ tabs, activeTa
 
                 <div className="mt-2 px-4 pb-4">
                     <motion.button
-                        whileHover={{ x: 4, backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                        whileHover={{ x: 4, backgroundColor: 'rgba(244, 63, 94, 0.1)' }}
                         whileTap={{ scale: 0.98 }}
                         onClick={onLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-red-500 hover:text-red-600"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-rose-500 hover:text-rose-600"
                     >
                         <span className="material-icons-round text-xl">logout</span>
                         <span className="text-[11px] font-black uppercase tracking-[0.2em]">Terminate Session</span>

@@ -7,8 +7,7 @@ import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import TypewriterText from '@/components/ui/TypewriterText';
-import FloatingGlassCard from '@/components/ui/FloatingGlassCard';
-import { Check, Star, Shield, Gavel, Zap, Users } from 'lucide-react';
+import { Shield, Gavel, FileText, Zap, CheckCircle2 } from 'lucide-react';
 
 export default function HomeClient() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -27,42 +26,40 @@ export default function HomeClient() {
 
   const stagger = {
     animate: {
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1 }
     }
   };
 
   return (
     <PublicLayout>
-      <main className="flex-grow pt-24 font-sans text-slate-100 bg-background-dark min-h-screen relative overflow-hidden transition-colors duration-500">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-slow-glow"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[150px] animate-slow-glow" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px] animate-slow-glow" style={{ animationDelay: '4s' }}></div>
-        </div>
+      <main className="flex-grow bg-background-dark min-h-screen relative overflow-hidden font-sans text-slate-100 selection:bg-primary/30">
+        
+        <div className="absolute inset-0 micro-grid z-0"></div>
+        <div className="hero-glow"></div>
 
-        <div className="relative z-10 container-stitch px-4">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <section className="relative pt-28 px-8 overflow-hidden pb-0 min-h-screen flex flex-col">
+          <div className="absolute inset-0 micro-grid pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1200px] hero-glow pointer-events-none blur-[100px]"></div>
+          
+          <div className="flex-1 flex flex-col justify-center w-full max-w-4xl mx-auto text-center relative z-10 py-8">
             <motion.div
-              initial="initial"
-              animate="animate"
-              variants={stagger}
-              className="text-left"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm self-center mx-auto"
             >
-              <motion.div
-                variants={fadeInUp}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-white/10 text-primary dark:text-blue-300 text-xs font-bold uppercase tracking-widest mb-8 shadow-xl shadow-primary/5"
-              >
-                <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-                Professional Legal Intelligence
-              </motion.div>
+              <span className="material-symbols-outlined text-amber-400 text-[14px]">shield</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-white/60">Secure Legal Intelligence</span>
+            </motion.div>
 
-              <motion.h1
-                variants={fadeInUp}
-                className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 lg:mb-8 leading-[1.1] font-display"
-              >
-                The Standard for <br />
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[1.05]"
+            >
+              The Standard for<br/>
+              <span className="block text-primary min-h-[2.2em] lg:min-h-[1.1em]">
                 <TypewriterText
                   phrases={[
                     'AI-Driven Legal Practice',
@@ -73,313 +70,333 @@ export default function HomeClient() {
                   typingSpeed={70}
                   deletingSpeed={35}
                   pauseDuration={2500}
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400"
                 />
-              </motion.h1>
-
-              <motion.p
-                variants={fadeInUp}
-                className="text-xl text-slate-400 max-w-xl mb-4 leading-relaxed"
-              >
-                AI-powered case management and document intelligence platform for US law firms. LawCaseAI provides immediate operational efficiency and secure analysis for professional legal teams.
-              </motion.p>
-              
-
-              <motion.div
-                variants={fadeInUp}
-                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary/80 mb-12"
-              >
-                <div className="w-4 h-px bg-primary/30" />
-                Secure AI infrastructure built for professional legal workflows
-                <div className="w-4 h-px bg-primary/30" />
-              </motion.div>
-
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col sm:flex-row gap-5"
-              >
-                <Link href="/register">
-                  <button className="h-14 px-10 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-hover hover:scale-[1.03] will-change-transform transform-gpu transition-all duration-150 shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 group">
-                    Subscribe Now
-                    <span className="material-icons-round transition-transform duration-150 group-hover:translate-x-1">arrow_forward</span>
-                  </button>
-                </Link>
-                <Link href="/pricing">
-                  <button className="h-14 px-10 text-lg font-bold text-slate-300 glass hover:bg-white/5 hover:scale-[1.03] will-change-transform transform-gpu rounded-xl transition-all duration-150 flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-primary">payments</span>
-                    View Plans
-                  </button>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                variants={fadeInUp}
-                className="mt-10 lg:mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-6 lg:gap-10 items-center"
-              >
-                <div className="flex flex-col gap-1 w-full mb-2">
-                    <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary/60">Compliance & Trust</p>
-                    <div className="h-0.5 w-12 bg-primary/30 rounded-full"></div>
-                </div>
-                {['SOC2-READY', 'HIPAA-READY', 'GDPR-ALIGNED'].map((badge) => (
-                  <div key={badge} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors duration-150 cursor-default group/badge">
-                    <Shield size={16} className="text-primary group-hover/badge:scale-125 transition-transform duration-150 will-change-transform transform-gpu" />
-                    <span className="font-display font-black text-[11px] tracking-widest">{badge}</span>
-                  </div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0, transition: { duration: 1.2, ease: "easeOut", delay: 0.2 } }}
-              className="relative hidden lg:block perspective-1000"
+              </span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-white/50 text-lg max-w-2xl mx-auto mb-8 leading-relaxed font-medium"
             >
-              <div className="absolute -top-12 -right-12 z-20 pointer-events-none">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, rotate: 20 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 12, transition: { delay: 0.8, duration: 0.8, type: "spring", stiffness: 100 } }}
-                  className="relative cursor-default pointer-events-auto will-change-transform transform-gpu"
-                >
-                  <div className="group/badge transition-transform duration-200 hover:scale-110 hover:rotate-3 will-change-transform">
-                      <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-2xl group-hover/badge:bg-primary/60 transition-colors duration-150"></div>
-                      
-                      <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 text-white px-9 py-4 rounded-2xl shadow-[0_25px_60px_-15px_rgba(10,68,184,0.7)] border border-white/30 backdrop-blur-md overflow-hidden min-w-[140px]">
+              AI-powered case management and document intelligence platform for US law firms. 
+              Immediate operational efficiency and secure analysis for professional legal teams.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <Link href="/register" className="bg-primary text-background-dark px-8 py-3 rounded-lg font-bold text-sm hover:brightness-110 hover:shadow-[0_0_40px_-5px_rgba(0,230,118,0.6)] transition-all duration-300">
+                Subscribe Now
+              </Link>
+              <Link href="/pricing" className="bg-white/5 border border-white/10 text-white px-8 py-3 rounded-lg font-bold text-sm hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-300">
+                View Plans
+              </Link>
+            </motion.div>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="w-full max-w-5xl mx-auto perspective-container shrink-0 mt-auto"
+          >
+            <div className="dashboard-3d relative group rounded-t-2xl rounded-b-none border-b-0">
+              <div className="absolute -inset-20 bg-primary/10 blur-[180px] rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-1000"></div>
+              <div className="glass-panel rounded-t-2xl rounded-b-none overflow-hidden p-[1px] relative border-b-0">
+                <div className="specular-highlight rounded-t-2xl rounded-b-none"></div>
+                <div className="bg-[#080808]/98 rounded-t-xl rounded-b-none overflow-hidden flex h-[420px]">
+
+                  <div className="w-56 border-r border-white/5 p-5 flex flex-col gap-6 bg-black/60 relative">
+                    <div className="absolute inset-0 micro-grid opacity-10 pointer-events-none"></div>
+                    <div className="flex items-center gap-2.5 relative z-10">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/logo-cube.png" alt="LawCaseAI" width={24} height={24} className="w-full h-full object-contain drop-shadow-[0_0_4px_rgba(0,230,118,0.4)]" />
+                      </div>
+                      <span className="font-bold tracking-tight text-sm text-white">LawCase<span className="text-primary">AI</span></span>
+                    </div>
+                    <div className="space-y-1.5 relative z-10">
+                      {[
+                        { icon: 'dashboard', label: 'Dashboard', active: true },
+                        { icon: 'folder_open', label: 'My Cases', active: false },
+                        { icon: 'menu_book', label: 'Legal Library', active: false },
+                        { icon: 'calendar_today', label: 'Calendar', active: false },
+                        { icon: 'settings', label: 'Settings', active: false },
+                      ].map((item, i) => (
+                        <div key={i} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                          item.active 
+                            ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(0,230,118,0.08)]' 
+                            : 'text-slate-600 hover:text-slate-400'
+                        }`}>
+                          <span className="material-icons-round text-[16px]">{item.icon}</span>
+                          <span>{item.label}</span>
+                          {item.active && <div className="absolute left-0 w-0.5 h-5 bg-primary rounded-r-full shadow-[0_0_8px_rgba(0,230,118,0.6)]"></div>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-auto relative z-10">
+                      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Plan Usage</span>
+                          <span className="text-[8px] font-bold text-primary">67%</span>
+                        </div>
+                        <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }} 
+                            animate={{ width: '67%' }} 
+                            transition={{ duration: 2, delay: 1.2, ease: 'easeOut' }}
+                            className="bg-primary h-full rounded-full shadow-[0_0_10px_rgba(0,230,118,0.5)]"
+                          ></motion.div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 p-5 flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center mb-5">
+                      <div>
+                        <h3 className="text-sm font-black text-white tracking-tight">Operational Command</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_6px_rgba(0,230,118,0.8)]"></span>
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Counsel Status • Active Layer</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-500">
+                          <span className="material-icons-round text-[14px]">search</span>
+                        </div>
+                        <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-500">
+                          <span className="material-icons-round text-[14px]">notifications</span>
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg bg-primary text-background-dark text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,230,118,0.3)]">
+                          <span className="material-icons-round text-[12px]">add</span>
+                          New Case
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-3 mb-4">
+                      {[
+                        { label: 'Active Cases', value: '24', change: '+3', icon: 'folder_open', color: 'primary' },
+                        { label: 'Documents', value: '1,847', change: '+127', icon: 'description', color: 'primary' },
+                        { label: 'AI Queries', value: '12.4k', change: '+2.1k', icon: 'psychology', color: 'primary' },
+                        { label: 'Win Rate', value: '94%', change: '+6%', icon: 'trending_up', color: 'primary' },
+                      ].map((stat, i) => (
                         <motion.div 
-                          animate={{ x: ['-200%', '200%'] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg] z-10"
-                        />
-                        
-                        <div className="relative z-20 flex flex-col items-center group-hover/badge:scale-105 transition-transform duration-150 will-change-transform transform-gpu">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Zap size={14} className="fill-current text-blue-200" />
-                            <span className="text-3xl font-black tracking-tighter leading-none italic drop-shadow-md">FREE</span>
-                          </div>
-                          <div className="h-px w-full bg-white/20 mb-2"></div>
-                          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-100 whitespace-nowrap">24h Case Evaluation</span>
-                        </div>
-
-                        <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-3xl translate-x-4 -translate-y-4"></div>
-                      </div>
-                      
-                      <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500 border-2 border-white"></span>
-                      </div>
-                  </div>
-                </motion.div>
-                
-                <div className="absolute top-12 right-12 w-[1px] h-12 bg-gradient-to-t from-primary/40 to-transparent -rotate-[15deg] opacity-50"></div>
-              </div>
-
-              <div className="relative z-10 rounded-[2.5rem] overflow-hidden premium-glass border-white/10 shadow-[0_0_80px_-20px_rgba(10,68,184,0.4)] aspect-[4/3] group/card">
-                <div className="h-12 border-b border-white/5 bg-slate-900/50 flex items-center px-6 gap-3">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400/20"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400/20"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/20"></div>
-                  </div>
-                  <div className="h-5 w-48 bg-white/5 rounded-full flex items-center px-3">
-                    <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <div className="h-1 w-full bg-white/10 rounded"></div>
-                  </div>
-                </div>
-                <div className="p-8 space-y-8">
-                  <div className="grid grid-cols-2 gap-6">
-                    <FloatingGlassCard delay={0.2} duration={4} yOffset={5} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/5 p-5 space-y-3 relative group-hover/inner:bg-white/10 transition-colors duration-150 transform-gpu">
-                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary transition-transform duration-150 group-hover/inner:scale-110 will-change-transform">
-                          <Gavel size={20} />
-                        </div>
-                        <div className="h-2 w-24 bg-white/20 rounded"></div>
-                        <div className="h-5 w-12 bg-white/5 rounded"></div>
-                      </div>
-                    </FloatingGlassCard>
-                    <FloatingGlassCard delay={0.4} duration={5} yOffset={6} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                      <div className="h-32 rounded-xl bg-primary border border-primary/20 p-5 space-y-3 shadow-2xl shadow-primary/20 relative group-hover/inner:bg-primary-hover transition-colors duration-150 transform-gpu">
-                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white transition-transform duration-150 group-hover/inner:scale-110 will-change-transform">
-                          <Users size={20} />
-                        </div>
-                        <div className="h-2 w-20 bg-white/40 rounded"></div>
-                        <div className="h-5 w-16 bg-white/20 rounded"></div>
-                      </div>
-                    </FloatingGlassCard>
-                  </div>
-                  <FloatingGlassCard delay={0.6} duration={6} yOffset={4} className="!h-auto !bg-transparent !border-0 !shadow-none !rounded-xl">
-                    <div className="h-48 rounded-xl bg-white/5 border border-white/5 p-6 relative overflow-hidden group-hover/inner:bg-white/10 transition-colors duration-150">
-                      <div className="flex justify-between items-center mb-6">
-                        <div className="h-4 w-32 bg-white/10 rounded"></div>
-                        <div className="h-6 w-20 bg-primary/30 rounded-full"></div>
-                      </div>
-                      <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className="flex gap-4 group/item cursor-pointer">
-                            <div className="w-8 h-8 rounded bg-white/5 group-hover/item:bg-primary/20 transition-colors duration-150"></div>
-                            <div className="flex-1 space-y-2 py-1">
-                              <div className="h-1.5 bg-white/10 rounded w-full group-hover/item:bg-white/20 transition-colors duration-150"></div>
-                              <div className="h-1.5 bg-white/5 rounded w-3/4 group-hover/item:bg-white/10 transition-colors duration-150"></div>
+                          key={i}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
+                          className="bg-white/[0.02] border border-white/5 rounded-xl p-3 group/card hover:border-primary/20 transition-all relative overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[7px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                              <span className="material-icons-round text-[12px] text-slate-600">{stat.icon}</span>
+                            </div>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-lg font-black text-white tracking-tight">{stat.value}</span>
+                              <span className="text-[8px] font-bold text-primary">{stat.change}</span>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </motion.div>
+                      ))}
                     </div>
-                  </FloatingGlassCard>
-                </div>
-              </div>
 
-              <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-primary/30 rounded-full blur-[80px] z-0 pointer-events-none"></div>
-              <div className="absolute bottom-[-30px] left-[-30px] w-64 h-64 bg-secondary/20 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-            </motion.div>
-          </div>
-        </div>
-      </main>
-
-      <section className="py-20 lg:py-32 relative overflow-hidden">
-        <div className="container-stitch px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-20 px-4">
-            <h2 className="text-3xl md:text-6xl font-black text-white mb-6 font-display tracking-tightest">
-                Professional <span className="text-primary">Infrastructure</span>
-            </h2>
-            <p className="text-lg text-slate-400 leading-relaxed font-medium">
-                Immediate access to powerful AI tools designed for high-stakes litigation and transactional law.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10">
-            {[
-              {
-                title: "AI Document Insights",
-                desc: "Analyze thousands of pages instantly. AI highlights risks and contradictions in contract law.",
-                icon: "psychology",
-                link: "/features#insights",
-                color: "from-blue-500/20 to-transparent"
-              },
-              {
-                title: "Legal Research Assistant",
-                desc: "Technical analysis across extensive jurisprudence. Identify precedents with precision and speed.",
-                icon: "gavel",
-                link: "/features#research",
-                color: "from-primary/20 to-transparent"
-              },
-              {
-                title: "Automated Chronology",
-                desc: "Auto-extract dates from scattered documents to build complete case timelines instantly.",
-                icon: "event_repeat",
-                link: "/features#chronology",
-                color: "from-indigo-500/20 to-transparent"
-              }
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }}
-                viewport={{ once: true }}
-                className="will-change-transform"
-              >
-                  <div className="group relative p-10 bg-white/[0.02] premium-border rounded-[2.5rem] border border-white/5 transition-all duration-200 backdrop-blur-sm shadow-2xl overflow-hidden hover:-translate-y-3 hover:shadow-[0_20px_40px_rgba(30,58,138,0.2)] will-change-transform transform-gpu">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} />
-                    <div className="relative z-10">
-                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 transition-all duration-200 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_30px_rgba(10,68,184,0.5)] will-change-transform transform-gpu">
-                        <span className="material-icons-round text-3xl font-bold">{feature.icon}</span>
+                    <div className="grid grid-cols-5 gap-3 flex-1 min-h-0">
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.3, duration: 0.8 }}
+                        className="col-span-3 bg-white/[0.02] border border-white/5 rounded-xl p-3 relative overflow-hidden"
+                      >
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Case Resolution Velocity</span>
+                          <div className="flex gap-1">
+                            {['7D', '30D', '90D'].map((period, i) => (
+                              <span key={i} className={`text-[7px] font-bold px-2 py-0.5 rounded ${i === 1 ? 'bg-primary/20 text-primary' : 'text-slate-600'}`}>{period}</span>
+                            ))}
+                          </div>
                         </div>
-                        <h3 className="text-2xl font-black text-white mb-4 font-display tracking-tight">{feature.title}</h3>
-                        <p className="text-slate-400 leading-relaxed mb-8 font-medium">{feature.desc}</p>
-                        <Link href={feature.link} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group/link">
-                        Explore Feature <span className="material-icons-round text-sm transition-transform duration-200 group-hover/link:translate-x-2 will-change-transform transform-gpu">arrow_forward</span>
-                        </Link>
+                        <svg viewBox="0 0 400 120" className="w-full h-full" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#00e676" stopOpacity="0.3"/>
+                              <stop offset="100%" stopColor="#00e676" stopOpacity="0"/>
+                            </linearGradient>
+                          </defs>
+                          <motion.path 
+                            d="M0,90 C30,85 60,70 100,60 C140,50 160,65 200,45 C240,25 270,35 300,20 C330,10 360,15 400,5"
+                            fill="none" 
+                            stroke="#00e676" 
+                            strokeWidth="2"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ duration: 2, delay: 1.5, ease: 'easeInOut' }}
+                            filter="drop-shadow(0 0 6px rgba(0,230,118,0.4))"
+                          />
+                          <motion.path 
+                            d="M0,90 C30,85 60,70 100,60 C140,50 160,65 200,45 C240,25 270,35 300,20 C330,10 360,15 400,5 L400,120 L0,120 Z"
+                            fill="url(#chartGradient)"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 1, delay: 2.5 }}
+                          />
+                          {[30, 60, 90].map(y => (
+                            <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="white" strokeOpacity="0.03" strokeDasharray="4 4"/>
+                          ))}
+                        </svg>
+                      </motion.div>
+
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.5, duration: 0.8 }}
+                        className="col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col"
+                      >
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Recent Activity</span>
+                        <div className="space-y-2 flex-1">
+                          {[
+                            { title: 'Williams v. TechCorp', status: 'AI Analysis Complete', time: '2m ago', dot: 'bg-primary' },
+                            { title: 'Martinez Settlement', status: 'Document Uploaded', time: '15m ago', dot: 'bg-primary' },
+                            { title: 'Chen IP Dispute', status: 'Deadline Approaching', time: '1h ago', dot: 'bg-amber-500' },
+                            { title: 'Federal Brief #847', status: 'Review Pending', time: '3h ago', dot: 'bg-slate-500' },
+                          ].map((item, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={{ opacity: 0, x: 10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 1.8 + i * 0.15, duration: 0.4 }}
+                              className="flex items-center gap-2 py-1.5 border-b border-white/[0.03] last:border-0"
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${item.dot} ${i === 0 ? 'animate-pulse shadow-[0_0_6px_rgba(0,230,118,0.6)]' : ''}`}></span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-bold text-white truncate">{item.title}</p>
+                                <p className="text-[7px] text-slate-600 font-bold uppercase tracking-wider">{item.status}</p>
+                              </div>
+                              <span className="text-[7px] text-slate-600 font-bold whitespace-nowrap">{item.time}</span>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
                     </div>
                   </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-32 bg-background-dark/50 relative border-y border-white/5 overflow-hidden">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.02]"></div>
-        <div className="container-stitch relative z-10 px-4">
-          <div className="text-center max-w-3xl mx-auto mb-20 text-balance">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 font-display tracking-tight">Trusted Infrastructure for <span className="text-primary">Legal Teams</span></h2>
-            <p className="text-lg text-slate-400 font-medium">Built to meet the rigorous security and compliance standards of modern US law firms.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "SOC2 Type II Ready",
-                desc: "Our systems are designed to comply with rigorous security, availability, and confidentiality standards.",
-                icon: Shield
-              },
-              {
-                title: "HIPAA Compliant",
-                desc: "Secure handling of sensitive client data and health information with full encryption end-to-end.",
-                icon: Shield
-              },
-              {
-                title: "GDPR Aligned",
-                desc: "Strict data privacy controls and sovereignty for international legal professionals and clients.",
-                icon: Shield
-              }
-            ].map((item, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }}
-                viewport={{ once: true }}
-              >
-                <div className="p-10 premium-glass rounded-[2rem] border border-white/5 h-full hover:bg-white/[0.04] transition-all duration-300 group text-balance">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                        <item.icon size={24} />
-                    </div>
-                    <h3 className="text-white font-black text-lg mb-4 uppercase tracking-widest">{item.title}</h3>
-                    <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-32 relative overflow-hidden flex-grow-0">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.03]"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] pointer-events-none"></div>
-        
-        <div className="relative z-10 container-stitch px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0, transition: { duration: 0.6 } }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto premium-glass p-8 sm:p-12 lg:p-16 rounded-2xl lg:rounded-[3rem] border border-white/10 shadow-2xl relative"
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/50">
-                <Zap size={32} fill="currentColor" />
-            </div>
-            <h2 className="text-3xl md:text-6xl font-black text-white mb-8 font-display tracking-tightest leading-tight text-balance">
-                Ready to Upgrade your <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Legal Intelligence?</span>
-            </h2>
-            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-              Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market. Trusted by industry leaders.
-            </p>
-            <Link href="/register">
-              <button className="h-16 px-16 bg-primary text-white font-black rounded-2xl shadow-[0_0_40px_rgba(124,58,237,0.4)] hover:scale-[1.03] hover:bg-primary-hover transition-all duration-150 text-xl uppercase tracking-widest will-change-transform transform-gpu">
-                Get Started Now
-              </button>
-            </Link>
-            <div className="mt-12 flex items-center justify-center gap-6">
-                <div className="flex -space-x-3">
-                    {[1,2,3,4].map(i => (
-                        <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center overflow-hidden">
-                            <Users size={18} className="text-slate-500" />
-                        </div>
-                    ))}
-                </div>
-                <p className="text-[11px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                    Early access for US Law Firms
-                </p>
+              </div>
             </div>
           </motion.div>
-        </div>
-      </section>
+        </section>
+
+
+        <section className="py-24 relative z-10 border-t border-white/5 bg-background-dark/50 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold mb-4 font-display">
+                Professional <span className="text-primary">Infrastructure</span>
+              </h2>
+              <p className="text-slate-400 max-w-2xl">
+                Immediate access to powerful AI tools designed for high-stakes litigation and transactional law.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "AI Document Insights",
+                  desc: "Analyze thousands of pages instantly. AI highlights risks and contradictions in contract law.",
+                  icon: FileText
+                },
+                {
+                  title: "Legal Research Assistant",
+                  desc: "Technical analysis across extensive jurisprudence. Identify precedents with precision and speed.",
+                  icon: Gavel
+                },
+                {
+                  title: "Automated Chronology",
+                  desc: "Auto-extract dates from scattered documents to build complete case timelines instantly.",
+                  icon: Zap
+                }
+              ].map((feature, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="glass-panel p-8 rounded-xl hover:border-primary/50 transition-colors duration-300 group"
+                >
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-background-dark transition-colors duration-300">
+                    <feature.icon size={24} />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+
+        <section className="py-24 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold mb-4 font-display text-white">
+                Trusted by <span className="scalability-gradient">Legal Teams</span>
+              </h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">
+                Built to meet the rigorous security and compliance standards of modern US law firms.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {[
+                { title: "SOC2 Type II Ready", desc: "Rigorous security, availability, and confidentiality standards." },
+                { title: "HIPAA Compliant", desc: "Secure handling of sensitive client data and health information." },
+                { title: "GDPR Aligned", desc: "Strict data privacy controls and sovereignty for international professionals." }
+              ].map((item, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="flex flex-col items-center text-center p-6"
+                >
+                  <Shield className="w-10 h-10 text-primary mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-slate-400 text-sm">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+
+        <section className="py-24 relative z-10 border-t border-white/5">
+          <div className="absolute inset-0 bg-primary/5"></div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-display text-white">
+              Ready to Upgrade your <br/>
+              <span className="text-primary">Legal Intelligence?</span>
+            </h2>
+            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+              Secure your firm&apos;s competitive edge with the most advanced AI case management system on the market.
+            </p>
+            <Link href="/register" className="inline-flex items-center justify-center px-10 py-4 text-base font-bold text-background-dark bg-primary rounded hover:bg-white transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(0,230,118,0.3)]">
+              Get Started Now
+            </Link>
+            
+            <div className="mt-8 flex items-center justify-center gap-2 text-sm text-slate-500">
+              <CheckCircle2 size={16} className="text-primary" />
+              <span>Early access for US Law Firms</span>
+            </div>
+          </div>
+        </section>
+      </main>
     </PublicLayout>
   );
 }

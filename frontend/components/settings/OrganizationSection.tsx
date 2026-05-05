@@ -38,7 +38,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
             className="space-y-8"
         >
             <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
-                <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
                 <div className="p-5 border-b border-white/5 bg-white/[0.02]">
                     <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
                         <Building className="text-primary" size={20} />
@@ -52,7 +52,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                             <div>
                                 <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Firm Access Protocol</h3>
                                 <div className="relative group">
-                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-30 group-focus-within:opacity-100 transition duration-500"></div>
+                                    <div className="absolute -inset-0.5 bg-primary/20 rounded-2xl blur opacity-30 group-focus-within:opacity-100 transition duration-500"></div>
                                     <div className="relative flex items-center bg-black/40 border border-white/10 rounded-2xl p-2 pr-4 transition-all overflow-hidden">
                                         <input
                                             type={showFirmCode ? "text" : "password"}
@@ -75,7 +75,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                                                         toast.success('Firm Code copied to vault');
                                                     }
                                                 }}
-                                                className="p-3 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-xl transition-all"
+                                                className="p-3 bg-primary/20 text-primary hover:bg-primary hover:text-background-dark rounded-xl transition-all"
                                                 title="Copy Code"
                                             >
                                                 <Copy size={18} />
@@ -102,14 +102,14 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                                             {orgData?.totalSeats > orgData?.usedSeats && (
                                                 <button
                                                     onClick={onDowngradeCapacity}
-                                                    className="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+                                                    className="px-3 py-1 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all"
                                                 >
                                                     Downgrade
                                                 </button>
                                             )}
                                             <button
                                                 onClick={onIncreaseCapacity}
-                                                className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                                                className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-primary hover:text-background-dark transition-all"
                                             >
                                                 Increase
                                             </button>
@@ -119,7 +119,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${((orgData?.usedSeats || 0) / (orgData?.totalSeats || 1)) * 100}%` }}
-                                            className="bg-primary h-full rounded-full shadow-[0_0_20px_rgba(37,99,235,0.6)]"
+                                            className="bg-primary h-full rounded-full shadow-[0_0_20px_rgba(0,230,118,0.6)]"
                                         />
                                     </div>
                                     <div className="flex justify-between text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">
@@ -193,7 +193,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                                                 {member._id !== currentUserId && (
                                                     <button
                                                         onClick={() => onRemoveMember(member._id)}
-                                                        className="p-2 text-slate-600 hover:text-red-500 transition-colors"
+                                                        className="p-2 text-slate-600 hover:text-rose-500 transition-colors"
                                                     >
                                                         <span className="material-icons-round text-lg">person_remove</span>
                                                     </button>
@@ -206,10 +206,10 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-red-500/10 space-y-4">
+                    <div className="pt-6 border-t border-rose-500/10 space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Danger Zone</h3>
+                                <h3 className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Danger Zone</h3>
                                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">Cancel your firm&apos;s enterprise subscription</p>
                             </div>
                             <button
@@ -218,7 +218,7 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                                     (orgData?.willCancelAtPeriodEnd || orgData?.status === 'canceled')
                                     ? 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-50' 
-                                    : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-red-500/20 shadow-lg shadow-red-500/5'
+                                    : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-rose-500/20 shadow-lg shadow-rose-500/5'
                                 }`}
                             >
                                 {orgData?.willCancelAtPeriodEnd || orgData?.status === 'canceled' ? 'Subscription Canceled' : 'Cancel Subscription'}

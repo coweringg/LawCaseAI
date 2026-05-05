@@ -41,7 +41,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, formatDate } from '@/utils/helpers'
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
+const COLORS = ['#00e676', '#05c46b', '#0be881', '#00d8d6'];
 
 interface TreasuryData {
   kpi: {
@@ -130,19 +130,19 @@ export default function TreasuryDashboard() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]"></div>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Financial Authorization: Alpha-Two</span>
             </div>
             <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic bg-gradient-to-r from-white via-white to-white/20 bg-clip-text text-transparent">
               Treasury Vault
             </h1>
             <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
-              <ShieldCheck size={14} className="text-success-500" /> Real-time Revenue Matrix & Institutional Liquidity
+              <ShieldCheck size={14} className="text-primary" /> Real-time Revenue Matrix & Institutional Liquidity
             </p>
           </div>
 
@@ -153,7 +153,7 @@ export default function TreasuryDashboard() {
                 disabled={isExporting}
                 className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/5 transition-all flex items-center gap-3 disabled:opacity-50"
              >
-                {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} className="text-success-500" />}
+                {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} className="text-primary" />}
                 {isExporting ? 'Exporting...' : 'Export Ledger .CSV'}
              </Button>
           </div>
@@ -165,9 +165,9 @@ export default function TreasuryDashboard() {
                 label: 'Total Net Revenue', 
                 value: `$${data.kpi.totalRevenue.toLocaleString()}`, 
                 icon: DollarSign, 
-                color: 'text-success-500', 
-                bg: 'bg-success-500/5', 
-                border: 'border-success-500/20' 
+                color: 'text-primary', 
+                bg: 'bg-primary/5', 
+                border: 'border-primary/20' 
             },
             { 
                 label: range === 'week' ? 'Weekly Revenue' : range === 'month' ? 'Monthly Revenue (MRR)' : range === 'year' ? 'Yearly Revenue' : 'Total Filtered Revenue', 
@@ -182,9 +182,9 @@ export default function TreasuryDashboard() {
                 label: 'Active Institutional Subscriptions', 
                 value: data.planDistribution.reduce((acc: number, curr) => acc + curr.count, 0), 
                 icon: CreditCard, 
-                color: 'text-secondary', 
-                bg: 'bg-secondary/5', 
-                border: 'border-secondary/20' 
+                color: 'text-primary', 
+                bg: 'bg-primary/5', 
+                border: 'border-primary/20' 
             }
           ].map((kpi, i) => (
             <motion.div
@@ -205,7 +205,7 @@ export default function TreasuryDashboard() {
               </div>
               {kpi.meta && (
                 <div className="mt-4 flex items-center gap-2">
-                  <div className="px-2 py-0.5 bg-success-500/20 rounded-md text-[9px] font-black text-success-500 uppercase tracking-widest">
+                  <div className="px-2 py-0.5 bg-primary/20 rounded-md text-[9px] font-black text-primary uppercase tracking-widest">
                     {kpi.meta}
                   </div>
                 </div>
@@ -220,11 +220,11 @@ export default function TreasuryDashboard() {
             animate={{ opacity: 1, scale: 1 }}
             className="lg:col-span-2"
           >
-            <Card variant="glass" className="premium-glass border-white/10 shadow-2xl h-[500px] rounded-[3rem] p-4 flex flex-col overflow-hidden">
+            <Card variant="none" className="premium-glass border border-white/10 shadow-2xl h-[500px] rounded-[3rem] p-4 flex flex-col overflow-hidden">
                <div className="p-8 border-b border-white/5 flex items-center justify-between">
                  <div className="flex items-center gap-4">
-                   <div className="p-3 bg-success-500/10 rounded-xl border border-success-500/20">
-                     <Activity size={20} className="text-success-500" />
+                   <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                     <Activity size={20} className="text-primary" />
                    </div>
                    <div>
                      <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">Revenue Stream Analysis</h3>
@@ -239,7 +239,7 @@ export default function TreasuryDashboard() {
                         className={cn(
                           "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all",
                           range === r 
-                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                            ? "bg-primary text-background-dark shadow-lg shadow-primary/20" 
                             : "text-slate-500 hover:text-white"
                         )}
                       >
@@ -253,8 +253,8 @@ export default function TreasuryDashboard() {
                    <BarChart data={data.revenueTrend}>
                      <defs>
                        <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
-                         <stop offset="100%" stopColor="#10b981" stopOpacity={0.2}/>
+                         <stop offset="0%" stopColor="#00e676" stopOpacity={0.8}/>
+                         <stop offset="100%" stopColor="#00e676" stopOpacity={0.2}/>
                        </linearGradient>
                      </defs>
                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
@@ -279,7 +279,7 @@ export default function TreasuryDashboard() {
                      />
                      <RechartsTooltip 
                         contentStyle={{ backgroundColor: 'rgba(0,0,0,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
-                        itemStyle={{ color: '#10b981', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                        itemStyle={{ color: '#00e676', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                         labelStyle={{ color: '#64748b', fontSize: '10px', fontWeight: '900', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.2em' }}
                         cursor={{fill: 'rgba(255,255,255,0.03)'}}
                      />
@@ -301,10 +301,10 @@ export default function TreasuryDashboard() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-1"
           >
-             <Card variant="glass" className="premium-glass border-white/10 shadow-2xl h-[500px] rounded-[3rem] p-4 flex flex-col overflow-hidden group">
+             <Card variant="none" className="premium-glass border border-white/10 shadow-2xl h-[500px] rounded-[3rem] p-4 flex flex-col overflow-hidden group">
                 <div className="p-8 border-b border-white/5">
                    <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                     <Layers className="w-5 h-5 text-indigo-500" />
+                     <Layers className="w-5 h-5 text-primary" />
                      Network Tier Mix
                    </h3>
                 </div>
@@ -326,7 +326,7 @@ export default function TreasuryDashboard() {
                         </Pie>
                         <RechartsTooltip 
                            contentStyle={{ backgroundColor: 'rgba(0,0,0,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '15px' }}
-                           itemStyle={{ color: '#fff', fontSize: '11px', fontWeight: 'bold' }}
+                           itemStyle={{ color: '#00e676', fontSize: '11px', fontWeight: 'bold' }}
                         />
                      </PieChart>
                    </ResponsiveContainer>

@@ -20,8 +20,8 @@ export function AdminStatsCards({ stats }: AdminStatsCardsProps) {
 
   const statItems = [
     { label: 'Total Network Users', value: stats.totalUsers, icon: Users, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' },
-    { label: 'Active Logic Streams', value: stats.activeUsers, icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-500/5', border: 'border-emerald-500/20' },
-    { label: 'Repository Entities', value: stats.totalCases, icon: Database, color: 'text-secondary', bg: 'bg-secondary/5', border: 'border-secondary/20' }
+    { label: 'Active Logic Streams', value: stats.activeUsers, icon: Activity, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' },
+    { label: 'Repository Entities', value: stats.totalCases, icon: Database, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' }
   ]
 
   return (

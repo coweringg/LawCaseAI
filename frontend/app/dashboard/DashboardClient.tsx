@@ -127,7 +127,7 @@ function DashboardContent() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]';
+      case 'critical': return 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]';
       case 'high': return 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]';
       case 'medium': return 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]';
       case 'low': return 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]';
@@ -137,7 +137,7 @@ function DashboardContent() {
 
   const getPriorityBadgeStyles = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      case 'critical': return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
       case 'high': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
       case 'medium': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
       case 'low': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
@@ -174,11 +174,11 @@ function DashboardContent() {
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-blue-500/40 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-violet-400/40 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
+                <div className="w-12 h-12 bg-violet-400/10 text-violet-400 rounded-2xl flex items-center justify-center group-hover:bg-violet-400 group-hover:text-background-dark transition-all duration-200 shadow-inner border border-white/5">
                   <Briefcase size={22} />
                 </div>
                 <span className="text-[9px] font-black text-slate-400 border border-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest bg-white/5 backdrop-blur-md">
@@ -200,7 +200,7 @@ function DashboardContent() {
                       initial={{ width: 0 }}
                       animate={{ width: `${dashboardData?.cases?.usagePercentage || 0}%` }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="bg-gradient-to-r from-primary via-blue-500 to-indigo-500 h-full rounded-full shadow-[0_0_15px_rgba(10,68,184,0.5)]"
+                      className="bg-violet-400 h-full rounded-full shadow-[0_0_15px_rgba(167,139,250,0.5)]"
                     ></motion.div>
                   </div>
                 )}
@@ -208,11 +208,11 @@ function DashboardContent() {
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-amber-500/40 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-sky-400/40 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
+                <div className="w-12 h-12 bg-sky-400/10 text-sky-400 rounded-2xl flex items-center justify-center group-hover:bg-sky-400 group-hover:text-background-dark transition-all duration-200 shadow-inner border border-white/5">
                   <AlertCircle size={22} />
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
@@ -227,11 +227,11 @@ function DashboardContent() {
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-indigo-500/40 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <motion.div variants={itemVariants} className="premium-glass p-5 lg:p-7 rounded-2xl lg:rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-200 hover:border-amber-400/40 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-200 shadow-inner border border-white/5">
+                <div className="w-12 h-12 bg-amber-400/10 text-amber-400 rounded-2xl flex items-center justify-center group-hover:bg-amber-400 group-hover:text-background-dark transition-all duration-200 shadow-inner border border-white/5">
                   <Gavel size={22} />
                 </div>
               </div>
@@ -251,7 +251,7 @@ function DashboardContent() {
                   <h3 className="text-lg lg:text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
                   <p className="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
                 </div>
-                <Link href="/cases" className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] lg:text-[10px] font-black text-primary uppercase tracking-widest transition-all border border-white/5">
+                <Link href="/cases" className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] lg:text-[10px] font-black text-sky-400 uppercase tracking-widest transition-all border border-white/5">
                   Terminal View
                   <span className="material-icons-round text-xs lg:text-sm">open_in_new</span>
                 </Link>
@@ -282,7 +282,7 @@ function DashboardContent() {
                         >
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <div className="flex items-center gap-3 lg:gap-5">
-                              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-base lg:text-lg shadow-xl shadow-primary/20 border border-white/20 uppercase transform group-hover:rotate-6 transition-transform duration-200 shrink-0">
+                              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-white/[0.03] flex items-center justify-center text-white font-black text-base lg:text-lg shadow-xl border border-white/[0.08] uppercase transform group-hover:scale-105 group-hover:border-primary/40 transition-all duration-200 shrink-0">
                                 {c.name.substring(0, 2)}
                               </div>
                               <div className="min-w-0">
@@ -297,8 +297,8 @@ function DashboardContent() {
                             </span>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6 whitespace-nowrap">
-                            <div className="flex items-center gap-2 text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                              <Sparkles size={12} className="text-primary animate-pulse" />
+                            <div className="flex items-center gap-2 text-[8px] lg:text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
+                              <Sparkles size={12} className="text-sky-400 animate-pulse" />
                               <span className="hidden sm:inline">{c.fileCount > 0 ? 'Analysis Active' : 'Waiting Layer'}</span>
                             </div>
                           </td>
@@ -322,10 +322,10 @@ function DashboardContent() {
           </motion.div>
 
           <div className="space-y-8">
-            <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl p-8 transition-all hover:border-red-500/30 group backdrop-blur-3xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.02] to-transparent pointer-events-none" />
+            <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl p-8 transition-all hover:border-rose-500/30 group backdrop-blur-3xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/[0.02] to-transparent pointer-events-none" />
               <h3 className="text-[10px] font-black text-white mb-8 uppercase tracking-[0.3em] flex items-center gap-3 relative z-10">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,1)]" />
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,1)]" />
                 Critical Vectors
               </h3>
               <div className="space-y-4">
@@ -373,38 +373,39 @@ function DashboardContent() {
               </Link>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="bg-gradient-to-br from-[#0a44b8] via-[#0d6efd] to-[#4f46e5] rounded-[2rem] p-8 text-white shadow-[0_20px_50px_rgba(10,68,184,0.3)] relative overflow-hidden group border border-white/20">
-              <div className="absolute inset-0 crystallography-pattern opacity-[0.15] scale-150 rotate-12 z-0"></div>
+            <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group border border-white/10 backdrop-blur-3xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 micro-grid opacity-20 z-0 pointer-events-none"></div>
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-xl flex items-center justify-center border border-white/10">
-                    <span className="material-icons-round text-white text-2xl">psychology</span>
+                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl backdrop-blur-xl flex items-center justify-center border border-white/5">
+                    <span className="material-icons-round text-2xl">psychology</span>
                   </div>
                   <div>
-                      <h4 className="font-black text-[10px] tracking-[0.3em] uppercase opacity-90">Cognitive Neural Core</h4>
-                      <p className="text-[9px] text-white/60 font-black uppercase mt-1">Status: Operational</p>
+                      <h4 className="font-black text-[10px] tracking-[0.3em] uppercase text-slate-400">Cognitive Neural Core</h4>
+                      <p className="text-[9px] text-primary font-black uppercase mt-1">Status: Operational</p>
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <p className="text-[13px] text-blue-50 leading-relaxed font-medium opacity-90">
+                  <p className="text-[13px] text-slate-300 leading-relaxed font-bold">
                     {(dashboardData?.documents?.total || 0) > 0
                       ? `Neural engine has indexed ${dashboardData!.documents.total} intelligence units. Semantic cross-reference matrix is live.`
                       : "System idle. Inject case documentation to initialize the neural processing layer and execute immediate analytics."}
                   </p>
                   <div className="pt-2">
                     <motion.button
-                      whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.2)", transition: { duration: 0.15 } }}
+                      whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setIsAuditModalOpen(true)}
-                      className="w-full py-3.5 bg-white text-primary text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-50 transition-all shadow-xl"
+                      className="w-full py-3.5 bg-primary text-background-dark text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:shadow-[0_0_25px_rgba(0,230,118,0.4)] transition-all"
                     >
                       Deep Audit Command
                     </motion.button>
                   </div>
                 </div>
               </div>
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-              <div className="absolute -left-12 -bottom-12 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl"></div>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute -left-12 -bottom-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
             </motion.div>
           </div>
         </div>
@@ -421,7 +422,7 @@ function DashboardContent() {
 export default function DashboardClient() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
         <Loader2 className="animate-spin text-primary h-12 w-12" />
       </div>
     }>

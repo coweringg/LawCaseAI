@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function NotesPage() {
   return (
     <Suspense fallback={
-      <div className="flex justify-center items-center h-screen bg-[#05060a]">
+      <div className="flex justify-center items-center h-screen bg-background-dark">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />
       </div>
     }>

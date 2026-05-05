@@ -76,20 +76,20 @@ export default function PricingClient() {
           >
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 font-display leading-tight tracking-tightest text-balance">
               Invest in your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Firm&apos;s Future</span>
+              <span className="text-primary">Firm&apos;s Future</span>
             </h1>
 
             <div className="flex justify-center mb-16">
               <div className="premium-glass p-2 rounded-2xl border border-white/10 flex gap-2">
                 <button
                   onClick={() => setPricingType('personal')}
-                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'personal' ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.4)]' : 'text-slate-500 hover:text-slate-300'}`}
+                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'personal' ? 'bg-primary text-background-dark shadow-[0_0_30px_rgba(0,230,118,0.4)]' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   Personal Firm
                 </button>
                 <button
                   onClick={() => setPricingType('empresa')}
-                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'empresa' ? 'bg-primary text-white shadow-[0_0_30px_rgba(10,68,184,0.4)]' : 'text-slate-500 hover:text-white'}`}
+                  className={`px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${pricingType === 'empresa' ? 'bg-primary text-background-dark shadow-[0_0_30px_rgba(0,230,118,0.4)]' : 'text-slate-500 hover:text-white'}`}
                 >
                   Business Firm
                 </button>
@@ -180,9 +180,9 @@ export default function PricingClient() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="premium-glass rounded-[2.5rem] border-2 border-primary/50 p-10 text-left shadow-[0_0_80px_-20px_rgba(10,68,184,0.4)] relative transform md:-translate-y-8 group"
+                className="premium-glass rounded-[2.5rem] border-2 border-primary/50 p-10 text-left shadow-[0_0_80px_-20px_rgba(0,230,118,0.4)] relative transform md:-translate-y-8 group"
               >
-                <div className="absolute top-0 right-10 bg-primary text-white text-[10px] font-black px-6 py-2 rounded-b-xl uppercase tracking-[0.2em] shadow-lg">Recommended</div>
+                <div className="absolute top-0 right-10 bg-primary text-background-dark text-[10px] font-black px-6 py-2 rounded-b-xl uppercase tracking-[0.2em] shadow-lg">Recommended</div>
                 <div className="mb-8">
                   <h3 className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-4">Professional</h3>
                   <div className="flex items-baseline gap-2 mb-2">
@@ -212,7 +212,7 @@ export default function PricingClient() {
                 </ul>
                 <Link 
                   href="/register?plan=professional"
-                  className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-xl shadow-primary/30 transition-all text-center block"
+                  className="w-full py-4 bg-primary text-background-dark rounded-xl font-bold hover:bg-primary-hover shadow-xl shadow-primary/30 transition-all text-center block"
                 >
                   Go Professional
                 </Link>
@@ -225,7 +225,7 @@ export default function PricingClient() {
                 className="bg-white/5 premium-border rounded-[2.5rem] border border-white/5 p-10 text-left hover:bg-white/[0.08] transition-all duration-500"
               >
                 <div className="mb-8">
-                  <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Elite</h3>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-4">Elite</h3>
                   <div className="flex items-baseline gap-2 mb-2">
                     {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 240 * 12 : 300) && (
                       <span className="text-3xl font-bold text-slate-500 line-through mr-2">${billingInterval === 'annual' ? '240' : '300'}</span>
@@ -241,9 +241,9 @@ export default function PricingClient() {
                     </div>
                   )}
                   {user?.plan && user.plan !== 'none' && currentPlanCost < (billingInterval === 'annual' ? 240 * 12 : 300) && (
-                    <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1 mb-3">Upgrade Proration Applied</div>
+                    <div className="text-[10px] font-black text-white uppercase tracking-widest mt-1 mb-3">Upgrade Proration Applied</div>
                   )}
-                  <div className="text-[11px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <div className="text-[11px] font-black text-white/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                     <span className="text-2xl">∞</span> Active Matters
                   </div>
                 </div>
@@ -256,7 +256,7 @@ export default function PricingClient() {
                 </ul>
                 <Link 
                   href="/register?plan=elite"
-                  className="w-full py-4 bg-emerald-500 text-white rounded-xl font-bold shadow-xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-center block"
+                  className="w-full py-4 bg-white text-background-dark rounded-xl font-bold shadow-xl shadow-white/20 hover:bg-slate-200 transition-all text-center block"
                 >
                   Select Elite
                 </Link>
@@ -335,7 +335,7 @@ export default function PricingClient() {
                     
                     <Link 
                       href={`/register?plan=elite&seats=${seats}&type=empresa`}
-                      className="w-full py-5 bg-primary text-white text-sm font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-all mb-4 text-center block"
+                      className="w-full py-5 bg-white text-background-dark text-sm font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-white/30 hover:scale-[1.02] transition-all mb-4 text-center block"
                     >
                       Get Firm Code
                     </Link>
@@ -380,7 +380,7 @@ export default function PricingClient() {
             <div className="grid md:grid-cols-3 gap-6 relative z-10">
               {[
                 { label: "Manual Analysis", val: "14 Hours", color: "text-slate-500", icon: "🔴" },
-                { label: "LawCaseAI", val: "12 Seconds", color: "text-emerald-400", icon: "⚡" },
+                { label: "LawCaseAI", val: "12 Seconds", color: "text-primary", icon: "⚡" },
                 { label: "Your ROI", val: "11,600%", color: "text-primary font-black", icon: "📈" }
               ].map((stat, idx) => (
                 <div key={idx} className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/5">
@@ -399,7 +399,7 @@ export default function PricingClient() {
         </div>
       </section>
 
-      <section className="py-24 bg-white dark:bg-[#0a0f18] border-b border-white/5">
+      <section className="py-24 bg-background-dark/50 border-b border-white/5">
         <div className="container-stitch px-4">
           <div className="grid md:grid-cols-4 gap-8">
             {[

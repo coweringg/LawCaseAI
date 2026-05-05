@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Bell, Headphones, CheckCircle, Clock, RotateCcw, Trash2, Filter, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Table } from '@/components/ui/Table'
+import { Select } from '@/components/ui/Select'
 import { formatDate, cn } from '@/utils/helpers'
 
 interface SupportRequest {
@@ -49,7 +50,7 @@ export function AdminSupportRequests({
         <div className="flex flex-col">
           <span className="text-white font-bold tracking-tight">{v}</span>
           <span className="text-[10px] text-slate-500 font-medium">{item.userEmail}</span>
-          {item.lawFirm && <span className="text-[9px] text-indigo-400 font-black uppercase tracking-widest mt-0.5">{item.lawFirm}</span>}
+          {item.lawFirm && <span className="text-[9px] text-primary font-black uppercase tracking-widest mt-0.5">{item.lawFirm}</span>}
         </div>
       )
     },
@@ -74,7 +75,7 @@ export function AdminSupportRequests({
         return (
           <span className={cn(
             "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
-            v === 'system_error' ? "bg-error-500/20 text-error-500" : "bg-emerald-500/20 text-emerald-400"
+            v === 'system_error' ? "bg-error-500/20 text-error-500" : "bg-primary/20 text-primary"
           )}>
             {v === 'system_error' ? 'System Error' : 'Feature Uplink'}
           </span>
@@ -97,7 +98,7 @@ export function AdminSupportRequests({
       render: (v: string) => (
         <span className={cn(
           "inline-flex items-center px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full",
-          v === 'resolved' ? "bg-success-500/20 text-success-500" : "bg-warning-500/20 text-warning-500"
+          v === 'resolved' ? "bg-primary/20 text-primary" : "bg-warning-500/20 text-warning-500"
         )}>
           {v === 'resolved' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
           {v}
@@ -125,7 +126,7 @@ export function AdminSupportRequests({
               variant="ghost"
               size="sm"
               onClick={() => handleResolveSupport(item._id)}
-              className="text-success-500 hover:text-white bg-success-500/10 hover:bg-success-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-success-500/20"
+              className="text-primary hover:text-background-dark bg-primary/10 hover:bg-primary font-bold uppercase text-[10px] tracking-widest px-3 border border-primary/20"
             >
               Resolve
             </Button>
@@ -165,7 +166,7 @@ export function AdminSupportRequests({
             className={cn(
               "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
               signalSubTab === 'public'
-                ? "bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10"
+                ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
                 : "text-slate-500 hover:text-slate-300"
             )}
           >
@@ -209,10 +210,10 @@ export function AdminSupportRequests({
             <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 gap-1.5 flex-wrap">
               {[
                 { id: '', label: 'All', activeClass: 'bg-slate-500/20 text-slate-300 border border-slate-500/20 shadow-lg' },
-                { id: 'Login Error', label: 'Login Error', activeClass: 'bg-orange-500/20 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/10' },
-                { id: 'Forgot Password', label: 'Forgot Password', activeClass: 'bg-violet-500/20 text-violet-400 border border-violet-500/20 shadow-lg shadow-violet-500/10' },
-                { id: 'Account Locked', label: 'Account Locked', activeClass: 'bg-rose-500/20 text-rose-400 border border-rose-500/20 shadow-lg shadow-rose-500/10' },
-                { id: 'Other Issue', label: 'Other Issue', activeClass: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 shadow-lg shadow-cyan-500/10' }
+                { id: 'Login Error', label: 'Login Error', activeClass: 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' },
+                { id: 'Forgot Password', label: 'Forgot Password', activeClass: 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' },
+                { id: 'Account Locked', label: 'Account Locked', activeClass: 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' },
+                { id: 'Other Issue', label: 'Other Issue', activeClass: 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' }
               ].map(s => (
                 <button
                   key={s.id}
@@ -233,22 +234,20 @@ export function AdminSupportRequests({
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative group">
-                <select
+              <div className="relative group w-48">
+                <Select
                   value={supportStatusFilter}
-                  onChange={(e) => {
-                    setSupportStatusFilter(e.target.value)
+                  onChange={(val) => {
+                    setSupportStatusFilter(val)
                     setSupportPage(1)
                   }}
-                  className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
-                >
-                  <option value="" className="bg-slate-900">All Nodes</option>
-                  <option value="pending" className="bg-slate-900">Pending</option>
-                  <option value="resolved" className="bg-slate-900">Resolved</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
-                  <Filter size={12} />
-                </div>
+                  icon={<Filter size={14} />}
+                  options={[
+                    { value: '', label: 'All Nodes' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'resolved', label: 'Resolved' }
+                  ]}
+                />
               </div>
 
               <motion.button
@@ -324,7 +323,7 @@ export function AdminSupportRequests({
               {[
                 { id: 'all', label: 'All', activeClass: 'bg-slate-500/20 text-slate-300 border border-slate-500/20 shadow-lg' },
                 { id: 'system_error', label: 'System Errors', activeClass: 'bg-error-500/20 text-error-500 border border-error-500/20 shadow-lg shadow-error-500/10' },
-                { id: 'feature_uplink', label: 'Feature Uplinks', activeClass: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' }
+                { id: 'feature_uplink', label: 'Feature Uplinks', activeClass: 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' }
               ].map(sType => (
                 <button
                   key={sType.id}
@@ -345,22 +344,20 @@ export function AdminSupportRequests({
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative group">
-                <select
+              <div className="relative group w-48">
+                <Select
                   value={supportStatusFilter}
-                  onChange={(e) => {
-                    setSupportStatusFilter(e.target.value)
+                  onChange={(val) => {
+                    setSupportStatusFilter(val)
                     setSupportPage(1)
                   }}
-                  className="bg-white/[0.02] border border-white/10 rounded-xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none"
-                >
-                  <option value="" className="bg-slate-900">All Nodes</option>
-                  <option value="pending" className="bg-slate-900">Pending</option>
-                  <option value="resolved" className="bg-slate-900">Resolved</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
-                  <Filter size={12} />
-                </div>
+                  icon={<Filter size={14} />}
+                  options={[
+                    { value: '', label: 'All Nodes' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'resolved', label: 'Resolved' }
+                  ]}
+                />
               </div>
 
               <motion.button

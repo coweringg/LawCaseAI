@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Gavel } from 'lucide-react';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 import { usePathname } from 'next/navigation';
 
 interface FooterProps {
@@ -21,7 +21,7 @@ export default function Footer({ variant = 'public' }: FooterProps) {
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="flex flex-col items-center md:items-start gap-4">
                         <div className="flex items-center gap-2 opacity-50">
-                            <Gavel size={16} />
+                            <MonolithLogo size={18} glowIntensity="sm" />
                             <span className="font-bold tracking-tight">LawCaseAI</span>
                         </div>
                         <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest text-balance text-center md:text-left">
@@ -44,10 +44,8 @@ export default function Footer({ variant = 'public' }: FooterProps) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-6 gap-x-8 mb-8">
                     <div className="col-span-2 lg:col-span-2">
-                        <Link href="/" className="flex items-center gap-2 mb-2 group">
-                            <div className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
-                                <span className="material-icons-round text-xl leading-none">gavel</span>
-                            </div>
+                        <Link href="/" className="flex items-center gap-2.5 mb-2 group">
+                            <MonolithLogo size={32} className="group-hover:scale-110 transition-transform duration-300" />
                             <span className="text-xl font-bold text-white tracking-tight group-hover:text-primary transition-colors">LawCaseAI</span>
                         </Link>
                         <p className="mb-4 text-sm max-w-xs">

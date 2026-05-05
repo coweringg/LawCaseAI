@@ -22,14 +22,14 @@ interface BillingSectionProps {
 
 const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     const doc = new jsPDF();
-    const primaryColor = '#2563eb';
-    const secondaryColor = '#4f46e5';
-    const accentColor = '#0ea5e9';
+    const primaryColor = '#00e676';
+    const secondaryColor = '#00c853';
+    const accentColor = '#00e676';
     const textColor = '#1e293b';
     const slateColor = '#64748b';
     const white = '#ffffff';
 
-    doc.setFillColor(37, 99, 235);
+    doc.setFillColor(0, 230, 118);
     doc.rect(0, 0, 210, 60, 'F');
 
     doc.setTextColor(255, 255, 255);
@@ -117,7 +117,7 @@ const generateInvoicePDF = (tx: any, billingInfo: any, orgData: any) => {
     doc.text(`$${tx.amount.toLocaleString()}`, 170, 170);
     doc.text(`$0.00`, 170, 178);
 
-    doc.setFillColor(37, 99, 235);
+    doc.setFillColor(0, 230, 118);
     doc.roundedRect(summaryX - 5, 185, 65, 15, 2, 2, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
@@ -251,7 +251,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             setIsVerifying(false);
                         }
                     }}
-                    className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-3 group"
+                    className="w-full py-5 bg-primary text-background-dark font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-3 group"
                 >
                     {isVerifying ? (
                         <>
@@ -279,7 +279,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                         AES-256 Encrypted
                     </div>
                     <div className="flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-widest">
-                        <CheckCircle2 size={10} className="text-emerald-500" />
+                        <CheckCircle2 size={10} className="text-primary" />
                         PCI-DSS Level 1
                     </div>
                 </div>
@@ -294,11 +294,11 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden group shadow-[0_0_50px_-10px_rgba(37,99,235,0.3)]"
+                    className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden group shadow-[0_0_50px_-10px_rgba(0,230,118,0.3)]"
                 >
-                    <div className="absolute top-0 right-10 bg-primary text-white text-[9px] font-black px-5 py-2 rounded-b-xl uppercase tracking-widest shadow-lg">Special Offer</div>
+                    <div className="absolute top-0 right-10 bg-primary text-background-dark text-[9px] font-black px-5 py-2 rounded-b-xl uppercase tracking-widest shadow-lg">Special Offer</div>
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-3 group-hover:rotate-0 transition-transform duration-500 shrink-0">
+                        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-background-dark shadow-2xl shadow-primary/40 rotate-3 group-hover:rotate-0 transition-transform duration-500 shrink-0">
                             <Zap size={40} fill="currentColor" />
                         </div>
                         <div className="flex-1 text-center md:text-left">
@@ -327,7 +327,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowTrialMock(true)}
-                                className="px-10 py-5 bg-white text-primary font-black rounded-2xl shadow-2xl hover:bg-slate-50 transition-all text-xs uppercase tracking-[0.2em] flex items-center gap-3"
+                                className="px-10 py-5 bg-white text-background-dark font-black rounded-2xl shadow-2xl hover:bg-slate-50 transition-all text-xs uppercase tracking-[0.2em] flex items-center gap-3"
                             >
                                 Start Evaluation
                                 <ArrowRight size={16} />
@@ -353,7 +353,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                                             billingInfo?.plan === 'trial' ? 'Free Evaluation' :
                                                                 billingInfo?.plan || 'Loading...'} System
                                     </h2>
-                                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
+                                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${billingInfo?.plan === 'none' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-primary/20 text-primary border-primary/30'}`}>
                                         {billingInfo?.plan === 'none' ? 'Infrastructure Inactive' : 'Active'}
                                     </span>
                                     {billingInfo?.interval === 'annual' && (
@@ -406,7 +406,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${billingInfo?.planUsagePercentage || 0}%` }}
-                                            className="bg-primary h-full rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
+                                            className="bg-primary h-full rounded-full shadow-[0_0_15px_rgba(0,230,118,0.5)]"
                                         />
                                     </div>
                                 )}
@@ -436,7 +436,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                 whileTap={{ scale: 0.98 }}
                                 onClick={onUpgradePlan}
                                 disabled={billingInfo?.plan === 'elite' || billingInfo?.plan === 'enterprise'}
-                                className="px-8 py-3 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50"
+                                className="px-8 py-3 bg-primary text-background-dark text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50"
                             >
                                 {billingInfo?.plan === 'elite' ? 'Max Tier Active' :
                                     billingInfo?.plan === 'enterprise' ? 'Enterprise Locked' :
@@ -451,7 +451,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                     className={`text-[10px] font-black uppercase tracking-widest transition-all ${
                                         user?.willCancelAtPeriodEnd || orgData?.willCancelAtPeriodEnd
                                         ? 'text-slate-600 cursor-not-allowed'
-                                        : 'text-slate-500 hover:text-red-500'
+                                        : 'text-slate-500 hover:text-rose-500'
                                     }`}
                                 >
                                     {user?.willCancelAtPeriodEnd || orgData?.willCancelAtPeriodEnd ? 'Cancellation Pending' : 'Cancel Subscription'}
@@ -462,7 +462,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                 </div>
 
                 <div className="glass-dark border border-white/10 rounded-[32px] p-8 flex flex-col h-full relative overflow-hidden">
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                    <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
                     <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-8 relative z-10">Vault Keys</h3>
                     <div className="space-y-6 flex-1 relative z-10">
                         {billingInfo?.paymentMethods?.map((pm: any) => (
@@ -478,7 +478,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                     <div className="flex items-center gap-2">
                                         <p className="text-xs font-black text-white tracking-widest truncate">•••• {pm.last4}</p>
                                         {billingInfo.defaultPaymentMethodId === pm.id && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_rgba(37,99,235,1)]" />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_rgba(0,230,118,1)]" />
                                         )}
                                     </div>
                                     <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">Exp {pm.expiryMonth}/{pm.expiryYear}</p>
@@ -494,7 +494,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                     )}
                                     <button
                                         onClick={() => onRemoveCard(pm.id)}
-                                        className="p-2 text-slate-600 hover:text-red-500 transition-colors"
+                                        className="p-2 text-slate-600 hover:text-rose-500 transition-colors"
                                     >
                                         <span className="material-icons-round text-lg">delete_outline</span>
                                     </button>
@@ -558,7 +558,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-500/20">
+                                            <span className="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/20">
                                                 {item.status}
                                             </span>
                                         </td>

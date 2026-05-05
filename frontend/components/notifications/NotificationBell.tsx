@@ -134,7 +134,7 @@ export default function NotificationBell() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-500 bg-red-500/10'
+      case 'high': return 'text-rose-500 bg-rose-500/10'
       case 'medium': return 'text-amber-500 bg-amber-500/10'
       default: return 'text-blue-500 bg-blue-500/10'
     }
@@ -269,35 +269,38 @@ export default function NotificationBell() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsConfirmModalOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl pointer-events-auto"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-[#0a0c14] border border-white/10 rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden z-[100000]"
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className="relative w-full max-w-md bg-[#0c0c12] border border-white/10 p-10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] text-center overflow-hidden z-[100000]"
             >
-              <div className="p-8 text-center text-white">
-                <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 mx-auto mb-6">
-                  <AlertTriangle className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-black uppercase tracking-tight mb-2">Clear notifications?</h3>
-                <p className="text-xs text-slate-500 font-bold leading-relaxed uppercase tracking-tighter">
-                  This action will permanently delete all logs from your activity center. This cannot be undone.
-                </p>
+              <div className="absolute inset-0 micro-grid opacity-[0.1] pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent pointer-events-none"></div>
+
+              <div className="w-20 h-20 rounded-[2rem] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mx-auto mb-8 shadow-2xl relative z-10">
+                <AlertTriangle className="w-8 h-8" />
               </div>
-              <div className="p-4 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setIsConfirmModalOpen(false)}
-                  className="py-4 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-white hover:bg-white/5 transition-all outline-none"
-                >
-                  Cancel
-                </button>
+
+              <h3 className="text-2xl font-black text-white uppercase tracking-tightest leading-none mb-4 relative z-10">Purge Activity Logs?</h3>
+              <p className="text-[13px] text-slate-400 font-bold uppercase tracking-wider leading-relaxed mb-10 relative z-10 opacity-80">
+                This action will permanently delete all logs from your activity center. This movement is irreversible.
+              </p>
+
+              <div className="flex flex-col gap-3 relative z-10">
                 <button
                   onClick={clearAllNotifications}
-                  className="py-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-rose-500 text-white shadow-xl shadow-rose-500/20 hover:bg-rose-600 transition-all outline-none border-none cursor-pointer"
+                  className="w-full py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all shadow-[0_0_25px_rgba(244,63,94,0.4)]"
                 >
-                  Delete Everything
+                  Execute Purge
+                </button>
+                <button
+                  onClick={() => setIsConfirmModalOpen(false)}
+                  className="w-full py-4 bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all border border-white/5"
+                >
+                  Abort Sequence
                 </button>
               </div>
             </motion.div>

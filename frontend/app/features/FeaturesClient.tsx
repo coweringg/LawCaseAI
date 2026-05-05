@@ -41,7 +41,7 @@ export default function FeaturesClient() {
                         transition={{ duration: 0.8 }}
                     >
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 font-display tracking-tightest leading-tight text-balance">
-                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Intelligence</span> Edge
+                            The <span className="text-primary">Intelligence</span> Edge
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
                             Premium AI infrastructure tailored for high-stakes US legal practice. 
@@ -62,7 +62,7 @@ export default function FeaturesClient() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap border ${activeTab === tab.id
-                                ? 'bg-primary text-white border-primary shadow-[0_0_30px_rgba(124,58,237,0.5)] scale-105'
+                                ? 'bg-primary text-background-dark border-primary shadow-[0_0_30px_rgba(0,230,118,0.4)] scale-105'
                                 : 'text-slate-500 hover:text-slate-200 bg-white/[0.02] border-white/5'
                                 }`}
                         >
@@ -73,7 +73,7 @@ export default function FeaturesClient() {
                 </div>
             </section>
 
-            <section id="feature-demos" className="py-24 bg-[#0d121d] min-h-[80vh]">
+            <section id="feature-demos" className="py-24 bg-background-dark/50 border-y border-white/5 min-h-[80vh]">
                 <div className="container-stitch px-4">
                     <AnimatePresence mode="wait">
                         {activeTab === 'insights' && <InsightsDemo key="insights" />}
@@ -88,7 +88,7 @@ export default function FeaturesClient() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
-                        className="inline-flex p-6 rounded-3xl bg-primary/10 text-primary mb-10 shadow-[0_0_40px_rgba(10,68,184,0.15)]"
+                        className="inline-flex p-6 rounded-3xl bg-primary/10 text-primary mb-10 shadow-[0_0_40px_rgba(0,230,118,0.15)]"
                     >
                         <Shield size={64} />
                     </motion.div>
@@ -140,14 +140,14 @@ function InsightsDemo() {
                 </ul>
             </div>
             <div className="relative glass border-white/10 rounded-2xl p-8 aspect-square flex flex-col items-center justify-center overflow-hidden">
-                <div className="w-full h-full bg-slate-900 shadow-inner rounded-xl p-6 font-mono text-[10px] leading-relaxed text-slate-500 overflow-hidden relative">
+                <div className="w-full h-full bg-[#0c0c0c] shadow-inner rounded-xl p-6 font-mono text-[10px] leading-relaxed text-slate-500 overflow-hidden relative border border-white/5">
                     <p className="mb-4 text-slate-400">AGREEMENT OF SERVICES - SECTION 4.2</p>
                     <p className="mb-2">&quot;...the Provider shall not be held liable for any damages resulting from system downtime...&quot;</p>
                     <motion.span
-                        initial={{ backgroundColor: "rgba(10, 68, 184, 0)" }}
-                        animate={{ backgroundColor: "rgba(10, 68, 184, 0.3)" }}
+                        initial={{ backgroundColor: "rgba(0, 230, 118, 0)" }}
+                        animate={{ backgroundColor: "rgba(0, 230, 118, 0.2)" }}
                         transition={{ delay: 1, duration: 1 }}
-                        className="px-1 border-b border-primary text-blue-300"
+                        className="px-1 border-b border-primary text-primary"
                     >
                         &quot;resulting from system downtime exceeding 48 hours consecutively&quot;
                     </motion.span>
@@ -160,7 +160,7 @@ function InsightsDemo() {
                         className="absolute top-1/2 right-4 w-48 p-3 bg-primary/20 backdrop-blur-md border border-primary/50 rounded-lg shadow-2xl"
                     >
                         <div className="flex items-center gap-2 mb-1">
-                            <AlertTriangle size={12} className="text-amber-400" />
+                            <AlertTriangle size={12} className="text-primary" />
                             <span className="text-[10px] text-white font-bold">Inconsistency Detected</span>
                         </div>
                         <p className="text-[9px] text-slate-300 text-balance">Section 4.2 conflicts with the Service Level Agreement (SLA) defined in Appendix B regarding recovery time objectives.</p>
@@ -172,7 +172,7 @@ function InsightsDemo() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 3.5 }}
                     >
-                        <div className="h-6 px-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 rounded-full flex items-center gap-1.5 text-[10px] font-bold">
+                        <div className="h-6 px-3 bg-primary/10 text-primary border border-primary/30 rounded-full flex items-center gap-1.5 text-[10px] font-bold">
                             <CheckCircle size={10} /> ANALYSIS READY
                         </div>
                     </motion.div>
@@ -211,7 +211,7 @@ function ResearchDemo() {
             className="grid lg:grid-cols-2 gap-16 items-center"
         >
             <div className="order-2 lg:order-1 relative glass rounded-2xl p-6 h-[400px] flex flex-col">
-                <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-xl border border-white/10 mb-6">
+                <div className="flex items-center gap-3 p-3 bg-[#0c0c0c] rounded-xl border border-white/5 mb-6">
                     <Search size={18} className="text-primary" />
                     <div className="text-slate-300 text-sm">{query}<span className="animate-pulse">|</span></div>
                 </div>
@@ -286,7 +286,7 @@ function ChronologyDemo() {
                                 <span>{stat.label}</span>
                                 <span className="text-primary">{stat.val}</span>
                             </div>
-                            <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
+                            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     whileInView={{ width: '100%' }}
@@ -312,7 +312,7 @@ function ChronologyDemo() {
                             transition={{ delay: i * 0.4 }}
                             className="relative pl-12"
                         >
-                            <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(10,68,184,0.8)] border border-white"></div>
+                            <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(0,230,118,0.8)] border border-white/20"></div>
                             <div className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">{item.date}</div>
                             <div className="text-sm font-bold text-white mb-1 font-display">{item.event}</div>
                             <div className="text-[10px] text-slate-500 font-medium px-2 py-0.5 bg-white/5 border border-white/5 rounded w-fit">{item.role}</div>

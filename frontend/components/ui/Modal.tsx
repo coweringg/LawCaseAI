@@ -72,7 +72,7 @@ export const Modal: React.FC<ModalProps> = ({
             sizeClasses[size]
           )}
         >
-          {isGlass && <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>}
+          {isGlass && <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>}
           
           {showCloseButton && (
             <button

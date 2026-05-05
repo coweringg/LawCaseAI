@@ -39,14 +39,14 @@ export default function NotesClient() {
 
     if (!mounted || isAuthLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-[#05060a]">
+            <div className="flex justify-center items-center h-screen bg-background-dark">
                 <Loader2 className="w-12 h-12 text-primary animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="bg-[#05060a] text-slate-200 min-h-screen flex flex-col font-display">
+        <div className="bg-background-dark text-slate-200 min-h-screen flex flex-col font-display">
             <header className="h-16 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard" className="flex items-center gap-2 text-primary font-black text-xl hover:opacity-80 transition-opacity">
@@ -67,7 +67,7 @@ export default function NotesClient() {
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-widest">
-                        <CloudCheck size={14} className="text-emerald-500" />
+                        <CloudCheck size={14} className="text-primary" />
                         <span>Auto-saved at 2:45 PM</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -101,8 +101,8 @@ export default function NotesClient() {
                     </div>
                 </aside>
 
-                <main className="flex-1 overflow-y-auto bg-[#05060a] flex flex-col items-center pt-8 pb-20 px-4 md:px-0 scrollbar-hide relative">
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                <main className="flex-1 overflow-y-auto bg-background-dark flex flex-col items-center pt-8 pb-20 px-4 md:px-0 scrollbar-hide relative">
+                    <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                     
                     <div className="mb-8 flex items-center gap-1 bg-black/60 backdrop-blur-3xl p-1.5 rounded-2xl shadow-2xl border border-white/10 sticky top-4 z-10 transition-colors">
                         <button className="p-2.5 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all"><Bold size={18} /></button>
@@ -116,7 +116,7 @@ export default function NotesClient() {
                     </div>
 
                     <div className="w-full max-w-[850px] bg-white/[0.02] backdrop-blur-3xl shadow-2xl border border-white/10 rounded-[2.5rem] min-h-[850px] p-12 md:p-20 relative transition-all group overflow-hidden">
-                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover:scale-[1.6] transition-transform duration-1000"></div>
+                        <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                         
                         <div className="flex items-center gap-3 mb-12 relative z-10">
                             <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/5">Draft Dossier</span>
@@ -137,7 +137,7 @@ export default function NotesClient() {
                                     whileHover={{ scale: 1.01 }}
                                     className="bg-primary/5 border-l-4 border-primary p-8 rounded-2xl mb-8 group/quote relative shadow-2xl overflow-hidden"
                                 >
-                                    <div className="absolute inset-0 crystallography-pattern opacity-[0.05] pointer-events-none"></div>
+                                    <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                                     <p className="italic text-slate-300 relative z-10 text-lg">
                                         &ldquo;The defendant owed a duty of care to the plaintiff to maintain premises in a reasonably safe condition...&rdquo;
                                     </p>
@@ -164,12 +164,12 @@ export default function NotesClient() {
                 </main>
 
                 <aside className="w-80 border-l border-white/10 bg-black/20 flex flex-col hidden xl:flex overflow-hidden relative group/side">
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/side:scale-[1.6] transition-transform duration-1000"></div>
+                    <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                     
                     <div className="p-6 border-b border-white/10 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 border border-white/20">
-                                <Zap size={16} className="text-white" />
+                                <Zap size={16} className="text-background-dark" />
                             </div>
                             <span className="font-black text-white uppercase tracking-[0.2em] text-[11px]">Neural Core</span>
                         </div>
@@ -192,7 +192,7 @@ export default function NotesClient() {
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] block mb-6">Autonomous Insight</span>
                             <div className="bg-black/40 backdrop-blur-3xl rounded-2xl p-5 border border-white/10 relative overflow-hidden shadow-2xl group/insight">
                                 <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-                                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+                                <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                                 <p className="text-[11px] font-black text-slate-300 leading-relaxed italic uppercase tracking-widest relative z-10">
                                     &ldquo;Consider citing the 2021 amendment to Civil Code &sect; 1714 for more specific liability definitions.&rdquo;
                                 </p>

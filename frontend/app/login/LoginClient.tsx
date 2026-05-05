@@ -84,8 +84,8 @@ function LoginContent() {
   return (
     <>
       <AuthLayout>
-        <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
-          <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-white bg-primary shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">
+        <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl bg-black/20">
+          <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-background-dark bg-primary shadow-[0_0_20px_rgba(0,230,118,0.3)] transition-all duration-500">
             Sign In
           </button>
           <Link href="/register" className="flex-1">
@@ -109,7 +109,7 @@ function LoginContent() {
                   className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all group cursor-pointer ${loggingInAccountIndex !== null ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-background-dark font-bold text-lg shadow-lg">
                       {acc.initials}
                     </div>
                     <div className="text-left">
@@ -128,7 +128,7 @@ function LoginContent() {
                             e.stopPropagation();
                             removeSavedAccount(index);
                           }}
-                          className="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-2 text-slate-500 hover:text-rose-400 hover:bg-white/5 rounded-lg transition-colors"
                           title="Remove account"
                         >
                           <X size={18} />
@@ -163,7 +163,7 @@ function LoginContent() {
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="email">Work Email</label>
                 <div className="relative group">
                   <input
-                    className="block w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                    className="block w-full pl-12 pr-4 py-3.5 rounded-xl border border-white/[0.08] bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none"
                     id="email"
                     name="email"
                     value={formData.email}
@@ -172,7 +172,7 @@ function LoginContent() {
                     required
                     type="email"
                   />
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
                 </div>
               </div>
 
@@ -183,7 +183,7 @@ function LoginContent() {
                 </div>
                 <div className="relative group">
                   <input
-                    className="block w-full pl-12 pr-12 py-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                    className="block w-full pl-12 pr-12 py-3.5 rounded-xl border border-white/[0.08] bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none"
                     id="password"
                     name="password"
                     value={formData.password}
@@ -192,7 +192,7 @@ function LoginContent() {
                     required
                     type={showPassword ? 'text' : 'password'}
                   />
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -204,13 +204,13 @@ function LoginContent() {
               </div>
 
               <button
-                className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all group disabled:opacity-70 mt-4"
+                className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-background-dark bg-primary hover:bg-primary/90 shadow-[0_0_30px_rgba(0,230,118,0.3)] transition-all group disabled:opacity-70 mt-4"
                 type="submit"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-background-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>

@@ -10,6 +10,7 @@ import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
+import { Alert } from '@/components/ui/Alert'
 import { formatDate, cn } from '@/utils/helpers'
 
 interface AdminUser {
@@ -133,7 +134,7 @@ export function AdminModals(props: AdminModalsProps) {
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
                       <p className={cn(
                         "text-xl font-black uppercase",
-                        selectedUser?.status === 'active' ? 'text-success-500' : 'text-error-500'
+                        selectedUser?.status === 'active' ? 'text-primary' : 'text-error-500'
                       )}>{selectedUser?.status}</p>
                     </div>
                     <div className="bg-white/5 p-5 rounded-3xl border border-white/5">
@@ -239,7 +240,7 @@ export function AdminModals(props: AdminModalsProps) {
                         { key: 'status', title: 'Protocol Status', render: (v) => (
                           <span className={cn(
                             "px-2 py-0.5 rounded text-[10px] font-black uppercase",
-                            v === 'active' ? 'text-success-500 bg-success-500/10' : 
+                            v === 'active' ? 'text-primary bg-primary/10' : 
                             v === 'closed' ? 'text-slate-500 bg-white/5' :
                             'text-warning-500 bg-warning-500/10'
                           )}>{v}</span>
@@ -259,7 +260,7 @@ export function AdminModals(props: AdminModalsProps) {
                               <div className="flex items-center gap-2 mb-1">
                                 <span className={cn(
                                   "px-1.5 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-tighter",
-                                  log.action.includes('CREATED') ? 'bg-success-500/20 text-success-500' :
+                                  log.action.includes('CREATED') ? 'bg-primary/20 text-primary' :
                                   log.action.includes('CLOSED') ? 'bg-slate-500/20 text-slate-400' :
                                   log.action.includes('DELETED') ? 'bg-error-500/20 text-error-500' :
                                   'bg-primary/20 text-primary'
@@ -307,7 +308,7 @@ export function AdminModals(props: AdminModalsProps) {
                         columns={[
                           { key: 'createdAt', title: 'Transaction Date', render: (v) => <span className="text-slate-400">{formatDate(v)}</span> },
                           { key: 'plan', title: 'Service Plan', render: (v) => <span className="font-bold text-white uppercase">{v}</span> },
-                          { key: 'amount', title: 'Credit Amount', render: (v) => <span className="text-success-500 font-black">${v}</span> }
+                          { key: 'amount', title: 'Credit Amount', render: (v) => <span className="text-primary font-black">${v}</span> }
                         ]}
                       />
                     ) : (
@@ -392,7 +393,7 @@ export function AdminModals(props: AdminModalsProps) {
                           { key: 'status', title: 'Account Status', render: (v) => (
                             <span className={cn(
                               "px-2 py-0.5 rounded text-[10px] font-black uppercase",
-                              v === 'active' ? 'text-success-500' : 'text-error-500'
+                              v === 'active' ? 'text-primary' : 'text-error-500'
                             )}>
                               {v}
                             </span>
@@ -401,7 +402,7 @@ export function AdminModals(props: AdminModalsProps) {
                             <Button 
                               variant="none" 
                               size="sm"
-                              className="text-secondary bg-secondary/10 hover:bg-secondary/30 transition-all text-[10px] font-black uppercase tracking-widest h-8 px-4 w-full"
+                              className="text-primary bg-primary/10 hover:bg-primary hover:text-background-dark transition-all text-[10px] font-black uppercase tracking-widest h-8 px-4 w-full"
                               onClick={() => {
                                 setSelectedUser({ ...item, id: item._id } as AdminUser)
                                 setActiveDetailTab('overview')
@@ -549,8 +550,8 @@ export function AdminModals(props: AdminModalsProps) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h4 className="text-[10px] font-black text-success-500 uppercase tracking-widest ml-1">New Protocol (After)</h4>
-                  <div className="bg-success-500/5 border border-success-500/20 rounded-2xl p-4 font-mono text-[11px] text-slate-200 overflow-auto max-h-[300px]">
+                  <h4 className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">New Protocol (After)</h4>
+                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 font-mono text-[11px] text-slate-200 overflow-auto max-h-[300px]">
                     <pre>{JSON.stringify(selectedLogForDiff?.details.after, null, 2)}</pre>
                   </div>
                 </div>
@@ -576,10 +577,9 @@ export function AdminModals(props: AdminModalsProps) {
         >
           <form onSubmit={handleEditSubmit} className="space-y-6">
             {editError && (
-              <div className="bg-error-500/10 border border-error-500/20 text-error-500 p-4 rounded-xl flex items-center animate-in fade-in slide-in-from-top-2">
-                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
-                <p className="text-xs font-bold">{editError}</p>
-              </div>
+              <Alert type="error" title="Protocol Interference" className="mb-6">
+                {editError}
+              </Alert>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -658,7 +658,7 @@ export function AdminModals(props: AdminModalsProps) {
                 variant="none"
                 type="submit" 
                 disabled={isUpdating} 
-                className="bg-primary hover:bg-primary/80 text-white px-10 py-4 h-auto rounded-2xl shadow-xl shadow-primary/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                className="bg-primary hover:bg-primary/90 text-background-dark px-10 py-4 h-auto rounded-2xl shadow-xl shadow-primary/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
               >
                 {isUpdating ? 'Transmitting...' : 'Commit Changes'}
               </Button>
@@ -696,9 +696,9 @@ export function AdminModals(props: AdminModalsProps) {
               {[
                 { id: 'none', label: 'None (Default)', limit: 0, color: 'text-slate-400' },
                 { id: 'basic', label: 'Basic', limit: 8, color: 'text-primary' },
-                { id: 'professional', label: 'Professional', limit: 18, color: 'text-indigo-400' },
-                { id: 'elite', label: 'Elite', limit: 100000, color: 'text-secondary' },
-                { id: 'enterprise', label: 'Enterprise', limit: 100000, color: 'text-amber-400' }
+                { id: 'professional', label: 'Professional', limit: 18, color: 'text-primary' },
+                { id: 'elite', label: 'Elite', limit: 100000, color: 'text-primary' },
+                { id: 'enterprise', label: 'Enterprise', limit: 100000, color: 'text-primary' }
               ].map((p) => (
                 <button
                   key={p.id}

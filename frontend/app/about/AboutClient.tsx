@@ -40,7 +40,7 @@ export default function AboutClient() {
                             Our Mission
                         </div>
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 font-display tracking-tightest leading-tight text-balance">
-                            Engineering <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Legal Intelligence</span>
+                            Engineering <span className="text-primary">Legal Intelligence</span>
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
                             We empower high-stakes legal professionals with AI-driven infrastructure that redefines efficiency, accuracy, and case outcomes.
@@ -82,8 +82,7 @@ export default function AboutClient() {
                         >
                             <div className="absolute inset-x-10 inset-y-10 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/30 transition-colors"></div>
                             <div className="aspect-square premium-glass rounded-[3rem] border border-white/10 flex items-center justify-center p-20 overflow-hidden relative shadow-2xl">
-                                <div className="absolute inset-0 crystallography-pattern opacity-[0.05] rotate-45 scale-150 group-hover:scale-[2] transition-transform duration-1000"></div>
-                                <Gavel size={240} className="text-primary relative z-10 drop-shadow-[0_0_30px_rgba(10,68,184,0.4)]" />
+                                <Gavel size={240} className="text-primary relative z-10 drop-shadow-[0_0_30px_rgba(0,230,118,0.4)]" />
                             </div>
                         </motion.div>
                     </div>
@@ -130,7 +129,7 @@ export default function AboutClient() {
                                 className="p-10 premium-glass rounded-[2rem] border border-white/5 hover:bg-white/[0.04] transition-all group overflow-hidden relative"
                             >
                                 <div className="relative z-10">
-                                    <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">
+                                    <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:scale-110 group-hover:bg-primary group-hover:text-background-dark group-hover:shadow-[0_0_20px_rgba(0,230,118,0.4)] transition-all duration-500">
                                         <v.icon size={28} />
                                     </div>
                                     <h3 className="text-[11px] font-black text-white mb-4 font-display uppercase tracking-[0.3em] group-hover:text-primary transition-colors">{v.title}</h3>
@@ -159,7 +158,7 @@ export default function AboutClient() {
                                 transition={{ delay: i * 0.1 }}
                                 className="space-y-4"
                             >
-                                <div className="text-3xl md:text-5xl font-black text-white font-display tracking-tighter drop-shadow-[0_0_20px_rgba(10,68,184,0.3)] break-words">{s.val}</div>
+                                <div className="text-3xl md:text-5xl font-black text-white font-display tracking-tighter drop-shadow-[0_0_20px_rgba(0,230,118,0.3)] break-words">{s.val}</div>
                                 <div className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">{s.label}</div>
                             </motion.div>
                         ))}
@@ -205,7 +204,7 @@ export default function AboutClient() {
                         <h2 className="text-4xl md:text-6xl font-black text-white mb-10 font-display tracking-tightest leading-tight text-balance">Upgrade Your Firm’s <br /><span className="text-primary">Legal Intelligence</span></h2>
                         <div className="flex flex-col sm:flex-row gap-6 justify-center">
                             <Link href="/register">
-                                <button className="h-16 px-12 bg-primary text-white font-black rounded-2xl shadow-[0_0_30px_rgba(10,68,184,0.4)] hover:scale-105 transition-all text-sm uppercase tracking-widest">
+                                <button className="h-16 px-12 bg-primary text-background-dark font-black rounded-2xl shadow-[0_0_30px_rgba(0,230,118,0.4)] hover:scale-105 transition-all text-sm uppercase tracking-widest">
                                     Subscribe Now
                                 </button>
                             </Link>

@@ -16,36 +16,37 @@ export function Providers({ children }: { children: React.ReactNode }) {
           toastOptions={{
             duration: 5000,
             style: {
-              background: "rgba(15, 23, 42, 0.8)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
+              background: "rgba(10, 10, 15, 0.95)",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
               color: "#f8fafc",
               border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "1.25rem",
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)",
-              padding: "16px 24px",
-              fontSize: "13px",
-              fontWeight: "600",
-              fontFamily: "'Inter', system-ui, sans-serif",
-              letterSpacing: "0.01em",
+              borderRadius: "1rem",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+              padding: "14px 22px",
+              fontSize: "11px",
+              fontWeight: "900",
+              fontFamily: "'Outfit', system-ui, sans-serif",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase" as const,
               maxWidth: "450px",
             },
             success: {
               iconTheme: {
-                primary: "#10b981",
-                secondary: "rgba(15, 23, 42, 0.8)",
+                primary: "#00e676",
+                secondary: "rgba(10, 10, 15, 0.95)",
               },
               style: {
-                border: "1px solid rgba(16, 185, 129, 0.2)",
+                border: "1px solid rgba(0, 230, 118, 0.25)",
               },
             },
             error: {
               iconTheme: {
                 primary: "#f43f5e",
-                secondary: "rgba(15, 23, 42, 0.8)",
+                secondary: "rgba(10, 10, 15, 0.95)",
               },
               style: {
-                border: "1px solid rgba(244, 63, 94, 0.2)",
+                border: "1px solid rgba(244, 63, 94, 0.25)",
               },
             },
           }}

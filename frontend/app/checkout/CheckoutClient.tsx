@@ -26,7 +26,7 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen bg-[#05060a] flex flex-col items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0"></div>
+      <div className="absolute inset-0 micro-grid opacity-[0.03] z-0"></div>
       <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
       <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
 

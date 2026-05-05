@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Search, FileText, ShieldAlert, Eye, RotateCcw, Trash2, Filter, X, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Table } from '@/components/ui/Table'
+import { Select } from '@/components/ui/Select'
 import { formatDate, cn } from '@/utils/helpers'
 
 interface AuditLogEntry {
@@ -92,29 +93,29 @@ export function AdminAuditLogs({
           'USER_DISABLED': 'text-error-500',
           'UPDATE': 'text-primary',
           'PROFILE_UPDATE': 'text-primary',
-          'CASE_CREATED': 'text-success-500',
-          'USER_ENABLED': 'text-success-500',
+          'CASE_CREATED': 'text-primary',
+          'USER_ENABLED': 'text-primary',
           'CASE_STATUS_CHANGE': 'text-warning-500',
           'CASE_CLOSED': 'text-slate-400',
           'PASSWORD_RESET': 'text-error-500',
           'PASSWORD_CHANGE': 'text-orange-400',
-          'LOGIN': 'text-success-500',
-          'FILE_UPLOADED': 'text-secondary',
+          'LOGIN': 'text-primary',
+          'FILE_UPLOADED': 'text-primary',
           'FILE_DELETED': 'text-error-500',
-          'AI_CONSULTATION': 'text-purple-400',
-          'PLAN_CHANGE': 'text-indigo-400',
-          'PAYMENT_PROCESSED': 'text-emerald-400',
-          'PAYMENT_METHOD_ADD': 'text-emerald-400',
+          'AI_CONSULTATION': 'text-primary',
+          'PLAN_CHANGE': 'text-primary',
+          'PAYMENT_PROCESSED': 'text-primary',
+          'PAYMENT_METHOD_ADD': 'text-primary',
           'PAYMENT_METHOD_REMOVE': 'text-error-500',
           'USER_DELETED': 'text-error-500',
           'STATUS_CHANGE': 'text-warning-500',
           'NOTIFICATION_CHANGE': 'text-slate-400',
-          'SUPPORT_REQUEST_SUBMITTED': 'text-blue-400',
-          'SUPPORT_REQUEST_STATUS_UPDATE': 'text-blue-400',
-          'ORG_CODE_UPDATE': 'text-indigo-400',
-          'CREATE': 'text-success-500',
+          'SUPPORT_REQUEST_SUBMITTED': 'text-primary',
+          'SUPPORT_REQUEST_STATUS_UPDATE': 'text-primary',
+          'ORG_CODE_UPDATE': 'text-primary',
+          'CREATE': 'text-primary',
           'SYSTEM_MAINTENANCE_ENABLED': 'text-error-500',
-          'SYSTEM_MAINTENANCE_DISABLED': 'text-success-500',
+          'SYSTEM_MAINTENANCE_DISABLED': 'text-primary',
           'GLOBAL_ALERT_POSTED': 'text-warning-500',
           'AI_PROVIDER_STATUS_CHANGE': 'text-primary'
         }
@@ -210,47 +211,43 @@ export function AdminAuditLogs({
                     )}
                   </div>
 
-                  <div className="relative group">
-                    <select
+                  <div className="relative group w-48">
+                    <Select
                       value={actionFilter}
-                      onChange={(e) => {
-                        setActionFilter(e.target.value)
+                      onChange={(val) => {
+                        setActionFilter(val)
                         setLogPage(1)
                       }}
-                      className="bg-white/[0.02] border border-white/10 rounded-2xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none min-w-[140px]"
-                    >
-                      <option value="" className="bg-slate-900">All Actions</option>
-                      <option value="CREATE" className="bg-slate-900">Create</option>
-                      <option value="UPDATE" className="bg-slate-900">Update</option>
-                      <option value="DELETE" className="bg-slate-900">Delete</option>
-                      <option value="LOGIN" className="bg-slate-900">Login</option>
-                      <option value="LOGOUT" className="bg-slate-900">Logout</option>
-                      <option value="PLAN_CHANGE" className="bg-slate-900">Plan Change</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
-                        <Filter size={12} />
-                    </div>
+                      icon={<Filter size={14} />}
+                      options={[
+                        { value: '', label: 'All Actions' },
+                        { value: 'CREATE', label: 'Create' },
+                        { value: 'UPDATE', label: 'Update' },
+                        { value: 'DELETE', label: 'Delete' },
+                        { value: 'LOGIN', label: 'Login' },
+                        { value: 'LOGOUT', label: 'Logout' },
+                        { value: 'PLAN_CHANGE', label: 'Plan Change' }
+                      ]}
+                    />
                   </div>
 
-                  <div className="relative group">
-                    <select
+                  <div className="relative group w-48">
+                    <Select
                       value={targetTypeFilter}
-                      onChange={(e) => {
-                        setTargetTypeFilter(e.target.value)
+                      onChange={(val) => {
+                        setTargetTypeFilter(val)
                         setLogPage(1)
                       }}
-                      className="bg-white/[0.02] border border-white/10 rounded-2xl pl-6 pr-10 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer hover:bg-white/[0.04] hover:text-white transition-all appearance-none min-w-[140px]"
-                    >
-                      <option value="" className="bg-slate-900">All Sections</option>
-                      <option value="user" className="bg-slate-900">Users</option>
-                      <option value="case" className="bg-slate-900">Cases</option>
-                      <option value="organization" className="bg-slate-900">Orgs</option>
-                      <option value="payment" className="bg-slate-900">Payments</option>
-                      <option value="system" className="bg-slate-900">System</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-white transition-colors">
-                        <Filter size={12} />
-                    </div>
+                      icon={<Filter size={14} />}
+                      options={[
+                        { value: '', label: 'All Sections' },
+                        { value: 'user', label: 'Users' },
+                        { value: 'case', label: 'Cases' },
+                        { value: 'organization', label: 'Orgs' },
+                        { value: 'payment', label: 'Payments' },
+                        { value: 'system', label: 'System' }
+                      ]}
+                    />
                   </div>
 
                   <div className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-2 hover:bg-white/[0.04] transition-all">
@@ -280,7 +277,7 @@ export function AdminAuditLogs({
                     whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleExportCSV}
-                    className="px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2 hover:bg-primary hover:text-white transition-all"
+                    className="px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2 hover:bg-primary hover:text-background-dark transition-all"
                   >
                     <FileText size={14} />
                     Export CSV

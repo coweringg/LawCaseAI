@@ -93,9 +93,9 @@ export default function OrganizationsDashboard() {
     const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
     if (!org.isActive) return { label: 'Deactivated', color: 'text-slate-500', bg: 'bg-slate-500/10', icon: 'block' }
-    if (diffDays < 0) return { label: 'Expired', color: 'text-red-500', bg: 'bg-red-500/10', icon: 'error' }
+    if (diffDays < 0) return { label: 'Expired', color: 'text-rose-500', bg: 'bg-rose-500/10', icon: 'error' }
     if (diffDays < 7) return { label: 'Expiring Soon', color: 'text-amber-500', bg: 'bg-amber-500/10', icon: 'warning' }
-    return { label: 'Active', color: 'text-emerald-500', bg: 'bg-emerald-500/10', icon: 'check_circle' }
+    return { label: 'Active', color: 'text-primary', bg: 'bg-primary/10', icon: 'check_circle' }
   }
 
   const filteredOrgs = organizations || []
@@ -115,7 +115,8 @@ export default function OrganizationsDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-[1600px] mx-auto space-y-8 pb-12">
+      <div className="max-w-[1600px] mx-auto space-y-8 pb-12 relative z-10">
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -168,7 +169,7 @@ export default function OrganizationsDashboard() {
                   className={cn(
                     "px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                     filterStatus === status 
-                      ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                      ? "bg-primary text-background-dark shadow-lg shadow-primary/20" 
                       : "text-slate-500 hover:text-slate-300"
                   )}
                 >
@@ -179,7 +180,7 @@ export default function OrganizationsDashboard() {
           </div>
           
           <div className="premium-glass rounded-[2rem] border border-white/10 p-2">
-             <button className="w-full h-full bg-gradient-to-r from-primary to-blue-600 rounded-2xl flex items-center justify-center gap-3 text-white font-black uppercase text-xs tracking-widest hover:shadow-[0_0_30px_rgba(10,68,184,0.3)] transition-all">
+             <button className="w-full h-full bg-primary rounded-2xl flex items-center justify-center gap-3 text-background-dark font-black uppercase text-xs tracking-widest hover:shadow-[0_0_30px_rgba(0,230,118,0.3)] transition-all">
                 <Terminal className="w-4 h-4" />
                 Audit Protocol
              </button>
@@ -217,7 +218,7 @@ export default function OrganizationsDashboard() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
-                        className="group hover:bg-white/[0.02] transition-colors"
+                        className="group hover:bg-primary/5 transition-colors"
                       >
                         <td className="px-8 py-6">
                           <div className="flex items-center gap-4">
@@ -250,7 +251,7 @@ export default function OrganizationsDashboard() {
                                  animate={{ width: `${usagePercent}%` }}
                                  className={cn(
                                    "h-full rounded-full",
-                                   usagePercent > 90 ? "bg-red-500" : "bg-primary"
+                                   usagePercent > 90 ? "bg-rose-500" : "bg-primary"
                                  )}
                                />
                              </div>
@@ -276,7 +277,7 @@ export default function OrganizationsDashboard() {
                         <td className="px-8 py-6 text-right">
                            <button 
                              onClick={() => router.push(`/dashboard/admin/organizations/${org._id}`)}
-                             className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-500 hover:text-white hover:bg-primary hover:border-primary transition-all shadow-xl"
+                             className="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-500 hover:text-background-dark hover:bg-primary hover:border-primary transition-all shadow-xl"
                            >
                              <Eye className="w-4 h-4" />
                            </button>

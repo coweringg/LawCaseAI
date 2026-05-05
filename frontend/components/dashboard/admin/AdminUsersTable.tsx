@@ -51,14 +51,14 @@ export function AdminUsersTable({
               </div>
               <div className={cn(
                 "absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-black",
-                isOnline ? "bg-success-500 animate-pulse" : "bg-slate-600"
+                isOnline ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(0,230,118,0.8)]" : "bg-slate-600"
               )} title={isOnline ? 'Online' : 'Offline'} />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <p className="font-bold text-white tracking-tight">{value}</p>
                 {item.role === 'admin' && (
-                  <span className="bg-primary/20 text-primary text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded flex items-center shadow-[0_0_10px_rgba(var(--primary),0.2)]">
+                  <span className="bg-primary/20 text-primary text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded flex items-center shadow-[0_0_10px_rgba(0,230,118,0.2)]">
                     <ShieldCheck className="w-3 h-3 mr-1" />
                     Admin
                   </span>
@@ -127,7 +127,7 @@ export function AdminUsersTable({
               setShowHistoryModal(true)
               fetchUserHistory(item.id)
             }}
-            className="text-secondary hover:text-white bg-secondary/10 hover:bg-secondary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-secondary/20 h-8 rounded-lg transition-all"
+            className="text-primary hover:text-background-dark bg-primary/10 hover:bg-primary font-bold uppercase text-[10px] tracking-widest px-3 border border-primary/20 h-8 rounded-lg transition-all"
           >
             <Eye className="w-3.5 h-3.5 mr-1" />
             Details
@@ -136,7 +136,7 @@ export function AdminUsersTable({
             variant="none"
             size="sm"
             onClick={() => openEditModal(item)}
-            className="text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-indigo-500/20 h-8 rounded-lg transition-all"
+            className="text-sky-400 hover:text-background-dark bg-sky-400/10 hover:bg-sky-400 font-bold uppercase text-[10px] tracking-widest px-3 border border-sky-400/20 h-8 rounded-lg transition-all"
           >
             Edit
           </Button>
@@ -160,7 +160,7 @@ export function AdminUsersTable({
               setSelectedUser(item)
               setShowPlanModal(true)
             }}
-            className="text-primary hover:text-white bg-primary/10 hover:bg-primary/30 font-bold uppercase text-[10px] tracking-widest px-3 border border-primary/20 h-8 rounded-lg transition-all"
+            className="text-violet-400 hover:text-background-dark bg-violet-400/10 hover:bg-violet-400 font-bold uppercase text-[10px] tracking-widest px-3 border border-violet-400/20 h-8 rounded-lg transition-all"
           >
             Plan
           </Button>
@@ -216,7 +216,7 @@ export function AdminUsersTable({
                     className={cn(
                       "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
                       roleFilter === 'user'
-                        ? "bg-secondary/20 text-secondary border border-secondary/20 shadow-lg shadow-secondary/10"
+                        ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
                         : "text-slate-500 hover:text-slate-300"
                     )}
                   >

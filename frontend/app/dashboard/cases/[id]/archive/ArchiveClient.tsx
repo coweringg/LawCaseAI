@@ -122,9 +122,9 @@ export default function ArchiveClient() {
                                 <span className="px-4 py-1.5 bg-white/5 rounded-full text-[9px] font-black text-slate-500 border border-white/5 uppercase tracking-[0.2em]">Feb 14, 2026</span>
                             </div>
                             <div className="flex justify-center">
-                                <div className="flex items-center gap-3 px-6 py-3 bg-red-500/5 rounded-2xl border border-red-500/10 shadow-2xl">
-                                    <Lock size={14} className="text-red-500/60" />
-                                    <span className="text-[10px] font-black text-red-400/80 uppercase tracking-widest">Case Intelligence Sealed by Order of Operator Jenkins</span>
+                                <div className="flex items-center gap-3 px-6 py-3 bg-rose-500/5 rounded-2xl border border-rose-500/10 shadow-2xl">
+                                    <Lock size={14} className="text-rose-500/60" />
+                                    <span className="text-[10px] font-black text-rose-400/80 uppercase tracking-widest">Case Intelligence Sealed by Order of Operator Jenkins</span>
                                 </div>
                             </div>
                         </div>
@@ -147,11 +147,11 @@ export default function ArchiveClient() {
                     <aside className="w-80 flex-none border-l border-white/10 bg-white/[0.01] backdrop-blur-3xl overflow-y-auto hidden xl:block p-8 space-y-10 scrollbar-hide">
                         <div className="space-y-6">
                             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Final Outcome Registry</h3>
-                            <div className="bg-emerald-500/5 border border-emerald-500/20 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-[2px] h-full bg-emerald-500/50"></div>
+                            <div className="bg-primary/5 border border-primary/20 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-[2px] h-full bg-primary/50"></div>
                                 <div className="flex items-start justify-between mb-4">
                                     <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Settlement Protocol</h4>
-                                    <CheckCircle size={14} className="text-emerald-500" />
+                                    <CheckCircle size={14} className="text-primary" />
                                 </div>
                                 <p className="text-[11px] text-slate-400 font-medium leading-relaxed mb-6">
                                     Case settled out of court on Feb 14, 2026. Final agreement signed by all parties. Settlement amount remains classified.
@@ -174,7 +174,7 @@ export default function ArchiveClient() {
                                     { name: 'Motion_Dismiss_v3.docx', size: '145 KB', date: 'Jan 15, 2026', type: 'doc' }
                                 ].map((file, idx) => (
                                     <div key={idx} className="group bg-white/[0.03] p-4 rounded-2xl border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 shadow-xl">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${file.type === 'pdf' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${file.type === 'pdf' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-primary/10 text-primary border border-primary/20'}`}>
                                             {file.type === 'pdf' ? <FileText size={18} /> : <FileText size={18} />}
                                         </div>
                                         <div className="flex-1 min-w-0">

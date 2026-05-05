@@ -38,6 +38,7 @@ import { Modal } from '@/components/ui/Modal'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, formatDate } from '@/utils/helpers'
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
 
 interface OrgMember {
   _id: string;
@@ -110,7 +111,31 @@ export default function OrganizationDetailPage() {
     }
   }, [id, user, isAuthLoading, router])
 
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'info' as 'danger' | 'warning' | 'info'
+  })
+
   const handleToggleStatus = async () => {
+    if (!org) return
+    
+    if (org.isActive) {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Terminal Disconnection',
+        message: `Are you sure you want to terminate the neural connection for "${org.name}"? This will restrict all authorized access immediately.`,
+        variant: 'danger',
+        onConfirm: executeToggleStatus
+      })
+    } else {
+      executeToggleStatus()
+    }
+  }
+
+  const executeToggleStatus = async () => {
     if (!org) return
     setIsProcessing(true)
     try {
@@ -124,6 +149,7 @@ export default function OrganizationDetailPage() {
        toast.error('Command rejected by security layer.')
     } finally {
       setIsProcessing(false)
+      setConfirmConfig(prev => ({ ...prev, isOpen: false }))
     }
   }
 
@@ -160,7 +186,8 @@ export default function OrganizationDetailPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-[1600px] mx-auto space-y-8 pb-12 font-display">
+      <div className="max-w-[1600px] mx-auto space-y-8 pb-12 font-display relative z-10">
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
         <div className="flex items-center justify-between">
            <button 
              onClick={() => router.push('/dashboard/admin/organizations')}
@@ -175,9 +202,9 @@ export default function OrganizationDetailPage() {
            <div className="flex items-center gap-4">
               <div className={cn(
                 "px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2",
-                org.isActive ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"
+                org.isActive ? "bg-primary/10 text-primary border-primary/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"
               )}>
-                 <div className={cn("w-2 h-2 rounded-full", org.isActive ? "bg-emerald-500 shadow-[0_0_10px_#10b981]" : "bg-red-500 shadow-[0_0_10px_#ef4444]")} />
+                 <div className={cn("w-2 h-2 rounded-full", org.isActive ? "bg-primary shadow-[0_0_10px_rgba(0,230,118,0.8)]" : "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)]")} />
                  Status: {org.isActive ? 'OPERATIONAL' : 'OFFLINE'}
               </div>
            </div>
@@ -193,8 +220,8 @@ export default function OrganizationDetailPage() {
            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-[2rem] bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-2xl shadow-primary/40 border border-white/20">
-                       <Building className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 rounded-[2rem] bg-primary flex items-center justify-center shadow-2xl shadow-primary/40 border border-white/20">
+                       <Building className="w-8 h-8 text-background-dark" />
                     </div>
                     <div>
                        <h1 className="text-5xl font-black text-white tracking-tightest">{org.name}</h1>
@@ -223,7 +250,7 @@ export default function OrganizationDetailPage() {
                     </div>
                     <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Lease Expiry</p>
-                       <p className={cn("text-xl font-black", isExpired ? "text-red-500" : "text-white")}>
+                       <p className={cn("text-xl font-black", isExpired ? "text-rose-500" : "text-white")}>
                           {formatDate(org.currentPeriodEnd)}
                        </p>
                     </div>
@@ -234,7 +261,7 @@ export default function OrganizationDetailPage() {
                  <button 
                    onClick={handleExtendPlan}
                    disabled={isProcessing}
-                   className="px-10 py-5 bg-white text-black rounded-[1.5rem] font-black uppercase text-xs tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl disabled:opacity-50"
+                   className="px-10 py-5 bg-primary text-background-dark rounded-[1.5rem] font-black uppercase text-xs tracking-widest hover:bg-primary/90 transition-all shadow-xl disabled:opacity-50"
                  >
                     Extend Node Lease
                  </button>
@@ -243,7 +270,7 @@ export default function OrganizationDetailPage() {
                    disabled={isProcessing}
                    className={cn(
                      "px-10 py-5 rounded-[1.5rem] font-black border uppercase text-xs tracking-widest transition-all shadow-xl disabled:opacity-50",
-                     org.isActive ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-white"
+                     org.isActive ? "bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white" : "bg-primary/10 border-primary/20 text-primary hover:bg-primary hover:text-background-dark"
                    )}
                  >
                     {org.isActive ? 'Deactivate Node' : 'Activate Node'}
@@ -308,7 +335,7 @@ export default function OrganizationDetailPage() {
                        org.transactions.map((tx) => (
                          <div key={tx._id} className="flex items-center justify-between p-4 bg-white/[0.02] rounded-2xl border border-white/5">
                             <div className="flex items-center gap-3">
-                               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                   <Check className="w-4 h-4" />
                                </div>
                                <div>
@@ -392,6 +419,11 @@ export default function OrganizationDetailPage() {
            </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        {...confirmConfig}
+        onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
 
       <style jsx global>{`
         .tracking-tightest {

@@ -25,6 +25,7 @@ import Link from 'next/link'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { Select } from '@/components/ui/Select'
 import { toast } from 'react-hot-toast'
 
 interface UserQuota {
@@ -140,7 +141,8 @@ const QuotaControl: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] text-slate-200 pb-20">
+        <div className="min-h-screen bg-[#050505] text-slate-200 pb-20 relative z-10">
+            <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
             <div className="max-w-[1600px] mx-auto px-6 pt-8">
                 <Link href="/dashboard/admin" className="inline-block group mb-6">
                     <motion.div 
@@ -182,31 +184,31 @@ const QuotaControl: React.FC = () => {
                             />
                         </div>
 
-                        <div className="relative">
-                            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <select 
+                        <div className="relative w-56">
+                            <Select 
                                 value={planFilter}
-                                onChange={(e) => setPlanFilter(e.target.value)}
-                                className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-10 text-white text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer hover:border-white/20 shadow-xl"
-                            >
-                                <option value="all" className="bg-slate-900">All Tiers</option>
-                                <option value="basic" className="bg-slate-900">Basic</option>
-                                <option value="professional" className="bg-slate-900">Professional</option>
-                                <option value="elite" className="bg-slate-900">Elite</option>
-                                <option value="enterprise" className="bg-slate-900">Enterprise</option>
-                            </select>
+                                onChange={setPlanFilter}
+                                icon={<Filter size={14} />}
+                                options={[
+                                    { value: 'all', label: 'All Tiers' },
+                                    { value: 'basic', label: 'Basic' },
+                                    { value: 'professional', label: 'Professional' },
+                                    { value: 'elite', label: 'Elite' },
+                                    { value: 'enterprise', label: 'Enterprise' }
+                                ]}
+                            />
                         </div>
 
-                        <div className="relative">
-                            <Tune className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <select 
+                        <div className="relative w-64">
+                            <Select 
                                 value={customFilter}
-                                onChange={(e) => setCustomFilter(e.target.value)}
-                                className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-10 text-white text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer hover:border-white/20 shadow-xl"
-                            >
-                                <option value="all" className="bg-slate-900">Synchronized All</option>
-                                <option value="custom" className="bg-slate-900">Custom Manual Only</option>
-                            </select>
+                                onChange={setCustomFilter}
+                                icon={<Tune size={14} />}
+                                options={[
+                                    { value: 'all', label: 'Synchronized All' },
+                                    { value: 'custom', label: 'Custom Manual Only' }
+                                ]}
+                            />
                         </div>
                     </div>
                 </motion.div>
@@ -230,8 +232,8 @@ const QuotaControl: React.FC = () => {
                                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-10">
                                         <div className="flex items-center gap-6 min-w-[300px]">
                                             <div className="relative">
-                                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border border-white/10 shadow-lg">
-                                                    <Person className="text-white text-3xl" />
+                                                <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center border border-white/10 shadow-lg">
+                                                    <Person className="text-primary text-3xl" />
                                                 </div>
                                                 {user.isCustom && (
                                                     <div className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-lg border border-white/20 shadow-[0_0_10px_rgba(244,63,94,0.5)]">
@@ -242,11 +244,7 @@ const QuotaControl: React.FC = () => {
                                             <div>
                                                 <div className="flex items-center gap-3 mb-1">
                                                     <h3 className="text-xl font-black text-white">{user.name}</h3>
-                                                    <span className={`text-[9px] uppercase font-black px-3 py-1 rounded-full border tracking-widest ${
-                                                        user.plan === 'elite' ? 'bg-amber-500/10 border-amber-500 text-amber-500' :
-                                                        user.plan === 'professional' ? 'bg-purple-500/10 border-purple-500 text-purple-500' :
-                                                        'bg-primary/10 border-primary text-primary'
-                                                    } shadow-[0_0_15px_rgba(255,255,255,0.05)]`}>
+                                                    <span className="text-[9px] uppercase font-black px-3 py-1 rounded-full border tracking-widest bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(0,230,118,0.05)]">
                                                         {user.plan}
                                                     </span>
                                                 </div>
@@ -274,14 +272,14 @@ const QuotaControl: React.FC = () => {
                                             <div className="space-y-3 p-4 bg-black/40 rounded-3xl border border-white/5">
                                                 <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">
                                                     <span>AI Tokens</span>
-                                                    <Token size={14} className="text-purple-500" />
+                                                    <Token size={14} className="text-primary" />
                                                 </div>
                                                 <div className="text-2xl font-black text-white">
                                                     {formatTokens(user.usage.tokens)} <span className="text-slate-600 text-sm font-medium">/ {formatTokens(user.limits.tokens)}</span>
                                                 </div>
                                                 <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                                                     <div 
-                                                        className="h-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all duration-1000"
+                                                        className="h-full bg-primary shadow-[0_0_10px_rgba(0,230,118,0.5)] transition-all duration-1000"
                                                         style={{ width: `${Math.min(100, (user.usage.tokens / user.limits.tokens) * 100)}%` }}
                                                     />
                                                 </div>
@@ -290,14 +288,14 @@ const QuotaControl: React.FC = () => {
                                             <div className="space-y-3 p-4 bg-black/40 rounded-3xl border border-white/5">
                                                 <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">
                                                     <span>Storage</span>
-                                                    <CloudQueue size={14} className="text-blue-500" />
+                                                    <CloudQueue size={14} className="text-primary" />
                                                 </div>
                                                 <div className="text-2xl font-black text-white">
                                                     {formatStorage(user.usage.storage)} <span className="text-slate-600 text-sm font-medium">/ {formatStorage(user.limits.storage)}</span>
                                                 </div>
                                                 <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                                                     <div 
-                                                        className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000"
+                                                        className="h-full bg-primary shadow-[0_0_10px_rgba(0,230,118,0.5)] transition-all duration-1000"
                                                         style={{ width: `${Math.min(100, (user.usage.storage / user.limits.storage) * 100)}%` }}
                                                     />
                                                 </div>
@@ -306,7 +304,7 @@ const QuotaControl: React.FC = () => {
                                             <div className="space-y-3 p-4 bg-black/40 rounded-3xl border border-white/5 text-center">
                                                 <div className="flex items-center justify-between text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">
                                                     <span>Artifacts/Case</span>
-                                                    <Description size={14} className="text-emerald-500" />
+                                                    <Description size={14} className="text-primary" />
                                                 </div>
                                                 <div className="text-2xl font-black text-white pt-1">
                                                     {user.limits.filesPerCase}
@@ -327,9 +325,9 @@ const QuotaControl: React.FC = () => {
                                                 <Button 
                                                     variant="secondary"
                                                     onClick={() => handleResetQuota(user._id)}
-                                                    className="!bg-white/[0.03] !border-white/10 hover:!bg-rose-500/20 hover:!border-rose-500/40 group/btn !w-14 !h-14 !p-0 !rounded-2xl"
+                                                    className="!bg-white/[0.03] !border-white/10 hover:!bg-primary/20 hover:!border-primary/40 group/btn !w-14 !h-14 !p-0 !rounded-2xl"
                                                 >
-                                                    <RotateLeft className="text-white group-hover/btn:text-rose-500" />
+                                                    <RotateLeft className="text-white group-hover/btn:text-primary" />
                                                 </Button>
                                             )}
                                         </div>
@@ -393,29 +391,29 @@ const QuotaControl: React.FC = () => {
                             />
                         </div>
 
-                        <div className="space-y-3">
+                         <div className="space-y-3">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-2">
-                                <Description size={14} className="text-emerald-500" /> Artifacts Per Case
+                                <Description size={14} className="text-primary" /> Artifacts Per Case
                             </label>
                             <input 
                                 type="number"
                                 value={editData.maxFilesPerCase}
                                 onChange={(e) => setEditData({...editData, maxFilesPerCase: parseInt(e.target.value)})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-emerald-500/50 shadow-inner"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-2">
-                            <Token size={14} className="text-purple-500" /> AI Token Allowance (Total)
+                            <Token size={14} className="text-primary" /> AI Token Allowance (Total)
                         </label>
                         <div className="relative">
                             <input 
                                 type="number"
                                 value={editData.maxTokens}
                                 onChange={(e) => setEditData({...editData, maxTokens: parseInt(e.target.value)})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-purple-500/50 shadow-inner"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs uppercase tracking-widest">
                                 Tokens
@@ -425,14 +423,14 @@ const QuotaControl: React.FC = () => {
 
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-2">
-                            <CloudQueue size={14} className="text-blue-500" /> Aggregate Storage (Bytes)
+                            <CloudQueue size={14} className="text-primary" /> Aggregate Storage (Bytes)
                         </label>
                         <div className="relative">
                             <input 
                                 type="number"
                                 value={editData.maxTotalStorage}
                                 onChange={(e) => setEditData({...editData, maxTotalStorage: parseInt(e.target.value)})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-blue-500/50 shadow-inner"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs uppercase tracking-widest">
                                 {formatStorage(editData.maxTotalStorage)}
@@ -451,7 +449,7 @@ const QuotaControl: React.FC = () => {
                         <Button 
                             variant="primary"
                             onClick={handleUpdateQuota}
-                            className="flex-1 !shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)] !py-6 !rounded-[20px] !text-[11px] font-black tracking-widest uppercase"
+                            className="flex-1 !bg-primary !text-background-dark !shadow-[0_0_30px_rgba(0,230,118,0.3)] !py-6 !rounded-[20px] !text-[11px] font-black tracking-widest uppercase border-none hover:bg-primary/90"
                         >
                             Finalize Orchestration
                         </Button>

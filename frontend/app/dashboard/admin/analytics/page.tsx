@@ -143,10 +143,11 @@ export default function AnalyticsDashboard() {
   return (
     <DashboardLayout>
       <div className="p-8 md:p-12 max-w-7xl mx-auto space-y-12 relative z-10">
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></div>
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]"></div>
               <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">System Node: Intelligence</span>
             </div>
             <h1 className="text-5xl font-black text-white tracking-tightest font-display italic uppercase">
@@ -167,7 +168,7 @@ export default function AnalyticsDashboard() {
                 className={cn(
                   "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
                   range === r 
-                  ? "bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20" 
+                  ? "bg-primary text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.4)] border border-white/20" 
                   : "text-slate-500 hover:text-white hover:bg-white/5"
                 )}
               >
@@ -180,9 +181,9 @@ export default function AnalyticsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             { label: 'Total Tokens', value: data.totals.tokens.toLocaleString(), icon: Zap, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' },
-            { label: 'Est. Cost', value: `$${data.totals.cost.toFixed(2)}`, icon: DollarSign, color: 'secondary', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5' },
-            { label: 'Avg Latency', value: `${data.totals.avgResponseTime}ms`, icon: Clock, color: 'warning', border: 'border-amber-500/20', bg: 'bg-amber-500/5' },
-            { label: 'Interactions', value: data.totals.messages.toLocaleString(), icon: Activity, color: 'success', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5' }
+            { label: 'Est. Cost', value: `$${data.totals.cost.toFixed(2)}`, icon: DollarSign, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' },
+            { label: 'Avg Latency', value: `${data.totals.avgResponseTime}ms`, icon: Clock, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' },
+            { label: 'Interactions', value: data.totals.messages.toLocaleString(), icon: Activity, color: 'primary', border: 'border-primary/20', bg: 'bg-primary/5' }
           ].map((kpi, i) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -198,12 +199,12 @@ export default function AnalyticsDashboard() {
                   <h3 className="text-4xl font-black text-white tracking-tightest leading-none">{kpi.value}</h3>
                 </div>
                 <div className={`p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform duration-500`}>
-                  <kpi.icon size={20} className={`text-${kpi.color}`} />
+                  <kpi.icon size={20} className="text-primary" />
                 </div>
               </div>
               <div className="mt-6 flex items-center gap-2">
-                <TrendingUp size={12} className="text-emerald-500" />
-                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">+12.4% from average</span>
+                <TrendingUp size={12} className="text-primary" />
+                <span className="text-[8px] font-black text-primary uppercase tracking-widest">+12.4% from average</span>
               </div>
             </motion.div>
           ))}
@@ -229,8 +230,8 @@ export default function AnalyticsDashboard() {
                    <AreaChart data={data.dailyTrend}>
                      <defs>
                        <linearGradient id="colorTokens" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
-                         <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                         <stop offset="5%" stopColor="#00e676" stopOpacity={0.3}/>
+                         <stop offset="95%" stopColor="#00e676" stopOpacity={0}/>
                        </linearGradient>
                      </defs>
                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -255,12 +256,12 @@ export default function AnalyticsDashboard() {
                         contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', padding: '16px' }}
                         itemStyle={{ color: '#fff', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                         labelStyle={{ color: '#64748b', fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}
-                        cursor={{ stroke: 'rgba(37, 99, 235, 0.2)', strokeWidth: 2 }}
+                        cursor={{ stroke: 'rgba(0, 230, 118, 0.2)', strokeWidth: 2 }}
                      />
                      <Area 
                         type="monotone" 
                         dataKey="tokens" 
-                        stroke="#2563eb" 
+                        stroke="#00e676" 
                         strokeWidth={4}
                         fillOpacity={1} 
                         fill="url(#colorTokens)" 
@@ -294,7 +295,7 @@ export default function AnalyticsDashboard() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="flex items-center gap-5 relative z-10">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white group-hover:bg-primary/20 group-hover:border-primary/40 transition-all duration-500">
+                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[11px] font-black text-white group-hover:bg-primary group-hover:text-background-dark group-hover:border-primary/40 transition-all duration-500">
                             {(powerPage - 1) * 10 + index + 1}
                           </div>
                           <div className="min-w-0">

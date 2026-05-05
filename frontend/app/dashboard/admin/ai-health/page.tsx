@@ -95,10 +95,11 @@ const AiHealthMonitor = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 pb-12">
+      <div className="space-y-8 pb-12 relative z-10">
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-black text-white tracking-tightest uppercase italic">
               AI Health Monitor
             </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -130,19 +131,19 @@ const AiHealthMonitor = () => {
             title="Active Tokens (24h)" 
             value={(data?.stats.tokens24h && data.stats.tokens24h > 1000000) ? (data.stats.tokens24h / 1000000).toFixed(1) + 'M' : data?.stats.tokens24h.toLocaleString()} 
             icon="token" 
-            color="blue" 
+            color="primary" 
           />
           <StatCard 
             title="Requests (7d)" 
             value={data?.stats.requests7d.toLocaleString()} 
             icon="history" 
-            color="purple" 
+            color="primary" 
           />
           <StatCard 
             title="Requests (30d)" 
             value={data?.stats.requests30d.toLocaleString()} 
             icon="calendar_month" 
-            color="emerald" 
+            color="primary" 
           />
         </div>
 
@@ -183,13 +184,13 @@ const AiHealthMonitor = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${log.provider === 'openai' ? 'bg-emerald-400' : 'bg-blue-400'}`}></span>
+                        <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,230,118,0.8)]"></span>
                         <span className="text-sm font-bold uppercase">{log.provider}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase border ${
-                        log.status === 'success' ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' :
+                        log.status === 'success' ? 'bg-primary/10 text-primary border-primary/20' :
                         log.status === 'rate_limit' ? 'bg-amber-400/10 text-amber-400 border-amber-400/20' :
                         'bg-rose-400/10 text-rose-400 border-rose-400/20'
                       }`}>
@@ -214,12 +215,12 @@ const AiHealthMonitor = () => {
                       {log.status !== 'success' && !log.resolved ? (
                         <button 
                           onClick={() => resolveError(log._id)}
-                          className="p-1 px-3 bg-primary/20 hover:bg-primary/40 text-primary border border-primary/30 rounded-lg text-[10px] font-bold uppercase transition-all"
+                          className="p-1 px-3 bg-primary hover:bg-primary/90 text-background-dark border border-primary/30 rounded-lg text-[10px] font-bold uppercase transition-all"
                         >
                           Resolve
                         </button>
                       ) : log.resolved ? (
-                        <span className="material-icons-round text-emerald-400 text-sm">check_circle</span>
+                        <span className="material-icons-round text-primary text-sm">check_circle</span>
                       ) : (
                         <span className="text-gray-600 text-[10px] font-bold uppercase">N/A</span>
                       )}
@@ -291,8 +292,8 @@ const ProviderCard = ({ provider }: { provider: AiProvider }) => (
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Provider Node</span>
           <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
             {provider.provider}
-            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase border animate-pulse shadow-[0_0_15px_rgba(52,211,153,0.3)] ${
-              provider.status === 'operational' ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' : 
+            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase border animate-pulse shadow-[0_0_15px_rgba(0,230,118,0.3)] ${
+              provider.status === 'operational' ? 'bg-primary/10 text-primary border-primary/20' : 
               provider.status === 'degraded' ? 'bg-amber-400/10 text-amber-400 border-amber-400/20' : 
               'bg-rose-400/10 text-rose-400 border-rose-400/20'
             }`}>
@@ -302,7 +303,7 @@ const ProviderCard = ({ provider }: { provider: AiProvider }) => (
         </div>
         <div className="text-right">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-1">Est. Daily Cost</span>
-          <span className="text-2xl font-mono text-emerald-400 font-bold">${provider.estimatedCost}</span>
+          <span className="text-2xl font-mono text-primary font-bold">${provider.estimatedCost}</span>
         </div>
       </div>
 
@@ -337,7 +338,7 @@ const ProviderCard = ({ provider }: { provider: AiProvider }) => (
              animate={{ width: `${provider.successRate}%` }}
              transition={{ duration: 1, ease: 'easeOut' }}
              className={`h-full ${
-               provider.status === 'operational' ? 'bg-primary shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 
+               provider.status === 'operational' ? 'bg-primary shadow-[0_0_10px_rgba(0,230,118,0.5)]' : 
                'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]'
              }`}
            />

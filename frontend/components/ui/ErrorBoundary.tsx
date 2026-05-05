@@ -33,8 +33,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background-dark">
           <div className="glass-dark border border-white/10 rounded-[32px] p-12 max-w-lg text-center">
-            <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-6">
-              <span className="material-icons-round text-red-500 text-3xl">error_outline</span>
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-6">
+              <span className="material-icons-round text-rose-500 text-3xl">error_outline</span>
             </div>
             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-4">
               System Error

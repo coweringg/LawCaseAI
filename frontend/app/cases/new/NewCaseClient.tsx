@@ -28,8 +28,13 @@ import {
     ShieldAlert,
     Plus,
     Trash2,
-    Loader2
+    Loader2,
+    X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Alert } from '@/components/ui/Alert';
+import { Select } from '@/components/ui/Select';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { isBefore, startOfDay } from 'date-fns';
 
 export default function NewCaseClient() {
@@ -122,28 +127,30 @@ export default function NewCaseClient() {
     };
 
     if (!mounted) return (
-      <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
         <Loader2 className="animate-spin text-primary h-12 w-12" />
       </div>
     );
 
     return (
         <DashboardLayout>
-            <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-surface-dark w-full max-w-6xl rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-slate-200 dark:border-slate-800 mx-auto">
-                    <div className="w-full md:w-1/3 bg-slate-50 dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-6 relative overflow-hidden">
+            <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4 lg:p-8">
+                <div className="w-full max-w-6xl rounded-2xl overflow-hidden flex flex-col md:flex-row border border-white/[0.06] bg-[#0a0a0f] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] mx-auto">
+                    <div className="w-full md:w-1/3 border-r border-white/[0.06] flex flex-col justify-between p-6 lg:p-8 relative overflow-hidden bg-black/40">
+                        <div className="absolute inset-0 micro-grid opacity-[0.04] pointer-events-none"></div>
                         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                            <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px]"></div>
-                            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-[80px]"></div>
+                            <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/8 rounded-full blur-[120px]"></div>
+                            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-[100px]"></div>
                         </div>
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-10">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20 ring-4 ring-primary/10">L</div>
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(0,230,118,0.15)]">
+                                    <span className="material-icons-round text-primary text-xl">add_circle</span>
+                                </div>
                                 <div className="flex flex-col">
-                                    <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white leading-none">LawCaseAI</span>
-                                    <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Intelligent Law</span>
+                                    <span className="font-extrabold text-lg tracking-tight text-white leading-none">New Case</span>
+                                    <span className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Intelligence Protocol</span>
                                 </div>
                             </div>
 
@@ -155,25 +162,25 @@ export default function NewCaseClient() {
                                     { id: 4, label: 'Verification', sub: 'Final Confirm', icon: <BadgeCheck className="w-4 h-4" /> }
                                 ].map((s, idx) => (
                                     <div key={s.id} className="relative group">
-                                        <div className="flex gap-5 items-center">
-                                            <div className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-250 border-2 ${step > s.id
-                                                ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110'
+                                        <div className="flex gap-4 items-center">
+                                            <div className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${step > s.id
+                                                ? 'bg-primary border-primary/40 text-background-dark shadow-[0_0_15px_rgba(0,230,118,0.3)]'
                                                 : step === s.id
-                                                    ? 'bg-primary border-primary text-white shadow-xl shadow-primary/25 scale-110'
-                                                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
+                                                    ? 'bg-primary border-primary/40 text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.4)] scale-110'
+                                                    : 'bg-white/[0.03] border-white/[0.08] text-slate-600'
                                                 }`}>
                                                 {step > s.id ? <CheckCircle2 className="w-5 h-5" /> : s.icon}
                                                 {step === s.id && (
-                                                    <span className="absolute -inset-2 bg-primary/20 rounded-2xl animate-pulse -z-10"></span>
+                                                    <span className="absolute -inset-1.5 bg-primary/15 rounded-2xl animate-pulse -z-10"></span>
                                                 )}
                                             </div>
                                             <div className="flex flex-col">
-                                                <h3 className={`text-sm font-bold transition-colors ${step >= s.id ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>{s.label}</h3>
-                                                <p className={`text-[10px] font-bold uppercase tracking-wider ${step >= s.id ? 'text-primary/70' : 'text-slate-400'}`}>{s.sub}</p>
+                                                <h3 className={`text-sm font-bold transition-colors ${step >= s.id ? 'text-white' : 'text-slate-600'}`}>{s.label}</h3>
+                                                <p className={`text-[9px] font-bold uppercase tracking-[0.15em] ${step >= s.id ? 'text-primary/70' : 'text-slate-700'}`}>{s.sub}</p>
                                             </div>
                                         </div>
                                         {idx !== 3 && (
-                                            <div className="ml-5 mt-1 border-l-2 border-dashed border-slate-200 dark:border-slate-700 h-10 -mb-1"></div>
+                                            <div className={`ml-5 mt-1 border-l-2 border-dashed h-8 -mb-1 transition-colors ${step > s.id ? 'border-primary/30' : 'border-white/[0.06]'}`}></div>
                                         )}
                                     </div>
                                 ))}
@@ -181,15 +188,15 @@ export default function NewCaseClient() {
                         </div>
 
                         <div className="relative z-10 mt-auto hidden lg:block">
-                            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-2xl p-4 border border-white dark:border-slate-700 shadow-xl border-b-primary/30">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
-                                        <Sparkles className="w-5 h-5" />
+                            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl p-4 border border-white/[0.06]">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 border border-primary/20">
+                                        <Sparkles className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">AI Smart Index</h4>
-                                        <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 font-medium italic">
-                                            &quot;Provide accurate details to help me build a comprehensive legal context for your case analysis.&quot;
+                                        <h4 className="text-xs font-bold text-white mb-1">AI Smart Index</h4>
+                                        <p className="text-[10px] leading-relaxed text-slate-500 font-medium">
+                                            Provide accurate details to help build a comprehensive legal context for your case analysis.
                                         </p>
                                     </div>
                                 </div>
@@ -197,19 +204,19 @@ export default function NewCaseClient() {
                         </div>
                     </div>
 
-                    <div className="w-full md:w-2/3 flex flex-col h-full bg-white dark:bg-surface-dark relative">
-                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/30 dark:bg-black/10 backdrop-blur-sm">
+                    <div className="w-full md:w-2/3 flex flex-col h-full bg-[#0c0c12] relative">
+                        <div className="px-6 lg:px-8 py-5 border-b border-white/[0.06] flex justify-between items-center bg-white/[0.01]">
                             <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-extrabold uppercase tracking-widest leading-none">Step {step} of 4</span>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-widest leading-none border border-primary/20">Step {step} of 4</span>
                                 </div>
-                                <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                <h1 className="text-xl font-extrabold text-white tracking-tight">
                                     {step === 1 && 'Case Basics'}
                                     {step === 2 && 'Classification'}
                                     {step === 3 && 'Jurisdiction'}
                                     {step === 4 && 'Verification'}
                                 </h1>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                                <p className="text-xs text-slate-500 mt-1.5 font-medium">
                                     {step === 1 && 'Establish the identity and primary context for your new legal matter.'}
                                     {step === 2 && 'Assign categories and current state for intelligent AI indexing.'}
                                     {step === 3 && 'Map the case to its respective judicial authority and location.'}
@@ -220,38 +227,34 @@ export default function NewCaseClient() {
 
                         <div className="flex-1 overflow-y-auto p-6">
                             {user && user.planLimit > 0 && user.currentCases >= user.planLimit && (
-                                <div className="max-w-2xl mx-auto mb-6 p-4 bg-error-500/10 border border-error-500/20 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
-                                    <AlertCircle className="w-6 h-6 text-error-500 flex-shrink-0" />
-                                    <div>
-                                        <h4 className="text-sm font-bold text-error-500 tracking-tight">Case Limit Reached</h4>
-                                        <p className="text-xs text-slate-500 font-medium">
-                                            You have reached the limit for your current plan ({user.currentCases}/{user.planLimit >= 10000 ? '∞' : user.planLimit}). Please upgrade to create more cases.
-                                        </p>
-                                    </div>
-                                    <button 
-                                        onClick={() => router.push('/settings?tab=billing')}
-                                        className="ml-auto px-4 py-2 bg-error-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-error-500/20 hover:bg-error-600 transition-all"
-                                    >
-                                        Upgrade
-                                    </button>
+                                <div className="max-w-2xl mx-auto mb-10">
+                                    <Alert type="error" title="Capacity Saturation" className="shadow-rose-900/10">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                                            <p className="text-[11px] font-medium tracking-wide opacity-90">You have reached the operational limit for your current plan ({user.currentCases}/{user.planLimit >= 10000 ? '∞' : user.planLimit}).</p>
+                                            <button 
+                                                onClick={() => router.push('/settings?tab=billing')}
+                                                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-rose-900/40 transition-all shrink-0"
+                                            >
+                                                Expand Capacity
+                                            </button>
+                                        </div>
+                                    </Alert>
                                 </div>
                             )}
 
                             {user && user.planLimit === 0 && (
-                                <div className="max-w-2xl mx-auto mb-6 p-4 bg-warning-500/10 border border-warning-500/20 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
-                                    <ShieldAlert className="w-6 h-6 text-warning-500 flex-shrink-0" />
-                                    <div>
-                                        <h4 className="text-sm font-bold text-warning-500 tracking-tight">No Active Plan</h4>
-                                        <p className="text-xs text-slate-500 font-medium">
-                                            Your current plan does not allow for case creation. Please select a plan to begin initializing workspaces.
-                                        </p>
-                                    </div>
-                                    <button 
-                                        onClick={() => router.push('/settings?tab=billing')}
-                                        className="ml-auto px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all"
-                                    >
-                                        Select Plan
-                                    </button>
+                                <div className="max-w-2xl mx-auto mb-10">
+                                    <Alert type="warning" title="Inactive Intelligence Protocol" className="shadow-amber-900/10">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                                            <p className="text-[11px] font-medium tracking-wide opacity-90">Your current plan does not allow for case initialization. Please select an active protocol to begin.</p>
+                                            <button 
+                                                onClick={() => router.push('/settings?tab=billing')}
+                                                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-background-dark text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-amber-900/40 transition-all shrink-0"
+                                            >
+                                                Initialize Plan
+                                            </button>
+                                        </div>
+                                    </Alert>
                                 </div>
                             )}
 
@@ -259,12 +262,12 @@ export default function NewCaseClient() {
                                 {step === 1 && (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
                                                 <FileText className="w-3.5 h-3.5" />
-                                                Case Project Name <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
+                                                Case Project Name <span className="ml-1 text-rose-500 font-black text-[9px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <input
-                                                className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                                className="w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none font-medium placeholder:text-slate-700 text-sm"
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleChange}
@@ -277,12 +280,12 @@ export default function NewCaseClient() {
                                             </p>
                                         </div>
                                         <div className="group">
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
                                                 <Users className="w-3.5 h-3.5" />
-                                                Primary Client / Represented Party <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
+                                                Primary Client / Represented Party <span className="ml-1 text-rose-500 font-black text-[9px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <input
-                                                className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                                className="w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none font-medium placeholder:text-slate-700 text-sm"
                                                 name="client"
                                                 value={formData.client}
                                                 onChange={handleChange}
@@ -291,12 +294,12 @@ export default function NewCaseClient() {
                                             />
                                         </div>
                                         <div className="group">
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5 group-focus-within:text-primary transition-colors">
                                                 <Layers className="w-3.5 h-3.5" />
                                                 Initial Case Description
                                             </label>
                                             <textarea
-                                                className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700 min-h-[160px] resize-none"
+                                                className="w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none font-medium placeholder:text-slate-700 min-h-[140px] resize-none text-sm"
                                                 name="description"
                                                 value={formData.description}
                                                 onChange={handleChange}
@@ -309,9 +312,9 @@ export default function NewCaseClient() {
                                 {step === 2 && (
                                     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
                                                 <Gavel className="w-3.5 h-3.5" />
-                                                Legal Practice Area <span className="ml-1 text-rose-500 font-black text-[10px] lowercase tracking-normal">(Required)</span>
+                                                Legal Practice Area <span className="ml-1 text-rose-500 font-black text-[9px] lowercase tracking-normal">(Required)</span>
                                             </label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {[
@@ -326,12 +329,12 @@ export default function NewCaseClient() {
                                                         key={area.id}
                                                         type="button"
                                                         onClick={() => setFormData(prev => ({ ...prev, practiceArea: area.id }))}
-                                                        className={`flex items-center gap-3 px-4 py-4 rounded-xl border-2 transition-all text-left ${formData.practiceArea === area.id
-                                                            ? 'border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5'
-                                                            : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 text-slate-600 dark:text-slate-400'
+                                                        className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all text-left ${formData.practiceArea === area.id
+                                                            ? 'border-primary/40 bg-primary/[0.08] text-primary shadow-[0_0_15px_rgba(0,230,118,0.1)]'
+                                                            : 'border-white/[0.06] hover:border-white/[0.12] text-slate-500'
                                                             }`}
                                                     >
-                                                        <div className={`p-2 rounded-lg ${formData.practiceArea === area.id ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                                                        <div className={`p-2 rounded-lg ${formData.practiceArea === area.id ? 'bg-primary text-background-dark' : 'bg-white/[0.05] text-slate-600'}`}>
                                                             {area.icon}
                                                         </div>
                                                         <span className="text-sm font-bold">{area.label}</span>
@@ -341,23 +344,23 @@ export default function NewCaseClient() {
                                         </div>
 
                                         <div>
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-4">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-4">
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                                 Matter Status
                                             </label>
-                                            <div className="flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl w-full">
+                                            <div className="flex p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl w-full">
                                                 {[
-                                                    { id: 'active', color: 'text-emerald-500', dot: 'bg-emerald-500' },
+                                                    { id: 'active', color: 'text-primary', dot: 'bg-primary' },
                                                     { id: 'pending', color: 'text-amber-500', dot: 'bg-amber-500' },
-                                                    { id: 'discovery', color: 'text-indigo-500', dot: 'bg-indigo-500' }
+                                                    { id: 'discovery', color: 'text-primary', dot: 'bg-primary' }
                                                 ].map(s => (
                                                     <button
                                                         key={s.id}
                                                         type="button"
                                                         onClick={() => setFormData(prev => ({ ...prev, status: s.id }))}
-                                                        className={`flex-1 flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em] py-3 rounded-lg transition-all ${formData.status === s.id
-                                                            ? `bg-white dark:bg-slate-700 ${s.color} shadow-sm ring-1 ring-black/5`
-                                                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-400'
+                                                        className={`flex-1 flex items-center justify-center gap-2 font-bold text-[9px] uppercase tracking-[0.2em] py-2.5 rounded-lg transition-all ${formData.status === s.id
+                                                            ? `bg-white/[0.08] ${s.color} shadow-sm border border-white/[0.08]`
+                                                            : 'text-slate-600 hover:text-slate-400'
                                                             }`}
                                                     >
                                                         <span className={`w-1.5 h-1.5 rounded-full ${formData.status === s.id ? s.dot : 'bg-slate-300'}`}></span>
@@ -369,19 +372,19 @@ export default function NewCaseClient() {
 
                                         <div>
                                             <div className="flex justify-between items-center mb-4">
-                                                <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
+                                                <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">
                                                     <Layers className="w-3.5 h-3.5" />
                                                     Complexity Estimation
                                                 </label>
-                                                <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest ${formData.complexity === '1' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' :
-                                                    formData.complexity === '2' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20' :
-                                                        'bg-rose-50 text-rose-600 dark:bg-rose-900/20'
+                                                <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest ${formData.complexity === '1' ? 'bg-primary/10 text-primary' :
+                                                    formData.complexity === '2' ? 'bg-primary/10 text-primary' :
+                                                        'bg-rose-900/20 text-rose-400'
                                                     }`}>
                                                     {formData.complexity === '1' ? 'Light' : formData.complexity === '2' ? 'Standard' : 'Complex'}
                                                 </span>
                                             </div>
                                             <input
-                                                className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"
+                                                className="w-full h-2 bg-white/[0.05] rounded-lg appearance-none cursor-pointer accent-primary"
                                                 type="range"
                                                 min="1"
                                                 max="3"
@@ -401,14 +404,14 @@ export default function NewCaseClient() {
                                 {step === 3 && (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-250">
                                         <div className="group">
-                                            <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-4 group-focus-within:text-primary transition-colors">
                                                 <Scale className="w-3.5 h-3.5" />
                                                 Court or Judicial Authority
                                             </label>
                                             <div className="relative">
                                                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors" />
                                                 <input
-                                                    className="w-full pl-12 pr-5 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none font-medium placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                                className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none font-medium placeholder:text-slate-700 text-sm"
                                                     name="court"
                                                     value={formData.court}
                                                     onChange={handleChange}
@@ -424,7 +427,7 @@ export default function NewCaseClient() {
 
                                         <div>
                                             <div className="flex items-center justify-between mb-4">
-                                                <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
+                                                <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">
                                                     <Calendar className="w-3.5 h-3.5" />
                                                     Key Dates & Deadlines
                                                 </label>
@@ -437,46 +440,44 @@ export default function NewCaseClient() {
                                                 </button>
                                             </div>
                                             {keyDates.length === 0 ? (
-                                                <div className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
-                                                    <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 shadow-md">
+                                                <div className="p-8 rounded-xl bg-white/[0.02] border border-dashed border-white/[0.08] flex flex-col items-center justify-center text-center">
+                                                    <div className="w-12 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center text-slate-500 mb-3 border border-white/[0.06]">
                                                         <Calendar className="w-5 h-5" />
                                                     </div>
-                                                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Calendar Sync</h4>
+                                                    <h4 className="text-xs font-extrabold text-white uppercase tracking-widest mb-1">Calendar Sync</h4>
                                                     <p className="text-[10px] font-medium text-slate-500 max-w-xs">
                                                         Add key dates like hearings, deadlines, and meetings. They&apos;ll auto-sync to your calendar.
                                                     </p>
-                                                    <button type="button" onClick={addKeyDate} className="mt-4 px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-1.5">
+                                                    <button type="button" onClick={addKeyDate} className="mt-4 px-4 py-2 bg-primary text-background-dark text-[10px] font-black uppercase tracking-widest rounded-lg shadow-[0_0_15px_rgba(0,230,118,0.3)] hover:scale-105 transition-all flex items-center gap-1.5">
                                                         <Plus className="w-3.5 h-3.5" /> Add First Date
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <div className="space-y-3">
                                                     {keyDates.map((kd, idx) => (
-                                                        <div key={idx} className="flex gap-3 items-start p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+                                                        <div key={idx} className="flex gap-3 items-start p-4 bg-white/[0.02] rounded-xl border border-white/[0.06] animate-in fade-in slide-in-from-bottom-2">
                                                             <div className="flex-1 space-y-3">
                                                                 <input
                                                                     type="text"
                                                                     placeholder="e.g., Discovery Deadline"
                                                                     value={kd.title}
                                                                     onChange={(e) => updateKeyDate(idx, 'title', e.target.value)}
-                                                                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                                                                    className="w-full px-3 py-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none placeholder:text-slate-700"
                                                                 />
-                                                                <div className="flex flex-wrap gap-3">
-                                                                    <div className="flex-1 min-w-[140px]">
-                                                                        <input
-                                                                            type="date"
+                                                                <div className="grid grid-cols-[1fr_auto_1fr_150px] gap-3 items-start">
+                                                                    <div>
+                                                                        <DatePicker
                                                                             value={kd.date}
-                                                                            min={new Date().toISOString().split('T')[0]}
-                                                                            onChange={(e) => updateKeyDate(idx, 'date', e.target.value)}
-                                                                            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none [color-scheme:light] dark:[color-scheme:dark]"
+                                                                            minDate={new Date()}
+                                                                            onChange={(val) => updateKeyDate(idx, 'date', val)}
                                                                         />
                                                                     </div>
                                                                     
-                                                                    <div className="flex items-center gap-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                                                    <div className="flex items-center gap-2 px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-lg">
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => updateKeyDate(idx, 'hasTime', !kd.hasTime)}
-                                                                            className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all ${kd.hasTime ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+                                                                            className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all whitespace-nowrap ${kd.hasTime ? 'bg-primary text-background-dark shadow-md shadow-primary/20' : 'bg-white/[0.05] text-slate-500'}`}
                                                                         >
                                                                             {kd.hasTime ? 'Timed' : 'All Day'}
                                                                         </button>
@@ -485,46 +486,46 @@ export default function NewCaseClient() {
                                                                                 type="time"
                                                                                 value={kd.time}
                                                                                 onChange={(e) => updateKeyDate(idx, 'time', e.target.value)}
-                                                                                className="bg-transparent border-none text-xs font-bold text-primary focus:ring-0 outline-none p-0 [color-scheme:light] dark:[color-scheme:dark]"
+                                                                                className="bg-transparent border-none text-xs font-bold text-primary focus:ring-0 outline-none p-0 w-[64px] [color-scheme:dark]"
                                                                             />
                                                                         )}
                                                                     </div>
 
-                                                                    <select
-                                                                        value={kd.type}
-                                                                        onChange={(e) => updateKeyDate(idx, 'type', e.target.value)}
-                                                                        className="flex-1 min-w-[120px] px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none cursor-pointer"
-                                                                    >
-                                                                        <option value="deadline">Deadline</option>
-                                                                        <option value="hearing">Hearing</option>
-                                                                        <option value="meeting">Meeting</option>
-                                                                        <option value="review">Review</option>
-                                                                        <option value="consultation">Consultation</option>
-                                                                        <option value="other">Other</option>
-                                                                    </select>
+                                                                    <div className="relative z-40">
+                                                                        <Select
+                                                                            value={kd.type}
+                                                                            onChange={(val) => updateKeyDate(idx, 'type', val)}
+                                                                            dropUp
+                                                                            options={[
+                                                                                { value: 'deadline', label: 'Deadline' },
+                                                                                { value: 'hearing', label: 'Hearing' },
+                                                                                { value: 'meeting', label: 'Meeting' },
+                                                                                { value: 'review', label: 'Review' },
+                                                                                { value: 'consultation', label: 'Consultation' },
+                                                                                { value: 'other', label: 'Other' }
+                                                                            ]}
+                                                                        />
+                                                                    </div>
                                                                     
-                                                                    <select
-                                                                        value={kd.priority}
-                                                                        onChange={(e) => updateKeyDate(idx, 'priority', e.target.value)}
-                                                                        className={`w-[110px] px-3 py-2.5 rounded-lg border text-xs font-extrabold uppercase tracking-wider focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer text-center ${
-                                                                            kd.priority === 'critical' ? 'bg-red-100 text-red-700 border-red-500 dark:bg-red-900/30 dark:text-red-400' : 
-                                                                            kd.priority === 'high' ? 'bg-orange-100 text-orange-700 border-orange-500 dark:bg-orange-900/30 dark:text-orange-400' : 
-                                                                            kd.priority === 'medium' ? 'bg-amber-100 text-amber-700 border-amber-500 dark:bg-amber-900/30 dark:text-amber-400' :
-                                                                            kd.priority === 'low' ? 'bg-emerald-100 text-emerald-700 border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400' : 
-                                                                            'bg-slate-100 text-slate-700 border-slate-500 dark:bg-slate-800 dark:text-slate-300'
-                                                                        }`}
-                                                                    >
-                                                                        <option value="low" className="bg-white dark:bg-slate-900 text-emerald-600">Low</option>
-                                                                        <option value="medium" className="bg-white dark:bg-slate-900 text-amber-600">Medium</option>
-                                                                        <option value="high" className="bg-white dark:bg-slate-900 text-orange-600">High</option>
-                                                                        <option value="critical" className="bg-white dark:bg-slate-900 text-red-600">Critical</option>
-                                                                    </select>
+                                                                    <div className="relative z-30">
+                                                                        <Select
+                                                                            value={kd.priority}
+                                                                            onChange={(val) => updateKeyDate(idx, 'priority', val)}
+                                                                            dropUp
+                                                                            options={[
+                                                                                { value: 'low', label: 'Low' },
+                                                                                { value: 'medium', label: 'Medium' },
+                                                                                { value: 'high', label: 'High' },
+                                                                                { value: 'critical', label: 'Critical' }
+                                                                            ]}
+                                                                        />
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => removeKeyDate(idx)}
-                                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all mt-1"
+                                                                className="p-2 text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all mt-1"
                                                             >
                                                                 <Trash2 className="w-4 h-4" />
                                                             </button>
@@ -538,73 +539,73 @@ export default function NewCaseClient() {
 
                                 {step === 4 && (
                                     <div className="animate-in fade-in zoom-in duration-250 space-y-6">
-                                        <div className="relative p-0.5 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/5 to-indigo-500/20 border border-primary/10 overflow-hidden">
-                                            <div className="relative bg-white dark:bg-slate-900 rounded-[22px] p-6 shadow-2xl z-10">
-                                                <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-primary/30 via-primary/5 to-primary/30 overflow-hidden">
+                                            <div className="relative bg-[#0a0a10] rounded-[15px] p-6 z-10">
+                                                <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/[0.06]">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                                        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-background-dark shadow-[0_0_15px_rgba(0,230,118,0.3)]">
                                                             <CheckCircle2 className="w-5 h-5" />
                                                         </div>
-                                                        <h3 className="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">Case Summary</h3>
+                                                        <h3 className="font-extrabold text-lg text-white tracking-tight">Case Summary</h3>
                                                     </div>
-                                                    <span className="text-[9px] font-extrabold text-primary px-2.5 py-0.5 bg-primary/10 rounded-full uppercase tracking-widest">Live Preview</span>
+                                                    <span className="text-[9px] font-extrabold text-primary px-2.5 py-0.5 bg-primary/10 rounded-full uppercase tracking-widest border border-primary/20">Live Preview</span>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <div className="space-y-4">
                                                         <div>
-                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <FileText className="w-3 h-3" /> Case Reference
                                                             </div>
-                                                            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{formData.name}</div>
+                                                            <div className="text-base font-bold text-white truncate">{formData.name}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <Users className="w-3 h-3" /> Represented Client
                                                             </div>
-                                                            <div className="text-base font-bold text-slate-900 dark:text-white truncate">{formData.client}</div>
+                                                            <div className="text-base font-bold text-white truncate">{formData.client}</div>
                                                         </div>
                                                     </div>
 
                                                     <div className="space-y-4">
                                                         <div className="flex gap-4">
                                                             <div className="flex-1 min-w-0">
-                                                                <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                                <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                     <Gavel className="w-3 h-3" /> Practice Area
                                                                 </div>
-                                                              <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize truncate">{formData.practiceArea || 'General'}</div>
+                                                              <div className="text-sm font-bold text-slate-300 capitalize truncate">{formData.practiceArea || 'General'}</div>
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                                <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                     <Shield className="w-3 h-3" /> Complexity
                                                                 </div>
-                                                                <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Lvl {formData.complexity}</div>
+                                                                <div className="text-sm font-bold text-slate-300">Lvl {formData.complexity}</div>
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                            <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                                 <Building2 className="w-3 h-3" /> Jurisdiction
                                                             </div>
-                                                            <div className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{formData.court || 'Not provided'}</div>
+                                                            <div className="text-sm font-bold text-slate-300 truncate">{formData.court || 'Not provided'}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 {keyDates.length > 0 && (
-                                                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-                                                        <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <div className="mt-6 pt-5 border-t border-white/[0.06]">
+                                                        <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                                                             <Calendar className="w-3 h-3" /> Scheduled Key Dates
                                                         </div>
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                             {keyDates.map((kd, idx) => (
-                                                                <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                                                                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                                <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                                                                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                                                                         <Calendar className="w-3.5 h-3.5" />
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <div className="text-[10px] font-bold text-slate-900 dark:text-white truncate uppercase tracking-tight">{kd.title || 'Untitled Event'}</div>
+                                                                        <div className="text-[10px] font-bold text-white truncate uppercase tracking-tight">{kd.title || 'Untitled Event'}</div>
                                                                         <div className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">
-                                                                            {kd.date} &bull; {kd.type} &bull; <span className={kd.priority === 'high' || kd.priority === 'critical' ? 'text-amber-500' : kd.priority === 'low' ? 'text-emerald-500' : ''}>{kd.priority}</span>
+                                                                            {kd.date} &bull; {kd.type} &bull; <span className={kd.priority === 'high' || kd.priority === 'critical' ? 'text-amber-500' : kd.priority === 'low' ? 'text-primary' : ''}>{kd.priority}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -613,11 +614,11 @@ export default function NewCaseClient() {
                                                     </div>
                                                 )}
 
-                                                <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-                                                    <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                <div className="mt-6 pt-5 border-t border-white/[0.06]">
+                                                    <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                                                         <Layers className="w-3 h-3" /> Description Preview
                                                     </div>
-                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 italic truncate max-h-20 overflow-hidden">
+                                                    <p className="text-[11px] text-slate-500 leading-relaxed font-normal bg-white/[0.02] p-3 rounded-xl border border-white/[0.06] italic truncate max-h-20 overflow-hidden">
                                                         &quot;{formData.description || 'No description provided.'}&quot;
                                                     </p>
                                                 </div>
@@ -626,9 +627,9 @@ export default function NewCaseClient() {
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                                         </div>
 
-                                        <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-200 dark:border-amber-900/30">
+                                        <div className="flex items-center gap-3 p-4 bg-amber-900/10 rounded-xl border border-amber-500/20">
                                             <Clock className="w-5 h-5 text-amber-500 flex-none" />
-                                            <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                                            <p className="text-[11px] font-medium text-amber-400">
                                                 Initializing the case workspace will trigger AI indexing for any subsequent document uploads. This may take a few moments once started.
                                             </p>
                                         </div>
@@ -637,10 +638,10 @@ export default function NewCaseClient() {
                             </form>
                         </div>
 
-                        <div className="px-8 py-6 bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <div className="px-6 lg:px-8 py-5 bg-black/30 backdrop-blur-md border-t border-white/[0.06] flex items-center justify-between">
                             <button
                                 onClick={step === 1 ? () => router.push('/dashboard') : handleBack}
-                                className="px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2"
+                                className="px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest text-slate-500 hover:bg-white/5 hover:text-white transition-all flex items-center gap-2"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 {step === 1 ? 'Discard' : 'Go Back'}
@@ -648,9 +649,9 @@ export default function NewCaseClient() {
                             <button
                                 onClick={step === 4 ? handleSubmit : handleNext}
                                 disabled={isLoading || (step === 1 && (!formData.name || !formData.client)) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit)}
-                                className={`group relative px-10 py-3 rounded-xl font-bold text-xs uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && (!formData.name || !formData.client)) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit))
-                                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                                    : 'bg-primary text-white shadow-xl shadow-primary/25 hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0'
+                                className={`group relative px-8 py-3 rounded-xl font-bold text-[10px] uppercase tracking-[0.15em] transition-all overflow-hidden ${(isLoading || (step === 1 && (!formData.name || !formData.client)) || (step === 2 && !formData.practiceArea) || !!(user && user.currentCases >= user.planLimit))
+                                    ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/[0.06]'
+                                    : 'bg-primary text-background-dark shadow-[0_0_25px_rgba(0,230,118,0.3)] hover:shadow-[0_0_35px_rgba(0,230,118,0.4)] hover:-translate-y-0.5 active:translate-y-0'
                                     }`}
                             >
                                 <span className="relative z-10 flex items-center gap-2">

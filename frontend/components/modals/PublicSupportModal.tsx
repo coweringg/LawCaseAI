@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, User, Building2, MessageSquare, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { Select } from '@/components/ui/Select';
 
 interface PublicSupportModalProps {
   isOpen: boolean;
@@ -97,18 +98,18 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
                 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Issue Type</label>
-                  <select
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full bg-white/[0.02] border border-white/5 rounded-2xl px-4 py-3.5 text-[13px] font-bold text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:bg-white/[0.04] transition-all appearance-none cursor-pointer"
-                    required
-                  >
-                    <option value="Login Error" className="bg-[#060910]">Login Error</option>
-                    <option value="Forgot Password" className="bg-[#060910]">Forgot Password</option>
-                    <option value="Account Locked" className="bg-[#060910]">Account Locked</option>
-                    <option value="Other Issue" className="bg-[#060910]">Other Issue</option>
-                  </select>
+                  <div className="relative z-50">
+                    <Select
+                      value={formData.subject}
+                      onChange={(val) => setFormData(prev => ({ ...prev, subject: val }))}
+                      options={[
+                        { value: 'Login Error', label: 'Login Error' },
+                        { value: 'Forgot Password', label: 'Forgot Password' },
+                        { value: 'Account Locked', label: 'Account Locked' },
+                        { value: 'Other Issue', label: 'Other Issue' }
+                      ]}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -188,7 +189,7 @@ export default function PublicSupportModal({ isOpen, onClose }: PublicSupportMod
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-[2] py-4 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
+                    className="flex-[2] py-4 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-background-dark bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(0,230,118,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
                   >
                     {isSubmitting ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

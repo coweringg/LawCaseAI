@@ -22,6 +22,7 @@ import { PlanModal } from "@/components/settings/PlanModal";
 import { CapacityModal } from "@/components/settings/CapacityModal";
 import { DowngradeCapacityModal } from "@/components/settings/DowngradeCapacityModal";
 import { ShieldAlert } from "lucide-react";
+import { Alert } from "@/components/ui/Alert";
 
 import {
   useOrganizationDetails,
@@ -363,12 +364,10 @@ function SettingsContent() {
           if (res.data.success) {
             toast.success(res.data.message);
             
-            // Re-fetch all data to ensure UI consistency
             await fetchProfile();
             await refetchOrg();
             await refetchBilling();
             
-            // Manual state update as fallback to ensure immediate button disable
             updateUser({ willCancelAtPeriodEnd: true });
           }
         } catch (error: any) {
@@ -405,8 +404,8 @@ function SettingsContent() {
   ];
 
   if (!mounted) return (
-    <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    <div className="min-h-screen bg-background-dark flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary shadow-[0_0_20px_rgba(0,230,118,0.3)]"></div>
     </div>
   );
 
@@ -445,23 +444,19 @@ function SettingsContent() {
               billingInfo?.status === 'canceled' ||
               billingInfo?.organization?.status === 'canceled'
              ) && (
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-6 rounded-[2rem] bg-red-500/10 border border-red-500/20 flex items-start gap-4 mb-8"
-                >
-                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
-                        <ShieldAlert size={20} />
-                    </div>
-                    <div>
-                        <h4 className="text-sm font-black text-white uppercase tracking-tight">Subscription Scheduled for Cancellation</h4>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                            You canceled your subscription on <span className="text-white font-bold">{new Date((user as any)?.canceledAt || orgData?.canceledAt || billingInfo?.canceledAt || billingInfo?.organization?.canceledAt || Date.now()).toLocaleDateString()}</span>. 
-                            Your access will remain active until <span className="text-white font-bold">{new Date((user as any)?.currentPeriodEnd || orgData?.currentPeriodEnd || billingInfo?.currentPeriodEnd || billingInfo?.organization?.currentPeriodEnd || Date.now()).toLocaleDateString()}</span>. 
-                            After this date, no further charges will be processed and your plan will revert to the evaluation tier.
-                        </p>
-                    </div>
-                </motion.div>
+                <div className="mb-8">
+                    <Alert type="error" title="Subscription Scheduled for Deactivation">
+                        <div className="space-y-2">
+                            <p>
+                                Termination protocol initiated on <span className="text-white font-black">{new Date((user as any)?.canceledAt || orgData?.canceledAt || billingInfo?.canceledAt || billingInfo?.organization?.canceledAt || Date.now()).toLocaleDateString()}</span>. 
+                            </p>
+                            <p className="opacity-60">
+                                Your access will remain active until <span className="text-white font-black">{new Date((user as any)?.currentPeriodEnd || orgData?.currentPeriodEnd || billingInfo?.currentPeriodEnd || billingInfo?.organization?.currentPeriodEnd || Date.now()).toLocaleDateString()}</span>. 
+                                After this date, no further charges will be processed and your plan will revert to the evaluation tier.
+                            </p>
+                        </div>
+                    </Alert>
+                </div>
             )}
 
             <AnimatePresence mode="wait">
@@ -573,7 +568,7 @@ function SettingsContent() {
 
 export default function SettingsClient() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#05060a]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-background-dark" />}>
       <SettingsContent />
     </Suspense>
   );

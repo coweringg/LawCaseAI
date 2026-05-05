@@ -60,12 +60,12 @@ export default function AdminDashboardPage() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+        <div className="absolute inset-0 micro-grid opacity-[0.2] scale-150 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></div>
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]"></div>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Administrative Nexus</span>
             </div>
             <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic bg-gradient-to-r from-white via-white to-white/20 bg-clip-text text-transparent">
@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
               className={cn(
                 "px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
                 activeTab === tab.id 
-                ? "bg-primary text-white shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-white/20" 
+                ? "bg-primary text-background-dark shadow-[0_0_30px_rgba(0,230,118,0.4)] border border-white/20" 
                 : "text-slate-500 hover:text-white hover:bg-white/5"
               )}
             >

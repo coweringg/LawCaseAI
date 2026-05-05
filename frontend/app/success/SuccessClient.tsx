@@ -16,6 +16,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 
 function SuccessContent() {
   const router = useRouter();
@@ -55,16 +56,14 @@ function SuccessContent() {
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white flex flex-col font-display selection:bg-primary/30 relative overflow-hidden">
-      <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+      <div className="absolute inset-0 micro-grid opacity-[0.03] z-0 pointer-events-none"></div>
       <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[150px] animate-pulse"></div>
       <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/5 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }}></div>
 
       <header className="w-full py-8 px-8 flex justify-between items-center border-b border-white/5 bg-black/20 backdrop-blur-md relative z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-primary/20 border border-white/10">
-            <span className="material-icons-round text-white text-2xl">gavel</span>
-          </div>
-          <span className="text-2xl font-black tracking-tightest">LawCase<span className="text-primary">AI</span></span>
+          <MonolithLogo size={40} glowIntensity="lg" />
+          <span className="text-2xl font-black tracking-tightest text-white">LawCase<span className="text-primary">AI</span></span>
         </div>
         <div className="flex items-center gap-6">
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest hidden md:block">Support Priority • Global Compliance</span>

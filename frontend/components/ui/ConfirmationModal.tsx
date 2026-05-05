@@ -1,5 +1,6 @@
 import React from 'react'
-import { AlertTriangle, Info, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { AlertTriangle, Info, X, ShieldAlert } from 'lucide-react'
 import { cn } from '@/utils/helpers'
 import { Button } from './Button'
 
@@ -26,31 +27,29 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   variant = 'danger',
   isLoading = false
 }) => {
-  if (!isOpen) return null
-
   const variantColors = {
     danger: {
-      bg: 'bg-error-500/10',
-      text: 'text-error-500',
-      border: 'border-error-500/30',
-      button: 'bg-error-500 hover:bg-error-600',
-      glow: 'shadow-error-500/20',
-      icon: AlertTriangle
+      bg: 'bg-rose-500/10',
+      text: 'text-rose-500',
+      border: 'border-rose-500/20',
+      button: 'bg-rose-600 hover:bg-rose-500',
+      glow: 'shadow-rose-900/40',
+      icon: ShieldAlert
     },
     warning: {
-      bg: 'bg-warning-500/10',
-      text: 'text-warning-500',
-      border: 'border-warning-500/30',
-      button: 'bg-warning-500 hover:bg-warning-600',
-      glow: 'shadow-warning-500/20',
+      bg: 'bg-amber-500/10',
+      text: 'text-amber-500',
+      border: 'border-amber-500/20',
+      button: 'bg-amber-500 hover:bg-amber-400',
+      glow: 'shadow-amber-900/40',
       icon: AlertTriangle
     },
     info: {
       bg: 'bg-primary/10',
       text: 'text-primary',
-      border: 'border-primary/30',
-      button: 'bg-primary hover:bg-primary/80',
-      glow: 'shadow-primary/20',
+      border: 'border-primary/20',
+      button: 'bg-primary hover:bg-primary/90',
+      glow: 'shadow-primary/40',
       icon: Info
     }
   }
@@ -59,65 +58,77 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const Icon = activeVariant.icon
 
   return (
-    <div className="fixed inset-0 z-[200] overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4 text-center">
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"
-          onClick={onClose}
-        />
-
-        <div className="relative inline-block w-full max-w-md transform overflow-hidden rounded-[40px] glass-dark border border-white/20 p-8 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] transition-all">
-          <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
-          
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl transition-opacity"
             onClick={onClose}
-            className="absolute right-6 top-6 text-slate-500 hover:text-white hover:bg-white/5 transition-colors p-2 rounded-full z-20"
+          />
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-md bg-[#0c0c12] rounded-[2.5rem] border border-white/10 p-8 md:p-12 text-center shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <div className="absolute inset-0 micro-grid opacity-[0.1] pointer-events-none"></div>
+            
+            <button
+              onClick={onClose}
+              className="absolute right-8 top-8 text-slate-500 hover:text-white transition-colors p-2 rounded-full z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <div className="flex flex-col items-center text-center space-y-6 pt-4">
-            <div className={cn(
-              "p-5 rounded-3xl border-2 shadow-2xl transition-all duration-500",
-              activeVariant.bg,
-              activeVariant.border,
-              activeVariant.glow
-            )}>
-              <Icon className={cn("w-10 h-10", activeVariant.text)} />
-            </div>
+            <div className="flex flex-col items-center space-y-8">
+              <div className={cn(
+                "w-20 h-20 rounded-3xl border-2 flex items-center justify-center shadow-2xl transition-all duration-500",
+                activeVariant.bg,
+                activeVariant.border,
+                activeVariant.text
+              )}>
+                <Icon size={40} />
+              </div>
 
-            <div className="space-y-3">
-              <h3 className="text-2xl font-black text-white uppercase tracking-widest">
-                {title}
-              </h3>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed px-4">
-                {message}
-              </p>
-            </div>
+              <div className="space-y-3">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tightest leading-none">
+                  {title}
+                </h3>
+                <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed px-4">
+                  {message}
+                </p>
+              </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full pt-6">
-              <Button
-                variant="ghost"
-                onClick={onClose}
-                className="flex-1 text-slate-400 hover:text-white font-bold uppercase text-[11px] tracking-[0.2em]"
-              >
-                {cancelText}
-              </Button>
-              <Button
-                onClick={onConfirm}
-                disabled={isLoading}
-                className={cn(
-                  "flex-1 px-8 py-4 h-auto rounded-2xl shadow-xl text-[11px] font-black uppercase tracking-[0.2em] text-white transition-all transform hover:scale-[1.02]",
-                  activeVariant.button,
-                  activeVariant.glow
-                )}
-              >
-                {isLoading ? 'Transmitting...' : confirmText}
-              </Button>
+              <div className="flex flex-col gap-3 w-full">
+                <button
+                  onClick={() => {
+                    onConfirm()
+                    if (!isLoading) onClose()
+                  }}
+                  disabled={isLoading}
+                  className={cn(
+                    "w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all transform active:scale-[0.98] shadow-2xl",
+                    activeVariant.button,
+                    variant === 'info' ? 'text-background-dark' : 'text-white'
+                  )}
+                >
+                  {isLoading ? 'Transmitting...' : confirmText}
+                </button>
+                <button
+                  onClick={onClose}
+                  className="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-[0.3em] transition-all"
+                >
+                  {cancelText}
+                </button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   )
 }

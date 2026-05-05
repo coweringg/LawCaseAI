@@ -60,7 +60,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
 
     return (
         <aside className="w-full flex flex-col overflow-hidden h-full relative">
-            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+            <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
             
             <div className="p-8 border-b border-white/10 bg-white/[0.02] relative z-10">
                 <div className="flex items-center justify-between mb-8">
@@ -81,7 +81,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
                 <div className="flex gap-6 mb-8">
                     <motion.div 
                         whileHover={{ scale: 1.05 }}
-                        className={`w-20 h-24 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl border relative overflow-hidden group/thumb ${file.type.includes('pdf') ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}
+                        className={`w-20 h-24 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl border relative overflow-hidden group/thumb ${file.type.includes('pdf') ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 'bg-primary/10 border-primary/20 text-primary'}`}
                     >
                         <div className="absolute inset-0 bg-current opacity-0 group-hover/thumb:opacity-20 blur-xl transition-opacity"></div>
                         <FileText size={32} className="relative z-10" />
@@ -121,7 +121,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
                     <div>
                         <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.3em] mb-1.5">Status</p>
                         <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${isAnalyzing ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ${isAnalyzing ? 'bg-amber-500 animate-pulse' : 'bg-primary'}`}></span>
                             <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAnalyzing ? 'Analyzing...' : 'Ready'}</p>
                         </div>
                     </div>
@@ -199,7 +199,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
             <div className="p-8 border-t border-white/10 bg-white/[0.01] relative z-10">
                 <Link href={`/cases/${file.caseId}`}>
                     <motion.button 
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(37,99,235,0.1)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(0,230,118,0.1)" }}
                         whileTap={{ scale: 0.98 }}
                         className="w-full py-4 bg-white/[0.03] border border-white/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all flex items-center justify-center gap-4 hover:border-primary/40 shadow-2xl group"
                     >

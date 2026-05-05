@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Skeleton } from '@/components/ui/Skeleton';
 import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -52,7 +53,7 @@ export default function KnowledgeBaseClient() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [mounted, setMounted] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<RequestFormData>()
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<RequestFormData>()
 
     useEffect(() => {
         setMounted(true);
@@ -122,7 +123,7 @@ export default function KnowledgeBaseClient() {
     }
 
     if (!mounted) return (
-      <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
         <Loader2 className="animate-spin text-primary h-12 w-12" />
       </div>
     );
@@ -142,7 +143,7 @@ export default function KnowledgeBaseClient() {
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/80">Corporate Intelligence</span>
                         </div>
                         <h1 className="text-5xl font-black text-white tracking-tightest">
-                            Legal <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-400">Library</span>
+                            Legal <span className="text-primary">Library</span>
                         </h1>
                         <p className="text-slate-500 mt-2 font-medium max-w-xl">
                             Secure access to master jurisprudence, templates, and firm-specific doctrine.
@@ -155,7 +156,7 @@ export default function KnowledgeBaseClient() {
                         className="flex flex-wrap gap-3"
                     >
                         <div className="premium-glass px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-3">
-                            <Shield className="text-emerald-400 w-4 h-4" />
+                            <Shield className="text-primary w-4 h-4" />
                             <div>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Access Level</p>
                                 <p className="text-xs font-bold text-white mt-1">Authorized Counsel</p>
@@ -175,7 +176,7 @@ export default function KnowledgeBaseClient() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="premium-glass p-8 rounded-[2.5rem] border border-white/10 shadow-3xl flex flex-col md:flex-row gap-6 items-center"
+                    className="premium-glass p-8 rounded-[2.5rem] border border-white/10 shadow-3xl flex flex-col md:flex-row gap-6 items-center relative z-50"
                 >
                     <div className="relative flex-1 group w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors w-5 h-5" />
@@ -189,20 +190,15 @@ export default function KnowledgeBaseClient() {
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         <div className="relative w-full md:w-72">
-                            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <select 
+                            <Select 
                                 value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-10 text-white text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary/50 appearance-none cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all shadow-xl"
-                            >
-                                <option value="all" className="bg-slate-900">All Disciplines</option>
-                                {CATEGORIES.map(cat => (
-                                    <option key={cat} value={cat} className="bg-slate-900">{cat}</option>
-                                ))}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                                <RotateCcw size={14} className="rotate-90" />
-                            </div>
+                                onChange={setSelectedCategory}
+                                icon={<Filter size={16} />}
+                                options={[
+                                    { value: 'all', label: 'All Disciplines' },
+                                    ...CATEGORIES.map(cat => ({ value: cat, label: cat }))
+                                ]}
+                            />
                         </div>
                         <Button 
                             variant="secondary"
@@ -249,7 +245,7 @@ export default function KnowledgeBaseClient() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="relative z-10"
                                 >
-                                    <div className="w-24 h-24 bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-2xl relative">
+                                    <div className="w-24 h-24 bg-primary/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-primary/20 shadow-2xl relative">
                                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full -z-10 animate-pulse" />
                                         <BookOpen className="text-primary w-10 h-10" />
                                     </div>
@@ -320,7 +316,7 @@ export default function KnowledgeBaseClient() {
                                                 <p className="text-xs font-bold text-white mt-0.5">{formatDate(doc.uploadDate)}</p>
                                             </div>
                                             <motion.button
-                                                whileHover={{ scale: 1.1, backgroundColor: "rgba(10,68,184,0.15)" }}
+                                                whileHover={{ scale: 1.1, backgroundColor: "rgba(0,230,118,0.15)" }}
                                                 whileTap={{ scale: 0.9 }}
                                                 onClick={() => handleDownload(doc)}
                                                 className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/10 transition-all"
@@ -374,10 +370,9 @@ export default function KnowledgeBaseClient() {
                             className="absolute inset-0 bg-black/80 backdrop-blur-xl"
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-lg premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-3xl overflow-hidden"
+                            className="relative w-full max-w-lg premium-glass border border-white/10 rounded-[2.5rem] p-10 shadow-3xl overflow-visible"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
                             
@@ -398,18 +393,14 @@ export default function KnowledgeBaseClient() {
                                 <div>
                                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-1">Specialized Category</label>
                                     <div className="relative">
-                                        <select
-                                            {...register('category', { required: true })}
-                                            className="w-full bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-6 pr-10 text-white text-sm outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] shadow-xl"
-                                        >
-                                            <option value="" className="bg-slate-900">Select category...</option>
-                                            {CATEGORIES.map(cat => (
-                                                <option key={cat} value={cat} className="bg-slate-900">{cat}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                                            <RotateCcw size={14} className="rotate-90" />
-                                        </div>
+                                        <input type="hidden" {...register('category', { required: true })} />
+                                        <Select
+                                            value={watch('category') || ''}
+                                            onChange={(val) => setValue('category', val, { shouldValidate: true })}
+                                            placeholder="Select category..."
+                                            error={!!errors.category}
+                                            options={CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+                                        />
                                     </div>
                                     {errors.category && <span className="text-xs text-rose-500 mt-1 block font-bold">Selection required</span>}
                                 </div>

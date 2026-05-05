@@ -1,4 +1,7 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, Info, X, ShieldAlert } from 'lucide-react';
+import { cn } from '@/utils/helpers';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -23,53 +26,72 @@ export default function ConfirmModal({
     isDestructive = false,
     children
 }: ConfirmModalProps) {
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-                className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-                onClick={onClose}
-            ></div>
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl transition-opacity"
+                        onClick={onClose}
+                    />
 
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 relative z-10">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="bg-[#0c0c12] w-full max-w-md rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden relative z-10"
+                    >
+                        <div className="absolute inset-0 micro-grid opacity-[0.1] pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none"></div>
 
-                <div className="p-6 md:p-8 text-center">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 mx-auto ${isDestructive ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'}`}>
-                        <span className="material-icons-round text-3xl">{isDestructive ? 'warning' : 'info'}</span>
-                    </div>
+                        <div className="p-8 md:p-12 text-center relative z-10">
+                            <div className={cn(
+                                "w-20 h-20 rounded-3xl flex items-center justify-center mb-8 mx-auto border-2 transition-all duration-500",
+                                isDestructive 
+                                    ? 'bg-rose-500/10 text-rose-500 border-rose-500/20 shadow-[0_0_30px_rgba(244,63,94,0.2)]' 
+                                    : 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_30px_rgba(0,230,118,0.2)]'
+                            )}>
+                                {isDestructive ? <ShieldAlert size={40} /> : <Info size={40} />}
+                            </div>
 
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                        {title}
-                    </h2>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 leading-relaxed">
-                        {message}
-                    </p>
+                            <h2 className="text-2xl font-black text-white mb-3 uppercase tracking-tightest leading-none">
+                                {title}
+                            </h2>
+                            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.2em] mb-8 leading-relaxed px-4">
+                                {message}
+                            </p>
 
-                    {children}
+                            {children}
 
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                            {cancelLabel}
-                        </button>
-                        <button
-                            onClick={() => {
-                                onConfirm();
-                                onClose();
-                            }}
-                            className={`flex-1 px-4 py-2.5 rounded-lg text-white font-medium shadow-md transition-transform active:scale-[0.98] ${isDestructive
-                                    ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
-                                    : 'bg-primary hover:bg-primary-hover shadow-primary/20'
-                                }`}
-                        >
-                            {confirmLabel}
-                        </button>
-                    </div>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        onConfirm();
+                                        onClose();
+                                    }}
+                                    className={cn(
+                                        "w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all transform active:scale-[0.98] shadow-2xl",
+                                        isDestructive
+                                            ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/40'
+                                            : 'bg-primary hover:bg-primary/90 text-background-dark shadow-primary/40'
+                                    )}
+                                >
+                                    {confirmLabel}
+                                </button>
+                                <button
+                                    onClick={onClose}
+                                    className="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-[0.3em] transition-all"
+                                >
+                                    {cancelLabel}
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            )}
+        </AnimatePresence>
     );
 }

@@ -127,7 +127,7 @@ function RegisterContent() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 text-white shadow-2xl shadow-primary/40 mb-5"
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-background-dark shadow-2xl shadow-primary/40 mb-5"
             >
               <CheckCircle2 size={32} />
             </motion.div>
@@ -164,7 +164,7 @@ function RegisterContent() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
               onClick={() => router.push('/settings?tab=billing')}
-              className="w-full py-4 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover hover:scale-[1.02] transition-all text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
+              className="w-full py-4 bg-primary text-background-dark font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary-hover hover:scale-[1.02] transition-all text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
             >
               Configure Billing & Start Trial
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -184,30 +184,30 @@ function RegisterContent() {
 
   return (
     <AuthLayout noScroll>
-      <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl">
+      <div className="premium-glass p-1.5 rounded-2xl flex mb-6 border border-white/10 shadow-xl bg-black/20">
         <Link href="/login" className="flex-1">
           <button className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-slate-500 hover:text-slate-200 transition-all duration-500">
             Sign In
           </button>
         </Link>
-        <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-white bg-primary shadow-[0_0_20px_rgba(10,68,184,0.4)] transition-all duration-500">
+        <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl text-background-dark bg-primary shadow-[0_0_20px_rgba(0,230,118,0.3)] transition-all duration-500">
           Join Now
         </button>
       </div>
 
       <div className="flex justify-center mb-8">
-        <div className="premium-glass p-1 rounded-2xl border border-white/10 flex gap-1 w-full">
+        <div className="premium-glass p-1 rounded-2xl border border-white/10 flex gap-1 w-full bg-black/20">
           <button
             type="button"
             onClick={() => setRegistrationMode('individual')}
-            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'individual' ? 'bg-white/10 text-white shadow-xl' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'individual' ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.3)]' : 'text-slate-500 hover:text-slate-300'}`}
           >
             Individual Registration
           </button>
           <button
             type="button"
             onClick={() => setRegistrationMode('empresa')}
-            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'empresa' ? 'bg-white/10 text-white shadow-xl' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${registrationMode === 'empresa' ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.3)]' : 'text-slate-500 hover:text-slate-300'}`}
           >
             Join a Firm
           </button>
@@ -230,7 +230,7 @@ function RegisterContent() {
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="name">Full Name</label>
           <div className="relative group">
             <input
-              className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.name ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+              className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.name ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none`}
               id="name"
               name="name"
               value={formData.name}
@@ -238,16 +238,16 @@ function RegisterContent() {
               placeholder="Jonathan Davis"
               type="text"
             />
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
           </div>
-          {errors.name && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.name}</p>}
+          {errors.name && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.name}</p>}
         </div>
 
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="email">Work Email</label>
           <div className="relative group">
             <input
-              className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.email ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+              className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.email ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none`}
               id="email"
               name="email"
               value={formData.email}
@@ -255,9 +255,9 @@ function RegisterContent() {
               placeholder="name@firm.com"
               type="email"
             />
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
           </div>
-          {errors.email && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.email}</p>}
+          {errors.email && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.email}</p>}
         </div>
 
         {registrationMode === 'individual' ? (
@@ -265,7 +265,7 @@ function RegisterContent() {
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="lawFirm">Organization</label>
             <div className="relative group">
               <input
-                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.lawFirm ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.lawFirm ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none`}
                 id="lawFirm"
                 name="lawFirm"
                 value={formData.lawFirm}
@@ -273,16 +273,16 @@ function RegisterContent() {
                 placeholder="Davis & Partners"
                 type="text"
               />
-              <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+              <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
             </div>
-            {errors.lawFirm && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.lawFirm}</p>}
+            {errors.lawFirm && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.lawFirm}</p>}
           </div>
         ) : (
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="firmCode">Firm Access Code</label>
             <div className="relative group">
               <input
-                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.firmCode ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-mono tracking-widest`}
+                className={`block w-full pl-12 pr-4 py-3 rounded-xl border ${errors.firmCode ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none font-mono tracking-widest`}
                 id="firmCode"
                 name="firmCode"
                 value={formData.firmCode}
@@ -290,9 +290,9 @@ function RegisterContent() {
                 placeholder="ELITE-XXXX-XXXX"
                 type="text"
               />
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
             </div>
-            {errors.firmCode && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.firmCode}</p>}
+            {errors.firmCode && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.firmCode}</p>}
           </div>
         )}
 
@@ -300,7 +300,7 @@ function RegisterContent() {
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="password">Password</label>
           <div className="relative group">
             <input
-              className={`block w-full pl-12 pr-12 py-3 rounded-xl border ${errors.password ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+              className={`block w-full pl-12 pr-12 py-3 rounded-xl border ${errors.password ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none`}
               id="password"
               name="password"
               value={formData.password}
@@ -308,7 +308,7 @@ function RegisterContent() {
               placeholder="••••••••"
               type={showPassword ? 'text' : 'password'}
             />
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -320,14 +320,14 @@ function RegisterContent() {
           <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1">
             Requirement: 8+ chars, Uppercase, Lowercase, & Number
           </p>
-          {errors.password && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.password}</p>}
+          {errors.password && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.password}</p>}
         </div>
 
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest" htmlFor="confirmPassword">Confirm Password</label>
           <div className="relative group">
             <input
-              className={`block w-full pl-12 pr-12 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-white/10'} bg-white dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none`}
+              className={`block w-full pl-12 pr-12 py-3 rounded-xl border ${errors.confirmPassword ? 'border-rose-500/50 focus:ring-rose-500/20' : 'border-white/[0.08] focus:ring-primary/20'} bg-black/40 shadow-inner shadow-black/50 text-white placeholder-slate-500 focus:ring-2 focus:border-primary/40 transition-all outline-none`}
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
@@ -335,7 +335,7 @@ function RegisterContent() {
               placeholder="••••••••"
               type={showConfirmPassword ? 'text' : 'password'}
             />
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -344,10 +344,10 @@ function RegisterContent() {
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {errors.confirmPassword && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tighter">{errors.confirmPassword}</p>}
+          {errors.confirmPassword && <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter ml-1">{errors.confirmPassword}</p>}
         </div>
 
-        <div className="group flex items-start gap-3 py-4 px-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent hover:border-primary/20 transition-all cursor-pointer">
+        <div className="group flex items-start gap-3 py-4 px-4 rounded-xl bg-black/40 shadow-inner shadow-black/50 border border-white/[0.05] hover:border-primary/20 transition-all cursor-pointer">
           <div className="flex items-center h-5">
             <input
               id="terms"
@@ -364,13 +364,13 @@ function RegisterContent() {
         </div>
 
         <button
-          className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white bg-primary hover:bg-primary-hover shadow-[0_0_30px_rgba(10,68,184,0.4)] transition-all group disabled:opacity-70 mt-6"
+          className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-background-dark bg-primary hover:bg-primary/90 shadow-[0_0_30px_rgba(0,230,118,0.3)] transition-all group disabled:opacity-70 mt-6"
           type="submit"
           disabled={isLoading}
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 text-background-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>

@@ -10,11 +10,11 @@ export default function TermsClient() {
   const lastUpdated = 'February 25, 2026'
 
   return (
-    <div className="min-h-screen bg-[#060910] text-slate-200 selection:bg-primary/30 selection:text-white">
+    <div className="min-h-screen bg-background-dark text-slate-200 selection:bg-primary/30 selection:text-white">
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px]" />
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.02]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 micro-grid opacity-30" />
       </div>
 
       <nav className="fixed top-0 inset-x-0 h-20 border-b border-white/5 bg-black/20 backdrop-blur-xl z-50">

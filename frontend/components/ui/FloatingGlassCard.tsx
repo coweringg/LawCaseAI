@@ -44,7 +44,7 @@ const FloatingGlassCard: React.FC<FloatingGlassCardProps> = ({
         {showHeader && (
           <div className="h-10 border-b border-white/5 bg-slate-900/50 flex items-center px-5 gap-3">
             <div className="flex gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-red-400/20"></div>
+              <div className="w-2 h-2 rounded-full bg-rose-400/20"></div>
               <div className="w-2 h-2 rounded-full bg-amber-400/20"></div>
               <div className="w-2 h-2 rounded-full bg-emerald-400/20"></div>
             </div>

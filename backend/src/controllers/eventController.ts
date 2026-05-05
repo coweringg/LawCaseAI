@@ -54,20 +54,20 @@ export const getEvents = catchAsync(async (req: IAuthRequest, res: Response): Pr
 export const createEvent = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
     if (!userId) {
-        throw new AppError('Unauthorized', 401)
+        throw new AppError('Access denied: Valid authorization token missing.', 401)
     }
 
     const { title, description, start, end, type, priority, caseId, location, isAllDay, status } = req.body
 
     if (!title || !start) {
-        throw new AppError('Title and start date are required', 400)
+        throw new AppError('Validation failed: Core event parameters (Title, Start Date) are required for scheduling.', 400)
     }
 
     const eventDate = new Date(start)
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     if (eventDate < today) {
-        throw new AppError('Legal events and deadlines cannot be scheduled in a previous date.', 400)
+        throw new AppError('Temporal anomaly: Legal events and critical deadlines cannot be scheduled retroactively.', 400)
     }
 
     const safeEventData: Record<string, unknown> = {
@@ -122,7 +122,7 @@ export const updateEvent = catchAsync(async (req: IAuthRequest, res: Response): 
     if (status !== undefined) allowedUpdates.status = status
 
     if (Object.keys(allowedUpdates).length === 0) {
-        throw new AppError('No valid fields to update', 400)
+        throw new AppError('Validation failed: No recognized data vectors provided for update sequence.', 400)
     }
 
     const updatedEvent = await Event.findOneAndUpdate(
@@ -132,7 +132,7 @@ export const updateEvent = catchAsync(async (req: IAuthRequest, res: Response): 
     )
 
     if (!updatedEvent) {
-        throw new AppError('Event not found', 404)
+        throw new AppError('Resource unavailable: The requested chronological event could not be located.', 404)
     }
 
     res.status(200).json({
@@ -149,7 +149,7 @@ export const deleteEvent = catchAsync(async (req: IAuthRequest, res: Response): 
     const deletedEvent = await Event.findOneAndDelete({ _id: id, userId })
 
     if (!deletedEvent) {
-        throw new AppError('Event not found', 404)
+        throw new AppError('Resource unavailable: The requested chronological event could not be located.', 404)
     }
 
     res.status(200).json({

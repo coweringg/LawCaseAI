@@ -31,7 +31,7 @@ export default function FileGrid({ files, onFileSelect, onToggleStar, selectedFi
                         selectedFileId === file._id ? 'bg-primary/10 shadow-inner' : 'bg-white/[0.02] border border-white/5'
                     }`}>
                         <div className={`absolute inset-0 bg-current opacity-0 blur-2xl group-hover:opacity-10 transition-opacity ${
-                            file.type.includes('pdf') ? 'text-red-500' : 
+                            file.type.includes('pdf') ? 'text-rose-500' : 
                             file.type.includes('word') ? 'text-blue-500' : 
                             file.type.includes('audio') ? 'text-amber-500' :
                             file.type.includes('video') ? 'text-purple-500' :
@@ -39,7 +39,7 @@ export default function FileGrid({ files, onFileSelect, onToggleStar, selectedFi
                         }`}></div>
                         
                         <div className="relative z-10 scale-125">
-                            {file.type.includes('pdf') ? <FileText size={48} className="text-red-500/80" /> : 
+                            {file.type.includes('pdf') ? <FileText size={48} className="text-rose-500/80" /> : 
                              file.type.includes('word') ? <File size={48} className="text-blue-500/80" /> : 
                              file.type.includes('sheet') ? <FileSpreadsheet size={48} className="text-emerald-500/80" /> :
                              file.type.includes('audio') ? <Headphones size={48} className="text-amber-500/80" /> :

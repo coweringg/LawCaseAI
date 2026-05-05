@@ -17,17 +17,17 @@ export const createCase = catchAsync(async (req: IAuthRequest, res: Response): P
 
     const user = await User.findById(userId)
     if (!user) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     if (user.plan === UserPlan.NONE) {
-      throw new AppError('You do not have an active plan. Please subscribe to a plan to start creating cases.', 403)
+      throw new AppError('Operation denied: Your account lacks an active subscription matrix to initialize new workspaces.', 403)
     }
 
     const isTrial = user.plan === UserPlan.TRIAL
 
     if (isTrial && user.trialCaseId) {
-      throw new AppError('Your free trial is limited to one single case/matter. Please upgrade to a paid plan to create more cases.', 403)
+      throw new AppError('Evaluation limit reached: Trial tier allows only a single active case matrix. Upgrade to unlock expanded infrastructure.', 403)
     }
 
     const validStatuses = Object.values(CaseStatus)
@@ -214,7 +214,7 @@ export const getCaseById = catchAsync(async (req: IAuthRequest, res: Response): 
     }
 
     if (!caseData) {
-      throw new AppError('Case not found', 404)
+      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -235,12 +235,12 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
 
     const currentCase = await Case.findOne({ _id: id, userId })
     if (!currentCase) {
-      throw new AppError('Case not found', 404)
+      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     const { name, client, description, status, practiceArea } = req.body
@@ -280,7 +280,7 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
     }
 
     if (Object.keys(allowedUpdates).length === 0) {
-      throw new AppError('No valid fields to update', 400)
+      throw new AppError('Validation failed: No recognized data vectors provided for update sequence.', 400)
     }
 
     const updatedCase = await Case.findOneAndUpdate(
@@ -290,7 +290,7 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
     )
 
     if (!updatedCase) {
-      throw new AppError('Case not found', 404)
+      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     if (status === CaseStatus.ACTIVE && currentCase.status !== CaseStatus.ACTIVE) {
@@ -346,16 +346,16 @@ export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): P
 
     const user = await User.findById(userId)
     if (!user) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     const caseToDelete = await Case.findOne({ _id: id, userId })
     if (!caseToDelete) {
-      throw new AppError('Case not found', 404)
+      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     if (caseToDelete.status !== CaseStatus.CLOSED) {
-      throw new AppError('Only closed cases can be permanently deleted.', 400)
+      throw new AppError('Protocol violation: Only permanently sealed workspaces can be purged from the system.', 400)
     }
 
     const files = await CaseFile.find({ caseId: id, userId })
@@ -412,29 +412,29 @@ export const reactivateCase = catchAsync(async (req: IAuthRequest, res: Response
 
     const currentCase = await Case.findOne({ _id: id, userId })
     if (!currentCase) {
-      throw new AppError('Case not found', 404)
+      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     if (currentCase.status !== CaseStatus.CLOSED) {
-      throw new AppError('Only closed cases can be reactivated.', 400)
+      throw new AppError('Protocol violation: Only closed workspaces are eligible for reactivation sequence.', 400)
     }
 
     if (currentCase.closedByUser) {
-      throw new AppError('This case was permanently sealed by you and cannot be reactivated. You can create a new case instead.', 403)
+      throw new AppError('Access restricted: This workspace was permanently sealed by an operator and cannot be restored. Initialize a new case to proceed.', 403)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      throw new AppError('User not found', 404)
+      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
     if (user.plan === UserPlan.NONE) {
-      throw new AppError('Subscribe to a plan to reactivate cases.', 403)
+      throw new AppError('Operation denied: An active subscription matrix is required to reactivate suspended workspaces.', 403)
     }
 
     const maxAllowedCases = user.maxCases || user.planLimit
     if (user.currentCases >= maxAllowedCases) {
-      throw new AppError(`You have reached the case limit for your ${user.plan} plan (${maxAllowedCases} cases). Please upgrade your plan to reactivate more cases.`, 403)
+      throw new AppError(`Capacity error: Maximum workspace allocation for the ${user.plan} tier (${maxAllowedCases} cases) reached. Infrastructure upgrade required.`, 403)
     }
 
     currentCase.status = CaseStatus.ACTIVE

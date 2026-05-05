@@ -10,11 +10,11 @@ export default function PrivacyClient() {
   const lastUpdated = 'February 25, 2026'
 
   return (
-    <div className="min-h-screen bg-[#060910] text-slate-200 selection:bg-primary/30 selection:text-white">
+    <div className="min-h-screen bg-background-dark text-slate-200 selection:bg-primary/30 selection:text-white">
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px]" />
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.02]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 micro-grid opacity-30" />
       </div>
 
       <nav className="fixed top-0 inset-x-0 h-20 border-b border-white/5 bg-black/20 backdrop-blur-xl z-50">
@@ -114,10 +114,10 @@ export default function PrivacyClient() {
                 <p className="text-slate-400 leading-relaxed font-medium">
                   Our AI models are deployed within an isolated, secure environment. We do not use your private case data to train global models. Your data stays within your dedicated secure layer.
                 </p>
-                <div className="p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-4">
-                  <Scale className="text-blue-400 shrink-0" size={24} />
+                <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 flex items-start gap-4">
+                  <Scale className="text-primary shrink-0" size={24} />
                   <div>
-                    <h4 className="text-blue-200 font-bold text-sm mb-2 uppercase tracking-widest">Attorney-Client Privilege Protocol</h4>
+                    <h4 className="text-primary font-bold text-sm mb-2 uppercase tracking-widest">Attorney-Client Privilege Protocol</h4>
                     <p className="text-slate-400 text-sm">LawCaseAI technical staff never access the raw content of your uploaded documents unless explicitly authorized for emergency system recovery.</p>
                   </div>
                 </div>
@@ -131,8 +131,8 @@ export default function PrivacyClient() {
                 <p className="text-slate-400 leading-relaxed font-medium">
                   We hold data only as long as your subscription is active. Upon account termination, data is purged following a 30-day graceful recovery period.
                 </p>
-                <div className="p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10">
-                  <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-2">Cookie Protocol</p>
+                <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10">
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Cookie Protocol</p>
                   <p className="text-slate-400 text-sm">We use cookies and similar technologies to maintain your session, improve platform performance, and analyze usage patterns to provide a better user experience.</p>
                 </div>
               </section>

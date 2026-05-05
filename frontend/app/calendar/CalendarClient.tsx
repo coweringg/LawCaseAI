@@ -184,16 +184,16 @@ export default function CalendarClient() {
     const getPriorityColor = (priority: string, status?: string) => {
         if (status === 'closed') return 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800/50 dark:text-slate-500 line-through opacity-60';
         switch (priority) {
-            case 'critical': return 'bg-red-100 text-red-700 border-red-500 dark:bg-red-900/30 dark:text-red-400';
+            case 'critical': return 'bg-rose-100 text-rose-700 border-rose-500 dark:bg-rose-900/30 dark:text-rose-400';
             case 'high': return 'bg-orange-100 text-orange-700 border-orange-500 dark:bg-orange-900/30 dark:text-orange-400';
             case 'medium': return 'bg-amber-100 text-amber-700 border-amber-500 dark:bg-amber-900/30 dark:text-amber-400';
-            case 'low': return 'bg-emerald-100 text-emerald-700 border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400';
+            case 'low': return 'bg-primary/20 text-primary border-primary dark:bg-primary/10 dark:text-primary';
             default: return 'bg-slate-100 text-slate-700 border-slate-500 dark:bg-slate-800 dark:text-slate-300';
         }
     };
 
     if (!mounted) return (
-      <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
         <Loader2 className="animate-spin text-primary h-12 w-12" />
       </div>
     );
@@ -202,13 +202,13 @@ export default function CalendarClient() {
         <DashboardLayout>
             <div className="flex bg-transparent h-[calc(100vh-5rem)] -m-6 overflow-hidden relative z-10">
                 <aside className="w-64 premium-glass border-r border-white/10 hidden md:flex flex-col overflow-y-auto relative">
-                    <div className="absolute inset-0 crystallography-pattern opacity-[0.03] z-0 pointer-events-none"></div>
+                    <div className="absolute inset-0 micro-grid opacity-30 z-0 pointer-events-none"></div>
                     <div className="relative z-10 p-4">
                         <motion.button
                             whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleOpenModal(new Date())}
-                            className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-black text-xs uppercase tracking-widest py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20"
+                            className="w-full bg-primary text-background-dark font-black text-xs uppercase tracking-widest py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20"
                         >
                             <Plus size={18} />
                             New Legal Entry
@@ -246,7 +246,7 @@ export default function CalendarClient() {
                                             }`}
                                     >
                                         {isCurrentDay && !isTodayMini && <div className="absolute inset-0 border border-primary/40 rounded-lg animate-pulse"></div>}
-                                        {isTodayMini && <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_rgba(37,99,235,1)]"></div>}
+                                        {isTodayMini && <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_rgba(0,230,118,1)]"></div>}
                                         {format(date, 'd')}
                                     </div>
                                 );
@@ -257,7 +257,7 @@ export default function CalendarClient() {
                     <div className="p-4 flex-1 relative z-10">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Master Timeline</h3>
-                            <div className="flex h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+                            <div className="flex h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>
                         </div>
                         <div className="space-y-4">
                             {events.filter(e => e.priority === 'critical' || e.priority === 'high').slice(0, 5).map((event, idx) => (
@@ -269,7 +269,7 @@ export default function CalendarClient() {
                                     onClick={() => handleOpenModal(undefined, event)}
                                     className="flex gap-4 items-start p-4 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:border-primary/40 hover:scale-[1.02] transition-all duration-150 cursor-pointer group shadow-2xl relative overflow-hidden active:scale-[0.98]"
                                 >
-                                    <div className={`w-1.5 h-10 rounded-full shrink-0 ${event.priority === 'critical' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]'}`}></div>
+                                    <div className={`w-1.5 h-10 rounded-full shrink-0 ${event.priority === 'critical' ? 'bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.6)]' : 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]'}`}></div>
                                     <div className="flex-1 min-w-0 py-0.5">
                                         <p className="text-[11px] font-black text-white group-hover:text-primary transition-colors line-clamp-1 truncate font-display tracking-tightest leading-tight mb-1.5">{event.title}</p>
                                         {event.caseId && (() => {
@@ -325,7 +325,7 @@ export default function CalendarClient() {
                             <div className="flex flex-col">
                                 <h2 className="text-4xl font-black text-white tracking-tightest font-display leading-tight">{format(currentDate, 'MMMM yyyy')}</h2>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(0,230,118,0.8)]"></span>
                                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Master Timeline &bull; Neural Indexing Active</p>
                                 </div>
                             </div>
@@ -334,7 +334,7 @@ export default function CalendarClient() {
                                     <button
                                         key={v}
                                         onClick={() => setView(v)}
-                                        className={`px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-150 ${view === v ? 'bg-primary text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                                        className={`px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-150 ${view === v ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.4)] border border-primary/40' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
                                     >
                                         {v}
                                     </button>
@@ -348,7 +348,7 @@ export default function CalendarClient() {
                                 <button onClick={nextDate} className="p-3 text-slate-500 hover:text-white transition-all hover:scale-110"><ChevronRight size={20} /></button>
                             </div>
                             <motion.button
-                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(37,99,235,0.3)", transition: { duration: 0.15 } }}
+                                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,230,118,0.3)", transition: { duration: 0.15 } }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                     setIsSearchModalOpen(true);
@@ -517,7 +517,7 @@ export default function CalendarClient() {
                                             </div>
                                             <div className="relative pt-2 pb-8">
                                                 <div className="absolute top-0 bottom-0 left-1 w-[2px] bg-slate-100 dark:bg-white/5 group-last:bg-transparent"></div>
-                                                <div className={`w-3 h-3 rounded-full absolute left-[-4px] top-[14px] ring-4 ring-white dark:ring-surface-dark ${event.priority === 'critical' ? 'bg-red-500' :
+                                                <div className={`w-3 h-3 rounded-full absolute left-[-4px] top-[14px] ring-4 ring-white dark:ring-surface-dark ${event.priority === 'critical' ? 'bg-rose-500' :
                                                     event.priority === 'high' ? 'bg-amber-500' : 'bg-primary'
                                                     }`}></div>
                                             </div>
@@ -648,10 +648,10 @@ export default function CalendarClient() {
                                                             }`}>
                                                             {event.status === 'closed' ? 'Archived' : 'Active'}
                                                         </div>
-                                                        <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${event.priority === 'critical' ? 'bg-red-500 text-white shadow-red-500/20' :
+                                                        <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${event.priority === 'critical' ? 'bg-rose-500 text-white shadow-rose-500/20' :
                                                             event.priority === 'high' ? 'bg-orange-500 text-white shadow-orange-500/20' :
                                                                 event.priority === 'medium' ? 'bg-amber-500 text-white shadow-amber-500/20' :
-                                                                    'bg-emerald-500 text-white shadow-emerald-500/20'
+                                                                    'bg-primary text-background-dark shadow-primary/20'
                                                             }`}>
                                                             {event.priority}
                                                         </div>
@@ -702,7 +702,7 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor,
                 isPast ? 'bg-black/30 grayscale-[0.8] opacity-50' : 'bg-white/[0.02] hover:bg-white/[0.05]'}`}>
             <div className="flex justify-between items-start relative z-10">
                 <span className={`text-[12px] font-black transition-all duration-150 font-display ${isToday
-                    ? 'bg-primary text-white w-10 h-10 flex items-center justify-center rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.5)] ring-2 ring-white/20'
+                    ? 'bg-primary text-background-dark w-10 h-10 flex items-center justify-center rounded-2xl shadow-[0_0_20px_rgba(0,230,118,0.5)] ring-2 ring-primary/30'
                     : isPast ? 'text-slate-600' : isCurrentMonth ? 'text-slate-400 group-hover:text-white group-hover:scale-110' : 'text-slate-700'
                     }`}>
                     {format(date, 'd')}
@@ -727,7 +727,7 @@ function CalendarCell({ date, events, onOpenModal, monthStart, getPriorityColor,
                         className={`text-[10px] px-3 py-2 rounded-xl font-black border-l-[3px] truncate cursor-pointer transition-all duration-150 hover:-translate-y-0.5 active:scale-95 shadow-lg uppercase tracking-tighter ${getPriorityColor(event.priority, event.status)}`}
                     >
                         <div className="flex items-center gap-1.5">
-                            {(event.priority === 'critical' && event.status !== 'closed') && <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />}
+                            {(event.priority === 'critical' && event.status !== 'closed') && <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_5px_rgba(244,63,94,0.8)]" />}
                             <span className="truncate">{event.title}</span>
                         </div>
                         {event.caseId && (() => {

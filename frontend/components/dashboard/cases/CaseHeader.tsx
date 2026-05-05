@@ -34,8 +34,8 @@ export function CaseHeader({ caseData, isTrialExpired, onCloseCase }: CaseHeader
                             <>
                                 <span className="w-1 h-1 bg-primary/40 rounded-full"></span>
                                 <span className={`text-[11px] font-bold tracking-wider ${
-                                    caseData.complexity === '1' ? 'text-emerald-500' :
-                                    caseData.complexity === '2' ? 'text-indigo-500' :
+                                    caseData.complexity === '1' ? 'text-primary' :
+                                    caseData.complexity === '2' ? 'text-primary' :
                                     'text-rose-500'
                                 }`}>
                                     Lvl {caseData.complexity}
@@ -56,7 +56,7 @@ export function CaseHeader({ caseData, isTrialExpired, onCloseCase }: CaseHeader
                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,50,50,0.1)", transition: { duration: 0.15 } }}
                             whileTap={{ scale: 0.95 }}
                             onClick={onCloseCase}
-                            className="px-6 py-2.5 premium-glass border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-all flex items-center gap-2.5 shadow-xl"
+                            className="px-6 py-2.5 premium-glass border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition-all flex items-center gap-2.5 shadow-xl"
                         >
                             <Lock size={12} />
                             Purge Workspace
@@ -64,10 +64,10 @@ export function CaseHeader({ caseData, isTrialExpired, onCloseCase }: CaseHeader
                     )}
                 </AnimatePresence>
                 <div className={`flex items-center gap-2.5 text-[10px] font-black px-5 py-2.5 rounded-xl border tracking-[0.2em] uppercase shadow-2xl backdrop-blur-2xl transition-all duration-200 ${caseData?.status === 'active'
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-1 ring-emerald-500/20'
+                    ? 'bg-primary/10 text-primary border-primary/30 ring-1 ring-primary/20'
                     : 'bg-slate-500/10 text-slate-400 border-white/10'
                     }`}>
-                    <div className={`w-2 h-2 rounded-full ${caseData?.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-pulse' : 'bg-slate-600'}`}></div>
+                    <div className={`w-2 h-2 rounded-full ${caseData?.status === 'active' ? 'bg-primary shadow-[0_0_10px_rgba(0,230,118,0.8)] animate-pulse' : 'bg-slate-600'}`}></div>
                     {caseData?.status || 'Active'}
                 </div>
             </div>

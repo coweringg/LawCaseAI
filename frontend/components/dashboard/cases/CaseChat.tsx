@@ -63,7 +63,7 @@ export function CaseChat({
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 bg-primary/20 backdrop-blur-xl border-4 border-dashed border-primary/40 z-[100] flex flex-col items-center justify-center gap-6 text-primary pointer-events-none"
                     >
-                        <div className="w-32 h-32 bg-primary/20 rounded-[3rem] flex items-center justify-center animate-pulse border border-primary/30 shadow-[0_0_50px_rgba(37,99,235,0.3)]">
+                        <div className="w-32 h-32 bg-primary/20 rounded-[3rem] flex items-center justify-center animate-pulse border border-primary/30 shadow-[0_0_50px_rgba(0,230,118,0.3)]">
                             <Plus size={64} />
                         </div>
                         <div className="flex flex-col items-center gap-2">
@@ -78,7 +78,7 @@ export function CaseChat({
             <div className="h-14 border-b border-white/10 flex items-center px-8 justify-between bg-white/[0.02] backdrop-blur-2xl z-20 sticky top-0">
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <div className={`w-2.5 h-2.5 rounded-full ${isSending ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]'}`}></div>
+                        <div className={`w-2.5 h-2.5 rounded-full ${isSending ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]' : 'bg-primary shadow-[0_0_10px_rgba(0,230,118,0.8)]'}`}></div>
                         {isSending && <div className="absolute inset-0 bg-amber-500 rounded-full animate-ping opacity-40"></div>}
                     </div>
                     <span className="text-[11px] font-bold text-slate-400 tracking-wider">Assistant Status: {isSending ? 'Analyzing...' : 'Ready'}</span>
@@ -137,7 +137,7 @@ export function CaseChat({
                                         </div>
                                     )}
                                     <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-200 ${msg.role === 'user'
-                                        ? 'bg-gradient-to-br from-primary to-blue-700 text-white rounded-tr-sm border border-white/20'
+                                        ? 'bg-primary text-background-dark rounded-tr-sm border border-primary/40'
                                         : 'premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
                                         }`}>
                                         {msg.content.includes('[Attached Unit:') ? (
@@ -170,10 +170,10 @@ export function CaseChat({
                                             </p>
                                         )}
                                         <div className={`mt-4 pt-4 border-t ${msg.role === 'user' ? 'border-white/10' : 'border-white/5'} flex items-center justify-between`}>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-blue-200' : 'text-slate-500'}`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-background-dark/60' : 'text-slate-500'}`}>
                                                 {msg.role === 'user' ? (msg.isPending ? 'Transmitting...' : 'Authorized Operator') : 'AI Assistant'}
                                             </span>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-blue-200/60' : 'text-slate-600'}`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-background-dark/40' : 'text-slate-600'}`}>
                                                 {format(new Date(msg.timestamp), 'HH:mm:ss')}
                                             </span>
                                         </div>
@@ -181,7 +181,7 @@ export function CaseChat({
                                             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
                                                 <button
                                                     onClick={() => onSaveSummary(msg.content, msg.relatedFileType || 'text/markdown')}
-                                                    className="text-[9px] font-black uppercase tracking-[0.2em] bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-xl transition-all flex items-center gap-2 w-fit shadow-xl"
+                                                    className="text-[9px] font-black uppercase tracking-[0.2em] bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-xl transition-all flex items-center gap-2 w-fit shadow-xl"
                                                 >
                                                     <Zap size={12} />
                                                     Commit Summary to Repository
@@ -234,12 +234,12 @@ export function CaseChat({
                                         {isUploadingTemp ? (
                                             <Loader2 size={12} className="text-primary animate-spin" />
                                         ) : (
-                                            <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">Ready</span>
+                                            <span className="text-[8px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">Ready</span>
                                         )}
                                     </div>
                                     <button 
                                         onClick={onRemoveAttach}
-                                        className="text-primary/60 hover:text-red-400 hover:bg-red-500/10 p-1 rounded-lg transition-all z-10"
+                                        className="text-primary/60 hover:text-rose-400 hover:bg-rose-500/10 p-1 rounded-lg transition-all z-10"
                                         disabled={isUploadingTemp}
                                     >
                                         <X size={14} />
@@ -270,7 +270,7 @@ export function CaseChat({
                             </motion.button>
                         </div>
                         <motion.button
-                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(37,99,235,0.4)" }}
+                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,230,118,0.4)" }}
                             whileTap={{ scale: 0.95 }}
                             onClick={onSendMessage}
                             disabled={isCaseLocked || (!userInput.trim() && !temporaryFileId) || isSending || isUploadingTemp}

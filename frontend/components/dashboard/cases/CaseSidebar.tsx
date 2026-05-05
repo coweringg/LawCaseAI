@@ -36,7 +36,7 @@ export function CaseSidebar({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/sidebar:scale-[1.6] transition-transform duration-1000"></div>
+            <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
             
             <AnimatePresence>
                 {isDraggingSidebar && (
@@ -83,7 +83,7 @@ export function CaseSidebar({
                                 onClick={() => onOpenFile(f.url)}
                                 className="w-full flex items-center gap-3 px-3 py-3 text-[11px] text-slate-400 hover:text-white bg-transparent hover:bg-white/[0.05] border border-transparent hover:border-white/10 rounded-2xl group/file text-left transition-all duration-300 relative overflow-hidden"
                             >
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${f.type.includes('pdf') ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${f.type.includes('pdf') ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-primary/10 text-primary border border-primary/20'}`}>
                                     <span className="material-icons-round text-base">{f.type.includes('pdf') ? 'picture_as_pdf' : 'description'}</span>
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">

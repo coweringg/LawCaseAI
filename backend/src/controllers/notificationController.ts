@@ -6,7 +6,7 @@ import catchAsync from '../utils/catchAsync'
 
 export const getNotifications = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
-    if (!userId) throw new AppError('Unauthorized', 401)
+    if (!userId) throw new AppError('Access denied: Valid authorization token missing.', 401)
 
     const unreadOnly = req.query.unread === 'true'
     const limit = parseInt(req.query.limit as string) || 20
@@ -30,7 +30,7 @@ export const getNotifications = catchAsync(async (req: IAuthRequest, res: Respon
 export const markAsRead = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
-    if (!userId) throw new AppError('Unauthorized', 401)
+    if (!userId) throw new AppError('Access denied: Valid authorization token missing.', 401)
 
     const notification = await Notification.findOneAndUpdate(
         { _id: id, userId },
@@ -38,7 +38,7 @@ export const markAsRead = catchAsync(async (req: IAuthRequest, res: Response): P
         { new: true }
     )
 
-    if (!notification) throw new AppError('Notification not found', 404)
+    if (!notification) throw new AppError('Resource unavailable: The requested alert signature could not be located.', 404)
 
     res.status(200).json({
         success: true,
@@ -49,7 +49,7 @@ export const markAsRead = catchAsync(async (req: IAuthRequest, res: Response): P
 
 export const markAllAsRead = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
-    if (!userId) throw new AppError('Unauthorized', 401)
+    if (!userId) throw new AppError('Access denied: Valid authorization token missing.', 401)
 
     await Notification.updateMany({ userId, isRead: false }, { $set: { isRead: true } })
 
@@ -59,17 +59,17 @@ export const markAllAsRead = catchAsync(async (req: IAuthRequest, res: Response)
 export const deleteNotification = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
-    if (!userId) throw new AppError('Unauthorized', 401)
+    if (!userId) throw new AppError('Access denied: Valid authorization token missing.', 401)
 
     const notification = await Notification.findOneAndDelete({ _id: id, userId })
-    if (!notification) throw new AppError('Notification not found', 404)
+    if (!notification) throw new AppError('Resource unavailable: The requested alert signature could not be located.', 404)
 
     res.status(200).json({ success: true, message: 'Notification deleted successfully' })
 })
 
 export const deleteAllNotifications = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
-    if (!userId) throw new AppError('Unauthorized', 401)
+    if (!userId) throw new AppError('Access denied: Valid authorization token missing.', 401)
 
     await Notification.deleteMany({ userId })
     res.status(200).json({ success: true, message: 'All notifications cleared successfully' })

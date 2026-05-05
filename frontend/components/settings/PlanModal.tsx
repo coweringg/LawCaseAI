@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, Sparkles, Building, Loader2, Shield, Info } from 'lucide-react';
+import { Alert } from '@/components/ui/Alert';
 
 interface PlanModalProps {
     isOpen: boolean;
@@ -87,7 +88,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="relative w-full max-w-4xl glass-dark rounded-[40px] shadow-2xl border border-white/10 overflow-hidden"
                     >
-                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
 
                         <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center relative z-10 bg-white/[0.02]">
                             <div>
@@ -117,7 +118,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                             <div className="flex justify-center">
                                                 <div className="p-1 bg-black/40 rounded-3xl border border-white/5 flex items-center relative w-full max-w-[500px] overflow-hidden">
                                                     <motion.div
-                                                        className="absolute inset-y-1 w-[calc(50%-4px)] bg-primary rounded-[1.25rem] z-0 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
+                                                        className="absolute inset-y-1 w-[calc(50%-4px)] bg-primary rounded-[1.25rem] z-0 shadow-[0_0_25px_rgba(0,230,118,0.2)]"
                                                         initial={false}
                                                         animate={{
                                                             x: category === 'personal' ? '4px' : 'calc(100% - 4px)'
@@ -126,13 +127,13 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                     />
                                                     <button
                                                         onClick={() => setCategory('personal')}
-                                                        className={`flex-1 relative z-10 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${category === 'personal' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                        className={`flex-1 relative z-10 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${category === 'personal' ? 'text-background-dark' : 'text-slate-500 hover:text-slate-400'}`}
                                                     >
                                                         Personal Firm
                                                     </button>
                                                     <button
                                                         onClick={() => setCategory('enterprise')}
-                                                        className={`flex-1 relative z-10 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${category === 'enterprise' ? 'text-white' : 'text-slate-500 hover:text-slate-400'}`}
+                                                        className={`flex-1 relative z-10 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${category === 'enterprise' ? 'text-background-dark' : 'text-slate-500 hover:text-slate-400'}`}
                                                     >
                                                         Enterprise Infrastructure
                                                     </button>
@@ -163,22 +164,19 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                         </div>
 
                                         {category === 'personal' && (user?.isOrgAdmin || user?.organizationId) && (
-                                            <motion.div 
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-[2rem] flex items-center gap-4 text-amber-500 max-w-2xl mx-auto mb-10"
-                                            >
-                                                <Info size={24} className="flex-shrink-0" />
-                                                <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">
-                                                    Your account is associated with an Enterprise organization. Individual plans are restricted. Please manage your subscription via &quot;Enterprise Infrastructure&quot;.
-                                                </p>
-                                            </motion.div>
+                                            <div className="max-w-2xl mx-auto mb-10">
+                                                <Alert type="warning" title="Enterprise Protocol Restricted">
+                                                    <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed opacity-80">
+                                                        Your account is associated with an Enterprise organization. Individual plans are restricted. Please manage your subscription via &quot;Enterprise Infrastructure&quot;.
+                                                    </p>
+                                                </Alert>
+                                            </div>
                                         )}
 
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             {category === 'personal' ? (
                                                 [
-                                                    { id: 'basic', name: 'Growth', price: interval === 'annual' ? '$79' : '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-emerald-500', iconBg: 'bg-emerald-500/20' },
+                                                    { id: 'basic', name: 'Growth', price: interval === 'annual' ? '$79' : '$99', cases: '8 Cases', features: ['Standard Support', '8 Case Files', 'Basic AI Analysis'], color: 'bg-primary', iconBg: 'bg-primary/20' },
                                                     { id: 'professional', name: 'Professional', price: interval === 'annual' ? '$159' : '$199', cases: '18 Cases', features: ['Priority Support', '18 Case Files', 'Advanced AI Search'], color: 'bg-primary', iconBg: 'bg-primary/20' },
                                                     { id: 'elite', name: 'Elite', price: interval === 'annual' ? '$240' : '$300', cases: 'Unlimited', features: ['24/7 Neural Support', 'Unlimited Cases', 'Enterprise Firm Hub'], color: 'bg-amber-500', iconBg: 'bg-amber-500/20' }
                                                 ].map((tier) => {
@@ -231,7 +229,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                                         </div>
                                                                     ))}
                                                                 </div>
-                                                                <div className="mt-auto w-full py-4 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest transition-all bg-white/10 text-white group-hover:bg-primary flex items-center justify-center">
+                                                                <div className="mt-auto w-full py-4 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest transition-all bg-white/10 text-white group-hover:bg-primary group-hover:text-background-dark flex items-center justify-center">
                                                                     {billingInfo?.plan === tier.id ? 'Active' : (isProcessing && selectedPlanId === tier.id ? <Loader2 className="animate-spin mr-2" size={14} /> : 'Select Tier')}
                                                                 </div>
                                                             </div>
@@ -242,7 +240,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                 <div className="w-full md:col-span-3 group p-8 md:p-10 rounded-[3rem] border border-primary/20 bg-primary/5 relative overflow-hidden">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative z-10">
                                                         <div className="space-y-4">
-                                                            <div className="w-14 h-14 rounded-[1.5rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40">
+                                                            <div className="w-14 h-14 rounded-[1.5rem] bg-primary flex items-center justify-center text-background-dark shadow-2xl shadow-primary/40">
                                                                 <Building size={28} />
                                                             </div>
                                                             <h4 className="text-3xl font-black text-white uppercase tracking-tighter">Enterprise Firm Infrastructure</h4>
@@ -310,7 +308,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                                         onConfirm('enterprise');
                                                                     }}
                                                                     disabled={!paymentData.firmName || isProcessing}
-                                                                    className="flex-1 py-3 bg-white text-black text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl text-center hover:scale-[1.02] transition-all flex items-center justify-center disabled:opacity-50"
+                                                                    className="flex-1 py-3 bg-primary text-background-dark text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl text-center hover:scale-[1.02] transition-all flex items-center justify-center disabled:opacity-50"
                                                                 >
                                                                     {isProcessing && selectedPlanId === 'enterprise' ? <Loader2 className="animate-spin" size={14} /> : 'Get Firm Code'}
                                                                 </button>

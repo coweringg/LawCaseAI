@@ -48,7 +48,7 @@ export const updateUserQuotas = catchAsync(async (req: IAuthRequest, res: Respon
     const { maxCases, maxTokens, maxTotalStorage, maxFilesPerCase } = req.body
 
     const user = await User.findById(userId)
-    if (!user) throw new AppError('Target identity not found', 404)
+    if (!user) throw new AppError('Identity not found: The specified operator profile could not be targeted.', 404)
 
     const before = user.toObject({ virtuals: true })
     
@@ -70,7 +70,7 @@ export const updateUserQuotas = catchAsync(async (req: IAuthRequest, res: Respon
 export const resetUserQuotas = catchAsync(async (req: IAuthRequest, res: Response) => {
     const { userId } = req.params
     const user = await User.findById(userId)
-    if (!user) throw new AppError('Target identity not found', 404)
+    if (!user) throw new AppError('Identity not found: The specified operator profile could not be targeted.', 404)
 
     const before = user.toObject({ virtuals: true })
     user.customLimits = undefined

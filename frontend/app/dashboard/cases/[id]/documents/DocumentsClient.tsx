@@ -334,7 +334,7 @@ export default function DocumentsClient() {
 
                 <div className="flex-1 flex overflow-hidden">
                     <aside className="w-72 flex-none flex flex-col bg-white/[0.01] border-r border-white/10 backdrop-blur-3xl overflow-hidden relative group/sidebar">
-                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/sidebar:scale-[1.6] transition-transform duration-1000"></div>
+                        <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                         
                         <div className="p-6 border-b border-white/10 bg-white/[0.02] relative z-10 flex flex-col gap-1">
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Module</span>
@@ -394,11 +394,11 @@ export default function DocumentsClient() {
                                     <div className="px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Classification</div>
                                     <div className="space-y-1">
                                         {[
-                                            { id: 'pdf', label: 'PDF Dossiers', icon: FileText, color: 'text-red-400', active: 'bg-red-500/10 border-red-500/20 text-red-400' },
-                                            { id: 'image', label: 'Visual Units', icon: Image, color: 'text-emerald-400', active: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' },
+                                            { id: 'pdf', label: 'PDF Dossiers', icon: FileText, color: 'text-rose-400', active: 'bg-rose-500/10 border-rose-500/20 text-rose-400' },
+                                            { id: 'image', label: 'Visual Units', icon: Image, color: 'text-primary', active: 'bg-primary/10 border-primary/20 text-primary' },
                                             { id: 'mp3', label: 'Audio Signals', icon: Headphones, color: 'text-amber-400', active: 'bg-amber-500/10 border-amber-500/20 text-amber-400' },
                                             { id: 'video', label: 'Motion Capture', icon: Video, color: 'text-purple-400', active: 'bg-purple-500/10 border-purple-400/20 text-purple-400' },
-                                            { id: 'media', label: 'Unified Media', icon: Film, color: 'text-blue-400', active: 'bg-blue-500/10 border-blue-400/20 text-blue-400' },
+                                            { id: 'media', label: 'Unified Media', icon: Film, color: 'text-primary', active: 'bg-primary/10 border-primary/20 text-primary' },
                                         ].map((cat) => (
                                             <motion.div
                                                 key={cat.id}
@@ -428,7 +428,7 @@ export default function DocumentsClient() {
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${storagePercent}%` }}
-                                        className="bg-primary h-full rounded-full shadow-[0_0_10px_rgba(37,99,235,0.4)]"
+                                        className="bg-primary h-full rounded-full shadow-[0_0_10px_rgba(0,230,118,0.4)]"
                                     ></motion.div>
                                 </div>
                             </div>
@@ -436,7 +436,7 @@ export default function DocumentsClient() {
                     </aside>
 
                     <section className="flex-1 flex flex-col bg-transparent overflow-hidden relative">
-                        <div className="absolute inset-0 crystallography-pattern opacity-[0.02] pointer-events-none"></div>
+                        <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                         
                         <div className="p-8 pb-4 relative z-10">
                             <div className="flex items-center justify-between mb-8">
@@ -453,7 +453,7 @@ export default function DocumentsClient() {
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             onClick={() => setBulkDeleteModalOpen(true)}
-                                            className="h-12 px-6 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-500/20 transition-all flex items-center gap-3 shadow-xl"
+                                            className="h-12 px-6 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-rose-500/20 transition-all flex items-center gap-3 shadow-xl"
                                         >
                                             <Trash2 size={16} />
                                             Purge ({selectedDocs.length})
@@ -483,7 +483,7 @@ export default function DocumentsClient() {
                                     />
 
                                     <motion.button
-                                        whileHover={isCaseLocked ? {} : { scale: 1.02, boxShadow: "0 0 30px rgba(37,99,235,0.4)" }}
+                                        whileHover={isCaseLocked ? {} : { scale: 1.02, boxShadow: "0 0 30px rgba(0,230,118,0.4)" }}
                                         whileTap={isCaseLocked ? {} : { scale: 0.98 }}
                                         onClick={() => !isCaseLocked && fileInputRef.current?.click()}
                                         disabled={isUploading || isCaseLocked}
@@ -561,10 +561,10 @@ export default function DocumentsClient() {
                                                         <td className="py-6 px-4">
                                                             <div className="flex items-center gap-5">
                                                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl border relative transition-all duration-500 group-hover:scale-110 ${
-                                                                    file.type.includes('pdf') ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                                                    file.type.includes('pdf') ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
                                                                     file.type.includes('audio') ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
                                                                     file.type.includes('video') ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
-                                                                    'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                                                                    'bg-primary/10 text-primary border-primary/20'
                                                                 }`}>
                                                                     {file.type.includes('pdf') ? <FileText size={22} /> : 
                                                                      file.type.includes('audio') ? <Headphones size={22} /> :
@@ -607,14 +607,14 @@ export default function DocumentsClient() {
                                                                         <>
                                                                             <button 
                                                                                 onClick={(e) => { e.stopPropagation(); setFileToRename(file); setNewFileName(file.name); setRenameModalOpen(true); }}
-                                                                                className="p-2.5 hover:bg-blue-500/10 rounded-xl text-blue-400 transition-all border border-transparent hover:border-blue-500/20"
+                                                                                className="p-2.5 hover:bg-primary/10 rounded-xl text-primary transition-all border border-transparent hover:border-primary/20"
                                                                                 title="Update Alias"
                                                                             >
                                                                                 <Zap size={16} />
                                                                             </button>
                                                                             <button 
                                                                                 onClick={(e) => { e.stopPropagation(); setFileToDelete(file); setDeleteModalOpen(true); }}
-                                                                                className="p-2.5 hover:bg-red-500/10 rounded-xl text-red-500 transition-all border border-transparent hover:border-red-500/20"
+                                                                                className="p-2.5 hover:bg-rose-500/10 rounded-xl text-rose-500 transition-all border border-transparent hover:border-rose-500/20"
                                                                                 title="Purge Intelligence"
                                                                             >
                                                                                 <Trash2 size={16} />
@@ -661,7 +661,7 @@ export default function DocumentsClient() {
                             </motion.div>
                         ) : (
                             <aside className="w-[420px] flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
-                                <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/right:scale-[1.6] transition-transform duration-1000"></div>
+                                <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                                 <div className="flex-1 flex flex-col items-center justify-center p-12 text-center relative z-10">
                                     <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-2xl group-hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-700">
                                         <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-hover:opacity-40 transition-opacity duration-1000"></div>

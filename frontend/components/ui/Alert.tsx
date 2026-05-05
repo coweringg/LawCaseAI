@@ -1,5 +1,6 @@
 import React from 'react'
-import { AlertCircle, CheckCircle, Info, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { AlertCircle, CheckCircle, Info, X, ShieldAlert } from 'lucide-react'
 import { cn } from '@/utils/helpers'
 
 interface AlertProps {
@@ -21,37 +22,40 @@ export const Alert: React.FC<AlertProps> = ({
 }) => {
   const icons = {
     success: CheckCircle,
-    error: AlertCircle,
+    error: ShieldAlert,
     warning: AlertCircle,
     info: Info
   }
 
   const styles = {
-    success: 'bg-success-50 border-success-200 text-success-800',
-    error: 'bg-error-50 border-error-200 text-error-800',
-    warning: 'bg-warning-50 border-warning-200 text-warning-800',
-    info: 'bg-primary-50 border-primary-200 text-primary-800'
+    success: 'bg-primary/5 border-primary/20 text-primary shadow-[0_0_20px_rgba(0,230,118,0.05)]',
+    error: 'bg-rose-500/5 border-rose-500/20 text-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.05)]',
+    warning: 'bg-amber-500/5 border-amber-500/20 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.05)]',
+    info: 'bg-sky-500/5 border-sky-500/20 text-sky-500 shadow-[0_0_20px_rgba(14,165,233,0.05)]'
   }
 
   const Icon = icons[type]
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'rounded-lg border p-4',
+        'rounded-2xl border p-5 backdrop-blur-xl relative overflow-hidden',
         styles[type],
         className
       )}
     >
-      <div className="flex">
+      <div className="absolute inset-0 micro-grid opacity-[0.05] pointer-events-none"></div>
+      <div className="flex relative z-10">
         <div className="flex-shrink-0">
           <Icon className="h-5 w-5" />
         </div>
-        <div className="ml-3 flex-1">
+        <div className="ml-4 flex-1">
           {title && (
-            <h3 className="text-sm font-medium">{title}</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">{title}</h3>
           )}
-          <div className={cn('text-sm', title && 'mt-2')}>
+          <div className={cn('text-[11px] font-medium tracking-wide leading-relaxed opacity-90')}>
             {children}
           </div>
         </div>
@@ -59,13 +63,13 @@ export const Alert: React.FC<AlertProps> = ({
           <div className="ml-auto pl-3">
             <button
               onClick={onDismiss}
-              className="inline-flex text-secondary-400 hover:text-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="inline-flex text-slate-500 hover:text-white transition-colors p-1"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

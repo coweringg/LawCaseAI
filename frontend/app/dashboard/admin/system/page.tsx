@@ -151,8 +151,8 @@ export default function SystemCommandCenter() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12">
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none"></div>
+      <div className="min-h-screen bg-transparent relative overflow-hidden flex flex-col p-8 md:p-12 gap-12 relative z-10">
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
@@ -160,8 +160,8 @@ export default function SystemCommandCenter() {
               <div className="w-2 h-2 rounded-full bg-error-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">System Authorization Level: Alpha-Zero</span>
             </div>
-            <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic bg-gradient-to-r from-white via-white to-white/20 bg-clip-text text-transparent">
-              System Command
+            <h1 className="text-6xl font-black text-white tracking-tightest leading-none font-display uppercase italic">
+              System <span className="text-primary">Command</span>
             </h1>
             <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
               <ShieldCheck size={14} className="text-error-500" /> Platform Integrity & Network Communications
@@ -170,7 +170,7 @@ export default function SystemCommandCenter() {
 
           <div className="flex gap-4">
              <div className="premium-glass h-14 px-8 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(0,230,118,0.8)]"></div>
                 Mainframe Status: Active
              </div>
           </div>
@@ -181,17 +181,19 @@ export default function SystemCommandCenter() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <Card variant="glass" className={cn(
-                  "premium-glass border-white/10 overflow-hidden transition-all duration-700 h-full",
-                  systemStatus.maintenanceMode ? "ring-2 ring-error-500/40 bg-error-500/5 shadow-[0_0_50px_rgba(239,68,68,0.1)]" : "shadow-2xl"
+              <Card variant="none" className={cn(
+                  "bg-black/60 backdrop-blur-3xl border border-white/10 overflow-hidden transition-all duration-700 h-full shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2.5rem]",
+                  systemStatus.maintenanceMode 
+                    ? "ring-2 ring-error-500/40 bg-error-500/5 shadow-[0_0_50px_rgba(239,68,68,0.1)]" 
+                    : "hover:border-primary/30 shadow-[0_0_50px_rgba(0,230,118,0.05)]"
               )}>
-                <div className="absolute inset-0 mesh-gradient opacity-[0.05] pointer-events-none"></div>
-                <CardContent className="p-12 flex flex-col items-center text-center space-y-8 relative z-10">
+                <div className="absolute inset-0 micro-grid opacity-[0.03] pointer-events-none"></div>
+                <CardContent className="px-6 pb-6 p-12 flex flex-col items-center text-center space-y-8 relative z-10">
                   <div className={cn(
                       "w-32 h-32 rounded-[2.5rem] flex items-center justify-center transition-all duration-700",
                       systemStatus.maintenanceMode 
                         ? "bg-error-500/20 text-error-500 border-2 border-error-500/20 shadow-[0_0_40px_rgba(239,68,68,0.2)]" 
-                        : "bg-white/5 text-slate-500 border-2 border-white/5"
+                        : "bg-primary/5 text-primary border-2 border-primary/20 shadow-[0_0_30px_rgba(0,230,118,0.1)]"
                   )}>
                      <Power className={cn("w-16 h-16", systemStatus.maintenanceMode && "animate-pulse")} />
                   </div>
@@ -211,10 +213,10 @@ export default function SystemCommandCenter() {
                       onClick={handleToggleMaintenance}
                       disabled={isTogglingMaintenance}
                       className={cn(
-                          "w-full h-20 rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-500 border-2",
+                          "w-full h-20 rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-500 border-2 shadow-2xl",
                           systemStatus.maintenanceMode 
                             ? "bg-white/5 hover:bg-white/10 text-white border-white/20" 
-                            : "bg-error-600 hover:bg-error-500 text-white border-error-500 shadow-xl shadow-error-500/20"
+                            : "bg-error-600 hover:bg-error-500 text-white border-error-500 shadow-[0_0_30px_rgba(239,68,68,0.4)]"
                       )}
                     >
                        {isTogglingMaintenance 
@@ -230,9 +232,9 @@ export default function SystemCommandCenter() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <Card variant="glass" className="premium-glass border-white/10 shadow-2xl h-full overflow-hidden">
-                 <div className="absolute inset-0 mesh-gradient opacity-[0.03] pointer-events-none"></div>
-                 <CardContent className="p-12 space-y-8 relative z-10">
+              <Card variant="none" className="bg-black/60 backdrop-blur-3xl border border-white/10 shadow-[0_0_50px_rgba(0,230,118,0.05)] hover:border-primary/30 transition-all duration-500 h-full overflow-hidden rounded-[2.5rem]">
+                 <div className="absolute inset-0 micro-grid opacity-[0.03] pointer-events-none"></div>
+                 <CardContent className="px-6 pb-6 p-12 space-y-8 relative z-10">
                     <div className="flex items-center gap-6">
                        <div className="p-5 bg-primary/10 rounded-3xl border border-primary/20 text-primary shadow-xl shadow-primary/10">
                           <Radio className="w-10 h-10" />
@@ -260,7 +262,7 @@ export default function SystemCommandCenter() {
                                  <span className={cn(
                                      "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
                                      systemStatus.globalAlert.type === 'error' ? 'bg-error-500/20 text-error-500 border-error-500/20' : 
-                                     systemStatus.globalAlert.type === 'success' ? 'bg-success-500/20 text-success-500 border-success-500/20' : 
+                                     systemStatus.globalAlert.type === 'success' ? 'bg-primary/20 text-primary border-primary/20' : 
                                      systemStatus.globalAlert.type === 'warning' ? 'bg-warning-500/20 text-warning-500 border-warning-500/20' : 
                                      'bg-primary/20 text-primary border-primary/20'
                                  )}>
@@ -294,7 +296,7 @@ export default function SystemCommandCenter() {
                             className="space-y-6"
                           >
                              <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Message Payload</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2 drop-shadow-[0_0_8px_rgba(0,230,118,0.4)]">Message Payload</label>
                                 <textarea
                                    value={broadcastMessage}
                                    onChange={(e) => setBroadcastMessage(e.target.value)}
@@ -305,7 +307,7 @@ export default function SystemCommandCenter() {
                              </div>
                              
                              <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-2">Signal Spectrum</label>
+                                <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2 drop-shadow-[0_0_8px_rgba(0,230,118,0.4)]">Signal Spectrum</label>
                                 <div className="grid grid-cols-4 gap-3">
                                    {(['info', 'success', 'warning', 'error'] as const).map(type => (
                                        <button
@@ -315,7 +317,7 @@ export default function SystemCommandCenter() {
                                           className={cn(
                                               "py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all duration-300",
                                               broadcastType === type 
-                                                ? `bg-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500 text-white shadow-xl shadow-${type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'}-500/20 border-white/20`
+                                                ? `bg-primary text-background-dark shadow-[0_0_20px_rgba(0,230,118,0.3)] border-primary/50`
                                                 : "border-white/5 bg-white/5 text-slate-500 hover:bg-white/10 hover:border-white/10"
                                           )}
                                        >
@@ -329,7 +331,7 @@ export default function SystemCommandCenter() {
                                variant="none"
                                type="submit"
                                disabled={isBroadcasting || !broadcastMessage.trim()}
-                               className="w-full bg-primary hover:bg-primary/80 text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.4em] text-[11px] shadow-2xl shadow-primary/20 transition-all mt-4 border border-white/10"
+                               className="w-full bg-primary hover:bg-primary/90 text-background-dark py-6 rounded-[2rem] font-black uppercase tracking-[0.4em] text-[11px] shadow-[0_0_40px_rgba(0,230,118,0.2)] transition-all mt-4 border border-white/20"
                              >
                                 <Radio size={16} className={cn("mr-3", isBroadcasting && "animate-pulse")} />
                                 {isBroadcasting ? "Encoding Packets..." : "Broadcast Signal"}

@@ -32,7 +32,7 @@ export function CaseRightSidebar({
 }: CaseRightSidebarProps) {
     return (
         <aside className="w-64 flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
-            <div className="absolute inset-0 crystallography-pattern opacity-[0.03] scale-150 pointer-events-none group-hover/right:scale-[1.6] transition-transform duration-1000"></div>
+            <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
             
             <div className="grid grid-cols-2 bg-white/[0.02] border-b border-white/10 p-1.5 m-3 rounded-[1.5rem] premium-glass relative z-10">
                 <button
@@ -82,7 +82,7 @@ export function CaseRightSidebar({
                                 {caseSummary ? (
                                     <div className="space-y-3 relative z-10">
                                         <motion.button
-                                            whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(37,99,235,0.3)" }}
+                                            whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(0,230,118,0.3)" }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={onViewFullAnalysis}
                                             className="w-full group relative overflow-hidden bg-primary/10 border border-primary/30 hover:border-primary/60 p-5 rounded-[1.5rem] transition-all text-center"
@@ -93,7 +93,7 @@ export function CaseRightSidebar({
                                             </div>
                                             <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-1">Neural Synopsis</h4>
                                             <div className="flex items-center justify-center gap-2">
-                                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></div>
                                                 <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Intelligence Ready</p>
                                             </div>
                                         </motion.button>
@@ -102,7 +102,7 @@ export function CaseRightSidebar({
                                     <div className="text-center py-10 relative z-10 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
                                         <p className="text-[11px] font-bold text-slate-600 tracking-wider mb-6">No Analysis Available</p>
                                         <motion.button
-                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(37,99,235,0.3)" }}
+                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,230,118,0.3)" }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={onGenerateSummary}
                                             className="px-6 py-3 bg-primary text-white text-[10px] font-bold tracking-widest rounded-xl shadow-xl transition-all"
@@ -114,7 +114,7 @@ export function CaseRightSidebar({
 
                                 <div className="pt-4 border-t border-white/5 flex items-center justify-between relative z-10">
                                     <span className="text-[9px] font-bold text-slate-600 tracking-widest">Confidence Index</span>
-                                    <span className="text-[11px] font-bold text-emerald-400">98.4%</span>
+                                    <span className="text-[11px] font-bold text-primary">98.4%</span>
                                 </div>
                             </div>
 
@@ -147,8 +147,8 @@ export function CaseRightSidebar({
                             className="space-y-6"
                         >
                             <div className="premium-glass border border-white/10 rounded-[2rem] p-8 text-center shadow-2xl relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-6 relative z-10">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="w-16 h-16 bg-primary/10 border border-primary/20 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 relative z-10">
                                     <CheckCircle size={32} />
                                 </div>
                                 <h3 className="text-[11px] font-black text-white mb-2 uppercase tracking-[0.3em] relative z-10">Neural Readiness</h3>
@@ -173,7 +173,7 @@ export function CaseRightSidebar({
                                         }}
                                         className={`h-full rounded-full shadow-lg transition-all duration-1000 ${
                                             isUploadingTemp ? 'bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 
-                                            'bg-gradient-to-r from-emerald-600 to-teal-400 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
+                                            'bg-gradient-to-r from-primary to-primary/70 shadow-[0_0_15px_rgba(0,230,118,0.5)]'
                                         }`}
                                     ></motion.div>
                                 </div>

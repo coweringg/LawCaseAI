@@ -31,7 +31,7 @@ export const getKnowledgeDocuments = catchAsync(async (req: Request, res: Respon
 export const getUserLibrary = catchAsync(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId || (req as any).user.id
     const user = await User.findById(userId)
-    if (!user) throw new AppError('User not found', 404)
+    if (!user) throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
 
     const { category, search } = req.query
     const query: any = { $or: [{ assignedTo: 'all' }] }
@@ -51,7 +51,7 @@ export const getUserLibrary = catchAsync(async (req: Request, res: Response) => 
 })
 
 export const uploadKnowledgeDocument = catchAsync(async (req: Request, res: Response) => {
-    if (!req.file) throw new AppError('No document file provided', 400)
+    if (!req.file) throw new AppError('Validation failed: No valid file stream detected in the upload payload.', 400)
 
     const { name, category, assignedTo } = req.body
     const userId = (req as any).user.id
@@ -76,7 +76,7 @@ export const uploadKnowledgeDocument = catchAsync(async (req: Request, res: Resp
 export const deleteKnowledgeDocument = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params
     const document = await KnowledgeDocument.findById(id)
-    if (!document) throw new AppError('Document not found', 404)
+    if (!document) throw new AppError('Resource unavailable: The requested document could not be located in the central repository.', 404)
 
     await deleteFromStorage(document.fileKey)
     await KnowledgeDocument.findByIdAndDelete(id)

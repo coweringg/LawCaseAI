@@ -3,17 +3,20 @@ import { cn } from '@/utils/helpers'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
-  variant?: 'standard' | 'glass'
+  variant?: 'standard' | 'glass' | 'none'
 }
 
 export const Card: React.FC<CardProps> = ({ children, className, variant = 'standard', ...props }) => {
   const isGlass = variant === 'glass'
+  const isNone = variant === 'none'
   return (
     <div
       className={cn(
         isGlass 
           ? 'glass border-white/10 shadow-xl overflow-hidden' 
-          : 'bg-white rounded-xl shadow-sm border border-secondary-200',
+          : isNone 
+            ? '' 
+            : 'bg-white rounded-xl shadow-sm border border-secondary-200',
         'p-0',
         className
       )}

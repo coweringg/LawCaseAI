@@ -68,7 +68,7 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
         exit={{ opacity: 0, scale: 0.95 }}
         className="relative w-full max-w-5xl max-h-[80vh] bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col pointer-events-auto shadow-primary/10"
       >
-        <div className="absolute inset-0 crystallography-pattern opacity-[0.05] pointer-events-none" />
+        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none" />
 
         <div className="p-5 lg:p-6 border-b border-white/5 flex items-center justify-between relative z-10 bg-white/[0.02]">
           <div className="flex items-center gap-4">
@@ -126,9 +126,9 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-2xl mx-auto"
               >
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 mb-8 flex items-center gap-5">
-                   <div className="bg-red-500/20 p-3 rounded-xl border border-red-500/30">
-                      <ShieldAlert className="text-red-500" size={28} />
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-6 mb-8 flex items-center gap-5">
+                   <div className="bg-rose-500/20 p-3 rounded-xl border border-rose-500/30">
+                      <ShieldAlert className="text-rose-500" size={28} />
                    </div>
                    <div>
                       <h4 className="text-white font-black uppercase text-sm tracking-wider">Insufficient Data</h4>
@@ -227,7 +227,7 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
 
                 <section>
                   <div className="flex items-center gap-3 mb-6">
-                    <ShieldAlert className="text-red-500" size={20} />
+                    <ShieldAlert className="text-rose-500" size={20} />
                     <h3 className="text-white font-black uppercase tracking-widest text-sm">Risk Vectors</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,10 +237,10 @@ const GlobalAuditModal: React.FC<GlobalAuditModalProps> = ({ isOpen, onClose }) 
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.6 + i * 0.1 }}
                         key={i}
-                        className="p-5 bg-red-500/5 border border-red-500/20 rounded-2xl hover:border-red-500/40 transition-all"
+                        className="p-5 bg-rose-500/5 border border-rose-500/20 rounded-2xl hover:border-rose-500/40 transition-all"
                       >
-                         <p className="text-[13px] text-red-200/90 leading-relaxed font-medium">
-                            <span className="text-red-500 mr-2">â—</span>
+                         <p className="text-[13px] text-rose-200/90 leading-relaxed font-medium">
+                            <span className="text-rose-500 mr-2">• </span>
                             {risk}
                          </p>
                       </motion.div>

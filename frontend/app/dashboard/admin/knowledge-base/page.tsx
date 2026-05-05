@@ -23,6 +23,7 @@ import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
+import { Select } from '@/components/ui/Select'
 import { Input } from '@/components/ui/Input'
 import { formatDate, cn } from '@/utils/helpers'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
@@ -321,14 +322,14 @@ export default function KnowledgeBase() {
             title: 'Deployment Scope',
             render: (v: string) => {
                 if (v === 'all') return (
-                    <div className="flex items-center gap-2 text-emerald-400">
+                    <div className="flex items-center gap-2 text-primary">
                         <Globe size={12} />
                         <span className="text-[10px] font-black uppercase tracking-widest">Global Access</span>
                     </div>
                 )
                 const org = organizations?.find(o => o._id === v)
                 return (
-                    <div className="flex items-center gap-2 text-indigo-400">
+                    <div className="flex items-center gap-2 text-primary/80">
                         <Building size={12} />
                         <span className="text-[10px] font-black uppercase tracking-widest">{org?.name || 'Assigned Firm'}</span>
                     </div>
@@ -393,7 +394,7 @@ export default function KnowledgeBase() {
             key: 'category' as keyof KnowledgeRequest,
             title: 'Taxon',
             render: (v: string) => (
-                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-blue-500/20 text-blue-400 border border-blue-500/10">
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/10">
                     {v}
                 </span>
             )
@@ -412,8 +413,8 @@ export default function KnowledgeBase() {
                 <span className={cn(
                     "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border",
                     v === 'pending' 
-                        ? "bg-amber-500/20 text-amber-400 border-amber-500/10 animate-pulse" 
-                        : "bg-emerald-500/20 text-emerald-400 border-emerald-500/10"
+                        ? "bg-warning-500/20 text-warning-500 border-warning-500/10 animate-pulse" 
+                        : "bg-primary/20 text-primary border-primary/10"
                 )}>
                     {v}
                 </span>
@@ -436,7 +437,7 @@ export default function KnowledgeBase() {
                             variant="none" 
                             size="sm" 
                             onClick={() => handleRequestAction(v, 'resolve')}
-                            className="p-2 hover:bg-emerald-500/10 text-emerald-500 transition-all"
+                            className="p-2 hover:bg-primary/10 text-primary transition-all"
                         >
                             <RotateCcw size={18} />
                         </Button>
@@ -459,8 +460,9 @@ export default function KnowledgeBase() {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
+                className="space-y-8 relative z-10"
             >
+                <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none -z-10"></div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-4xl font-black text-white tracking-tightest mb-2 uppercase">Knowledge <span className="text-primary">Base</span></h1>
@@ -473,24 +475,24 @@ export default function KnowledgeBase() {
                                 <Button
                                     variant="none"
                                     onClick={() => handleBulkAction('resolve')}
-                                    className="px-6 py-4 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all duration-300"
+                                    className="px-6 py-4 bg-primary/10 text-primary border border-primary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/20 hover:shadow-[0_0_20px_rgba(0,230,118,0.2)] transition-all duration-300"
                                 >
                                     Resolve All
                                 </Button>
                                 <Button
                                     variant="none"
                                     onClick={() => handleBulkAction('clear')}
-                                    className="px-6 py-4 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/20 hover:shadow-[0_0_20px_rgba(244,63,94,0.2)] transition-all duration-300"
+                                    className="px-6 py-4 bg-error-500/10 text-error-500 border border-error-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-error-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all duration-300"
                                 >
                                     Purge All
                                 </Button>
                             </div>
                         )}
                         <motion.button
-                            whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(10,68,184,0.6)" }}
+                            whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0,230,118,0.4)" }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setShowUploadModal(true)}
-                            className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl border border-white/20 relative overflow-hidden group"
+                            className="flex items-center gap-3 px-8 py-4 bg-primary text-background-dark rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl border border-white/20 relative overflow-hidden group"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                             <CloudUpload size={20} className="relative z-10" />
@@ -505,7 +507,7 @@ export default function KnowledgeBase() {
                         className={cn(
                             "px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-500",
                             activeTab === 'vault' 
-                                ? "bg-primary text-white shadow-[0_10px_20px_-5px_rgba(10,68,184,0.4)] border border-white/10" 
+                                ? "bg-primary text-background-dark shadow-[0_10px_20px_-5px_rgba(0,230,118,0.4)] border border-white/10" 
                                 : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         )}
                     >
@@ -516,7 +518,7 @@ export default function KnowledgeBase() {
                         className={cn(
                             "px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-500 relative",
                             activeTab === 'requests' 
-                                ? "bg-primary text-white shadow-[0_10px_20px_-5px_rgba(10,68,184,0.4)] border border-white/10" 
+                                ? "bg-primary text-background-dark shadow-[0_10px_20px_-5px_rgba(0,230,118,0.4)] border border-white/10" 
                                 : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         )}
                     >
@@ -543,41 +545,33 @@ export default function KnowledgeBase() {
                                 />
                             </div>
                             
-                            <div className="relative">
-                                <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" />
-                                <select
+                            <div className="relative z-50">
+                                <Select
                                     value={categoryFilter}
-                                    onChange={(e) => setCategoryFilter(e.target.value)}
-                                    className="w-full pl-14 pr-10 py-5 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl text-[11px] font-black text-white outline-none focus:ring-1 focus:ring-primary/40 appearance-none uppercase tracking-widest cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all shadow-2xl"
-                                >
-                                    <option value="" className="bg-slate-900 text-white">All Taxonomies</option>
-                                    <option value="jurisprudence" className="bg-slate-900 text-white">Jurisprudence</option>
-                                    <option value="contracts" className="bg-slate-900 text-white">Contracts</option>
-                                    <option value="regulations" className="bg-slate-900 text-white">Regulations</option>
-                                    <option value="templates" className="bg-slate-900 text-white">Templates</option>
-                                    <option value="other" className="bg-slate-900 text-white">Other</option>
-                                </select>
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <RotateCcw size={14} className="rotate-90" />
-                                </div>
+                                    onChange={setCategoryFilter}
+                                    icon={<Filter size={14} />}
+                                    options={[
+                                        { value: '', label: 'All Taxonomies' },
+                                        { value: 'jurisprudence', label: 'Jurisprudence' },
+                                        { value: 'contracts', label: 'Contracts' },
+                                        { value: 'regulations', label: 'Regulations' },
+                                        { value: 'templates', label: 'Templates' },
+                                        { value: 'other', label: 'Other' }
+                                    ]}
+                                />
                             </div>
 
-                            <div className="relative">
-                                <Building className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" />
-                                <select
+                            <div className="relative z-40">
+                                <Select
                                     value={orgFilter}
-                                    onChange={(e) => setOrgFilter(e.target.value)}
-                                    className="w-full pl-14 pr-10 py-5 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl text-[11px] font-black text-white outline-none focus:ring-1 focus:ring-primary/40 appearance-none uppercase tracking-widest cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all shadow-2xl"
-                                >
-                                    <option value="" className="bg-slate-900 text-white">Global Visibility</option>
-                                    <option value="all" className="bg-slate-900 text-white">Unrestricted</option>
-                                    {organizations?.map(org => (
-                                        <option key={org._id} value={org._id} className="bg-slate-900 text-white">{org.name}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <RotateCcw size={14} className="rotate-90" />
-                                </div>
+                                    onChange={setOrgFilter}
+                                    icon={<Building size={14} />}
+                                    options={[
+                                        { value: '', label: 'Global Visibility' },
+                                        { value: 'all', label: 'Unrestricted' },
+                                        ...(organizations?.map(org => ({ value: org._id, label: org.name })) || [])
+                                    ]}
+                                />
                             </div>
                         </div>
 
@@ -684,21 +678,18 @@ export default function KnowledgeBase() {
                                 <BookOpen className="w-3 h-3" />
                                 Archive Taxonomy
                             </label>
-                            <div className="relative">
-                                <select
+                            <div className="relative z-50">
+                                <Select
                                     value={uploadData.category}
-                                    onChange={(e) => setUploadData({ ...uploadData, category: e.target.value as any })}
-                                    className="w-full p-5 bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl text-white outline-none focus:border-primary/50 uppercase text-[11px] font-black tracking-widest appearance-none cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all shadow-xl"
-                                >
-                                    <option value="jurisprudence" className="bg-slate-900">Jurisprudence</option>
-                                    <option value="contracts" className="bg-slate-900">Contracts</option>
-                                    <option value="regulations" className="bg-slate-900">Regulations</option>
-                                    <option value="templates" className="bg-slate-900">Templates</option>
-                                    <option value="other" className="bg-slate-900">Other</option>
-                                </select>
-                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <RotateCcw size={14} className="rotate-90" />
-                                </div>
+                                    onChange={(val) => setUploadData({ ...uploadData, category: val as any })}
+                                    options={[
+                                        { value: 'jurisprudence', label: 'Jurisprudence' },
+                                        { value: 'contracts', label: 'Contracts' },
+                                        { value: 'regulations', label: 'Regulations' },
+                                        { value: 'templates', label: 'Templates' },
+                                        { value: 'other', label: 'Other' }
+                                    ]}
+                                />
                             </div>
                         </div>
                         <div className="space-y-3">
@@ -706,20 +697,15 @@ export default function KnowledgeBase() {
                                 <Globe className="w-3 h-3" />
                                 Deployment Scope
                             </label>
-                            <div className="relative">
-                                <select
+                            <div className="relative z-40">
+                                <Select
                                     value={uploadData.assignedTo}
-                                    onChange={(e) => setUploadData({ ...uploadData, assignedTo: e.target.value })}
-                                    className="w-full p-5 bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl text-white outline-none focus:border-primary/50 uppercase text-[11px] font-black tracking-widest appearance-none cursor-pointer hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.03)] transition-all shadow-xl"
-                                >
-                                    <option value="all" className="bg-slate-900">Global Access</option>
-                                    {organizations?.map(org => (
-                                        <option key={org._id} value={org._id} className="bg-slate-900">{org.name}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <RotateCcw size={14} className="rotate-90" />
-                                </div>
+                                    onChange={(val) => setUploadData({ ...uploadData, assignedTo: val })}
+                                    options={[
+                                        { value: 'all', label: 'Global Access' },
+                                        ...(organizations?.map(org => ({ value: org._id, label: org.name })) || [])
+                                    ]}
+                                />
                             </div>
                         </div>
                     </div>
@@ -762,7 +748,7 @@ export default function KnowledgeBase() {
                     <Button
                         type="submit"
                         disabled={isUploading}
-                        className="w-full py-6 bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/20 transition-all border border-white/10"
+                        className="w-full py-6 bg-primary hover:bg-primary/90 text-background-dark font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/20 transition-all border border-white/10"
                     >
                         {isUploading ? 'Executing Uplink...' : 'Synchronize Master Document'}
                     </Button>

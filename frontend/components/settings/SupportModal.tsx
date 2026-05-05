@@ -36,7 +36,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                         exit={{ opacity: 0, y: 30, scale: 0.95 }}
                         className="relative w-full max-w-xl glass-dark rounded-[40px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
                     >
-                        <div className="absolute inset-0 crystallography-pattern opacity-[0.03] pointer-events-none"></div>
+                        <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
                         <div className="p-8 border-b border-white/10 flex justify-between items-center relative z-10">
                             <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                                 <Sparkles className="text-primary" />
@@ -51,9 +51,9 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setSupportData({ ...supportData, type: 'system_error' })}
-                                    className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'system_error' ? 'border-red-500/50 bg-red-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
+                                    className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'system_error' ? 'border-rose-500/50 bg-rose-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                 >
-                                    <span className={`material-icons-round text-2xl ${supportData.type === 'system_error' ? 'text-red-500' : 'text-slate-600'}`}>report_problem</span>
+                                    <span className={`material-icons-round text-2xl ${supportData.type === 'system_error' ? 'text-rose-500' : 'text-slate-600'}`}>report_problem</span>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">System Error</span>
                                 </button>
                                 <button
@@ -96,7 +96,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                                     whileTap={{ scale: 0.98 }}
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="px-10 py-4 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-3"
+                                    className="px-10 py-4 bg-primary text-background-dark text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-3"
                                 >
                                     {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <span className="material-icons-round text-base">send</span>}
                                     Broadcast Stream

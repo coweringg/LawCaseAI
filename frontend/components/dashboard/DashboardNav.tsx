@@ -1,10 +1,10 @@
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { FileText, Settings as SettingsIcon, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
+import MonolithLogo from '@/components/ui/MonolithLogo'
 
 interface DashboardNavProps {
   currentPage?: string
@@ -22,7 +22,7 @@ export function DashboardNav({ currentPage = 'cases' }: DashboardNavProps) {
     <div className="sidebar w-64">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center space-x-3 mb-8 group">
-          <Image src="/logo.png" alt="LawCaseAI" width={32} height={32} className="object-contain" />
+          <MonolithLogo size={32} glowIntensity="md" />
           <span className="text-xl font-bold text-law-charcoal-900">LawCaseAI</span>
         </Link>
 

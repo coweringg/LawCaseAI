@@ -3,8 +3,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Shield, FileText, Scale, Gavel, Cpu, AlertTriangle, ChevronRight } from 'lucide-react'
+import { Shield, FileText, Scale, Cpu, AlertTriangle, ChevronRight } from 'lucide-react'
 import Footer from '@/components/layouts/Footer'
+import MonolithLogo from '@/components/ui/MonolithLogo'
 
 export default function TermsClient() {
   const lastUpdated = 'February 25, 2026'
@@ -20,9 +21,7 @@ export default function TermsClient() {
       <nav className="fixed top-0 inset-x-0 h-20 border-b border-white/5 bg-black/20 backdrop-blur-xl z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-              <Gavel size={18} />
-            </div>
+            <MonolithLogo size={32} glowIntensity="md" className="group-hover:scale-110 transition-transform" />
             <span className="text-white font-bold text-xl tracking-tight">LawCaseAI</span>
           </Link>
 

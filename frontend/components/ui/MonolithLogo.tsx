@@ -5,9 +5,10 @@ interface MonolithLogoProps {
   size?: number;
   className?: string;
   glowIntensity?: 'sm' | 'md' | 'lg';
+  imageScale?: number;
 }
 
-export default function MonolithLogo({ size = 32, className, glowIntensity = 'md' }: MonolithLogoProps) {
+export default function MonolithLogo({ size = 32, className, glowIntensity = 'md', imageScale = 1 }: MonolithLogoProps) {
   const glowMap = {
     sm: 'drop-shadow-[0_0_4px_rgba(0,230,118,0.3)]',
     md: 'drop-shadow-[0_0_8px_rgba(0,230,118,0.5)]',
@@ -21,11 +22,12 @@ export default function MonolithLogo({ size = 32, className, glowIntensity = 'md
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo-cube.png"
+        src="/logo-law.png"
         alt="LawCaseAI"
         width={size}
         height={size}
         className={cn('w-full h-full object-contain', glowMap[glowIntensity])}
+        style={{ transform: `scale(${imageScale})` }}
       />
     </div>
   );

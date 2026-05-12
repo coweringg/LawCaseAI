@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileText, User, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import MonolithLogo from "@/components/ui/MonolithLogo";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -40,13 +40,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Link href="/dashboard" className="flex items-center space-x-4">
-                  <Image
-                    src="/logo.png"
-                    alt="LawCaseAI"
-                    width={40}
-                    height={40}
-                    className="object-contain drop-shadow-md"
-                  />
+                  <MonolithLogo size={36} glowIntensity="md" />
                   <span className="text-xl font-bold text-secondary-900">
                     LawCaseAI
                   </span>
@@ -129,13 +123,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Link href="/" className="flex items-center space-x-4">
-                  <Image
-                    src="/logo.png"
-                    alt="LawCaseAI"
-                    width={40}
-                    height={40}
-                    className="object-contain drop-shadow-md"
-                  />
+                  <MonolithLogo size={36} glowIntensity="md" />
                   <span className="text-xl font-bold text-secondary-900">
                     LawCaseAI
                   </span>

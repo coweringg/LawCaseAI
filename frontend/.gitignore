@@ -55,3 +55,7 @@ coverage/
 # Temporary folders
 tmp/
 temp/
+
+# Generated static files
+public/sitemap.xml
+public/robots.txt

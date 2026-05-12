@@ -90,7 +90,7 @@ export default function HomeClient() {
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
               <Link href="/register" className="bg-primary text-background-dark px-8 py-3 rounded-lg font-bold text-sm hover:brightness-110 hover:shadow-[0_0_40px_-5px_rgba(0,230,118,0.6)] transition-all duration-300">
-                Subscribe Now
+                Start Free Trial
               </Link>
               <Link href="/pricing" className="bg-white/5 border border-white/10 text-white px-8 py-3 rounded-lg font-bold text-sm hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-300">
                 View Plans
@@ -108,9 +108,9 @@ export default function HomeClient() {
               <div className="absolute -inset-20 bg-primary/10 blur-[180px] rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-1000"></div>
               <div className="glass-panel rounded-t-2xl rounded-b-none overflow-hidden p-[1px] relative border-b-0">
                 <div className="specular-highlight rounded-t-2xl rounded-b-none"></div>
-                <div className="bg-[#080808]/98 rounded-t-xl rounded-b-none overflow-hidden flex h-[420px]">
+                <div className="bg-[#080808]/98 rounded-t-xl rounded-b-none overflow-hidden flex flex-col md:flex-row h-auto md:h-[420px]">
 
-                  <div className="w-56 border-r border-white/5 p-5 flex flex-col gap-6 bg-black/60 relative">
+                  <div className="hidden md:flex w-56 border-r border-white/5 p-5 flex-col gap-6 bg-black/60 relative">
                     <div className="absolute inset-0 micro-grid opacity-10 pointer-events-none"></div>
                     <div className="flex items-center gap-2.5 relative z-10">
                       <MonolithLogo size={24} glowIntensity="sm" />
@@ -153,8 +153,8 @@ export default function HomeClient() {
                     </div>
                   </div>
 
-                  <div className="flex-1 p-5 flex flex-col overflow-hidden">
-                    <div className="flex justify-between items-center mb-5">
+                  <div className="flex-1 p-3 sm:p-5 flex flex-col overflow-hidden">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-5">
                       <div>
                         <h3 className="text-sm font-black text-white tracking-tight">Operational Command</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
@@ -176,7 +176,7 @@ export default function HomeClient() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-3 mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4">
                       {[
                         { label: 'Active Cases', value: '24', change: '+3', icon: 'folder_open', color: 'primary' },
                         { label: 'Documents', value: '1,847', change: '+127', icon: 'description', color: 'primary' },
@@ -205,12 +205,12 @@ export default function HomeClient() {
                       ))}
                     </div>
 
-                    <div className="grid grid-cols-5 gap-3 flex-1 min-h-0">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3 flex-1 min-h-0 pb-4 md:pb-0">
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1.3, duration: 0.8 }}
-                        className="col-span-3 bg-white/[0.02] border border-white/5 rounded-xl p-3 relative overflow-hidden"
+                        className="col-span-1 md:col-span-3 bg-white/[0.02] border border-white/5 rounded-xl p-3 relative overflow-hidden min-h-[120px] md:min-h-0"
                       >
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Case Resolution Velocity</span>
@@ -254,7 +254,7 @@ export default function HomeClient() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1.5, duration: 0.8 }}
-                        className="col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col"
+                        className="col-span-1 md:col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col"
                       >
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Recent Activity</span>
                         <div className="space-y-2 flex-1">

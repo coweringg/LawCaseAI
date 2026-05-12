@@ -127,8 +127,8 @@ module.exports = {
         'primary-hover': '#00c853',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Outfit', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'var(--font-outfit)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
         serif: ['IBM Plex Serif', 'Georgia', 'serif'],
         mono: ['IBM Plex Mono', 'Monaco', 'monospace'],
       },

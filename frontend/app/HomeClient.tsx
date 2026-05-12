@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import TypewriterText from '@/components/ui/TypewriterText';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 import { Shield, Gavel, FileText, Zap, CheckCircle2 } from 'lucide-react';
 
 export default function HomeClient() {
@@ -112,10 +113,7 @@ export default function HomeClient() {
                   <div className="w-56 border-r border-white/5 p-5 flex flex-col gap-6 bg-black/60 relative">
                     <div className="absolute inset-0 micro-grid opacity-10 pointer-events-none"></div>
                     <div className="flex items-center gap-2.5 relative z-10">
-                      <div className="w-6 h-6 flex items-center justify-center">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/logo-cube.png" alt="LawCaseAI" width={24} height={24} className="w-full h-full object-contain drop-shadow-[0_0_4px_rgba(0,230,118,0.4)]" />
-                      </div>
+                      <MonolithLogo size={24} glowIntensity="sm" />
                       <span className="font-bold tracking-tight text-sm text-white">LawCase<span className="text-primary">AI</span></span>
                     </div>
                     <div className="space-y-1.5 relative z-10">

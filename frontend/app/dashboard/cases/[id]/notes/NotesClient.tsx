@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
     Loader2, 
-    Gavel, 
     ChevronRight, 
     CloudCheck, 
     FileText as FileIcon, 
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { motion } from 'framer-motion';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 
 export default function NotesClient() {
     const params = useParams();
@@ -50,7 +50,7 @@ export default function NotesClient() {
             <header className="h-16 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard" className="flex items-center gap-2 text-primary font-black text-xl hover:opacity-80 transition-opacity">
-                        <Gavel size={24} />
+                        <MonolithLogo size={28} glowIntensity="md" />
                         <span className="tracking-tightest">LawCaseAI</span>
                     </Link>
                     <div className="h-6 w-px bg-white/10 mx-2"></div>

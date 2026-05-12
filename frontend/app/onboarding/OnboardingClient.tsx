@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Shield, Lock, CheckCircle2, Gavel, FolderPlus, CloudUpload, Sparkles, ArrowRight, HelpCircle, Calendar } from 'lucide-react';
+import { Shield, Lock, CheckCircle2, FolderPlus, CloudUpload, Sparkles, ArrowRight, HelpCircle, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 
 export default function OnboardingClient() {
     const { user, isAuthenticated, isLoading } = useAuth();
@@ -38,10 +39,8 @@ export default function OnboardingClient() {
             </div>
 
             <nav className="w-full py-6 px-8 flex justify-between items-center bg-background-dark/80 backdrop-blur-md border-b border-white/5 relative z-10">
-                <Link href="/" className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                        <Gavel size={20} className="text-white" />
-                    </div>
+                <Link href="/" className="flex items-center gap-3 group">
+                    <MonolithLogo size={40} glowIntensity="lg" className="group-hover:scale-110 transition-transform" />
                     <span className="text-2xl font-black text-white tracking-tightest font-display">LawCaseAI</span>
                 </Link>
                 <div className="flex items-center gap-4">

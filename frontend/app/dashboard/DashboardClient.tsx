@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardStats } from '@/types';
 import GlobalAuditModal from '@/components/modals/GlobalAuditModal';
+import { toast } from 'react-hot-toast';
 
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -81,26 +82,49 @@ function DashboardContent() {
   useEffect(() => {
     if (searchParams?.get('status') === 'success' && isAuthenticated && !profileRefreshed.current) {
       profileRefreshed.current = true;
+      
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+
       const initialPlan = user?.plan;
+      const initialOrgId = user?.organizationId;
       const startTime = Date.now();
+      
+      const needsLoadingToast = initialPlan === 'none';
+      
+      if (needsLoadingToast) {
+        toast.loading('Synchronizing your new neural access...', { id: 'payment-polling' });
+      }
       
       const pollProfile = async () => {
         const updatedUser = await fetchProfile();
-        const hasPlanChanged = updatedUser && updatedUser.plan !== initialPlan && updatedUser.plan !== 'none';
+        const hasPlanChanged = updatedUser && (
+            updatedUser.plan !== initialPlan || 
+            updatedUser.organizationId !== initialOrgId ||
+            updatedUser.isOrgAdmin
+        );
         const timeElapsed = Date.now() - startTime;
 
-        if (hasPlanChanged || timeElapsed > 15000) {
+        if (hasPlanChanged) {
+          toast.success('Access matrix updated. Welcome to your new tier.', { id: 'payment-polling' });
           await fetchDashboardData();
-          router.replace('/dashboard');
           return;
         }
 
-        setTimeout(pollProfile, 2000);
+        if (timeElapsed > 60000) {
+          if (needsLoadingToast) {
+             toast.error('The payment is taking longer than usual to sync. Please refresh in a minute.', { id: 'payment-polling' });
+          }
+          await fetchDashboardData();
+          return;
+        }
+
+        setTimeout(pollProfile, 3000);
       };
 
       pollProfile();
     }
-  }, [searchParams, isAuthenticated, fetchProfile, fetchDashboardData, router, user?.plan]);
+  }, [searchParams, isAuthenticated, user, fetchProfile, fetchDashboardData]);
 
   if (!mounted || (isLoading && !dashboardData)) return (
     <DashboardLayout>

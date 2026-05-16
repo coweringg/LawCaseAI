@@ -83,6 +83,7 @@ export function useCaseWorkspace() {
     const isTrialExpired = caseData?.error === 'TRIAL_EXPIRED' || caseData?.error === 'TRIAL_LOCKED';
     const isCaseLocked = isTrialExpired || (caseData?.status && caseData.status !== 'active');
     const caseSummary = caseData?.summary || null;
+    const isLoading = isCaseLoading || isFilesLoading || isAuthLoading;
 
     useEffect(() => {
         setMounted(true);
@@ -119,11 +120,13 @@ export function useCaseWorkspace() {
     };
 
     const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
-        chatEndRef.current?.scrollIntoView({ behavior });
+        setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior, block: 'end' });
+        }, 100);
     };
 
     useEffect(() => {
-        if (chatMessages.length > 0) {
+        if (!isLoading && chatMessages.length > 0) {
             if (!initialLoadDone.current) {
                 scrollToBottom("auto");
                 initialLoadDone.current = true;
@@ -131,7 +134,7 @@ export function useCaseWorkspace() {
                 scrollToBottom("smooth");
             }
         }
-    }, [chatMessages]);
+    }, [chatMessages, isLoading]);
 
     const sendMessageMutation = useMutation({
         mutationFn: async ({ content, tempFileId }: { content: string, tempFileId: string | null }) => {
@@ -183,7 +186,7 @@ export function useCaseWorkspace() {
                 } else {
                     queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
                     toast.success('Unit saved to repository');
-                    setAttachingFile(null); // Clear preview if it was a direct sidebar upload
+                    setAttachingFile(null);
                 }
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
@@ -354,7 +357,7 @@ export function useCaseWorkspace() {
 
     return {
         activeTab, setActiveTab,
-        isLoading: isCaseLoading || isFilesLoading || isAuthLoading,
+        isLoading,
         isAuthLoading,
         mounted,
         isSending: sendMessageMutation.isPending,

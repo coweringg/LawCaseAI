@@ -87,7 +87,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
                         <FileText size={32} className="relative z-10" />
                     </motion.div>
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-[15px] font-black text-white truncate leading-tight tracking-tightest mb-1" title={file.name}>{file.name}</h3>
+                        <h3 className="text-[15px] font-black text-white break-all leading-tight tracking-tightest mb-1" title={file.name}>{file.name}</h3>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-4">{file.type.split('/').pop()} &bull; {formatSize(file.size)}</p>
                         <div className="flex gap-3">
                             <motion.a 
@@ -197,7 +197,7 @@ export default function FileAISummary({ file, onClose }: FileAISummaryProps) {
             </div>
 
             <div className="p-8 border-t border-white/10 bg-white/[0.01] relative z-10">
-                <Link href={`/cases/${file.caseId}`}>
+                <Link href={`/dashboard/cases/${file.caseId}`}>
                     <motion.button 
                         whileHover={{ scale: 1.02, backgroundColor: "rgba(0,230,118,0.1)" }}
                         whileTap={{ scale: 0.98 }}

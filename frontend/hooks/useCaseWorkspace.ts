@@ -104,16 +104,13 @@ export function useCaseWorkspace() {
 
     const handleDownloadFile = async (url: string, fileName: string) => {
         try {
-            const response = await fetch(getFullFileUrl(url));
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.href = downloadUrl;
+            link.href = getFullFileUrl(url);
             link.setAttribute('download', fileName);
+            link.setAttribute('target', '_blank');
             document.body.appendChild(link);
             link.click();
             link.remove();
-            window.URL.revokeObjectURL(downloadUrl);
         } catch (error) {
             toast.error('Failed to download file');
         }

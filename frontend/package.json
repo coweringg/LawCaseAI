@@ -20,8 +20,8 @@
     "framer-motion": "^12.34.1",
     "jspdf": "^4.2.0",
     "lucide-react": "^0.574.0",
-    "next": "^16.2.1",
-    "postcss": "^8",
+    "next": "^16.2.6",
+    "postcss": "^8.5.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.48.2",
@@ -41,5 +41,8 @@
     "eslint-config-next": "15.1.6",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.3.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }

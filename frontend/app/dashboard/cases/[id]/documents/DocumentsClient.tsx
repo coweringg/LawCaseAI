@@ -143,17 +143,13 @@ export default function DocumentsClient() {
 
     const handleDownload = async (file: any) => {
         try {
-            const fullUrl = getFileUrl(file.url);
-            const response = await fetch(fullUrl);
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.href = downloadUrl;
+            link.href = getFileUrl(file.url);
             link.setAttribute('download', file.name);
+            link.setAttribute('target', '_blank');
             document.body.appendChild(link);
             link.click();
             link.remove();
-            window.URL.revokeObjectURL(downloadUrl);
         } catch (error) {
             toast.error('Failed to sync data unit');
         }

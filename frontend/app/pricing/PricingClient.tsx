@@ -162,7 +162,7 @@ export default function PricingClient() {
                   )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["8 Active AI Matters", "20 Documents per Case", "15MB max File Size", "50MB Total Storage", "Unlimited Standard Intelligence Engine", "SOC2-ready infrastructure"].map((f, i) => (
+                  {["8 Active AI Matters", "20 Documents per Case", "15MB max File Size", "2GB Total Storage", "Unlimited Standard Intelligence Engine", "SOC2-ready infrastructure"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -204,7 +204,7 @@ export default function PricingClient() {
                   )}
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["18 Active AI Matters", "50 Documents per Case", "25MB max File Size", "500MB Total Storage", "Unlimited Deep Intelligence Engine", "HIPAA-ready security architecture"].map((f, i) => (
+                  {["18 Active AI Matters", "50 Documents per Case", "50MB max File Size", "15GB Total Storage", "Unlimited Deep Intelligence Engine", "HIPAA-ready security architecture"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-300 text-sm font-medium">
                       <Check size={18} className="text-primary" /> {f}
                     </li>
@@ -248,7 +248,7 @@ export default function PricingClient() {
                   </div>
                 </div>
                 <ul className="space-y-4 mb-10 min-h-[220px]">
-                  {["∞ Unlimited Active Matters", "∞ Unlimited Documents", "50MB max File Size", "50GB Total Storage", "Elite Intelligence Engine Included", "Dedicated Success Manager"].map((f, i) => (
+                  {["∞ Unlimited Active Matters", "∞ Unlimited Documents", "100MB max File Size", "100GB Total Storage", "Elite Intelligence Engine Included", "Dedicated Success Manager"].map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-slate-400 text-sm">
                       <Check size={18} className="text-primary" /> {f}
                     </li>

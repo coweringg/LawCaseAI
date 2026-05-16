@@ -53,28 +53,13 @@ input[type="number"] {
 }
 
 .crystallography-pattern {
-  background-image:
-    linear-gradient(
-      30deg,
-      #7c3aed 12%,
-      transparent 12.5%,
-      transparent 87%,
-      #7c3aed 87.5%,
-      #7c3aed
-    ),
-    linear-gradient(
-      150deg,
-      #7c3aed 12%,
-      transparent 12.5%,
-      transparent 87%,
-      #7c3aed 87.5%,
-      #7c3aed
-    );
-  background-size: 80px 140px;
-  background-position:
-    0 0,
-    40px 70px;
-  will-change: transform;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(0, 230, 118, 0.1) 1px, transparent 0),
+    linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 50%, transparent 100%);
 }
 
 .glass {

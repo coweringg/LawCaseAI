@@ -294,8 +294,11 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden group shadow-[0_0_50px_-10px_rgba(0,230,118,0.3)]"
+                    className="relative group"
                 >
+                    <div className="absolute -bottom-2 inset-x-10 top-3/4 bg-primary/30 rounded-[2.5rem] blur-xl opacity-50 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none"></div>
+                    
+                    <div className="p-8 rounded-[2.5rem] border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-xl relative overflow-hidden">
                     <div className="absolute top-0 right-10 bg-primary text-background-dark text-[9px] font-black px-5 py-2 rounded-b-xl uppercase tracking-widest shadow-lg">Special Offer</div>
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-background-dark shadow-2xl shadow-primary/40 rotate-3 group-hover:rotate-0 transition-transform duration-500 shrink-0">
@@ -334,6 +337,7 @@ export const BillingSection: React.FC<BillingSectionProps> = ({
                             </motion.button>
                         </div>
                     </div>
+                </div>
                 </motion.div>
             )}
 

@@ -379,7 +379,7 @@ function SettingsContent() {
   };
 
   const tabs = [
-    { id: "profile", label: "Profile", icon: "person", color: "primary" },
+    { id: "account", label: "My Account", icon: "person", color: "primary" },
     ...(user?.isOrgAdmin
       ? [
           {
@@ -400,72 +400,117 @@ function SettingsContent() {
           },
         ]
       : []),
-    { id: "security", label: "Security", icon: "security", color: "primary" },
   ];
 
-  if (!mounted) return (
-    <div className="min-h-screen bg-background-dark flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary shadow-[0_0_20px_rgba(0,230,118,0.3)]"></div>
-    </div>
-  );
+    const [subTab, setSubTab] = useState<'identity' | 'security'>('identity');
 
-  return (
-    <DashboardLayout>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="max-w-7xl mx-auto space-y-6 relative z-10"
-      >
-        <div>
-          <h1 className="text-4xl font-black text-white tracking-tight font-display mb-2">
-            Settings
-          </h1>
-          <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em]">
-            Profile • Security • Billing • Organization
-          </p>
+    useEffect(() => {
+      if (activeTab === 'profile') {
+        setActiveTab('account');
+        setSubTab('identity');
+      } else if (activeTab === 'security') {
+        setActiveTab('account');
+        setSubTab('security');
+      }
+    }, [activeTab]);
+
+    if (!mounted) return (
+        <div className="min-h-screen bg-background-dark flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary shadow-[0_0_20px_rgba(0,230,118,0.3)]"></div>
         </div>
+    );
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <SettingsSidebar
-            tabs={tabs}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            user={user}
-            onLogout={logout}
-            onOpenSupport={() => setIsSupportModalOpen(true)}
-          />
-
-          <div className="lg:col-span-3 overflow-hidden">
-            {(activeTab === 'billing') && (user?.willCancelAtPeriodEnd || 
-              orgData?.willCancelAtPeriodEnd || 
-              billingInfo?.willCancelAtPeriodEnd || 
-              billingInfo?.organization?.willCancelAtPeriodEnd ||
-              orgData?.status === 'canceled' ||
-              billingInfo?.status === 'canceled' ||
-              billingInfo?.organization?.status === 'canceled'
-             ) && (
-                <div className="mb-8">
-                    <Alert type="error" title="Subscription Scheduled for Deactivation">
-                        <div className="space-y-2">
-                            <p>
-                                Termination protocol initiated on <span className="text-white font-black">{new Date((user as any)?.canceledAt || orgData?.canceledAt || billingInfo?.canceledAt || billingInfo?.organization?.canceledAt || Date.now()).toLocaleDateString()}</span>. 
-                            </p>
-                            <p className="opacity-60">
-                                Your access will remain active until <span className="text-white font-black">{new Date((user as any)?.currentPeriodEnd || orgData?.currentPeriodEnd || billingInfo?.currentPeriodEnd || billingInfo?.organization?.currentPeriodEnd || Date.now()).toLocaleDateString()}</span>. 
-                                After this date, no further charges will be processed and your plan will revert to the evaluation tier.
-                            </p>
-                        </div>
-                    </Alert>
+    return (
+        <DashboardLayout>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-7xl mx-auto space-y-6 relative z-10"
+            >
+                <div>
+                    <h1 className="text-4xl font-black text-white tracking-tight font-display mb-2">
+                        Settings
+                    </h1>
+                    <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em]">
+                        Profile • Security • Billing • Organization
+                    </p>
                 </div>
-            )}
 
-            <AnimatePresence mode="wait">
-              {activeTab === "profile" && (
-                <ProfileSection key="profile" user={user} updateProfile={updateProfile} />
-              )}
-              {activeTab === "security" && (
-                <SecuritySection key="security" changePassword={changePassword} />
-              )}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <SettingsSidebar
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        user={user}
+                        onLogout={logout}
+                        onOpenSupport={() => setIsSupportModalOpen(true)}
+                    />
+
+                    <div className="lg:col-span-3 overflow-hidden">
+                        {(activeTab === 'billing') && (user?.willCancelAtPeriodEnd || 
+                          orgData?.willCancelAtPeriodEnd || 
+                          billingInfo?.willCancelAtPeriodEnd || 
+                          billingInfo?.organization?.willCancelAtPeriodEnd ||
+                          orgData?.status === 'canceled' ||
+                          billingInfo?.status === 'canceled' ||
+                          billingInfo?.organization?.status === 'canceled'
+                         ) && (
+                            <div className="mb-8">
+                                <Alert type="error" title="Subscription Scheduled for Deactivation">
+                                    <div className="space-y-2">
+                                        <p>
+                                            Termination protocol initiated on <span className="text-white font-black">{new Date((user as any)?.canceledAt || orgData?.canceledAt || billingInfo?.canceledAt || billingInfo?.organization?.canceledAt || Date.now()).toLocaleDateString()}</span>. 
+                                        </p>
+                                        <p className="opacity-60">
+                                            Your access will remain active until <span className="text-white font-black">{new Date((user as any)?.currentPeriodEnd || orgData?.currentPeriodEnd || billingInfo?.currentPeriodEnd || billingInfo?.organization?.currentPeriodEnd || Date.now()).toLocaleDateString()}</span>. 
+                                            After this date, no further charges will be processed and your plan will revert to the evaluation tier.
+                                        </p>
+                                    </div>
+                                </Alert>
+                            </div>
+                        )}
+
+                        <AnimatePresence mode="wait">
+                            {activeTab === "account" && (
+                                <div key="account" className="space-y-6">
+                                    <div className="flex items-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl w-fit">
+                                        <button
+                                            onClick={() => setSubTab('identity')}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                subTab === 'identity' 
+                                                ? 'bg-primary text-background-dark shadow-lg shadow-primary/20' 
+                                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                            }`}
+                                        >
+                                            Identity
+                                        </button>
+                                        <button
+                                            onClick={() => setSubTab('security')}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                subTab === 'security' 
+                                                ? 'bg-primary text-background-dark shadow-lg shadow-primary/20' 
+                                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                            }`}
+                                        >
+                                            Security
+                                        </button>
+                                    </div>
+
+                                    <motion.div
+                                        key={subTab}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        {subTab === 'identity' ? (
+                                            <ProfileSection user={user} updateProfile={updateProfile} />
+                                        ) : (
+                                            <SecuritySection changePassword={changePassword} />
+                                        )}
+                                    </motion.div>
+                                </div>
+                            )}
               {activeTab === "organization" && user?.isOrgAdmin && (
                 <OrganizationSection
                   key="organization"
@@ -474,6 +519,8 @@ function SettingsContent() {
                   members={members || []}
                   isLoadingMembers={isLoadingMembers}
                   onRefreshMembers={refetchMembers}
+                  onRefreshOrg={refetchOrg}
+                  onRefreshProfile={fetchProfile}
                   onRemoveMember={handleRemoveMember}
                   onIncreaseCapacity={() => setIsCapacityModalOpen(true)}
                   onDowngradeCapacity={handleDowngradeSeats}

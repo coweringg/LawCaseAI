@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { Case, User, CaseFile } from '../models'
 import { IApiResponse, IAuthRequest } from '../types'
-import { saveFileToStorage, deleteFromStorage, generateFileKey } from '../utils/fileUpload'
+import { saveFileToStorage, deleteFromStorage, generateFileKey, getPresignedDownloadUrl } from '../utils/fileUpload'
 import { logAction } from '../utils/auditLogger'
 import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from '../utils/pdfUtils'
 import config from '../config'
@@ -85,10 +85,13 @@ export const uploadFile = catchAsync(async (req: IAuthRequest, res: Response): P
         })
     }
 
+    const fileWithSignedUrl = newCaseFile.toObject()
+    fileWithSignedUrl.url = await getPresignedDownloadUrl(fileWithSignedUrl.key)
+
     res.status(201).json({
         success: true,
         message: 'File uploaded successfully',
-        data: newCaseFile
+        data: fileWithSignedUrl
     } as IApiResponse)
 })
 
@@ -106,9 +109,17 @@ export const getCaseFiles = catchAsync(async (req: IAuthRequest, res: Response):
         $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] 
     }).sort({ createdAt: -1 })
 
+    const filesWithSignedUrls = await Promise.all(
+        files.map(async (file) => {
+            const fileObj = file.toObject()
+            fileObj.url = await getPresignedDownloadUrl(fileObj.key)
+            return fileObj
+        })
+    )
+
     res.status(200).json({
         success: true,
-        data: files
+        data: filesWithSignedUrls
     } as IApiResponse)
 })
 
@@ -227,10 +238,13 @@ export const renameFile = catchAsync(async (req: IAuthRequest, res: Response): P
         description: `User renamed file from "${oldName}" to "${name}"`
     })
 
+    const fileWithSignedUrl = file.toObject()
+    fileWithSignedUrl.url = await getPresignedDownloadUrl(fileWithSignedUrl.key)
+
     res.status(200).json({
         success: true,
         message: 'File renamed successfully',
-        data: file
+        data: fileWithSignedUrl
     } as IApiResponse)
 })
 
@@ -250,10 +264,13 @@ export const toggleStarFile = catchAsync(async (req: IAuthRequest, res: Response
     file.isStarred = !file.isStarred
     await file.save()
 
+    const fileWithSignedUrl = file.toObject()
+    fileWithSignedUrl.url = await getPresignedDownloadUrl(fileWithSignedUrl.key)
+
     res.status(200).json({
         success: true,
         message: file.isStarred ? 'File starred' : 'File unstarred',
-        data: file
+        data: fileWithSignedUrl
     } as IApiResponse)
 })
 
@@ -313,10 +330,13 @@ export const commitFile = catchAsync(async (req: IAuthRequest, res: Response): P
         description: `User saved temporary file "${file.originalName}" to case documents.`
     })
 
+    const fileWithSignedUrl = file.toObject()
+    fileWithSignedUrl.url = await getPresignedDownloadUrl(fileWithSignedUrl.key)
+
     res.status(200).json({
         success: true,
         message: 'File saved to documents successfully.',
-        data: file
+        data: fileWithSignedUrl
     } as IApiResponse)
 })
 
@@ -409,5 +429,8 @@ export const createFileFromText = catchAsync(async (req: IAuthRequest, res: Resp
         adminId: userId, adminName: lawyerCase.name, targetId: newCaseFile._id, targetName: newCaseFile.name, targetType: 'case', category: 'platform', action: 'FILE_UPLOADED', description: `User saved AI analysis as "${newCaseFile.name}"`
     })
 
-    res.status(201).json({ success: true, message: 'File created successfully', data: newCaseFile })
+    const fileWithSignedUrl = newCaseFile.toObject()
+    fileWithSignedUrl.url = await getPresignedDownloadUrl(fileWithSignedUrl.key)
+
+    res.status(201).json({ success: true, message: 'File created successfully', data: fileWithSignedUrl })
 })

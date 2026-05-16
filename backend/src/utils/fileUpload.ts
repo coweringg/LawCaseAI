@@ -1,4 +1,5 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import multer from 'multer'
 import { Request } from 'express'
 import fs from 'fs'
@@ -118,6 +119,30 @@ export const deleteFromR2 = async (key: string): Promise<void> => {
     await s3Client.send(new DeleteObjectCommand(params))
   } catch (error) {
     throw new Error(`Failed to delete file from R2: ${error}`)
+  }
+}
+
+export const getPresignedDownloadUrl = async (key: string, expiresIn = 3600): Promise<string> => {
+  const isR2Configured = 
+    config.r2.accessKeyId && 
+    config.r2.accessKeyId !== 'your-r2-access-key' &&
+    config.r2.secretAccessKey && 
+    config.r2.secretAccessKey !== 'your-r2-secret-key'
+
+  if (!isR2Configured) {
+    return `/uploads/${key}`
+  }
+
+  const command = new GetObjectCommand({
+    Bucket: config.r2.bucketName,
+    Key: key
+  })
+
+  try {
+    return await getSignedUrl(s3Client as any, command, { expiresIn })
+  } catch (error) {
+    console.error('Failed to generate presigned URL:', error)
+    return `${config.r2.publicUrl || ''}/${key}`
   }
 }
 

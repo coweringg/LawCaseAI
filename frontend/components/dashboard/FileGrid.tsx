@@ -8,8 +8,9 @@ interface FileGridProps {
     onFileSelect: (file: any) => void;
     onToggleStar: (file: any) => void;
     selectedFileId?: string;
+    hasActiveSidebar?: boolean;
 }
-
+ 
 export default function FileGrid({ files, onFileSelect, onToggleStar, selectedFileId }: FileGridProps) {
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
@@ -47,12 +48,12 @@ export default function FileGrid({ files, onFileSelect, onToggleStar, selectedFi
                              file.type.includes('image') ? <ImageIcon size={48} className="text-emerald-500/80" /> :
                              <File size={48} className="text-slate-500/80" />}
                         </div>
-
+ 
                         {selectedFileId === file._id && (
                             <motion.div 
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border border-white/20"
+                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border border-white/20"
                             >
                                 <Check size={16} className="text-white" />
                             </motion.div>

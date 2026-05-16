@@ -519,10 +519,10 @@ export default function DocumentsClient() {
                                 </div>
                             ) : viewMode === 'list' ? (
                                 <div className="premium-glass border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl mb-12">
-                                    <table className="w-full text-left border-collapse">
+                                    <table className="w-full text-left border-collapse table-fixed">
                                         <thead>
                                             <tr className="bg-white/[0.03] border-b border-white/10">
-                                                <th className="py-7 px-8 w-12 text-center">
+                                                <th className="py-7 pl-8 pr-4 w-[60px] text-center">
                                                     <input 
                                                         className="rounded-lg border-white/10 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 h-5 w-5" 
                                                         type="checkbox" 
@@ -533,10 +533,10 @@ export default function DocumentsClient() {
                                                         }}
                                                     />
                                                 </th>
-                                                <th className="py-7 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Dossier Identity</th>
-                                                <th className="py-7 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Classification</th>
-                                                <th className="py-7 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Data Size</th>
-                                                <th className="py-7 px-8 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Registry Date</th>
+                                                <th className="py-7 px-4 text-[10px] w-auto font-black text-slate-500 uppercase tracking-[0.2em]">Dossier Identity</th>
+                                                <th className="py-7 px-4 text-[10px] w-[130px] font-black text-slate-500 uppercase tracking-[0.2em]">Classification</th>
+                                                <th className="py-7 px-4 text-[10px] w-[110px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Data Size</th>
+                                                <th className="py-7 px-8 text-[10px] w-[180px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Registry Date</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/5">
@@ -550,7 +550,7 @@ export default function DocumentsClient() {
                                                         onClick={() => handleFileClick(file)}
                                                         className={`group hover:bg-white/[0.04] transition-all cursor-pointer relative ${selectedFile?._id === file._id ? 'bg-primary/[0.08]' : ''}`}
                                                     >
-                                                        <td className="py-6 px-8 text-center" onClick={(e) => e.stopPropagation()}>
+                                                        <td className="py-6 pl-8 pr-4 text-center" onClick={(e) => e.stopPropagation()}>
                                                             <input 
                                                                 className="rounded-lg border-white/10 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0 h-5 w-5 transition-all group-hover:scale-110" 
                                                                 type="checkbox" 
@@ -560,7 +560,7 @@ export default function DocumentsClient() {
                                                         </td>
                                                         <td className="py-6 px-4">
                                                             <div className="flex items-center gap-5">
-                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl border relative transition-all duration-500 group-hover:scale-110 ${
+                                                                <div className={`w-12 h-12 flex-shrink-0 rounded-2xl flex items-center justify-center shadow-2xl border relative transition-all duration-500 group-hover:scale-110 ${
                                                                     file.type.includes('pdf') ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
                                                                     file.type.includes('audio') ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
                                                                     file.type.includes('video') ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
@@ -574,10 +574,10 @@ export default function DocumentsClient() {
                                                                 </div>
                                                                 <div className="flex flex-col min-w-0">
                                                                     <div className="flex items-center gap-3">
-                                                                        <span className="text-[14px] font-black text-white group-hover:text-primary transition-colors truncate max-w-[280px] tracking-tightest leading-tight">{file.name}</span>
+                                                                        <span className="text-[14px] font-black text-white group-hover:text-primary transition-colors truncate tracking-tightest leading-tight">{file.name}</span>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); toggleStar(file); }}
-                                                                            className={`p-1 transition-all ${file.isStarred ? 'text-amber-400 opacity-100' : 'text-slate-700 opacity-0 group-hover:opacity-60 hover:text-slate-400'}`}
+                                                                            className={`p-1 flex-shrink-0 transition-all ${file.isStarred ? 'text-amber-400 opacity-100' : 'text-slate-700 opacity-0 group-hover:opacity-60 hover:text-slate-400'}`}
                                                                         >
                                                                             <Star size={12} fill={file.isStarred ? "currentColor" : "none"} />
                                                                         </button>
@@ -647,7 +647,7 @@ export default function DocumentsClient() {
                             )}
                         </div>
                     </section>
-
+ 
                     <AnimatePresence mode="wait">
                         {selectedFile ? (
                             <motion.div
@@ -655,12 +655,12 @@ export default function DocumentsClient() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
-                                className="w-[420px] flex-none bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative shadow-2xl"
+                                className="w-[360px] flex-none bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative shadow-2xl"
                             >
                                 <FileAISummary file={selectedFile} onClose={() => setSelectedFile(null)} />
                             </motion.div>
                         ) : (
-                            <aside className="w-[420px] flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
+                            <aside className="w-[360px] flex-none flex flex-col bg-white/[0.01] border-l border-white/10 backdrop-blur-3xl overflow-hidden relative group/right">
                                 <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                                 <div className="flex-1 flex flex-col items-center justify-center p-12 text-center relative z-10">
                                     <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-2xl group-hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-700">

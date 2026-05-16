@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Building, Eye, EyeOff, Copy, RotateCcw, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import api from '@/lib/api';
 
 interface OrganizationSectionProps {
     orgData: any;
@@ -13,6 +14,8 @@ interface OrganizationSectionProps {
     onIncreaseCapacity: () => void;
     onDowngradeCapacity: () => void;
     onCancelSubscription: () => void;
+    onRefreshOrg: () => void;
+    onRefreshProfile: () => Promise<any>;
     currentUserId: string;
 }
 
@@ -26,9 +29,32 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     onIncreaseCapacity,
     onDowngradeCapacity,
     onCancelSubscription,
+    onRefreshOrg,
+    onRefreshProfile,
     currentUserId
 }) => {
     const [showFirmCode, setShowFirmCode] = useState(false);
+    const [isUpdatingName, setIsUpdatingName] = useState(false);
+    const [firmName, setFirmName] = useState(orgData?.name || '');
+
+    const handleUpdateName = async () => {
+        if (!firmName || firmName.trim() === orgData?.name) return;
+        
+        setIsUpdatingName(true);
+        try {
+            const response = await api.patch('/payments/organization', { name: firmName });
+            if (response.data.success) {
+                toast.success('Firm identity updated successfully');
+                onRefreshOrg();
+                onRefreshMembers(); 
+                onRefreshProfile();
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update firm name');
+        } finally {
+            setIsUpdatingName(false);
+        }
+    };
 
     return (
         <motion.div
@@ -37,20 +63,50 @@ export const OrganizationSection: React.FC<OrganizationSectionProps> = ({
             exit={{ opacity: 0 }}
             className="space-y-8"
         >
-            <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative">
+            <div className="glass-dark border border-white/10 rounded-[32px] overflow-hidden relative shadow-2xl">
                 <div className="absolute inset-0 micro-grid opacity-[0.2] pointer-events-none"></div>
-                <div className="p-5 border-b border-white/5 bg-white/[0.02]">
+                <div className="p-5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
                     <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-widest">
                         <Building className="text-primary" size={20} />
                         Firm Management
                     </h2>
+                    <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                            <span className="text-[9px] font-black text-primary uppercase tracking-widest">Enterprise Mode</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="p-6 space-y-6 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-8">
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-3">
+                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Corporate Identity</h3>
+                            <div className="flex gap-3">
+                                <div className="relative group flex-1">
+                                    <div className="absolute -inset-0.5 bg-primary/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                    <input
+                                        type="text"
+                                        value={firmName}
+                                        onChange={(e) => setFirmName(e.target.value)}
+                                        className="relative w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold text-sm"
+                                        placeholder="Firm Name"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleUpdateName}
+                                    disabled={isUpdatingName || !firmName || firmName.trim() === orgData?.name}
+                                    className="px-6 py-2 bg-primary text-background-dark text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/10 hover:shadow-primary/30 transition-all disabled:opacity-30 flex items-center gap-2"
+                                >
+                                    {isUpdatingName ? <Loader2 size={14} className="animate-spin" /> : 'Update'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <div className="space-y-6">
                             <div>
-                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Firm Access Protocol</h3>
+                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Firm Access Protocol</h3>
                                 <div className="relative group">
                                     <div className="absolute -inset-0.5 bg-primary/20 rounded-2xl blur opacity-30 group-focus-within:opacity-100 transition duration-500"></div>
                                     <div className="relative flex items-center bg-black/40 border border-white/10 rounded-2xl p-2 pr-4 transition-all overflow-hidden">

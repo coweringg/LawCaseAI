@@ -146,6 +146,7 @@ function DashboardContent() {
   };
 
   return (
+    <>
     <DashboardLayout>
       <motion.div
         initial={false}
@@ -247,11 +248,16 @@ function DashboardContent() {
           <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
             <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-200 hover:border-primary/20 backdrop-blur-3xl">
               <div className="p-4 lg:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-                <div>
-                  <h3 className="text-lg lg:text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
-                  <p className="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center border border-primary/20">
+                    <Briefcase size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg lg:text-xl font-black text-white font-display tracking-tightest">Registry Operations</h3>
+                    <p className="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Real-time case intelligence stream</p>
+                  </div>
                 </div>
-                <Link href="/cases" className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] lg:text-[10px] font-black text-sky-400 uppercase tracking-widest transition-all border border-white/5">
+                <Link href="/cases" className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] lg:text-[10px] font-black text-primary uppercase tracking-widest transition-all border border-white/5">
                   Terminal View
                   <span className="material-icons-round text-xs lg:text-sm">open_in_new</span>
                 </Link>
@@ -373,49 +379,61 @@ function DashboardContent() {
               </Link>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group border border-white/10 backdrop-blur-3xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none" />
-              <div className="absolute inset-0 micro-grid opacity-20 z-0 pointer-events-none"></div>
+            <motion.div variants={itemVariants} className="premium-glass rounded-[2rem] p-8 text-white shadow-[0_20px_80px_-15px_rgba(217,70,239,0.25)] relative overflow-hidden group border border-white/10 hover:border-fuchsia-500/40 transition-all duration-1000 backdrop-blur-3xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/10 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 micro-grid opacity-10 z-0 pointer-events-none" />
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl backdrop-blur-xl flex items-center justify-center border border-white/5">
+                  <div className="w-12 h-12 bg-fuchsia-500/10 text-fuchsia-500 rounded-2xl backdrop-blur-xl flex items-center justify-center border border-fuchsia-500/20 group-hover:bg-fuchsia-500 group-hover:text-white transition-all duration-500 shadow-[0_0_20px_rgba(217,70,239,0.3)]">
                     <span className="material-icons-round text-2xl">psychology</span>
                   </div>
                   <div>
                       <h4 className="font-black text-[10px] tracking-[0.3em] uppercase text-slate-400">Cognitive Neural Core</h4>
-                      <p className="text-[9px] text-primary font-black uppercase mt-1">Status: Operational</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500 shadow-[0_0_8px_rgba(217,70,239,1)]"></span>
+                        </span>
+                        <p className="text-[9px] text-fuchsia-400 font-black uppercase tracking-widest">Neural Layer Active</p>
+                      </div>
                   </div>
                 </div>
                 <div className="space-y-6">
                   <p className="text-[13px] text-slate-300 leading-relaxed font-bold">
                     {(dashboardData?.documents?.total || 0) > 0
-                      ? `Neural engine has indexed ${dashboardData!.documents.total} intelligence units. Semantic cross-reference matrix is live.`
-                      : "System idle. Inject case documentation to initialize the neural processing layer and execute immediate analytics."}
+                      ? `Intelligence matrix synchronized. Indexed ${dashboardData!.documents.total} units across the semantic cloud.`
+                      : "System in idle hibernation. Awaiting case documentation to initialize the neural processing layer."}
                   </p>
                   <div className="pt-2">
                     <motion.button
                       whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setIsAuditModalOpen(true)}
-                      className="w-full py-3.5 bg-primary text-background-dark text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:shadow-[0_0_25px_rgba(0,230,118,0.4)] transition-all"
+                      className="w-full py-4 bg-gradient-to-r from-fuchsia-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl shadow-2xl hover:shadow-fuchsia-500/40 hover:brightness-110 transition-all flex items-center justify-center gap-2"
                     >
-                      Deep Audit Command
+                      <Sparkles size={16} />
+                      Execute Neural Audit
                     </motion.button>
                   </div>
                 </div>
               </div>
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-              <div className="absolute -left-12 -bottom-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute -right-12 -top-12 w-48 h-48 bg-fuchsia-500/10 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-1000"></div>
+              <div className="absolute -left-16 -bottom-16 w-56 h-56 bg-indigo-600/10 rounded-full blur-[100px]"></div>
             </motion.div>
           </div>
         </div>
       </motion.div>
-
-      <GlobalAuditModal 
-        isOpen={isAuditModalOpen} 
-        onClose={() => setIsAuditModalOpen(false)} 
-      />
     </DashboardLayout>
+      
+      <AnimatePresence>
+        {isAuditModalOpen && (
+          <GlobalAuditModal 
+            isOpen={isAuditModalOpen} 
+            onClose={() => setIsAuditModalOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

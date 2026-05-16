@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Save, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -15,6 +15,14 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
         email: user?.email || '',
         lawFirm: user?.lawFirm || ''
     });
+
+    useEffect(() => {
+        setProfileData({
+            name: user?.name || '',
+            email: user?.email || '',
+            lawFirm: user?.lawFirm || ''
+        });
+    }, [user]);
 
     const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -74,17 +82,37 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                             </div>
                         </div>
                         <div className="space-y-4 md:col-span-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Organization / Law Firm</label>
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Organization / Law Firm</label>
+                                {user?.organizationId && (
+                                    <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">
+                                        {user?.isOrgAdmin ? 'Manage in Firm Tab' : 'Managed by Firm Admin'}
+                                    </span>
+                                )}
+                            </div>
                             <div className="relative group">
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                                <div className={`absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 ${!user?.organizationId ? 'group-focus-within:opacity-100' : ''} transition duration-500`}></div>
                                 <input
                                     type="text"
                                     value={profileData.lawFirm}
+                                    disabled={!!user?.organizationId}
                                     onChange={(e) => setProfileData({ ...profileData, lawFirm: e.target.value })}
-                                    className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
+                                    className={`relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all font-bold ${
+                                        (!!user?.organizationId) 
+                                        ? 'text-slate-500 cursor-not-allowed opacity-60' 
+                                        : 'text-white'
+                                    }`}
                                     placeholder="Doe & Associates"
                                 />
                             </div>
+                            {user?.organizationId && (
+                                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider ml-1 italic">
+                                    {user?.isOrgAdmin 
+                                        ? 'As an administrator, please use the "Firm Management" tab to update your corporate identity globally.'
+                                        : 'Your firm identity is synchronized across the enterprise network. Contact your administrator to request a change.'
+                                    }
+                                </p>
+                            )}
                         </div>
                     </div>
 

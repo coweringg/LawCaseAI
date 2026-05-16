@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -22,6 +23,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Plus,
+    X,
+    ArrowRight,
     AlertCircle,
     Clock,
     Calendar as CalendarIcon,
@@ -552,14 +555,14 @@ export default function CalendarClient() {
                     cases={cases}
                 />
 
-                <AnimatePresence>
-                    {isSearchModalOpen && (
-                        <div className="fixed inset-0 z-[100000] flex items-start justify-center pt-[15vh] px-4">
+                {mounted && isSearchModalOpen && createPortal(
+                    <AnimatePresence>
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-opacity"
+                                className="absolute inset-0 bg-black/98 backdrop-blur-3xl"
                                 onClick={() => setIsSearchModalOpen(false)}
                             />
 
@@ -567,44 +570,52 @@ export default function CalendarClient() {
                                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 30, scale: 0.95 }}
-                                className="relative w-full max-w-2xl glass-dark rounded-[32px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/20 overflow-hidden"
+                                className="relative w-full max-w-4xl bg-zinc-900/60 rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] border border-white/5 overflow-hidden"
                             >
-                                <div className="p-8 border-b border-white/10 flex items-center gap-6 bg-white/5">
-                                    <div className="p-4 bg-primary/20 text-primary rounded-2xl shadow-inner">
+                                <div className="p-10 border-b border-white/5 flex items-center gap-8 bg-white/[0.01]">
+                                    <div className="p-4 bg-primary/10 text-primary rounded-[1.2rem] shadow-inner border border-primary/20">
                                         <Search size={28} />
                                     </div>
                                     <div className="flex-1">
                                         <input
                                             autoFocus
                                             type="text"
-                                            placeholder="Initialize query..."
+                                            placeholder="INITIALIZE DISCOVERY PROTOCOL..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-2xl font-black text-white font-display placeholder:text-slate-700"
+                                            className="w-full bg-transparent border-none outline-none text-3xl font-black text-white font-display placeholder:text-zinc-800 tracking-tighter"
                                         />
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-2">Intelligence Core Discovery Interface</p>
+                                        <div className="flex items-center gap-3 mt-3">
+                                            <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.5em]">Intelligence Core Neural Interface</p>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => setIsSearchModalOpen(false)}
-                                        className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all font-black text-[10px] tracking-widest"
-                                    >
-                                        ESC
-                                    </button>
+                                    <div className="flex items-center gap-4">
+                                        <div className="px-4 py-1.5 border border-white/10 rounded-xl text-[9px] font-black text-zinc-500 tracking-[0.2em]">
+                                            ESC TO EXIT
+                                        </div>
+                                        <button
+                                            onClick={() => setIsSearchModalOpen(false)}
+                                            className="p-3 hover:bg-white/5 rounded-2xl transition-all text-zinc-600 hover:text-white"
+                                        >
+                                            <X size={24} />
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div className="max-h-[60vh] overflow-y-auto p-6 space-y-3 bg-transparent">
+                                <div className="max-h-[50vh] overflow-y-auto p-10 space-y-5 bg-transparent scrollbar-hide">
                                     {isSearching ? (
-                                        <div className="py-24 text-center">
-                                            <Loader2 size={48} className="animate-spin text-primary mx-auto mb-6" />
-                                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Synchronizing data units...</p>
+                                        <div className="py-32 text-center">
+                                            <Loader2 size={56} className="animate-spin text-primary mx-auto mb-8 opacity-50" />
+                                            <p className="text-[12px] font-black text-zinc-500 uppercase tracking-[0.5em]">Synchronizing Intelligence Matrix...</p>
                                         </div>
                                     ) : searchQuery.trim() === '' ? (
-                                        <div className="py-24 text-center opacity-30">
-                                            <Search size={64} className="mx-auto mb-6 text-slate-700" />
-                                            <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.3em]">Query input required for discovery</p>
+                                        <div className="py-40 text-center opacity-20">
+                                            <Search size={80} className="mx-auto mb-8 text-zinc-700" />
+                                            <p className="text-[12px] font-black text-zinc-600 uppercase tracking-[0.4em]">Query parameters required for discovery</p>
                                         </div>
                                     ) : searchResults.length > 0 ? (
-                                        <div className="grid gap-3">
+                                        <div className="grid grid-cols-1 gap-4">
                                             {searchResults.map((event, i) => (
                                                 <motion.div
                                                     initial={{ opacity: 0, y: 10 }}
@@ -620,63 +631,49 @@ export default function CalendarClient() {
                                                             setView('Month');
                                                             setCurrentDate(eDate);
                                                             handleOpenModal(undefined, event);
-                                                            toast.success(`Opening ${format(eDate, 'MMM d')}`, {
-                                                                icon: 'âš–ï¸',
-                                                                style: { borderRadius: '16px', background: '#0f172a', color: '#fff' }
-                                                            });
                                                         }, 100);
                                                     }}
-                                                    className="p-6 rounded-[28px] glass border border-white/5 hover:border-primary/50 cursor-pointer transition-all duration-150 group active:scale-[0.98] flex justify-between items-center shadow-2xl"
+                                                    className="p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 cursor-pointer transition-all duration-300 group active:scale-[0.99] flex justify-between items-center shadow-2xl"
                                                 >
-                                                    <div className="flex-1 min-w-0 pr-6">
-                                                        <h5 className="text-[18px] font-black text-white truncate group-hover:text-primary transition-colors mb-2 font-display">{event.title}</h5>
-                                                        <div className="flex items-center gap-6 text-slate-500">
-                                                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                                                                <CalendarIcon size={14} className="text-primary" />
-                                                                {format(new Date(event.start), 'MMM d, yyyy')}
-                                                            </div>
-                                                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                                                                <Clock size={14} className="text-primary" />
-                                                                {format(new Date(event.start), 'h:mm a')}
-                                                            </div>
+                                                    <div className="flex-1 min-w-0 pr-10">
+                                                        <div className="flex items-center gap-4 mb-3">
+                                                            <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em] bg-primary/10 px-3 py-1 rounded-lg">Case Protocol</span>
+                                                            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">Verified Segment</span>
                                                         </div>
+                                                        <h5 className="text-2xl font-black text-white truncate group-hover:text-primary transition-colors font-display tracking-tight">{event.title}</h5>
                                                     </div>
-                                                    <div className="flex items-center gap-3 shrink-0">
-                                                        <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${event.status === 'closed'
-                                                            ? 'bg-white/5 text-slate-500 border-white/10'
-                                                            : 'bg-primary/10 text-primary border-primary/20'
-                                                            }`}>
-                                                            {event.status === 'closed' ? 'Archived' : 'Active'}
+                                                    <div className="flex items-center gap-8 text-zinc-500">
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{format(new Date(event.start), 'MMM d, yyyy')}</span>
+                                                            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mt-1">Temporal stamp</span>
                                                         </div>
-                                                        <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${event.priority === 'critical' ? 'bg-rose-500 text-white shadow-rose-500/20' :
-                                                            event.priority === 'high' ? 'bg-orange-500 text-white shadow-orange-500/20' :
-                                                                event.priority === 'medium' ? 'bg-amber-500 text-white shadow-amber-500/20' :
-                                                                    'bg-primary text-background-dark shadow-primary/20'
-                                                            }`}>
-                                                            {event.priority}
+                                                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-500 group-hover:bg-primary group-hover:text-black transition-all">
+                                                            <ArrowRight size={24} />
                                                         </div>
                                                     </div>
                                                 </motion.div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="py-24 text-center">
-                                            <AlertCircle size={48} className="text-slate-800 mx-auto mb-6" />
-                                            <h5 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Null result set</h5>
-                                            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Repository scan completed with no matches</p>
+                                        <div className="py-32 text-center">
+                                            <AlertCircle size={64} className="text-zinc-800 mx-auto mb-8" />
+                                            <h5 className="text-lg font-black text-zinc-600 uppercase tracking-[0.4em] mb-3">No Neural Matches</h5>
+                                            <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.2em]">Scan completed with zero positive results</p>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="p-5 bg-white/5 border-t border-white/10 text-center">
-                                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
-                                        LAW CASE AI INTELLIGENCE
+                                <div className="p-10 bg-black/40 border-t border-white/5 text-center">
+                                    <p className="text-[11px] font-black text-zinc-700 uppercase tracking-[1em]">
+                                        LAW CASE AI INTELLIGENCE CORE
                                     </p>
                                 </div>
                             </motion.div>
                         </div>
-                    )}
-                </AnimatePresence>
+                    </AnimatePresence>,
+                    document.body
+                )}
+
             </div>
         </DashboardLayout>
     );

@@ -143,6 +143,7 @@ const handleTransactionCompleted = async (transactionData: any): Promise<void> =
             user.role = UserRole.ORG_ADMIN
             user.isOrgAdmin = true
             user.organizationId = org[0]._id
+            user.lawFirm = org[0].name
         } else if (plan === UserPlan.ENTERPRISE && user.organizationId) {
             await Organization.findByIdAndUpdate(user.organizationId, { 
                 $inc: { totalSeats: actualQuantity }, 

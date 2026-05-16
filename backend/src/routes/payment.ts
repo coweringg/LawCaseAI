@@ -6,7 +6,8 @@ import {
   getOrganizationMembers,
   removeMember,
   cancelSubscription,
-  downgradeSeats
+  downgradeSeats,
+  updateOrganization
 } from '../controllers/paymentController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
@@ -36,5 +37,6 @@ router.delete('/members/:memberId',
 
 router.post('/cancel', cancelSubscription)
 router.post('/downgrade', downgradeSeats)
+router.patch('/organization', updateOrganization)
 
 export default router

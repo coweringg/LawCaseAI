@@ -403,3 +403,49 @@ export const downgradeSeats = catchAsync(async (req: IAuthRequest, res: Response
         data: { totalSeats: newTotalSeats }
     });
 });
+
+export const updateOrganization = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+    const { name } = req.body;
+    const adminId = req.user?._id;
+
+    if (!adminId) throw new AppError('Unauthorized', 401);
+
+    const admin = await User.findById(adminId);
+    if (!admin || !admin.isOrgAdmin || !admin.organizationId) {
+        throw new AppError('Unauthorized action. Only organization admins can modify firm data.', 403);
+    }
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+        throw new AppError('Valid organization name is required.', 400);
+    }
+
+    const org = await Organization.findByIdAndUpdate(
+        admin.organizationId,
+        { name: name.trim() },
+        { new: true }
+    );
+
+    if (!org) throw new AppError('Organization not found', 404);
+
+    await User.updateMany(
+        { organizationId: org._id },
+        { $set: { lawFirm: org.name } }
+    );
+
+    await logAction({
+        adminId: admin._id,
+        adminName: admin.name,
+        targetId: org._id,
+        targetName: org.name,
+        targetType: 'organization',
+        category: 'admin',
+        action: 'UPDATE_ORGANIZATION_NAME',
+        description: `Organization identity updated: renamed to ${org.name}`
+    });
+
+    res.status(200).json({
+        success: true,
+        message: 'Organization name updated successfully across all neural nodes.',
+        data: { name: org.name }
+    });
+});

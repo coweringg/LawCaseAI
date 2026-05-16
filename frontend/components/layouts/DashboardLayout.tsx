@@ -357,7 +357,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
                         <div className="px-2 pb-4 space-y-4 relative z-10 flex-shrink-0">
                             {user?.role !== 'admin' && user?.plan !== 'elite' && user?.plan !== 'enterprise' && (
-                                <div className="glass border-white/10 rounded-2xl p-5 shadow-xl w-full">
+                                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 w-full">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan Usage</span>
                                         <span className="text-[10px] font-bold text-primary">{usagePercentage}%</span>
@@ -497,14 +497,33 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <div className="relative group hidden md:block">
                                         <span className="absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-lg lg:text-xl group-focus-within:text-primary transition-all duration-500">search</span>
                                         <input
-                                            className="pl-12 lg:pl-16 pr-4 lg:pr-8 py-2.5 lg:py-3 w-[180px] lg:w-[350px] xl:w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[10px] lg:text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black tracking-[0.2em] shadow-inner shadow-black/20"
+                                            className="pl-12 lg:pl-16 pr-20 lg:pr-32 py-2.5 lg:py-3 w-[180px] lg:w-[350px] xl:w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[10px] lg:text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black tracking-[0.2em] shadow-inner shadow-black/20"
                                             placeholder="Audit Core Intelligence..."
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                                             onFocus={() => searchQuery.length > 1 && setShowSearchDropdown(true)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && searchQuery.trim()) {
+                                                    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+                                                    setShowSearchDropdown(false);
+                                                }
+                                            }}
                                         />
+                                        
+                                        <button 
+                                            onClick={() => {
+                                                const url = searchQuery.trim() 
+                                                    ? `/search?q=${encodeURIComponent(searchQuery)}` 
+                                                    : '/search';
+                                                router.push(url);
+                                                setShowSearchDropdown(false);
+                                            }}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-background-dark rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-primary/20 hover:shadow-[0_0_15px_rgba(0,230,118,0.4)]"
+                                        >
+                                            Open Core
+                                        </button>
                                         
                                         <AnimatePresence>
                                             {showSearchDropdown && (

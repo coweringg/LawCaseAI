@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
-import { Shield, Zap, Search, Calendar, AlertTriangle, CheckCircle, FileText } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, Calendar, CheckCircle, FileText, Search, Shield, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function FeaturesClient() {
     const [activeTab, setActiveTab] = useState('insights');

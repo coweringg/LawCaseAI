@@ -1,45 +1,36 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
+import { cn, formatDate } from '@/utils/helpers'
+import { motion } from 'framer-motion'
 import {
-  BarChart,
+  Activity,
+  CreditCard,
+  DollarSign,
+  Download,
+  Layers,
+  Loader2,
+  ShieldCheck,
+  TrendingUp
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import {
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line
+  XAxis,
+  YAxis
 } from 'recharts'
-import {
-  DollarSign,
-  TrendingUp,
-  CreditCard,
-  Briefcase,
-  Layers,
-  Award,
-  Download,
-  Zap,
-  Globe,
-  Lock,
-  ShieldCheck,
-  Activity,
-  ArrowUpRight,
-  ChevronRight,
-  Loader2
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import api from '@/lib/api'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
-import { useAuth } from '@/contexts/AuthContext'
-import { cn, formatDate } from '@/utils/helpers'
 
 const COLORS = ['#00e676', '#05c46b', '#0be881', '#00d8d6'];
 

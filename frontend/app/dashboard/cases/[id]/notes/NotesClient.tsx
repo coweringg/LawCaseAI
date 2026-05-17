@@ -1,30 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-    Loader2, 
-    ChevronRight, 
-    CloudCheck, 
-    FileText as FileIcon, 
-    History, 
-    Paperclip, 
-    Settings, 
-    Bold, 
-    Italic, 
-    Underline, 
-    List, 
-    ListOrdered, 
-    Zap, 
-    UserPlus, 
-    Send,
-    ExternalLink
-} from 'lucide-react';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { motion } from 'framer-motion';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import {
+  Bold,
+  ChevronRight,
+  CloudCheck,
+  FileText as FileIcon,
+  History,
+  Italic,
+  List,
+  ListOrdered,
+  Loader2,
+  Paperclip,
+  Send,
+  Settings,
+  Underline,
+  UserPlus,
+  Zap
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function NotesClient() {
     const params = useParams();

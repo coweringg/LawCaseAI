@@ -1,10 +1,9 @@
-import React from 'react'
+import { Button } from '@/components/ui/Button'
+import MonolithLogo from '@/components/ui/MonolithLogo'
+import { useAuth } from '@/contexts/AuthContext'
+import { FileText, LogOut, Settings as SettingsIcon, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FileText, Settings as SettingsIcon, LogOut, User } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { useAuth } from '@/contexts/AuthContext'
-import MonolithLogo from '@/components/ui/MonolithLogo'
 
 interface DashboardNavProps {
   currentPage?: string

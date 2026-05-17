@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { createPortal } from 'react-dom'
-import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import api from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
 import { formatDistanceToNow } from 'date-fns'
-import { 
-  Bell, 
-  Trash2, 
-  CheckCheck, 
-  X, 
-  ArrowRight, 
-  Calendar, 
-  Folder, 
-  AlertTriangle, 
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  AlertTriangle,
+  Bell,
+  Calendar,
+  CheckCheck,
   CreditCard,
+  Folder,
   History,
-  Trash
+  Trash,
+  Trash2
 } from 'lucide-react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface Notification {
   _id: string

@@ -1,6 +1,6 @@
-import Notification from '../models/Notification'
-import { NotificationType, NotificationPriority } from '../types'
 import { Types } from 'mongoose'
+import Notification from '../models/Notification'
+import { NotificationPriority, NotificationType } from '../types'
 import logger from './logger'
 
 const notificationLogger = logger.child({ module: 'notification-utils' })

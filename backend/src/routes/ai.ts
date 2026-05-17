@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { chatWithAI, analyzeCaseFile, getCaseSummary, globalAudit } from '../controllers/aiController'
+import { analyzeCaseFile, chatWithAI, getCaseSummary, globalAudit } from '../controllers/aiController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { checkTrialStatus } from '../middleware/trialMiddleware'
 import { validateZod } from '../middleware/validateZod'
-import { chatSchema, analyzeParamsSchema, summaryParamsSchema } from '../schemas'
+import { analyzeParamsSchema, chatSchema, summaryParamsSchema } from '../schemas'
 
 const router = Router()
 

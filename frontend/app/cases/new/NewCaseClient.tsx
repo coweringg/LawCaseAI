@@ -1,41 +1,36 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import toast from 'react-hot-toast';
-import {
-    FileText,
-    Layers,
-    Gavel,
-    CheckCircle2,
-    ArrowRight,
-    ArrowLeft,
-    Sparkles,
-    Shield,
-    Briefcase,
-    BadgeCheck,
-    Scale,
-    Users,
-    ChevronDown,
-    Building2,
-    Calendar,
-    Clock,
-    Info,
-    AlertCircle,
-    ShieldAlert,
-    Plus,
-    Trash2,
-    Loader2,
-    X
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Alert } from '@/components/ui/Alert';
-import { Select } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { Select } from '@/components/ui/Select';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
 import { isBefore, startOfDay } from 'date-fns';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Briefcase,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Gavel,
+  Info,
+  Layers,
+  Loader2,
+  Plus,
+  Scale,
+  Shield,
+  Sparkles,
+  Trash2,
+  Users
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function NewCaseClient() {
     const router = useRouter();

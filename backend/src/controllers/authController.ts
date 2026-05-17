@@ -1,12 +1,12 @@
+import crypto from 'crypto'
 import { Request, Response } from 'express'
 import { Types } from 'mongoose'
-import { User } from '../models'
-import { IApiResponse, IUserRegistration, IUserLogin, UserRole, UserPlan } from '../types'
 import config from '../config'
-import { logAction } from '../utils/auditLogger'
+import { User } from '../models'
+import { IApiResponse, IUserLogin, IUserRegistration, UserPlan, UserRole } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
-import crypto from 'crypto'
 
 export const register = catchAsync(async (req: Request, res: Response): Promise<void> => {
     const { name, email, password, lawFirm, firmCode }: IUserRegistration = req.body

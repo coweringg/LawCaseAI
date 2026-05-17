@@ -1,40 +1,40 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/lib/api';
-import FileGrid from '@/components/dashboard/FileGrid';
 import FileAISummary from '@/components/dashboard/FileAISummary';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'react-hot-toast';
-import { 
-    Loader2, 
-    ArrowLeft, 
-    Search, 
-    Folder, 
-    Grid, 
-    List as ListIcon, 
-    Upload, 
-    Trash2, 
-    Zap, 
-    Star, 
-    Headphones, 
-    Video, 
-    FileText, 
-    Image, 
-    File, 
-    Clock, 
-    Shield, 
-    Download, 
-    Film 
-} from 'lucide-react';
+import FileGrid from '@/components/dashboard/FileGrid';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ConfirmModal from '@/components/modals/ConfirmModal';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBillingInfo, useCaseData, useDashboardStats } from '@/hooks/useSettings';
+import api from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { useDashboardStats, useBillingInfo, useCaseData } from '@/hooks/useSettings';
+import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  Clock,
+  Download,
+  File,
+  FileText,
+  Film,
+  Folder,
+  Grid,
+  Headphones,
+  Image,
+  List as ListIcon,
+  Loader2,
+  Search,
+  Shield,
+  Star,
+  Trash2,
+  Upload,
+  Video,
+  Zap
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 export default function DocumentsClient() {
     const params = useParams();

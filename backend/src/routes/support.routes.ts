@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { submitPublicTicket } from '../controllers/support.controller'
 import rateLimit from 'express-rate-limit'
+import { submitPublicTicket } from '../controllers/support.controller'
 
 const router = Router()
 

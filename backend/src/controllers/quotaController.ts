@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { User, AuditLog } from '../models'
+import { AuditLog, User } from '../models'
 import { IAuthRequest } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'

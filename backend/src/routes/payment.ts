@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { 
-  createCheckoutSession, 
-  getTransactionHistory, 
-  getOrganizationDetails, 
-  getOrganizationMembers,
-  removeMember,
+import {
   cancelSubscription,
+  createCheckoutSession,
   downgradeSeats,
+  getOrganizationDetails,
+  getOrganizationMembers,
+  getTransactionHistory,
+  removeMember,
   updateOrganization
 } from '../controllers/paymentController'
 import { authenticate } from '../middleware/auth'

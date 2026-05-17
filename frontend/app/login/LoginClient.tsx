@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import toast from 'react-hot-toast'
-import AuthLayout from '@/components/layouts/AuthLayout'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, X, MessageCircle } from 'lucide-react'
-import PublicSupportModal from '@/components/modals/PublicSupportModal'
+import AuthLayout from '@/components/layouts/AuthLayout';
+import PublicSupportModal from '@/components/modals/PublicSupportModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, MessageCircle, UserPlus, X } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 function LoginContent() {
   const [formData, setFormData] = useState({

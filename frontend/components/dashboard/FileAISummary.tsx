@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'react-hot-toast';
-import { Loader2, X, FileText, Download, ExternalLink, RefreshCw, Zap, Shield, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
 import api from '@/lib/api';
+import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckCircle, Download, ExternalLink, FileText, Loader2, X } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface FileAISummaryProps {
     file: any;

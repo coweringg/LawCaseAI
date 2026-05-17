@@ -1,13 +1,13 @@
-import { Metadata } from "next";
-import Link from 'next/link';
+import AuthRedirect from '@/components/auth/AuthRedirect';
 import PublicLayout from '@/components/layouts/PublicLayout';
+import ScrollReveal from '@/components/ui/ScrollReveal';
 import TypewriterText from '@/components/ui/TypewriterText';
+import { CheckCircle2, FileText, Gavel, MessageSquare, Shield, Zap } from 'lucide-react';
+import { Metadata } from "next";
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 const DashboardPreview = dynamic(() => import('@/components/ui/DashboardPreview'), { ssr: true });
-import ScrollReveal from '@/components/ui/ScrollReveal';
-import AuthRedirect from '@/components/auth/AuthRedirect';
-import { Shield, Gavel, FileText, Zap, CheckCircle2, MessageSquare } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "LawCaseAI - Enterprise AI Legal Case Management",

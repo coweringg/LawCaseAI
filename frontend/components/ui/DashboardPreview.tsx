@@ -1,8 +1,7 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import { motion } from 'framer-motion';
 
 export default function DashboardPreview() {
   return (

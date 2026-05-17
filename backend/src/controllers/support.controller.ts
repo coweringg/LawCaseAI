@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import SupportRequest from '../models/SupportRequest'
-import { SupportRequestType, IApiResponse } from '../types'
+import { IApiResponse, SupportRequestType } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
 

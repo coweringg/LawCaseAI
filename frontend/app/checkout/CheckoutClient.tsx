@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function CheckoutContent() {
   const router = useRouter();

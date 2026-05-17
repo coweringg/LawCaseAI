@@ -1,26 +1,26 @@
 import { Router } from 'express'
 import {
-  getProfile,
-  updateProfile,
-  changePassword,
-  updateNotifications,
-  getBillingInfo,
-  submitSupportRequest,
+  activateTrial,
   addPaymentMethod,
+  changePassword,
+  getBillingInfo,
+  getProfile,
   removePaymentMethod,
   setDefaultPaymentMethod,
-  activateTrial
+  submitSupportRequest,
+  updateNotifications,
+  updateProfile
 } from '../controllers/userController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { validateZod } from '../middleware/validateZod'
 import {
-  updateProfileSchema,
-  changePasswordSchema,
-  updateNotificationsSchema,
   addPaymentMethodSchema,
+  changePasswordSchema,
+  mongoIdParamSchema,
   supportRequestSchema,
-  mongoIdParamSchema
+  updateNotificationsSchema,
+  updateProfileSchema
 } from '../schemas'
 
 const router = Router()

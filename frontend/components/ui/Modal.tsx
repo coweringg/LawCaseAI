@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import { X } from 'lucide-react'
 import { cn } from '@/utils/helpers'
+import { X } from 'lucide-react'
+import React, { useEffect } from 'react'
 
 interface ModalProps {
   isOpen: boolean

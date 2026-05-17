@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
+import MonolithLogo from '@/components/ui/MonolithLogo';
+import { useAuth } from '@/contexts/AuthContext';
+import { motion, Variants } from 'framer-motion';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  Globe,
+  Loader2,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-  CheckCircle2, 
-  ArrowRight, 
-  Download, 
-  ShieldCheck, 
-  Globe, 
-  Sparkles,
-  Loader2,
-  Briefcase,
-  ExternalLink
-} from 'lucide-react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
-import MonolithLogo from '@/components/ui/MonolithLogo';
+import { Suspense, useEffect, useState } from 'react';
 
 function SuccessContent() {
   const router = useRouter();

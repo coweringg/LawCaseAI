@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import DocumentsClient from './DocumentsClient';
-import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
+import DocumentsClient from './DocumentsClient';
 
 export const metadata: Metadata = {
   title: 'LawCaseAI - Document Repository',

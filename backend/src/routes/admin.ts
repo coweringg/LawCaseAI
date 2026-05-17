@@ -1,81 +1,81 @@
 import { Router } from 'express'
-import { 
-  getStats, 
-  getUsers, 
-  updateUser, 
-  deleteUser, 
-  updateUserStatus, 
-  updateUserPlan,
-  getAuditLogs,
-  getUserHistory,
-  deleteAuditLog,
+import {
   clearAuditLogs,
+  clearSupportRequests,
+  deleteAuditLog,
+  deleteSupportRequest,
+  deleteUser,
+  getAuditLogs,
+  getStats,
+  getSupportRequests,
+  getUserHistory,
+  getUsers,
   logoutUser,
   updateOrganizationCode,
-  getSupportRequests,
   updateSupportRequestStatus,
-  deleteSupportRequest,
-  clearSupportRequests
+  updateUser,
+  updateUserPlan,
+  updateUserStatus
 } from '../controllers/adminController'
 import {
-    getUsersWithQuotas,
-    updateUserQuotas,
-    resetUserQuotas
+  getUsersWithQuotas,
+  resetUserQuotas,
+  updateUserQuotas
 } from '../controllers/quotaController'
 import { authenticate, authorize } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
-import { UserRole } from '../types'
 import { validateZod } from '../middleware/validateZod'
-import { 
-  adminUserParamsSchema, 
-  adminUpdateUserSchema, 
-  adminUpdateStatusSchema, 
-  adminUpdatePlanSchema,
-  mongoIdParamSchema,
-  maintenanceSchema,
-  globalAlertSchema,
-  updateOrgCodeSchema,
-  updateSupportStatusSchema,
-  toggleOrgStatusSchema,
-  extendOrgPlanSchema
-} from '../schemas'
-
-import { 
-  getAiStats 
-} from '../controllers/analyticsController'
-import { 
-  getTreasuryStats,
-  exportTreasuryCSV
-} from '../controllers/treasuryController'
-import { 
-  getSystemStatus, 
-  toggleMaintenance, 
-  updateGlobalAlert,
-  getSystemHealth
-} from '../controllers/systemController'
 import {
+  adminUpdatePlanSchema,
+  adminUpdateStatusSchema,
+  adminUpdateUserSchema,
+  adminUserParamsSchema,
+  extendOrgPlanSchema,
+  globalAlertSchema,
+  maintenanceSchema,
+  mongoIdParamSchema,
+  toggleOrgStatusSchema,
+  updateOrgCodeSchema,
+  updateSupportStatusSchema
+} from '../schemas'
+import { UserRole } from '../types'
+
+import {
+  extendOrganizationPlan,
   getAllOrganizations,
   getOrganizationDetails,
-  toggleOrganizationStatus,
-  extendOrganizationPlan
+  toggleOrganizationStatus
 } from '../controllers/adminOrgController'
 import {
   getAiHealthMetrics,
   resolveAiError
 } from '../controllers/aiHealthController'
 import {
-  getKnowledgeDocuments,
-  uploadKnowledgeDocument,
+  getAiStats
+} from '../controllers/analyticsController'
+import {
   deleteKnowledgeDocument,
-  incrementDocumentAccess
+  getKnowledgeDocuments,
+  incrementDocumentAccess,
+  uploadKnowledgeDocument
 } from '../controllers/knowledgeBaseController'
 import {
-  getAdminKnowledgeRequests,
-  updateKnowledgeRequestStatus,
-  deleteKnowledgeRequest,
   bulkResolveKnowledgeRequests,
-  clearAllKnowledgeRequests
+  clearAllKnowledgeRequests,
+  deleteKnowledgeRequest,
+  getAdminKnowledgeRequests,
+  updateKnowledgeRequestStatus
 } from '../controllers/knowledgeRequestController'
+import {
+  getSystemHealth,
+  getSystemStatus,
+  toggleMaintenance,
+  updateGlobalAlert
+} from '../controllers/systemController'
+import {
+  exportTreasuryCSV,
+  getTreasuryStats
+} from '../controllers/treasuryController'
 import { uploadSingle } from '../utils/fileUpload'
 
 const router = Router()

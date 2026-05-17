@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Sparkles, Building, Loader2, Shield, Info } from 'lucide-react';
 import { Alert } from '@/components/ui/Alert';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Building, Layers, Loader2 } from 'lucide-react';
+import React from 'react';
 
 interface PlanModalProps {
     isOpen: boolean;

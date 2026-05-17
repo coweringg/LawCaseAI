@@ -1,6 +1,6 @@
-import React from 'react';
-import { Clock, FileText, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Clock, Zap } from 'lucide-react';
+import React from 'react';
 
 interface TrialStatusBannerProps {
   hoursRemaining: number;

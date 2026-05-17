@@ -1,5 +1,5 @@
-import { AuditLog } from '../models'
 import { Types } from 'mongoose'
+import { AuditLog } from '../models'
 import logger from '../utils/logger'
 
 const auditLoggerInstance = logger.child({ module: 'audit' })

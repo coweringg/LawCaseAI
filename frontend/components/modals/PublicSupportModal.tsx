@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, User, Building2, MessageSquare, Send } from 'lucide-react';
-import toast from 'react-hot-toast';
-import axios from 'axios';
 import { Select } from '@/components/ui/Select';
+import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Building2, Mail, MessageSquare, Send, User, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import toast from 'react-hot-toast';
 
 interface PublicSupportModalProps {
   isOpen: boolean;

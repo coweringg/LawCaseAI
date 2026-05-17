@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import toast from 'react-hot-toast'
-import AuthLayout from '@/components/layouts/AuthLayout'
-import { validateEmail, validatePassword } from '@/utils/helpers'
-import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Building, CheckCircle2, Zap, Shield } from 'lucide-react'
-import { motion } from 'framer-motion'
+import AuthLayout from '@/components/layouts/AuthLayout';
+import { useAuth } from '@/contexts/AuthContext';
+import { validateEmail, validatePassword } from '@/utils/helpers';
+import { motion } from 'framer-motion';
+import { ArrowRight, Building, CheckCircle2, Eye, EyeOff, Lock, Mail, Shield, User, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 function RegisterContent() {
   const [registrationMode, setRegistrationMode] = useState<'individual' | 'empresa'>('individual')

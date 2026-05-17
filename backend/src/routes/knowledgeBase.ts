@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { authenticate } from '../middleware/auth'
 import {
-    getUserLibrary,
-    incrementDocumentAccess
+  getUserLibrary,
+  incrementDocumentAccess
 } from '../controllers/knowledgeBaseController'
 import { createKnowledgeRequest } from '../controllers/knowledgeRequestController'
+import { authenticate } from '../middleware/auth'
 
 const router = Router()
 

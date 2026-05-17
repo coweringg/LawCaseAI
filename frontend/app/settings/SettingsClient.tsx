@@ -1,34 +1,32 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useRef } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
 import api from "@/lib/api";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { getPaddleInstance } from "@/lib/paddle";
 import { Paddle } from "@paddle/paddle-js";
 
-import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
+import { BillingSection } from "@/components/settings/BillingSection";
+import { ConfirmModal } from "@/components/settings/ConfirmModal";
+import { DowngradeCapacityModal } from "@/components/settings/DowngradeCapacityModal";
+import { OrganizationSection } from "@/components/settings/OrganizationSection";
+import { PlanModal } from "@/components/settings/PlanModal";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { SecuritySection } from "@/components/settings/SecuritySection";
-import { OrganizationSection } from "@/components/settings/OrganizationSection";
-import { BillingSection } from "@/components/settings/BillingSection";
+import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
 import { SupportModal } from "@/components/settings/SupportModal";
-import { ConfirmModal } from "@/components/settings/ConfirmModal";
-import { PlanModal } from "@/components/settings/PlanModal";
-import { CapacityModal } from "@/components/settings/CapacityModal";
-import { DowngradeCapacityModal } from "@/components/settings/DowngradeCapacityModal";
-import { ShieldAlert } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 
 import {
-  useOrganizationDetails,
   useBillingInfo,
-  usePurchaseHistory,
+  useOrganizationDetails,
   useOrganizationMembers,
+  usePurchaseHistory,
 } from "@/hooks/useSettings";
 
 function SettingsContent() {

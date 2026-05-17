@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2, Sparkles, Zap } from 'lucide-react';
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Sparkles, ChevronRight, Zap } from 'lucide-react';
 
 interface CapacityModalProps {
     isOpen: boolean;

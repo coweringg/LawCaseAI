@@ -1,6 +1,6 @@
-import { Response, NextFunction } from 'express'
-import { IAuthRequest, CaseStatus } from '../types'
-import { User, Case } from '../models'
+import { NextFunction, Response } from 'express'
+import { Case, User } from '../models'
+import { CaseStatus, IAuthRequest } from '../types'
 import logger from '../utils/logger'
 
 const middlewareLogger = logger.child({ module: 'quota-reset-middleware' })

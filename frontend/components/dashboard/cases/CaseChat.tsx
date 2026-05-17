@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Zap, FileText, Clock, Plus, X, MessageSquare, Edit2, Trash2, ChevronDown, Hash } from 'lucide-react';
 import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, Clock, Edit2, FileText, Hash, Loader2, MessageSquare, Plus, Trash2, X, Zap } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface CaseChatProps {
     chatMessages: any[];

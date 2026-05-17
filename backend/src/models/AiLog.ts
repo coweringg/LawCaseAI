@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose'
+import mongoose, { Document, Schema, Types } from 'mongoose'
 
 export interface IAiLog extends Document {
   userId?: Types.ObjectId

@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Folder, UploadCloud, MoreVertical, Zap } from 'lucide-react';
 import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Folder, MoreVertical, UploadCloud, Zap } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
 
 interface CaseSidebarProps {
     files: any[];

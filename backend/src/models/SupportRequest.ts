@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { ISupportRequest, SupportRequestType, SupportRequestStatus } from '../types'
+import { ISupportRequest, SupportRequestStatus, SupportRequestType } from '../types'
 
 const supportRequestSchema = new Schema<ISupportRequest>({
   userId: {

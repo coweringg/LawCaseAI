@@ -1,13 +1,13 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { useRouter, usePathname } from "next/navigation";
 import api from "@/lib/api";
 import { User } from "@/types";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export interface SavedAccount {
   name: string;

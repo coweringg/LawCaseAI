@@ -1,11 +1,11 @@
 import { Response } from 'express'
-import { User, Transaction, Organization, Case, Event } from '../models'
-import { IApiResponse, IAuthRequest, UserPlan, UserRole, CaseStatus, EventStatus } from '../types'
-import { logAction } from '../utils/auditLogger'
+import config from '../config'
+import { Case, Event, Organization, Transaction, User } from '../models'
+import { CaseStatus, EventStatus, IAuthRequest, UserPlan, UserRole } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
 import { getPaddleInstance } from '../utils/paddle'
-import config from '../config'
 
 const getPaddlePriceId = (plan: UserPlan, interval: 'monthly' | 'annual'): string => {
     return config.paddle.prices[interval][plan as 'basic' | 'professional' | 'elite' | 'enterprise'] || ''

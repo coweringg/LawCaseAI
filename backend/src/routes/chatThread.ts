@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getThreads, createThread, renameThread, deleteThread, getThreadMessages } from '../controllers/chatThreadController'
+import { createThread, deleteThread, getThreadMessages, getThreads, renameThread } from '../controllers/chatThreadController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { checkTrialStatus } from '../middleware/trialMiddleware'

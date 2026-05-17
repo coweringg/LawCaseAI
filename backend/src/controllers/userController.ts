@@ -1,9 +1,9 @@
 import { Response } from 'express'
-import { User, SupportRequest, Case, Organization } from '../models'
-import { IApiResponse, INotificationSettings, IAuthRequest, SupportRequestStatus, UserPlan } from '../types'
-import { logAction } from '../utils/auditLogger'
 import config from '../config'
+import { Case, Organization, SupportRequest, User } from '../models'
+import { IApiResponse, IAuthRequest, INotificationSettings, SupportRequestStatus, UserPlan } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
 import { getPaddleInstance } from '../utils/paddle'
 

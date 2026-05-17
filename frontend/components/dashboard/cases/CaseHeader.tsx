@@ -1,9 +1,8 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Lock } from 'lucide-react';
+import Link from 'next/link';
 
 interface CaseHeaderProps {
     caseData: any;

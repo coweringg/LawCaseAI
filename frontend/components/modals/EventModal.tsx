@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, Clock, Type, AlertCircle, MapPin, Loader2, ChevronDown, ListFilter, ShieldAlert, Briefcase, CheckCircle2, Trash2 } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
 import { Select } from '@/components/ui/Select';
 import api from '@/lib/api';
+import { format, isSameDay } from 'date-fns';
+import { AlertCircle, Briefcase, Calendar as CalendarIcon, CheckCircle2, Clock, ListFilter, Loader2, ShieldAlert, Trash2, Type, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface EventModalProps {
     isOpen: boolean;

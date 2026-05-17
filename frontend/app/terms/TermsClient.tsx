@@ -1,11 +1,10 @@
 "use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Shield, FileText, Scale, Cpu, AlertTriangle, ChevronRight } from 'lucide-react'
-import Footer from '@/components/layouts/Footer'
-import MonolithLogo from '@/components/ui/MonolithLogo'
+import Footer from '@/components/layouts/Footer';
+import MonolithLogo from '@/components/ui/MonolithLogo';
+import { motion } from 'framer-motion';
+import { AlertTriangle, ChevronRight, Cpu, FileText, Scale, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export default function TermsClient() {
   const lastUpdated = 'February 25, 2026'

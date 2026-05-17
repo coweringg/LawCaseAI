@@ -1,8 +1,8 @@
 import OpenAI from 'openai'
 import config from '../config'
+import { AiLog, User } from '../models'
 import { IChatResponse } from '../types'
 import logger from './logger'
-import { User, AiLog } from '../models'
 import { countTokens } from './tokenCounter'
 
 const aiLogger = logger.child({ module: 'ai-service' })

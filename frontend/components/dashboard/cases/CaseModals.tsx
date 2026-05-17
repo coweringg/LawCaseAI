@@ -1,9 +1,8 @@
 "use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Folder, Zap, X, Loader2 } from 'lucide-react';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Edit2, Folder, Loader2, X, Zap } from 'lucide-react';
 
 interface CaseModalsProps {
     isConfirmModalOpen: boolean;

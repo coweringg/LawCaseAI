@@ -1,14 +1,14 @@
-import { Response } from 'express'
-import { Case, User, CaseFile } from '../models'
-import { IApiResponse, IAuthRequest } from '../types'
-import { saveFileToStorage, deleteFromStorage, generateFileKey, getPresignedDownloadUrl } from '../utils/fileUpload'
-import { logAction } from '../utils/auditLogger'
-import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from '../utils/pdfUtils'
-import config from '../config'
-import PDFDocument from 'pdfkit'
 import { Document, Packer, Paragraph, TextRun } from 'docx'
+import { Response } from 'express'
+import PDFDocument from 'pdfkit'
+import config from '../config'
+import { Case, CaseFile, User } from '../models'
+import { IApiResponse, IAuthRequest } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
+import { deleteFromStorage, generateFileKey, getPresignedDownloadUrl, saveFileToStorage } from '../utils/fileUpload'
+import { cleanExtractedText, extractTextFromPDF, extractTextFromPlainText } from '../utils/pdfUtils'
 
 export const uploadFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { caseId } = req.body

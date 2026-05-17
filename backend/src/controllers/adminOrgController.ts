@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import { Organization, User, Transaction } from '../models'
-import { IApiResponse } from '../types'
 import mongoose from 'mongoose'
+import { Organization, Transaction, User } from '../models'
+import { IApiResponse } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
 

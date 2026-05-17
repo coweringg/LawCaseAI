@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
-import { Shield, Zap, Users, Gavel } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Gavel, Shield, Users, Zap } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
 
 export default function AboutClient() {
     const [mounted, setMounted] = React.useState(false);

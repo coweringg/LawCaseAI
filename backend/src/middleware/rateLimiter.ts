@@ -1,7 +1,6 @@
-import rateLimit from 'express-rate-limit';
 import { Request } from 'express';
-import { IAuthRequest, UserPlan } from '../types';
-import { IApiResponse } from '../types';
+import rateLimit from 'express-rate-limit';
+import { IApiResponse, IAuthRequest, UserPlan } from '../types';
 
 export const planRateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,

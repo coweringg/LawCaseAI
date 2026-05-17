@@ -1,54 +1,36 @@
+import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3'
+import compression from 'compression'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import 'dotenv/config'
 import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import compression from 'compression'
-import rateLimit from 'express-rate-limit'
-import cookieParser from 'cookie-parser'
-import mongoose from 'mongoose'
-import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3'
 import mongoSanitize from 'express-mongo-sanitize'
-import { connectDatabase } from './config/database'
+import rateLimit from 'express-rate-limit'
+import helmet from 'helmet'
+import mongoose from 'mongoose'
 import config from './config'
+import { connectDatabase } from './config/database'
 import { IApiResponse } from './types'
 import logger, { httpLogger } from './utils/logger'
 
-interface MongooseValidationFieldError {
-  path: string
-  message: string
-}
-
-interface MongooseValidationError extends Error {
-  name: 'ValidationError'
-  errors: Record<string, MongooseValidationFieldError>
-}
-
-interface MulterError extends Error {
-  code: 'LIMIT_FILE_SIZE' | 'LIMIT_FILE_COUNT'
-}
-
-interface CustomError extends Error {
-  statusCode?: number
-}
-
-import authRoutes from './routes/auth'
-import userRoutes from './routes/user'
-import caseRoutes from './routes/case'
-import fileRoutes from './routes/file'
-import chatRoutes from './routes/chat'
+import { errorHandler } from './middleware/errorHandler'
+import { planRateLimiter } from './middleware/rateLimiter'
 import adminRoutes from './routes/admin'
-import paymentRoutes from './routes/payment'
 import aiRoutes from './routes/ai'
+import authRoutes from './routes/auth'
+import caseRoutes from './routes/case'
+import chatRoutes from './routes/chat'
+import chatThreadRoutes from './routes/chatThread'
 import dashboardRoutes from './routes/dashboard'
 import eventRoutes from './routes/event'
-import systemRoutes from './routes/system'
-import supportRoutes from './routes/support.routes'
-import webhookRoutes from './routes/webhook'
-import notificationRoutes from './routes/notification'
+import fileRoutes from './routes/file'
 import knowledgeBaseRoutes from './routes/knowledgeBase'
-import chatThreadRoutes from './routes/chatThread'
-import { planRateLimiter } from './middleware/rateLimiter'
-import { errorHandler } from './middleware/errorHandler'
+import notificationRoutes from './routes/notification'
+import paymentRoutes from './routes/payment'
+import supportRoutes from './routes/support.routes'
+import systemRoutes from './routes/system'
+import userRoutes from './routes/user'
+import webhookRoutes from './routes/webhook'
 
 const app = express()
 

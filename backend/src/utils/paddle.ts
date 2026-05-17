@@ -1,4 +1,4 @@
-import { Paddle, Environment } from '@paddle/paddle-node-sdk'
+import { Environment, Paddle } from '@paddle/paddle-node-sdk'
 import config from '../config'
 
 let paddleInstance: Paddle | null = null

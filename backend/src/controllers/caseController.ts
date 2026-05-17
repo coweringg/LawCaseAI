@@ -1,11 +1,11 @@
 import { Response } from 'express'
-import { Case, User, CaseFile, ChatMessage, ChatThread, Event } from '../models'
-import { IApiResponse, CaseStatus, IAuthRequest, UserPlan, EventPriority, NotificationType, NotificationPriority } from '../types'
-import { logAction } from '../utils/auditLogger'
-import { createNotification } from '../utils/notification'
-import { deleteFromStorage } from '../utils/fileUpload'
+import { Case, CaseFile, ChatMessage, ChatThread, Event, User } from '../models'
+import { CaseStatus, IApiResponse, IAuthRequest, NotificationPriority, NotificationType, UserPlan } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
+import { deleteFromStorage } from '../utils/fileUpload'
+import { createNotification } from '../utils/notification'
 
 export const createCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { name, client, description, practiceArea, status, complexity, keyDates } = req.body

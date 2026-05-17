@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
-import { FileText, User, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import MonolithLogo from "@/components/ui/MonolithLogo";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogOut, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;

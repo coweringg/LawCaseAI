@@ -1,6 +1,6 @@
 import { Response } from 'express'
-import { ChatThread, ChatMessage } from '../models'
-import { IAuthRequest, IApiResponse } from '../types'
+import { ChatMessage, ChatThread } from '../models'
+import { IApiResponse, IAuthRequest } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
 

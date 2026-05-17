@@ -1,24 +1,19 @@
 "use client";
 
-import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { 
-    ArrowLeft, 
-    Lock, 
-    History, 
-    Printer, 
-    RotateCcw, 
-    Bot, 
-    FileText, 
-    Download, 
-    CheckCircle, 
-    Zap,
-    Archive as ArchiveIcon,
-    LayoutDashboard,
-    Folder
-} from 'lucide-react';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+import {
+  ArrowLeft,
+  CheckCircle,
+  Download,
+  FileText,
+  History,
+  Lock,
+  Printer,
+  RotateCcw,
+  Zap
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function ArchiveClient() {
     const params = useParams();

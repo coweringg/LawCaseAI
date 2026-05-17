@@ -1,29 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { 
-  BookOpen,
-  Search,
-  Filter,
-  Download,
-  Building,
-  Globe,
-  FileText,
-  RotateCcw,
-  ExternalLink,
-  ChevronRight,
-  Shield,
-  Layers,
-  Loader2
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import api from '@/lib/api'
-import { Button } from '@/components/ui/Button'
-import { Select } from '@/components/ui/Select'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
+import api from '@/lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  BookOpen,
+  Building,
+  ChevronRight,
+  Download,
+  Filter,
+  Globe,
+  Layers,
+  Loader2,
+  RotateCcw,
+  Search,
+  Shield
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 interface KnowledgeDocument {
     _id: string

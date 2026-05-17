@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Building, Eye, EyeOff, Copy, RotateCcw, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
 import api from '@/lib/api';
+import { motion } from 'framer-motion';
+import { Building, Copy, Eye, EyeOff, Loader2, RotateCcw } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface OrganizationSectionProps {
     orgData: any;

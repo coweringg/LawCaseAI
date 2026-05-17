@@ -12,6 +12,20 @@ interface FileGridProps {
 }
  
 export default function FileGrid({ files, onFileSelect, onToggleStar, selectedFileId }: FileGridProps) {
+    if (files.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-32 text-center w-full col-span-full">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-slate-500">
+                    <File size={24} />
+                </div>
+                <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] mb-2">No Matching Units</h3>
+                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-relaxed max-w-[250px]">
+                    The search query or class filter returned zero results in this repository.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
             {files.map((file, idx) => (

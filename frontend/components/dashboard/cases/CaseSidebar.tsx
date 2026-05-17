@@ -55,8 +55,9 @@ export function CaseSidebar({
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/[0.02] relative z-10">
                 <h2 className="text-[11px] font-bold text-slate-500 tracking-wider">Intelligence Repository</h2>
                 <motion.button 
-                    whileHover={{ rotate: 180, transition: { duration: 0.15 } }}
-                    className="p-2 text-slate-500 hover:text-primary transition-all rounded-xl"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ type: "spring", stiffness: 120, damping: 12 }}
+                    className="p-2 text-slate-500 hover:text-primary rounded-xl transition-colors"
                     onClick={() => window.location.reload()}
                 >
                     <span className="material-icons-round text-lg">sync</span>

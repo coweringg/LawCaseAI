@@ -23,6 +23,11 @@ const chatMessageSchema = new Schema<IChatMessage>({
     ref: 'User',
     required: [true, 'User ID is required']
   },
+  threadId: {
+    type: Schema.Types.ObjectId,
+    ref: 'ChatThread',
+    default: null
+  },
   timestamp: {
     type: Date,
     default: Date.now
@@ -58,6 +63,8 @@ const chatMessageSchema = new Schema<IChatMessage>({
 chatMessageSchema.index({ caseId: 1, timestamp: 1 })
 chatMessageSchema.index({ caseId: 1, timestamp: -1 })
 chatMessageSchema.index({ userId: 1, timestamp: -1 })
+chatMessageSchema.index({ threadId: 1, timestamp: 1 })
+chatMessageSchema.index({ threadId: 1, timestamp: -1 })
 chatMessageSchema.index({ timestamp: -1 })
 
 chatMessageSchema.statics.findByCase = function(caseId: string, limit: number = 50) {

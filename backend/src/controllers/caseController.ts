@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { Case, User, CaseFile, ChatMessage, Event } from '../models'
+import { Case, User, CaseFile, ChatMessage, ChatThread, Event } from '../models'
 import { IApiResponse, CaseStatus, IAuthRequest, UserPlan, EventPriority, NotificationType, NotificationPriority } from '../types'
 import { logAction } from '../utils/auditLogger'
 import { createNotification } from '../utils/notification'
@@ -374,6 +374,7 @@ export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): P
 
     await CaseFile.deleteMany({ caseId: id, userId })
     await ChatMessage.deleteMany({ caseId: id, userId })
+    await ChatThread.deleteMany({ caseId: id, userId })
     await Event.deleteMany({ caseId: id, userId })
 
     if (totalFreedStorage > 0) {

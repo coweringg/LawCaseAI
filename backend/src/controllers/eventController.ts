@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { Event } from '../models'
+import { Event, Case } from '../models'
 import { IApiResponse, IAuthRequest, EventType, EventPriority, NotificationType, NotificationPriority } from '../types'
 import { createNotification } from '../utils/notification'
 import AppError from '../utils/appError'
@@ -13,8 +13,20 @@ export const getEvents = catchAsync(async (req: IAuthRequest, res: Response): Pr
     const userId = req.user?._id
     const { start, end, caseId, search } = req.query
 
-    const query: Record<string, unknown> = { userId }
-    if (caseId) query.caseId = caseId
+    const query: Record<string, any> = { userId }
+    if (caseId) {
+        query.caseId = caseId
+    } else {
+        const closedCases = await Case.find({ userId, status: 'closed' }).select('_id').lean()
+        const closedCaseIds = closedCases.map(c => c._id)
+        if (closedCaseIds.length > 0) {
+            query.$or = [
+                { caseId: { $exists: false } },
+                { caseId: null },
+                { caseId: { $nin: closedCaseIds } }
+            ]
+        }
+    }
 
     if (search && typeof search === 'string' && search.trim().length > 0) {
         query.title = { $regex: escapeRegex(search.trim()), $options: 'i' }

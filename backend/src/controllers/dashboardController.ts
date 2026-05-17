@@ -26,7 +26,7 @@ export const getDashboardStats = catchAsync(async (req: IAuthRequest, res: Respo
         await user.save()
     }
 
-    const [caseStats, documentCountResult, recentCases, upcomingDeadlines] = await Promise.all([
+    const [caseStats, documentCountResult, recentCases, closedCases] = await Promise.all([
         Case.aggregate([
             { $match: { userId } },
             { $group: { _id: '$status', count: { $sum: 1 } } }
@@ -36,12 +36,30 @@ export const getDashboardStats = catchAsync(async (req: IAuthRequest, res: Respo
             { $group: { _id: null, totalDocuments: { $sum: '$fileCount' } } }
         ]),
         Case.find({ userId }).sort({ updatedAt: -1 }).limit(3).lean(),
-        Event.find({
-            userId,
-            start: { $gte: now },
-            $or: [{ type: 'deadline' }, { priority: { $in: ['high', 'critical'] } }]
-        }).sort({ start: 1 }).limit(5).lean()
+        Case.find({ userId, status: 'closed' }).select('_id').lean()
     ])
+
+    const closedCaseIds = closedCases.map((c: any) => c._id)
+    const eventQuery: any = {
+        userId,
+        status: { $ne: 'closed' },
+        start: { $gte: now },
+        $or: [{ type: 'deadline' }, { priority: { $in: ['high', 'critical'] } }]
+    }
+
+    if (closedCaseIds.length > 0) {
+        eventQuery.$and = [
+            {
+                $or: [
+                    { caseId: { $exists: false } },
+                    { caseId: null },
+                    { caseId: { $nin: closedCaseIds } }
+                ]
+            }
+        ]
+    }
+
+    const upcomingDeadlines = await Event.find(eventQuery).sort({ start: 1 }).limit(5).lean()
 
     const formattedCaseStats = { total: 0, active: 0, closed: 0, archived: 0 }
     caseStats.forEach((stat: { _id: string; count: number }) => {

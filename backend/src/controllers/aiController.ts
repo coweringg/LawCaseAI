@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { IAuthRequest } from '../types'
 import AIService from '@/utils/aiService'
-import { Case, CaseFile, ChatMessage, User } from '@/models'
+import { Case, CaseFile, ChatMessage, ChatThread, User } from '@/models'
 import { getRelevantKnowledgeContext } from '../utils/knowledgeBaseUtils'
 import { logAction } from '@/utils/auditLogger'
 import config from '@/config'
@@ -44,7 +44,7 @@ const trackAIUsage = (userId: string | undefined, caseId: string | undefined, to
 };
 
 export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { message, caseId, temporaryFileId } = req.body
+    const { message, caseId, temporaryFileId, threadId } = req.body
  
     if (!message || !caseId) {
         throw new AppError('Both a message and a valid Case ID are required to consult the AI.', 400)
@@ -58,6 +58,20 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
     const limits = (config.planLimits as any)[req.user!.plan] || config.planLimits.basic;
     if ((currentCase.totalTokensConsumed || 0) >= limits.maxTokens) {
         throw new AppError(`This case has reached its AI processing limit (${limits.maxTokens} tokens). Please upgrade your plan to continue analysis in this workspace.`, 403)
+    }
+
+    let activeThreadId = threadId || null;
+    if (!activeThreadId) {
+        let defaultThread = await ChatThread.findOne({ caseId, userId: req.user?._id, isDefault: true });
+        if (!defaultThread) {
+            defaultThread = await ChatThread.create({
+                title: 'General',
+                caseId,
+                userId: req.user?._id,
+                isDefault: true
+            });
+        }
+        activeThreadId = defaultThread._id;
     }
 
     let filesContext = 'No files uploaded yet.'
@@ -87,9 +101,39 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
 
     const knowledgeContext = await getRelevantKnowledgeContext(req.user!._id!.toString(), message)
     
-    const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}\n\n${knowledgeContext}`
+    let crossThreadContext = '';
+    try {
+        const allThreads = await ChatThread.find({ caseId, userId: req.user?._id });
+        const otherThreads = allThreads.filter(t => t._id.toString() !== activeThreadId.toString());
+        
+        if (otherThreads.length > 0) {
+            const crossContextParts = await Promise.all(otherThreads.map(async (thread) => {
+                const recentMsgs = await ChatMessage.find({ threadId: thread._id })
+                    .sort({ timestamp: -1 })
+                    .limit(8)
+                    .select('sender content')
+                    .lean();
+                
+                if (recentMsgs.length === 0) return null;
+                
+                const summary = recentMsgs.reverse().map(m => 
+                    `${m.sender === 'user' ? 'User' : 'AI'}: ${m.content.substring(0, 200)}${m.content.length > 200 ? '...' : ''}`
+                ).join('\n');
+                
+                return `[CROSS-THREAD: "${thread.title}"]\n${summary}`;
+            }));
+            
+            const validParts = crossContextParts.filter(Boolean);
+            if (validParts.length > 0) {
+                crossThreadContext = `\n\n--- CROSS-THREAD INTELLIGENCE (Other conversation threads in this case) ---\n${validParts.join('\n\n')}\n--- END CROSS-THREAD INTELLIGENCE ---\nIMPORTANT: If the user's question relates to information discussed in other threads, incorporate that knowledge into your response seamlessly.`;
+            }
+        }
+    } catch (err) {
+    }
 
-    const recentHistory = await ChatMessage.find({ caseId })
+    const caseContext = `Case Name: ${currentCase.name}\nPractice Area: ${currentCase.practiceArea || 'General'}\nDescription: ${currentCase.description || 'N/A'}\n\nDocument Context:\n${filesContext}\n\n${knowledgeContext}${crossThreadContext}`
+
+    const recentHistory = await ChatMessage.find({ threadId: activeThreadId })
         .sort({ timestamp: -1 })
         .limit(30)
         .select('sender content')
@@ -121,6 +165,7 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
             sender: 'user',
             caseId: currentCase._id,
             userId: req.user?._id,
+            threadId: activeThreadId,
             timestamp: userTimestamp
         },
         {
@@ -128,6 +173,7 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
             sender: 'ai',
             caseId: currentCase._id,
             userId: req.user?._id,
+            threadId: activeThreadId,
             timestamp: aiTimestamp,
             metadata: {
                 model: aiRes.model,
@@ -158,7 +204,8 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
         data: {
             ...aiRes,
             suggestsSaving: shouldSuggestSaving,
-            relatedFileType: relatedType
+            relatedFileType: relatedType,
+            threadId: activeThreadId
         }
     })
 })

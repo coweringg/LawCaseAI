@@ -1,7 +1,7 @@
 # <p align="center">LawCaseAI ⚖️🤖</p>
 
 <p align="center">
-  <strong>AI-powered legal case management for modern law firms</strong>
+  <strong>AI-assisted LegalTech project for legal document workflows</strong>
 </p>
 
 <p align="center">
@@ -23,20 +23,18 @@
 ---
 
 ## 🏛️ What is LawCaseAI?
-**LawCaseAI** is a comprehensive SaaS platform designed specifically for law firms in the United States to revolutionize case management through Artificial Intelligence. 
-
-Managing complex legal proceedings often involves navigating mountains of documents and data. LawCaseAI solves this by providing an intelligent, centralized command center that automates document analysis, streamlines team collaboration, and handles enterprise-grade billing, allowing legal professionals to focus on winning cases rather than administrative friction.
+**LawCaseAI** is a public full-stack LegalTech project focused on AI-assisted legal document review.
 
 ---
 
 ## ✨ Key Features
 
 - 🤖 **AI-Driven Case Intelligence**: Interactive chat within each case, utilizing uploaded documents (PDFs, transcripts, data) as context for precise, fact-based answers.
-- 📁 **Universal Command Center**: High-performance storage and processing for PDFs, MP4, MP3, and more, powered by Cloudflare R2.
-- 🏢 **Enterprise Hierarchy**: Robust multi-tenant system with organization management, seat-based licensing, and firm codes.
+- 📁 **File Management**: Storage and processing for PDFs, MP4, MP3, and more, powered by Cloudflare R2.
+- 🏢 **Multi-Tenant Organizations**: Organization management with seat-based licensing and firm codes.
 - 📚 **Integrated Knowledge Base**: A central repository that feeds directly into the AI to ensure institutional knowledge is always accessible.
 - 💳 **Seamless Billing**: Full integration with **Paddle Billing**, supporting Personal, Firm, and Enterprise plans with cryptographic webhook handling.
-- 🛡️ **Advanced Admin Dashboard**: High-level control over multi-tenant analytics, seat quotas, treasury monitoring, and global telemetry.
+- 🛡️ **Admin Dashboard**: Multi-tenant analytics, seat quotas, and monitoring.
 - 🔐 **Secure Role-Based Access**: Enterprise security with granular roles (Admin, Member, Viewer) and session management.
 
 ---
@@ -95,9 +93,9 @@ Designed for performance and technical excellence:
 
 ---
 
-## 🚀 Experience the Product
+## 🚀 Live Demo
 
-Interested in seeing LawCaseAI in action? Visit our live production environment:
+Check out the deployed demo:
 
 👉 **[Launch LawCaseAI Demo](https://lawcaseai-gamma.vercel.app/)**
 
@@ -105,8 +103,5 @@ Interested in seeing LawCaseAI in action? Visit our live production environment:
 
 ## 📈 Project Status
 
-🟢 **Production Ready** — Actively developed and maintained.
-
-<p align="center">
-  <i>Built with excellence for the legal industry.</i>
-</p>
+🟢 **Public project** · Active development · Deployed demo
+

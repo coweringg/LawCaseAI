@@ -73,7 +73,7 @@ export default function FeaturesClient() {
                 </div>
             </section>
 
-            <section id="feature-demos" className="py-24 bg-background-dark/50 border-y border-white/5 min-h-[80vh]">
+            <section id="feature-demos" className="py-12 lg:py-24 bg-background-dark/50 border-y border-white/5">
                 <div className="container-stitch px-4">
                     <AnimatePresence mode="wait">
                         {activeTab === 'insights' && <InsightsDemo key="insights" />}
@@ -210,7 +210,7 @@ function ResearchDemo() {
             exit={{ opacity: 0, x: -20 }}
             className="grid lg:grid-cols-2 gap-16 items-center"
         >
-            <div className="order-2 lg:order-1 relative glass rounded-2xl p-6 h-[400px] flex flex-col">
+            <div className="order-2 lg:order-1 relative glass rounded-2xl p-6 h-[340px] lg:h-[400px] flex flex-col">
                 <div className="flex items-center gap-3 p-3 bg-[#0c0c0c] rounded-xl border border-white/5 mb-6">
                     <Search size={18} className="text-primary" />
                     <div className="text-slate-300 text-sm">{query}<span className="animate-pulse">|</span></div>
@@ -297,9 +297,9 @@ function ChronologyDemo() {
                     ))}
                 </div>
             </div>
-            <div className="relative glass border-white/10 rounded-2xl p-6 h-[450px] overflow-hidden">
+            <div className="relative glass border-white/10 rounded-2xl p-6 h-[380px] lg:h-[450px] overflow-hidden">
                 <div className="absolute left-10 top-0 bottom-0 w-px bg-white/10"></div>
-                <div className="space-y-24 relative">
+                <div className="space-y-12 lg:space-y-24 relative">
                     {[
                         { date: "Oct 12, 2025", event: "Incident Report Filed", role: "Primary Event" },
                         { date: "Nov 05, 2025", event: "Initial Demand Letter Sent", role: "Legal Action" },

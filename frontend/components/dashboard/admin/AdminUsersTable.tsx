@@ -17,7 +17,7 @@ interface AdminUser {
 interface AdminUsersTableProps {
   users: AdminUser[]
   searchTerm: string; setSearchTerm: (v: string) => void
-  roleFilter: 'all' | 'admin' | 'user'; setRoleFilter: (v: 'all' | 'admin' | 'user') => void
+  roleFilter: 'all' | 'admin' | 'user' | 'orgadmin'; setRoleFilter: (v: 'all' | 'admin' | 'user' | 'orgadmin') => void
   userPage: number; setUserPage: React.Dispatch<React.SetStateAction<number>>; userTotalPages: number
   setSelectedUser: (u: AdminUser) => void
   setShowHistoryModal: (v: boolean) => void
@@ -206,7 +206,21 @@ export function AdminUsersTable({
                         : "text-slate-500 hover:text-slate-300"
                     )}
                   >
-                    Administrators
+                    System Admins
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRoleFilter('orgadmin')
+                      setUserPage(1)
+                    }}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-150",
+                      roleFilter === 'orgadmin'
+                        ? "bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Org Admins
                   </button>
                   <button
                     onClick={() => {

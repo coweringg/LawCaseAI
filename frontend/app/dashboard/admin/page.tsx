@@ -1,24 +1,23 @@
 "use client";
 
-import React from 'react';
-import {
-  Users,
-  Bell,
-  Monitor,
-  Terminal,
-  ShieldCheck,
-  Lock
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
-import { cn } from '@/utils/helpers';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { useAdminDashboard } from '@/hooks/useAdminDashboard';
-import { AdminStatsCards } from '@/components/dashboard/admin/AdminStatsCards';
-import { AdminUsersTable } from '@/components/dashboard/admin/AdminUsersTable';
 import { AdminAuditLogs } from '@/components/dashboard/admin/AdminAuditLogs';
-import { AdminSupportRequests } from '@/components/dashboard/admin/AdminSupportRequests';
 import { AdminModals } from '@/components/dashboard/admin/AdminModals';
+import { AdminStatsCards } from '@/components/dashboard/admin/AdminStatsCards';
+import { AdminSupportRequests } from '@/components/dashboard/admin/AdminSupportRequests';
+import { AdminUsersTable } from '@/components/dashboard/admin/AdminUsersTable';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import { Button } from '@/components/ui/Button';
+import { useAdminDashboard } from '@/hooks/useAdminDashboard';
+import { cn } from '@/utils/helpers';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Bell,
+  Lock,
+  Monitor,
+  ShieldCheck,
+  Terminal,
+  Users
+} from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const {

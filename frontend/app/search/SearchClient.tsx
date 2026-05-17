@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
-import api from '@/lib/api';
-import { motion, AnimatePresence } from 'framer-motion';
 import MonolithLogo from '@/components/ui/MonolithLogo';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SearchClient() {
     const { user } = useAuth();

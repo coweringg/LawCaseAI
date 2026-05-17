@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose'
-import { ICase, CaseStatus } from '../types'
+import mongoose, { Document, Schema } from 'mongoose'
+import { CaseStatus, ICase } from '../types'
 
 const caseSchema = new Schema<ICase>({
   name: {

@@ -1,7 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import React from 'react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;

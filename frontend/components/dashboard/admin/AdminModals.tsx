@@ -1,17 +1,30 @@
-import React from 'react'
+import { Alert } from '@/components/ui/Alert'
+import { Button } from '@/components/ui/Button'
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
+import { Input } from '@/components/ui/Input'
+import { Modal } from '@/components/ui/Modal'
+import { Table } from '@/components/ui/Table'
+import { cn, formatDate } from '@/utils/helpers'
 import { motion } from 'framer-motion'
 import {
-  User, Users, FileText, History, CreditCard, Brain, Eye, Key,
-  CheckCircle, XCircle, AlertCircle, ShieldAlert, Clock, Zap,
-  Database, Cpu, Terminal, ShieldCheck, Globe, ArrowRight
+  AlertCircle,
+  ArrowRight,
+  Brain,
+  CheckCircle,
+  Clock,
+  Cpu,
+  CreditCard,
+  Database,
+  Eye,
+  FileText, History,
+  Key,
+  ShieldAlert,
+  Terminal,
+  User, Users,
+  XCircle,
+  Zap
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Table } from '@/components/ui/Table'
-import { Modal } from '@/components/ui/Modal'
-import { Input } from '@/components/ui/Input'
-import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
-import { Alert } from '@/components/ui/Alert'
-import { formatDate, cn } from '@/utils/helpers'
+import React from 'react'
 
 interface AdminUser {
   id: string; name: string; email: string; lawFirm: string

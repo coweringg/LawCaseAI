@@ -1,43 +1,33 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
+import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
+import { cn } from '@/utils/helpers'
+import { format } from 'date-fns'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Activity,
+  Clock,
+  DollarSign,
+  Shield,
+  TrendingUp,
+  Users,
+  Zap
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import {
+  Area,
+  AreaChart,
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  Cell
+  XAxis,
+  YAxis
 } from 'recharts'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Brain,
-  Zap,
-  DollarSign,
-  Clock,
-  User,
-  Users,
-  Shield,
-  TrendingUp,
-  Activity,
-  Calendar,
-  Filter
-} from 'lucide-react'
-import { format } from 'date-fns'
-import { toast } from 'react-hot-toast'
-import api from '@/lib/api'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
-import { useAuth } from '@/contexts/AuthContext'
-import { cn, formatDate } from '@/utils/helpers'
 
 interface AnalyticsData {
   totals: {

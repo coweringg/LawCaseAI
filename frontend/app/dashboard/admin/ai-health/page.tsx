@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import api from '@/lib/api'
 import { format } from 'date-fns'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 interface AiProvider {

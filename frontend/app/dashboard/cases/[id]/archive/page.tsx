@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import ArchiveClient from './ArchiveClient';
-import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
+import ArchiveClient from './ArchiveClient';
 
 export const metadata: Metadata = {
   title: 'LawCaseAI - Archived Case Intelligence',

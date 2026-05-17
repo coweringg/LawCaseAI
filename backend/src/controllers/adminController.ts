@@ -1,9 +1,9 @@
 import { Response } from 'express'
 import { Types } from 'mongoose'
-import { User, Case, Transaction, AuditLog, SupportRequest, Organization, Event } from '../models'
-import { IAuthRequest, IApiResponse, UserRole, UserStatus, UserPlan, IAdminStats, CaseStatus, SupportRequestStatus, EventStatus, SupportRequestType } from '../types'
-import { logAction } from '../utils/auditLogger'
+import { AuditLog, Case, Event, Organization, SupportRequest, Transaction, User } from '../models'
+import { CaseStatus, EventStatus, IAdminStats, IApiResponse, IAuthRequest, SupportRequestStatus, SupportRequestType, UserPlan, UserRole, UserStatus } from '../types'
 import AppError from '../utils/appError'
+import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
 
 export const getUsers = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {

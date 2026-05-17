@@ -1,9 +1,8 @@
 "use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { List, CheckCircle, Zap, Clock, Shield } from 'lucide-react';
 import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckCircle, Clock, List, Shield, Zap } from 'lucide-react';
 
 interface CaseRightSidebarProps {
     activeTab: 'summary' | 'search' | 'notes';

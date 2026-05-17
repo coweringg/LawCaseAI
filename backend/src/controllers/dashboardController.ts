@@ -1,7 +1,7 @@
 import { Response } from 'express'
-import { Case, User, CaseFile, Event } from '../models'
-import { IApiResponse, IAuthRequest } from '../types'
 import config from '../config'
+import { Case, CaseFile, Event, User } from '../models'
+import { IAuthRequest } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
 

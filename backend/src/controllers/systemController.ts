@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
+import mongoose from 'mongoose'
 import { SystemSetting } from '../models'
 import { IApiResponse } from '../types'
-import mongoose from 'mongoose'
 import catchAsync from '../utils/catchAsync'
 
 export const getSystemStatus = catchAsync(async (req: Request, res: Response): Promise<void> => {

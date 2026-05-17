@@ -1,37 +1,21 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import {
-  ShieldAlert,
-  Zap,
-  Megaphone,
-  Power,
-  Server,
-  Activity,
-  AlertTriangle,
-  Info,
-  CheckCircle,
-  Radio,
-  Cpu,
-  Globe,
-  Database,
-  Lock,
-  Command,
-  Terminal,
-  ShieldCheck,
-  Clock
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { toast } from 'react-hot-toast'
-import api from '@/lib/api'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { Modal } from '@/components/ui/Modal'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
 import { cn, formatDate } from '@/utils/helpers'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Clock,
+  Power,
+  Radio,
+  ShieldCheck
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
 
 interface SystemStatus {
   maintenanceMode: boolean;

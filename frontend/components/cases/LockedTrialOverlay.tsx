@@ -1,7 +1,7 @@
-import React from 'react';
-import { Lock, ArrowRight, Zap, Shield, RotateCcw, XCircle, Archive, Clock, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Archive, ArrowRight, Clock, Lock, RotateCcw, Search, Shield, XCircle, Zap } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 interface LockedTrialOverlayProps {
   isTrialExpired?: boolean;

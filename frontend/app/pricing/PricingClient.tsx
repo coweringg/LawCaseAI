@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layouts/PublicLayout';
-import { Check, Star, Shield, Zap, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Check, Info, Shield, Star, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function PricingClient() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');

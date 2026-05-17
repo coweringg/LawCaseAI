@@ -1,8 +1,8 @@
 import cron from 'node-cron'
-import { User, Case, Organization } from '../models'
-import { UserPlan, CaseStatus, NotificationType, NotificationPriority } from '../types'
-import { createNotification } from '../utils/notification'
+import { Case, Organization, User } from '../models'
+import { CaseStatus, NotificationPriority, NotificationType, UserPlan } from '../types'
 import logger from '../utils/logger'
+import { createNotification } from '../utils/notification'
 
 const jobLogger = logger.child({ module: 'expiration-job' })
 

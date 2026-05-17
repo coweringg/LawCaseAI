@@ -1,19 +1,19 @@
 import { Router } from 'express'
-import { uploadFile, getCaseFiles, commitFile, renameFile, deleteFile, createFileFromText, deleteMultipleFiles, toggleStarFile } from '../controllers/fileController'
+import { commitFile, createFileFromText, deleteFile, deleteMultipleFiles, getCaseFiles, renameFile, toggleStarFile, uploadFile } from '../controllers/fileController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
-import { uploadSingle } from '../utils/fileUpload'
 import { checkTrialStatus } from '../middleware/trialMiddleware'
 import { validateZod } from '../middleware/validateZod'
-import { 
-  caseIdParamSchema, 
-  fileIdParamSchema,
-  uploadFileSchema,
-  commitFileSchema,
-  renameFileSchema,
+import {
   bulkDeleteFileSchema,
-  createFromTextSchema
+  caseIdParamSchema,
+  commitFileSchema,
+  createFromTextSchema,
+  fileIdParamSchema,
+  renameFileSchema,
+  uploadFileSchema
 } from '../schemas'
+import { uploadSingle } from '../utils/fileUpload'
 
 const router = Router()
 

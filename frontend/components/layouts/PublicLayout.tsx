@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Footer from './Footer';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import Footer from './Footer';
 
 interface PublicLayoutProps {
     children: React.ReactNode;

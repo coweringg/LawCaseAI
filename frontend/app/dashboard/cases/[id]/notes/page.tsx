@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import NotesClient from './NotesClient';
-import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
+import NotesClient from './NotesClient';
 
 export const metadata: Metadata = {
   title: 'LawCaseAI - Internal Notes',

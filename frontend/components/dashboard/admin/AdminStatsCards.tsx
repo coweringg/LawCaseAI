@@ -1,6 +1,5 @@
-import React from 'react'
 import { motion } from 'framer-motion'
-import { Users, Activity, Database } from 'lucide-react'
+import { Activity, Database, Users } from 'lucide-react'
 
 interface AdminStats {
   totalUsers: number

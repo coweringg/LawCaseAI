@@ -1,9 +1,9 @@
-import React from 'react'
-import { motion } from 'framer-motion'
-import { Users, Search, User, CheckCircle, XCircle, AlertCircle, Eye, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Table } from '@/components/ui/Table'
-import { formatDate, cn } from '@/utils/helpers'
+import { cn, formatDate } from '@/utils/helpers'
+import { motion } from 'framer-motion'
+import { AlertCircle, CheckCircle, Eye, Search, ShieldCheck, User, XCircle } from 'lucide-react'
+import React from 'react'
 
 interface AdminUser {
   id: string; name: string; email: string; lawFirm: string

@@ -1,8 +1,8 @@
-import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
+import mongoose, { Schema } from 'mongoose'
 import config from '../config'
-import { IUser, UserRole, UserPlan, UserStatus } from '../types'
+import { IUser, UserPlan, UserRole, UserStatus } from '../types'
 export interface IUserModel extends mongoose.Model<IUser> {
   findByEmail(email: string): Promise<IUser | null>
   updateLastLogin(userId: string): Promise<IUser | null>

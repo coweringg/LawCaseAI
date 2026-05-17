@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { createCase, getCases, getCaseStats, getCaseById, updateCase, deleteCase, reactivateCase } from '../controllers/caseController'
+import { createCase, deleteCase, getCaseById, getCases, getCaseStats, reactivateCase, updateCase } from '../controllers/caseController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { validateZod } from '../middleware/validateZod'
-import { createCaseSchema, updateCaseSchema, caseParamsSchema } from '../schemas'
+import { caseParamsSchema, createCaseSchema, updateCaseSchema } from '../schemas'
 
 const router = Router()
 

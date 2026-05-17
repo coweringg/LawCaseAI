@@ -1,32 +1,30 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { 
-  BookOpen, 
-  CloudUpload, 
-  Search, 
-  Filter, 
-  Trash2, 
-  Download, 
-  Building, 
-  Globe, 
-  FileText,
-  RotateCcw,
-  MoreVertical,
-  File,
-  AlertTriangle, 
-  CheckCircle2, 
-  XCircle
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import api from '@/lib/api'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { Button } from '@/components/ui/Button'
-import { Table } from '@/components/ui/Table'
+import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { Select } from '@/components/ui/Select'
-import { Input } from '@/components/ui/Input'
-import { formatDate, cn } from '@/utils/helpers'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
+import { Table } from '@/components/ui/Table'
+import api from '@/lib/api'
+import { cn, formatDate } from '@/utils/helpers'
+import { motion } from 'framer-motion'
+import {
+  AlertTriangle,
+  BookOpen,
+  Building,
+  CheckCircle2,
+  CloudUpload,
+  Download,
+  File,
+  Filter,
+  Globe,
+  RotateCcw,
+  Search,
+  Trash2,
+  XCircle
+} from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface KnowledgeDocument {

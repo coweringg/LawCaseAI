@@ -1,8 +1,7 @@
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AlertTriangle, Info, X, ShieldAlert } from 'lucide-react'
 import { cn } from '@/utils/helpers'
-import { Button } from './Button'
+import { AnimatePresence, motion } from 'framer-motion'
+import { AlertTriangle, Info, ShieldAlert, X } from 'lucide-react'
+import React from 'react'
 
 interface ConfirmationModalProps {
   isOpen: boolean

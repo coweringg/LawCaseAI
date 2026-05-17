@@ -3,7 +3,7 @@ import * as eventController from '../controllers/eventController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { validateZod } from '../middleware/validateZod'
-import { createEventSchema, updateEventSchema, eventParamsSchema } from '../schemas'
+import { createEventSchema, eventParamsSchema, updateEventSchema } from '../schemas'
 
 const router = Router()
 

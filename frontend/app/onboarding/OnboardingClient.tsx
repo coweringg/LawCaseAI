@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import MonolithLogo from '@/components/ui/MonolithLogo';
+import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { ArrowRight, Calendar, CheckCircle2, CloudUpload, FolderPlus, HelpCircle, Lock, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { Shield, Lock, CheckCircle2, FolderPlus, CloudUpload, Sparkles, ArrowRight, HelpCircle, Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
-import MonolithLogo from '@/components/ui/MonolithLogo';
+import { useEffect, useState } from 'react';
 
 export default function OnboardingClient() {
     const { user, isAuthenticated, isLoading } = useAuth();

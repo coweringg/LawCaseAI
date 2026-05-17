@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { INotification, NotificationType, NotificationPriority } from '../types'
+import { INotification, NotificationPriority, NotificationType } from '../types'
 
 const notificationSchema = new Schema<INotification>({
   userId: {

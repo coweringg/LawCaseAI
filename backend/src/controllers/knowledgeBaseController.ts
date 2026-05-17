@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 import KnowledgeDocument from '../models/KnowledgeDocument'
 import User from '../models/User'
-import { saveFileToStorage, deleteFromStorage } from '../utils/fileUpload'
-import { extractTextFromPDF, extractTextFromPlainText, cleanExtractedText } from '../utils/pdfUtils'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
+import { deleteFromStorage, saveFileToStorage } from '../utils/fileUpload'
+import { cleanExtractedText, extractTextFromPDF, extractTextFromPlainText } from '../utils/pdfUtils'
 
 export const getKnowledgeDocuments = catchAsync(async (req: Request, res: Response) => {
     const { category, assignedTo, search, page = 1, limit = 10 } = req.query

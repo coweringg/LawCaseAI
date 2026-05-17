@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Sparkles, 
-  ShieldAlert, 
-  TrendingUp, 
-  Puzzle, 
-  Loader2, 
-  BookOpen,
-  ChevronRight,
-  BrainCircuit,
-  Zap,
-  Layers,
-  Search
-} from 'lucide-react';
 import api from '@/lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  BookOpen,
+  BrainCircuit,
+  Layers,
+  Loader2,
+  Puzzle,
+  Search,
+  ShieldAlert,
+  Sparkles,
+  TrendingUp,
+  X,
+  Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface GlobalAuditModalProps {
   isOpen: boolean;

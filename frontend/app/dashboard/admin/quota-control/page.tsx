@@ -1,31 +1,25 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-    Settings2 as Tune, 
-    Search, 
-    Filter, 
-    Edit2 as Edit, 
-    RotateCcw as RotateLeft, 
-    CheckCircle2 as CheckCircle, 
-    BarChart3 as BarChart, 
-    Folder as Cases, 
-    Zap as Token, 
-    Cloud as CloudQueue, 
-    FileText as Description,
-    Mail as Email,
-    User as Person,
-    History as HistoryIcon,
-    X as Close,
-    Save,
-    ArrowLeft
-} from 'lucide-react'
-import Link from 'next/link'
-import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Select } from '@/components/ui/Select'
+import api from '@/lib/api'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  ArrowLeft,
+  Folder as Cases,
+  Cloud as CloudQueue,
+  FileText as Description,
+  Edit2 as Edit,
+  Filter,
+  User as Person,
+  RotateCcw as RotateLeft,
+  Search,
+  Zap as Token,
+  Settings2 as Tune
+} from 'lucide-react'
+import Link from 'next/link'
+import React, { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface UserQuota {

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Shield, Lock, Eye, EyeOff, Loader2, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff, Loader2, Lock, Save, Shield } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface SecuritySectionProps {

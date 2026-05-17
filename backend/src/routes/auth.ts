@@ -1,17 +1,17 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import {
-  register,
-  registerAdmin,
   login,
   loginWithSavedToken,
+  logout,
   refreshToken,
-  logout
+  register,
+  registerAdmin
 } from '../controllers/authController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { validateZod } from '../middleware/validateZod'
-import { registerSchema, registerAdminSchema, loginSchema, savedLoginSchema } from '../schemas'
+import { loginSchema, registerAdminSchema, registerSchema, savedLoginSchema } from '../schemas'
 
 const router = Router()
 

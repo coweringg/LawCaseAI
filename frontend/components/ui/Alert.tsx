@@ -1,7 +1,7 @@
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, CheckCircle, Info, X, ShieldAlert } from 'lucide-react'
 import { cn } from '@/utils/helpers'
+import { motion } from 'framer-motion'
+import { AlertCircle, CheckCircle, Info, ShieldAlert, X } from 'lucide-react'
+import React from 'react'
 
 interface AlertProps {
   type: 'success' | 'error' | 'warning' | 'info'

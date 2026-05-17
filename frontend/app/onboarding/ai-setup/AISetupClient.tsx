@@ -1,20 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Gavel, 
-  Sparkles, 
-  CheckCircle2, 
-  Lock, 
-  Globe, 
-  Loader2,
-  Cpu,
-  ShieldCheck,
-  Brain
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import { motion } from 'framer-motion';
+import {
+  Brain,
+  CheckCircle2,
+  Cpu,
+  Loader2,
+  Lock,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function AISetupContent() {
     const router = useRouter();

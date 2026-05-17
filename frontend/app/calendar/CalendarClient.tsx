@@ -1,45 +1,45 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-    format,
-    addMonths,
-    subMonths,
-    startOfMonth,
-    endOfMonth,
-    startOfWeek,
-    endOfWeek,
-    eachDayOfInterval,
-    isSameMonth,
-    isSameDay,
-    addDays,
-    isBefore,
-    startOfDay,
-} from 'date-fns';
-import {
-    ChevronLeft,
-    ChevronRight,
-    Plus,
-    X,
-    ArrowRight,
-    AlertCircle,
-    Clock,
-    Calendar as CalendarIcon,
-    Search,
-    MoreVertical,
-    Loader2,
-    MapPin,
-    ListFilter,
-    Briefcase
-} from 'lucide-react';
-import { subDays } from 'date-fns';
-import { toast } from 'react-hot-toast';
-import api from '@/lib/api';
 import EventModal from '@/components/modals/EventModal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import {
+  addDays,
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isBefore,
+  isSameDay,
+  isSameMonth,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subMonths,
+} from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  AlertCircle,
+  ArrowRight,
+  Briefcase,
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  ListFilter,
+  Loader2,
+  MapPin,
+  MoreVertical,
+  Plus,
+  Search,
+  X
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { toast } from 'react-hot-toast';
 
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 

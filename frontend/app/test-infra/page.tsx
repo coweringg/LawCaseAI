@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { AlertTriangle, ArrowRight, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
-import { Sparkles, AlertTriangle, ArrowRight, Zap } from "lucide-react";
-import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function InfraCompletaTester() {
   const [shouldCrash, setShouldCrash] = useState(false);

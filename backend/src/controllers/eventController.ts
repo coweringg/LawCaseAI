@@ -1,9 +1,9 @@
 import { Response } from 'express'
-import { Event, Case } from '../models'
-import { IApiResponse, IAuthRequest, EventType, EventPriority, NotificationType, NotificationPriority } from '../types'
-import { createNotification } from '../utils/notification'
+import { Case, Event } from '../models'
+import { EventPriority, EventType, IApiResponse, IAuthRequest, NotificationPriority, NotificationType } from '../types'
 import AppError from '../utils/appError'
 import catchAsync from '../utils/catchAsync'
+import { createNotification } from '../utils/notification'
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

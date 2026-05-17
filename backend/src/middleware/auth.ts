@@ -1,10 +1,9 @@
-import { Response, NextFunction } from 'express'
+import { NextFunction, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { User, Case, Organization } from '../models'
-import { IAuthRequest, IJWTPayload, UserRole, UserStatus, UserPlan, CaseStatus, NotificationType, NotificationPriority } from '../types'
 import config from '../config'
+import { User } from '../models'
+import { IAuthRequest, IJWTPayload, UserRole, UserStatus } from '../types'
 import logger from '../utils/logger'
-import { createNotification } from '../utils/notification'
 
 const authLogger = logger.child({ module: 'auth' })
 

@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import ConfirmModal from '@/components/modals/ConfirmModal';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import { motion } from 'framer-motion';
+import { ArrowRight, Briefcase, Folder, Loader2, Plus, Scale, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import ConfirmModal from '@/components/modals/ConfirmModal';
-import { Loader2, Folder, Briefcase, Shield, Scale, Plus, Sparkles, ArrowRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const getAreaIcon = (area: string) => {
     const a = area?.toLowerCase() || '';

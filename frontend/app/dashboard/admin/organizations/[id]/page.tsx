@@ -1,44 +1,26 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import DashboardLayout from '@/components/layouts/DashboardLayout'
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
+import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
+import { cn, formatDate } from '@/utils/helpers'
+import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   Building,
-  User,
-  Users,
-  CreditCard,
   Calendar,
-  ShieldCheck,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Clock,
-  ExternalLink,
-  Plus,
-  Trash2,
-  Mail,
-  Zap,
-  Globe,
-  Database,
-  Lock,
-  RotateCcw,
   Check,
-  X,
-  RefreshCw,
+  CreditCard,
+  Mail,
   MoreVertical,
-  Minus
+  RefreshCw,
+  User,
+  Zap
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
-import api from '@/lib/api'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Modal } from '@/components/ui/Modal'
-import DashboardLayout from '@/components/layouts/DashboardLayout'
-import { useAuth } from '@/contexts/AuthContext'
-import { cn, formatDate } from '@/utils/helpers'
-import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
 
 interface OrgMember {
   _id: string;

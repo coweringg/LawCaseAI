@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { CreditCard, Loader2, Sparkles, Layers, Share2, DownloadCloud, Zap, Shield, ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import { motion } from 'framer-motion';
 import api from '@/lib/api';
+import { motion } from 'framer-motion';
+import { jsPDF } from 'jspdf';
+import { ArrowRight, CheckCircle2, CreditCard, DownloadCloud, Layers, Loader2, Shield, Sparkles, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface BillingSectionProps {
     billingInfo: any;

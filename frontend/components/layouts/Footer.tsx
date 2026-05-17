@@ -1,6 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
 import MonolithLogo from '@/components/ui/MonolithLogo';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface FooterProps {

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import "@/styles/globals.css";
-import { Providers } from "./providers";
-import Script from "next/script";
-import { Inter, Outfit } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata } from "next";
+import { Inter, Outfit } from "next/font/google";
+import Script from "next/script";
+import { Providers } from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],

@@ -1,15 +1,13 @@
-import React, { useState, useEffect, memo } from 'react';
-import Link from 'next/link';
-import { useRouter as useNextRouter } from 'next/router';
-import { useRouter as useAppRouter, usePathname as useAppPathname } from 'next/navigation';
-import api from '@/lib/api';
+import ExpirationModal from '@/components/modals/ExpirationModal';
+import NotificationBell from '@/components/notifications/NotificationBell';
+import MonolithLogo from '@/components/ui/MonolithLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardStats } from '@/hooks/useSettings';
-import { motion, AnimatePresence } from 'framer-motion';
-import NotificationBell from '@/components/notifications/NotificationBell';
-import ExpirationModal from '@/components/modals/ExpirationModal';
-import MonolithLogo from '@/components/ui/MonolithLogo';
-import { DashboardStats } from '@/types';
+import api from '@/lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname as useAppPathname, useRouter as useAppRouter } from 'next/navigation';
+import React, { memo, useEffect, useState } from 'react';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;

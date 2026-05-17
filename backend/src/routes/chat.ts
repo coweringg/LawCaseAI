@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getChatHistory, clearChatHistory } from '../controllers/chatController'
+import { clearChatHistory, getChatHistory } from '../controllers/chatController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { checkTrialStatus } from '../middleware/trialMiddleware'

@@ -1,6 +1,6 @@
-import { Response, NextFunction } from 'express'
-import { IAuthRequest, UserPlan, IApiResponse, CaseStatus } from '../types'
+import { NextFunction, Response } from 'express'
 import { Case } from '../models'
+import { IApiResponse, IAuthRequest, UserPlan } from '../types'
 import logger from '../utils/logger'
 
 const trialLogger = logger.child({ module: 'trial-middleware' })

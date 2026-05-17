@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import GlobalAuditModal from '@/components/modals/GlobalAuditModal';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import { DashboardStats } from '@/types';
+import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, Briefcase, Clock, Gavel, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
-import api from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Briefcase, Clock, AlertCircle, Gavel, Calendar, Sparkles } from 'lucide-react';
-import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
-import { DashboardStats } from '@/types';
-import GlobalAuditModal from '@/components/modals/GlobalAuditModal';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 import { Skeleton } from '@/components/ui/Skeleton';

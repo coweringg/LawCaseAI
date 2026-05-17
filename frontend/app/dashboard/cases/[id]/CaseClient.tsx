@@ -1,17 +1,16 @@
 "use client";
 
-import React from 'react';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { Loader2, Edit2, Zap, Trash2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Edit2, Loader2, Trash2, Zap } from 'lucide-react';
 
-import { CaseHeader } from '@/components/dashboard/cases/CaseHeader';
-import { CaseSidebar } from '@/components/dashboard/cases/CaseSidebar';
-import { CaseChat } from '@/components/dashboard/cases/CaseChat';
-import { CaseRightSidebar } from '@/components/dashboard/cases/CaseRightSidebar';
-import { CaseModals } from '@/components/dashboard/cases/CaseModals';
-import { TrialStatusBanner } from '@/components/cases/TrialStatusBanner';
 import { LockedTrialOverlay } from '@/components/cases/LockedTrialOverlay';
+import { TrialStatusBanner } from '@/components/cases/TrialStatusBanner';
+import { CaseChat } from '@/components/dashboard/cases/CaseChat';
+import { CaseHeader } from '@/components/dashboard/cases/CaseHeader';
+import { CaseModals } from '@/components/dashboard/cases/CaseModals';
+import { CaseRightSidebar } from '@/components/dashboard/cases/CaseRightSidebar';
+import { CaseSidebar } from '@/components/dashboard/cases/CaseSidebar';
 
 import { useCaseWorkspace } from '@/hooks/useCaseWorkspace';
 

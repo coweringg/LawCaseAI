@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { SystemSetting, User } from '../models'
-import { UserRole, IJWTPayload } from '../types'
 import config from '../config'
+import { SystemSetting, User } from '../models'
+import { IJWTPayload, UserRole } from '../types'
 import logger from '../utils/logger'
 
 const maintenanceLogger = logger.child({ module: 'maintenance' })

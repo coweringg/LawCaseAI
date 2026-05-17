@@ -1,11 +1,10 @@
 "use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Shield, DollarSign, RefreshCcw, HelpCircle, ChevronRight } from 'lucide-react'
-import Footer from '@/components/layouts/Footer'
-import MonolithLogo from '@/components/ui/MonolithLogo'
+import Footer from '@/components/layouts/Footer';
+import MonolithLogo from '@/components/ui/MonolithLogo';
+import { motion } from 'framer-motion';
+import { ChevronRight, DollarSign, HelpCircle, RefreshCcw, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export default function RefundClient() {
   const lastUpdated = 'March 10, 2026'

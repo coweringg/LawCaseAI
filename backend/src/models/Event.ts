@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { IEvent, EventType, EventPriority, EventStatus } from '../types'
+import { EventPriority, EventStatus, EventType, IEvent } from '../types'
 
 const eventSchema = new Schema<IEvent>({
     title: {

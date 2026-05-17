@@ -1,7 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Image as ImageIcon, File, FileSpreadsheet, Play, Check, Star, Headphones, Video } from 'lucide-react';
-import { format } from 'date-fns';
+import { Check, File, FileSpreadsheet, FileText, Headphones, Image as ImageIcon, Star, Video } from 'lucide-react';
 
 interface FileGridProps {
     files: any[];

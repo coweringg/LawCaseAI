@@ -51,22 +51,12 @@ export default function HomePage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1200px] hero-glow pointer-events-none blur-[100px]" aria-hidden="true"></div>
           
           <div className="flex-1 flex flex-col justify-center w-full max-w-4xl mx-auto text-center relative z-10 py-8">
-            <ScrollReveal
-              delay={0}
-              yOffset={-10}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm self-center mx-auto"
-            >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm self-center mx-auto animate-fade-in-up">
               <span className="material-symbols-outlined text-amber-400 text-[14px]">shield</span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-white/60">Secure Legal Intelligence</span>
-            </ScrollReveal>
+            </div>
 
-            <ScrollReveal
-              as="h1"
-              delay={0.1}
-              yOffset={20}
-              duration={0.6}
-              className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[1.05]"
-            >
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[1.05] animate-fade-in-up animation-delay-100">
               The Standard for<br/>
               <span className="block text-primary min-h-[2.2em] lg:min-h-[1.1em]">
                 <TypewriterText
@@ -81,32 +71,21 @@ export default function HomePage() {
                   pauseDuration={2500}
                 />
               </span>
-            </ScrollReveal>
+            </h1>
 
-            <ScrollReveal
-              as="p"
-              delay={0.2}
-              yOffset={20}
-              duration={0.6}
-              className="text-slate-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed font-medium"
-            >
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed font-medium animate-fade-in-up animation-delay-200">
               AI-powered case management and document intelligence platform for US law firms. 
               Immediate operational efficiency and secure analysis for professional legal teams.
-            </ScrollReveal>
+            </p>
 
-            <ScrollReveal
-              delay={0.3}
-              yOffset={20}
-              duration={0.6}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up animation-delay-300">
               <Link href="/register" className="bg-primary text-background-dark px-8 py-3 rounded-lg font-bold text-sm hover:brightness-110 hover:shadow-[0_0_40px_-5px_rgba(0,230,118,0.6)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark">
                 Start Free Trial
               </Link>
               <Link href="/pricing" className="bg-white/5 border border-white/10 text-white px-8 py-3 rounded-lg font-bold text-sm hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark">
                 View Plans
               </Link>
-            </ScrollReveal>
+            </div>
           </div>
 
           <DashboardPreview />

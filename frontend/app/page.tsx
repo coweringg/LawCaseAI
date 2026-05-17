@@ -7,7 +7,23 @@ import { Metadata } from "next";
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-const DashboardPreview = dynamic(() => import('@/components/ui/DashboardPreview'), { ssr: true });
+const DashboardPreview = dynamic(() => import('@/components/ui/DashboardPreview'), {
+  ssr: true,
+  loading: () => (
+    <div className="w-full max-w-5xl mx-auto perspective-container shrink-0 mt-auto min-h-[320px] md:min-h-[420px]">
+      <div className="dashboard-3d relative rounded-t-2xl rounded-b-none border-b-0">
+        <div className="absolute -inset-20 bg-primary/10 blur-[180px] rounded-full opacity-30 pointer-events-none"></div>
+        <div className="glass-panel rounded-t-2xl rounded-b-none overflow-hidden p-[1px] relative border-b-0 min-h-[320px] md:min-h-[420px] flex items-center justify-center bg-[#080808]/98">
+          <div className="absolute inset-0 micro-grid opacity-10 pointer-events-none"></div>
+          <div className="flex flex-col items-center gap-3 text-white/40">
+            <span className="material-symbols-outlined animate-spin text-[28px] text-primary">progress_activity</span>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-white/30">Loading Legal Command...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+});
 
 export const metadata: Metadata = {
   title: "LawCaseAI - Enterprise AI Legal Case Management",

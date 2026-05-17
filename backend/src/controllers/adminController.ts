@@ -17,6 +17,8 @@ export const getUsers = catchAsync(async (req: IAuthRequest, res: Response): Pro
         query.role = UserRole.ADMIN
       } else if (role === 'user') {
         query.role = { $ne: UserRole.ADMIN }
+      } else if (role === 'orgadmin') {
+        query.isOrgAdmin = true
       }
     }
 

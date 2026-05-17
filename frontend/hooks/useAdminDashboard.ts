@@ -115,7 +115,7 @@ export function useAdminDashboard() {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
-  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user' | 'orgadmin'>('all')
   const [userPage, setUserPage] = useState(1)
   const [userLimit, setUserLimit] = useState(10)
 

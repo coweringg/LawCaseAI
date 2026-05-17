@@ -228,7 +228,13 @@ export default function DocumentsClient() {
     };
 
     const filteredFiles = files.filter(f => {
-        const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const query = searchQuery.trim().toLowerCase();
+        console.log('[SEARCH FILTER DEBUG]', { fileName: f.name, originalName: f.originalName, query });
+        const matchesSearch = 
+            (f.name && f.name.toLowerCase().includes(query)) ||
+            (f.originalName && f.originalName.toLowerCase().includes(query)) ||
+            (f.extractedText && f.extractedText.toLowerCase().includes(query));
+        console.log('[SEARCH FILTER DEBUG] Match outcome:', matchesSearch);
         if (!matchesSearch) return false;
 
         if (activeFilter === 'all') return true;
@@ -244,23 +250,23 @@ export default function DocumentsClient() {
         }
 
         if (activeFilter === 'pdf') {
-            return f.type.includes('pdf');
+            return f.type && f.type.includes('pdf');
         }
 
         if (activeFilter === 'image') {
-            return f.type.includes('image');
+            return f.type && f.type.includes('image');
         }
 
         if (activeFilter === 'mp3') {
-            return f.type.includes('audio') || f.name.toLowerCase().endsWith('.mp3');
+            return (f.type && f.type.includes('audio')) || (f.name && f.name.toLowerCase().endsWith('.mp3'));
         }
 
         if (activeFilter === 'video') {
-            return f.type.includes('video');
+            return f.type && f.type.includes('video');
         }
 
         if (activeFilter === 'media') {
-            return f.type.includes('image') || f.type.includes('video') || f.type.includes('audio') || f.name.toLowerCase().endsWith('.mp3');
+            return (f.type && (f.type.includes('image') || f.type.includes('video') || f.type.includes('audio'))) || (f.name && f.name.toLowerCase().endsWith('.mp3'));
         }
 
         return true;
@@ -623,9 +629,11 @@ export default function DocumentsClient() {
                                                     </motion.tr>
                                                 ))}
                                             </AnimatePresence>
-                                             {files.length === 0 && (
+                                             {filteredFiles.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={5} className="py-40 text-center text-slate-600 text-[10px] font-black uppercase tracking-[0.4em] italic">Terminal Empty &bull; No Intelligence Uploaded</td>
+                                                    <td colSpan={5} className="py-40 text-center text-slate-600 text-[10px] font-black uppercase tracking-[0.4em] italic">
+                                                        {searchQuery ? "Search Query Returned Zero Results" : "Terminal Empty • No Intelligence Uploaded"}
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

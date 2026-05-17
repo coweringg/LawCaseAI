@@ -263,7 +263,7 @@ export default function CalendarClient() {
                             <div className="flex h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>
                         </div>
                         <div className="space-y-4">
-                            {events.filter(e => e.priority === 'critical' || e.priority === 'high').slice(0, 5).map((event, idx) => (
+                            {events.filter(e => (e.priority === 'critical' || e.priority === 'high') && e.status !== 'closed').slice(0, 5).map((event, idx) => (
                                 <motion.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -311,7 +311,7 @@ export default function CalendarClient() {
                                     </div>
                                 </motion.div>
                             ))}
-                            {events.filter(e => e.priority === 'critical' || e.priority === 'high').length === 0 && (
+                            {events.filter(e => (e.priority === 'critical' || e.priority === 'high') && e.status !== 'closed').length === 0 && (
                                 <div className="text-center py-12 bg-white/5 rounded-2xl border border-dashed border-white/10">
                                     <CalendarIcon size={32} className="mx-auto mb-3 text-slate-700" />
                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Timeline Clear</p>

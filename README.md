@@ -43,25 +43,42 @@ Managing complex legal proceedings often involves navigating mountains of docume
 
 ## 🛠️ Tech Stack
 
-### Frontend & UI
+### 💻 Frontend & UI
 | Technology | Description |
 | :--- | :--- |
-| **Next.js 16.2** | High-performance React framework (Pages Router) |
+| **Next.js 16** | High-performance React framework |
+| **React 19** | Modern UI component library with latest features |
 | **TypeScript** | Type-safe application development |
-| **TailwindCSS** | Utility-first styling for premium UI/UX |
+| **TanStack React Query** | Powerful asynchronous state management and data fetching |
 | **Framer Motion** | Fluid micro-interactions and hardware-accelerated animations |
-| **Zustand** | Lightweight and scalable state management |
+| **Tailwind CSS** | Utility-first styling for premium UI/UX |
 
-### Backend & Core
+### ⚙️ Backend & Core
 | Technology | Description |
 | :--- | :--- |
 | **Node.js & Express** | Scalable RESTful API architecture |
-| **Mongoose / MongoDB** | Flexible NoSQL document database for complex legal data |
-| **Paddle SDK** | Global payment infrastructure and tax compliance |
-| **Cloudflare R2** | S3-compatible, high-performance object storage |
+| **TypeScript** | End-to-end type safety across backend services |
+| **MongoDB & Mongoose** | Flexible NoSQL document database & ODM for complex legal data |
 
-### DevOps & Infrastructure
-- **Deployment**: Vercel (Frontend/Serverless) + Render (Backend Services)
+### 🧠 AI, Storage & Payments
+| Service / Tool | Description |
+| :--- | :--- |
+| **OpenRouter API** | Advanced LLM routing and gateway for AI case intelligence |
+| **Cloudflare R2** | S3-compatible, high-performance object storage for case files |
+| **Paddle** | Global payment infrastructure, billing, and tax compliance |
+
+### 🔒 Security, Auth & Validation
+| Component | Description |
+| :--- | :--- |
+| **JWT** | Secure, stateless JSON Web Token authentication |
+| **Zod** | Runtime schema validation and strict type safety |
+| **Express Validator** | Middleware for payload inspection and route validation |
+| **Helmet** | Hardened HTTP security headers and CSP rules |
+| **Rate Limiting** | Automated request throttling (`express-rate-limit`) to prevent DDoS |
+| **Sanitization** | Active NoSQL injection and XSS payload cleansing (`express-mongo-sanitize`, `xss`) |
+
+### 🚀 DevOps & Monitoring
+- **Deployment**: Vercel (Frontend) + Render (Backend Services)
 - **Monitoring**: Real-time AI telemetry and cost tracking
 
 ---

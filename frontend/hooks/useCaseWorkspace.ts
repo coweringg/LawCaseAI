@@ -22,6 +22,10 @@ export function useCaseWorkspace() {
     const [isDraggingSidebar, setIsDraggingSidebar] = useState(false);
     const [userInput, setUserInput] = useState('');
     const [isTrialCase, setIsTrialCase] = useState(false);
+    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    const [renameThreadModalOpen, setRenameThreadModalOpen] = useState(false);
+    const [threadToRename, setThreadToRename] = useState<any>(null);
+    const [newThreadTitle, setNewThreadTitle] = useState('');
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [commitModalOpen, setCommitModalOpen] = useState(false);
@@ -61,10 +65,30 @@ export function useCaseWorkspace() {
         enabled: !!id && isAuthenticated
     });
 
-    const { data: chatMessages = [], isLoading: isChatLoading } = useQuery({
-        queryKey: ['caseChat', id],
+    const { data: threads = [] } = useQuery({
+        queryKey: ['caseThreads', id],
         queryFn: async () => {
-            const response = await api.get(`/chat/case/${id}`);
+            const response = await api.get(`/chat-threads/case/${id}`);
+            if (response.data.success) {
+                return response.data.data;
+            }
+            return [];
+        },
+        enabled: !!id && isAuthenticated
+    });
+
+    useEffect(() => {
+        if (threads.length > 0 && !activeThreadId) {
+            const defaultThread = threads.find((t: any) => t.isDefault) || threads[0];
+            setActiveThreadId(defaultThread._id);
+        }
+    }, [threads, activeThreadId]);
+
+    const { data: chatMessages = [], isLoading: isChatLoading } = useQuery({
+        queryKey: ['caseChat', id, activeThreadId],
+        queryFn: async () => {
+            if (!activeThreadId) return [];
+            const response = await api.get(`/chat-threads/${activeThreadId}/messages`);
             if (response.data.success) {
                 return response.data.data.map((m: any) => ({
                     role: m.sender,
@@ -77,7 +101,7 @@ export function useCaseWorkspace() {
             }
             return [];
         },
-        enabled: !!id && isAuthenticated
+        enabled: !!id && isAuthenticated && !!activeThreadId
     });
 
     const isTrialExpired = caseData?.error === 'TRIAL_EXPIRED' || caseData?.error === 'TRIAL_LOCKED';
@@ -134,36 +158,98 @@ export function useCaseWorkspace() {
     }, [chatMessages, isLoading]);
 
     const sendMessageMutation = useMutation({
-        mutationFn: async ({ content, tempFileId }: { content: string, tempFileId: string | null }) => {
+        mutationFn: async ({ content, tempFileId, threadId }: { content: string, tempFileId: string | null, threadId: string | null }) => {
             return api.post('/ai/chat', {
                 message: content,
                 caseId: id,
-                temporaryFileId: tempFileId
+                temporaryFileId: tempFileId,
+                threadId
             });
         },
-        onMutate: async ({ content }) => {
-            await queryClient.cancelQueries({ queryKey: ['caseChat', id] });
-            const previousChat = queryClient.getQueryData(['caseChat', id]);
+        onMutate: async ({ content, threadId }) => {
+            const qk = ['caseChat', id, threadId];
+            await queryClient.cancelQueries({ queryKey: qk });
+            const previousChat = queryClient.getQueryData(qk);
             const userMessage = { role: 'user', content, timestamp: new Date(), isPending: true };
-            queryClient.setQueryData(['caseChat', id], (old: any) => [...(old || []), userMessage]);
+            queryClient.setQueryData(qk, (old: any) => [...(old || []), userMessage]);
             setUserInput('');
-            return { previousChat };
+            return { previousChat, threadId };
         },
-        onSuccess: (response) => {
+        onSuccess: (response, variables) => {
             const data = response.data;
             if (data.success) {
-                queryClient.invalidateQueries({ queryKey: ['caseChat', id] });
+                queryClient.invalidateQueries({ queryKey: ['caseChat', id, variables.threadId] });
+                queryClient.invalidateQueries({ queryKey: ['caseThreads', id] });
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
             }
         },
         onError: (err, variables, context) => {
-            if (context?.previousChat) {
-                queryClient.setQueryData(['caseChat', id], context.previousChat);
+            if (context?.previousChat && context.threadId) {
+                queryClient.setQueryData(['caseChat', id, context.threadId], context.previousChat);
             }
             toast.error('Failed to transmit signal');
         }
     });
+
+    const createThreadMutation = useMutation({
+        mutationFn: async (title: string) => {
+            return api.post(`/chat-threads/case/${id}`, { title });
+        },
+        onSuccess: (response) => {
+            if (response.data.success) {
+                const newThread = response.data.data;
+                queryClient.invalidateQueries({ queryKey: ['caseThreads', id] });
+                setActiveThreadId(newThread._id);
+                initialLoadDone.current = false;
+            }
+        },
+        onError: () => toast.error('Failed to create thread')
+    });
+
+    const renameThreadMutation = useMutation({
+        mutationFn: async ({ threadId, title }: { threadId: string, title: string }) => {
+            return api.patch(`/chat-threads/${threadId}`, { title });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['caseThreads', id] });
+            setRenameThreadModalOpen(false);
+            setThreadToRename(null);
+        },
+        onError: () => toast.error('Failed to rename thread')
+    });
+
+    const deleteThreadMutation = useMutation({
+        mutationFn: async (threadId: string) => {
+            return api.delete(`/chat-threads/${threadId}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['caseThreads', id] });
+            const defaultThread = threads.find((t: any) => t.isDefault);
+            if (defaultThread) setActiveThreadId(defaultThread._id);
+            initialLoadDone.current = false;
+        },
+        onError: () => toast.error('Failed to delete thread')
+    });
+
+    const handleSwitchThread = (threadId: string) => {
+        setActiveThreadId(threadId);
+        initialLoadDone.current = false;
+    };
+
+    const handleCreateThread = (title: string) => {
+        createThreadMutation.mutate(title);
+    };
+
+    const handleRenameThread = () => {
+        if (threadToRename && newThreadTitle.trim()) {
+            renameThreadMutation.mutate({ threadId: threadToRename._id, title: newThreadTitle.trim() });
+        }
+    };
+
+    const handleDeleteThread = (threadId: string) => {
+        deleteThreadMutation.mutate(threadId);
+    };
 
     const uploadFileMutation = useMutation({
         mutationFn: async ({ file, isTemporary }: { file: File, isTemporary: boolean }) => {
@@ -308,7 +394,7 @@ export function useCaseWorkspace() {
         setAttachingFile(null);
         setTemporaryFileId(null);
         
-        sendMessageMutation.mutate({ content, tempFileId });
+        sendMessageMutation.mutate({ content, tempFileId, threadId: activeThreadId });
     };
 
     const handleAttachFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,6 +466,12 @@ export function useCaseWorkspace() {
         fileToDelete, setFileToDelete,
         activeFileMenu, setActiveFileMenu,
         fileInputRef, chatEndRef,
+
+        threads, activeThreadId, setActiveThreadId,
+        handleSwitchThread, handleCreateThread, handleRenameThread, handleDeleteThread,
+        renameThreadModalOpen, setRenameThreadModalOpen,
+        threadToRename, setThreadToRename,
+        newThreadTitle, setNewThreadTitle,
 
         handleOpenFile, handleDownloadFile,
         handleAttachFile,

@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Zap, FileText, Clock, Plus, X } from 'lucide-react';
+import { Loader2, Zap, FileText, Clock, Plus, X, MessageSquare, Edit2, Trash2, ChevronDown, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface CaseChatProps {
@@ -25,6 +25,12 @@ interface CaseChatProps {
     onOpenFile: (url: string) => void;
     chatEndRef: React.RefObject<HTMLDivElement | null>;
     files: any[];
+    threads?: any[];
+    activeThreadId?: string | null;
+    onSwitchThread?: (threadId: string) => void;
+    onCreateThread?: (title: string) => void;
+    onRenameThread?: (thread: any) => void;
+    onDeleteThread?: (threadId: string) => void;
 }
 
 export function CaseChat({
@@ -46,8 +52,29 @@ export function CaseChat({
     onSaveSummary,
     onOpenFile,
     chatEndRef,
-    files
+    files,
+    threads = [],
+    activeThreadId,
+    onSwitchThread,
+    onCreateThread,
+    onRenameThread,
+    onDeleteThread
 }: CaseChatProps) {
+    const [isThreadPanelOpen, setIsThreadPanelOpen] = useState(false);
+    const [isCreatingThread, setIsCreatingThread] = useState(false);
+    const [newThreadTitle, setNewThreadTitle] = useState('');
+    const [threadMenuId, setThreadMenuId] = useState<string | null>(null);
+
+    const activeThread = threads.find(t => t._id === activeThreadId);
+
+    const handleCreateThread = () => {
+        if (newThreadTitle.trim() && onCreateThread) {
+            onCreateThread(newThreadTitle.trim());
+            setNewThreadTitle('');
+            setIsCreatingThread(false);
+        }
+    };
+
     return (
         <section 
             className="flex-1 flex flex-col min-w-0 bg-transparent relative overflow-hidden"
@@ -83,6 +110,137 @@ export function CaseChat({
                     </div>
                     <span className="text-[11px] font-bold text-slate-400 tracking-wider">Assistant Status: {isSending ? 'Analyzing...' : 'Ready'}</span>
                 </div>
+
+                <div className="relative">
+                    <button 
+                        onClick={() => setIsThreadPanelOpen(!isThreadPanelOpen)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 hover:border-primary/40 hover:bg-white/[0.06] transition-all group"
+                    >
+                        <Hash size={12} className="text-primary" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white transition-colors max-w-[120px] truncate">
+                            {activeThread?.title || 'General'}
+                        </span>
+                        <ChevronDown size={12} className={`text-slate-500 transition-transform duration-200 ${isThreadPanelOpen ? 'rotate-180' : ''}`} />
+                        {threads.length > 1 && (
+                            <span className="ml-1 w-5 h-5 rounded-lg bg-primary/20 text-primary text-[9px] font-black flex items-center justify-center">
+                                {threads.length}
+                            </span>
+                        )}
+                    </button>
+
+                    <AnimatePresence>
+                        {isThreadPanelOpen && (
+                            <>
+                                <div className="fixed inset-0 z-[90]" onClick={() => { setIsThreadPanelOpen(false); setThreadMenuId(null); }}></div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="absolute right-0 top-full mt-2 w-72 bg-[#0B0E14] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[91] overflow-hidden"
+                                >
+                                    <div className="p-3 border-b border-white/5">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">Threads</span>
+                                            <button 
+                                                onClick={() => setIsCreatingThread(true)}
+                                                className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all"
+                                            >
+                                                <Plus size={12} />
+                                            </button>
+                                        </div>
+                                        
+                                        <AnimatePresence>
+                                            {isCreatingThread && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="flex gap-2 mt-2">
+                                                        <input
+                                                            type="text"
+                                                            value={newThreadTitle}
+                                                            onChange={(e) => setNewThreadTitle(e.target.value)}
+                                                            onKeyDown={(e) => { if (e.key === 'Enter') handleCreateThread(); if (e.key === 'Escape') setIsCreatingThread(false); }}
+                                                            placeholder="Thread name..."
+                                                            className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-bold text-white outline-none focus:ring-1 focus:ring-primary/30 placeholder-slate-600"
+                                                            autoFocus
+                                                        />
+                                                        <button 
+                                                            onClick={handleCreateThread}
+                                                            className="px-3 py-2 bg-primary text-background-dark rounded-xl text-[9px] font-black uppercase tracking-wider"
+                                                        >
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <div className="max-h-[300px] overflow-y-auto scrollbar-hide p-2">
+                                        {threads.map((thread: any) => (
+                                            <div
+                                                key={thread._id}
+                                                className={`group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all mb-1 ${
+                                                    activeThreadId === thread._id 
+                                                        ? 'bg-primary/10 border border-primary/20' 
+                                                        : 'hover:bg-white/[0.04] border border-transparent'
+                                                }`}
+                                                onClick={() => {
+                                                    if (onSwitchThread) onSwitchThread(thread._id);
+                                                    setIsThreadPanelOpen(false);
+                                                    setThreadMenuId(null);
+                                                }}
+                                            >
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-none ${
+                                                    activeThreadId === thread._id ? 'bg-primary/20 text-primary' : 'bg-white/5 text-slate-500'
+                                                }`}>
+                                                    {thread.isDefault ? <Zap size={14} /> : <MessageSquare size={14} />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[11px] font-black truncate ${activeThreadId === thread._id ? 'text-white' : 'text-slate-300'}`}>
+                                                            {thread.title}
+                                                        </span>
+                                                        {thread.isDefault && (
+                                                            <span className="text-[7px] font-black uppercase tracking-wider bg-primary/20 text-primary px-1.5 py-0.5 rounded-md flex-none">
+                                                                Default
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-[9px] text-slate-600 font-bold">
+                                                        {thread.messageCount || 0} messages
+                                                        {thread.lastMessage && ` • ${thread.lastMessage.content.substring(0, 30)}...`}
+                                                    </span>
+                                                </div>
+
+                                                {!thread.isDefault && (
+                                                    <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity flex-none">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); if (onRenameThread) onRenameThread(thread); setIsThreadPanelOpen(false); }}
+                                                            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-500 hover:text-white transition-all"
+                                                        >
+                                                            <Edit2 size={11} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); if (onDeleteThread) onDeleteThread(thread._id); }}
+                                                            className="p-1.5 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-all"
+                                                        >
+                                                            <Trash2 size={11} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide relative z-10">
@@ -98,9 +256,16 @@ export function CaseChat({
                                 <Zap className="text-primary relative z-10 group-hover:scale-110 transition-transform duration-200" size={40} />
                             </div>
                             <h3 className="text-2xl font-bold text-white mb-4 font-display tracking-tightest">Directive Core Ready</h3>
-                            <p className="text-[12px] text-slate-500 font-medium leading-relaxed mb-10">
-                                Input query protocols to analyze case repositories, extract legal precedents, and synthesize defense strategies.
+                            <p className="text-[12px] text-slate-500 font-medium leading-relaxed mb-2">
+                                {activeThread && !activeThread.isDefault 
+                                    ? `Thread "${activeThread.title}" initialized. Start your conversation.`
+                                    : 'Input query protocols to analyze case repositories, extract legal precedents, and synthesize defense strategies.'}
                             </p>
+                            {threads.length > 1 && (
+                                <p className="text-[10px] text-primary/60 font-bold mb-8">
+                                    Cross-thread intelligence active across {threads.length} threads
+                                </p>
+                            )}
                             <div className="flex flex-wrap justify-center gap-4">
                                 {[
                                     { label: 'Synthesize Case Overview', icon: FileText, delay: 0 },
@@ -137,7 +302,7 @@ export function CaseChat({
                                         </div>
                                     )}
                                     <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-200 ${msg.role === 'user'
-                                        ? 'bg-primary text-background-dark rounded-tr-sm border border-primary/40'
+                                        ? 'bg-[#0B0E14] text-slate-200 rounded-tr-sm border border-primary/30 shadow-[0_0_30px_rgba(0,230,118,0.08)]'
                                         : 'premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
                                         }`}>
                                         {msg.content.includes('[Attached Unit:') ? (
@@ -148,9 +313,9 @@ export function CaseChat({
                                                         const file = files.find(f => f.name === fileName);
                                                         if (file) onOpenFile(file.url);
                                                     }}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer hover:scale-[1.02] transition-transform ${msg.role === 'user' ? 'bg-white/10 border-white/20' : 'bg-primary/5 border-primary/20'}`}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer hover:scale-[1.02] transition-transform ${msg.role === 'user' ? 'bg-primary/10 border-primary/20 hover:bg-primary/20 text-white' : 'bg-primary/5 border-primary/20'}`}
                                                 >
-                                                    <div className={`p-2 rounded-xl ${msg.role === 'user' ? 'bg-white/10 text-white' : 'bg-primary/10 text-primary'}`}>
+                                                    <div className={`p-2 rounded-xl ${msg.role === 'user' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'}`}>
                                                         <FileText size={18} />
                                                     </div>
                                                     <div className="flex flex-col overflow-hidden">
@@ -169,11 +334,11 @@ export function CaseChat({
                                                 {msg.content}
                                             </p>
                                         )}
-                                        <div className={`mt-4 pt-4 border-t ${msg.role === 'user' ? 'border-white/10' : 'border-white/5'} flex items-center justify-between`}>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-background-dark/60' : 'text-slate-500'}`}>
+                                        <div className={`mt-4 pt-4 border-t ${msg.role === 'user' ? 'border-primary/20' : 'border-white/5'} flex items-center justify-between`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/60' : 'text-slate-500'}`}>
                                                 {msg.role === 'user' ? (msg.isPending ? 'Transmitting...' : 'Authorized Operator') : 'AI Assistant'}
                                             </span>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-background-dark/40' : 'text-slate-600'}`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/40' : 'text-slate-600'}`}>
                                                 {format(new Date(msg.timestamp), 'HH:mm:ss')}
                                             </span>
                                         </div>

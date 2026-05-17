@@ -42,6 +42,12 @@ export default function CaseClient() {
         handleAttachFile, handleDragOver, handleDragLeave, handleDrop,
         handleSaveSummary, executeCommitFile, handleDeleteFile, handleRenameFile,
         handleSendMessage, handleGenerateSummary, handleCloseCase,
+        // Thread system
+        threads, activeThreadId,
+        handleSwitchThread, handleCreateThread, handleRenameThread, handleDeleteThread,
+        renameThreadModalOpen, setRenameThreadModalOpen,
+        threadToRename, setThreadToRename,
+        newThreadTitle, setNewThreadTitle,
         id
     } = useCaseWorkspace();
 
@@ -122,6 +128,16 @@ export default function CaseClient() {
                         onOpenFile={handleOpenFile}
                         chatEndRef={chatEndRef}
                         files={files}
+                        threads={threads}
+                        activeThreadId={activeThreadId}
+                        onSwitchThread={handleSwitchThread}
+                        onCreateThread={handleCreateThread}
+                        onRenameThread={(thread: any) => {
+                            setThreadToRename(thread);
+                            setNewThreadTitle(thread.title);
+                            setRenameThreadModalOpen(true);
+                        }}
+                        onDeleteThread={handleDeleteThread}
                     />
 
                     <CaseRightSidebar 
@@ -167,6 +183,51 @@ export default function CaseClient() {
                         handleSaveSummary(caseSummary || '', 'application/pdf');
                     }}
                 />
+
+                {/* Rename Thread Modal */}
+                <AnimatePresence>
+                    {renameThreadModalOpen && (
+                        <>
+                            <motion.div 
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]" 
+                                onClick={() => setRenameThreadModalOpen(false)} 
+                            />
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[201] w-[420px] premium-glass border border-white/10 rounded-[2rem] p-8 shadow-2xl"
+                            >
+                                <h3 className="text-lg font-black text-white tracking-tightest mb-1">Rename Thread</h3>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Update the conversation identity</p>
+                                <input
+                                    type="text"
+                                    value={newThreadTitle}
+                                    onChange={(e) => setNewThreadTitle(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleRenameThread(); }}
+                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 text-[13px] font-bold text-white outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder-slate-600"
+                                    placeholder="Thread title..."
+                                    autoFocus
+                                />
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <button 
+                                        onClick={() => setRenameThreadModalOpen(false)}
+                                        className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors rounded-xl"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={handleRenameThread}
+                                        className="px-6 py-2.5 bg-primary text-background-dark text-[10px] font-black uppercase tracking-widest rounded-2xl hover:shadow-[0_0_20px_rgba(0,230,118,0.4)] transition-all"
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
 
                 <input 
                     type="file" 

@@ -231,12 +231,23 @@ export interface ICaseFile extends Document {
   uploadedAt: Date
 }
 
+export interface IChatThread extends Document {
+  _id: Types.ObjectId
+  title: string
+  caseId: Types.ObjectId
+  userId: Types.ObjectId
+  isDefault: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface IChatMessage extends Document {
   _id: Types.ObjectId
   content: string
   sender: 'user' | 'ai'
   caseId: Types.ObjectId
   userId: Types.ObjectId
+  threadId?: Types.ObjectId
   timestamp: Date
   metadata?: {
     model?: string

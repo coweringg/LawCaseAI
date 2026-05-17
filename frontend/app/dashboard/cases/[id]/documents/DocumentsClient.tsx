@@ -229,12 +229,10 @@ export default function DocumentsClient() {
 
     const filteredFiles = files.filter(f => {
         const query = searchQuery.trim().toLowerCase();
-        console.log('[SEARCH FILTER DEBUG]', { fileName: f.name, originalName: f.originalName, query });
         const matchesSearch = 
             (f.name && f.name.toLowerCase().includes(query)) ||
             (f.originalName && f.originalName.toLowerCase().includes(query)) ||
             (f.extractedText && f.extractedText.toLowerCase().includes(query));
-        console.log('[SEARCH FILTER DEBUG] Match outcome:', matchesSearch);
         if (!matchesSearch) return false;
 
         if (activeFilter === 'all') return true;

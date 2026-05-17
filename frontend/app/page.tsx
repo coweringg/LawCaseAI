@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 const DashboardPreview = dynamic(() => import('@/components/ui/DashboardPreview'), { ssr: true });
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import AuthRedirect from '@/components/auth/AuthRedirect';
-import { Shield, Gavel, FileText, Zap, CheckCircle2 } from 'lucide-react';
+import { Shield, Gavel, FileText, Zap, CheckCircle2, MessageSquare } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "LawCaseAI - Enterprise AI Legal Case Management",
@@ -124,7 +124,7 @@ export default function HomePage() {
               </p>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
                   title: "AI Document Insights",
@@ -140,6 +140,11 @@ export default function HomePage() {
                   title: "Automated Chronology",
                   desc: "Auto-extract dates from scattered documents to build complete case timelines instantly.",
                   icon: Zap
+                },
+                {
+                  title: "Cross-Thread Intelligence",
+                  desc: "Create multiple sub-chats per case. AI synthesizes context across all threads simultaneously.",
+                  icon: MessageSquare
                 }
               ].map((feature, i) => (
                 <ScrollReveal

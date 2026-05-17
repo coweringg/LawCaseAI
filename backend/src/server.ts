@@ -46,6 +46,7 @@ import supportRoutes from './routes/support.routes'
 import webhookRoutes from './routes/webhook'
 import notificationRoutes from './routes/notification'
 import knowledgeBaseRoutes from './routes/knowledgeBase'
+import chatThreadRoutes from './routes/chatThread'
 import { planRateLimiter } from './middleware/rateLimiter'
 import { errorHandler } from './middleware/errorHandler'
 
@@ -151,6 +152,7 @@ app.use('/api/system', systemRoutes)
 app.use('/api/support', supportRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/knowledge-base', knowledgeBaseRoutes)
+app.use('/api/chat-threads', chatThreadRoutes)
 
 app.use('*', (req: express.Request, res: express.Response) => {
   res.status(404).json({

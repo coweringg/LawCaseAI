@@ -206,9 +206,7 @@ export default function CaseClient() {
                                     onChange={(e) => setNewThreadTitle(e.target.value)}
                                     onKeyDown={(e) => { if (e.key === 'Enter') handleRenameThread(); }}
                                     className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 text-[13px] font-bold text-white outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder-slate-600"
-                                    placeholder="Thread title..."
-                                    autoFocus
-                                />
+                                    placeholder="Thread title..."                                />
                                 <div className="flex justify-end gap-3 mt-6">
                                     <button 
                                         onClick={() => setRenameThreadModalOpen(false)}

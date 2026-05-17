@@ -438,13 +438,6 @@ export default function KnowledgeBaseClient() {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
-                .tracking-tightest { letter-spacing: -0.04em; }
-                .tracking-tighter { letter-spacing: -0.02em; }
-                .shadow-3xl {
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-                }
-            `}</style>
         </DashboardLayout>
     )
 }

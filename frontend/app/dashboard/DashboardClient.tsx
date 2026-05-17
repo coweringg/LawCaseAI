@@ -82,6 +82,8 @@ function DashboardContent() {
   useEffect(() => {
     if (searchParams?.get('status') === 'success' && isAuthenticated && !profileRefreshed.current) {
       profileRefreshed.current = true;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      let isCancelled = false;
       
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
@@ -97,7 +99,11 @@ function DashboardContent() {
       }
       
       const pollProfile = async () => {
+        if (isCancelled) return;
+
         const updatedUser = await fetchProfile();
+        if (isCancelled) return;
+
         const hasPlanChanged = updatedUser && (
             updatedUser.plan !== initialPlan || 
             updatedUser.organizationId !== initialOrgId ||
@@ -119,10 +125,15 @@ function DashboardContent() {
           return;
         }
 
-        setTimeout(pollProfile, 3000);
+        timeoutId = setTimeout(pollProfile, 3000);
       };
 
       pollProfile();
+
+      return () => {
+        isCancelled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
   }, [searchParams, isAuthenticated, user, fetchProfile, fetchDashboardData]);
 

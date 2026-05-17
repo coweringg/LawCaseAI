@@ -165,9 +165,7 @@ export function CaseChat({
                                                             onChange={(e) => setNewThreadTitle(e.target.value)}
                                                             onKeyDown={(e) => { if (e.key === 'Enter') handleCreateThread(); if (e.key === 'Escape') setIsCreatingThread(false); }}
                                                             placeholder="Thread name..."
-                                                            className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-bold text-white outline-none focus:ring-1 focus:ring-primary/30 placeholder-slate-600"
-                                                            autoFocus
-                                                        />
+                                                            className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-bold text-white outline-none focus:ring-1 focus:ring-primary/30 placeholder-slate-600"                                                        />
                                                         <button 
                                                             onClick={handleCreateThread}
                                                             className="px-3 py-2 bg-primary text-background-dark rounded-xl text-[9px] font-black uppercase tracking-wider"

@@ -175,7 +175,7 @@ export default function EventModal({
                                 required
                                 type="text"
                                 value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                                 className="w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-xl outline-none transition-all text-white font-bold placeholder:text-slate-600"
                                 placeholder="e.g., Filing Deadline: Miller vs. Evans"
                             />
@@ -196,7 +196,7 @@ export default function EventModal({
                                         return today.toISOString().split('T')[0];
                                     })()}
                                     value={formData.start}
-                                    onChange={(e) => setFormData({ ...formData, start: e.target.value })}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, start: e.target.value }))}
                                     className="w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-primary/50 rounded-xl outline-none transition-all text-white font-bold [color-scheme:dark]"
                                 />
                             </div>
@@ -209,7 +209,7 @@ export default function EventModal({
                                     disabled={formData.isAllDay}
                                     type="time"
                                     value={formData.startTime}
-                                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                                     className="w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-primary/50 rounded-xl outline-none transition-all text-white font-bold disabled:opacity-30 [color-scheme:dark]"
                                 />
                             </div>
@@ -224,7 +224,7 @@ export default function EventModal({
                                 <div className="relative z-50">
                                     <Select
                                         value={formData.type}
-                                        onChange={(val) => setFormData({ ...formData, type: val })}
+                                        onChange={(val) => setFormData(prev => ({ ...prev, type: val }))}
                                         options={[
                                             { value: 'deadline', label: 'Deadline' },
                                             { value: 'hearing', label: 'Hearing' },
@@ -244,7 +244,7 @@ export default function EventModal({
                                 <div className="relative z-50">
                                     <Select
                                         value={formData.priority}
-                                        onChange={(val) => setFormData({ ...formData, priority: val })}
+                                        onChange={(val) => setFormData(prev => ({ ...prev, priority: val }))}
                                         options={[
                                             { value: 'low', label: 'Low' },
                                             { value: 'medium', label: 'Medium' },
@@ -264,7 +264,7 @@ export default function EventModal({
                             <div className="relative z-40">
                                 <Select
                                     value={formData.caseId}
-                                    onChange={(val) => setFormData({ ...formData, caseId: val })}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, caseId: val }))}
                                     placeholder="No specific case"
                                     options={[
                                         { value: '', label: 'No specific case' },
@@ -289,7 +289,7 @@ export default function EventModal({
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, status: formData.status === 'active' ? 'closed' : 'active' })}
+                                    onClick={() => setFormData(prev => ({ ...prev, status: formData.status === 'active' ? 'closed' : 'active' }))}
                                     className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${formData.status === 'closed'
                                         ? 'bg-primary text-background-dark shadow-lg shadow-primary/20'
                                         : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-background-dark'

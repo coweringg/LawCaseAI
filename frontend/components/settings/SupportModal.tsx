@@ -2,11 +2,17 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Sparkles } from 'lucide-react';
 import React from 'react';
 
+interface SupportData {
+    type: string;
+    subject: string;
+    description: string;
+}
+
 interface SupportModalProps {
     isOpen: boolean;
     onClose: () => void;
-    supportData: any;
-    setSupportData: (data: any) => void;
+    supportData: SupportData;
+    setSupportData: React.Dispatch<React.SetStateAction<SupportData>>;
     onSubmit: (e: React.FormEvent) => void;
     isSubmitting: boolean;
 }
@@ -50,7 +56,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                             <div className="grid grid-cols-2 gap-6">
                                 <button
                                     type="button"
-                                    onClick={() => setSupportData({ ...supportData, type: 'system_error' })}
+                                    onClick={() => setSupportData(prev => ({ ...prev, type: 'system_error' }))}
                                     className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'system_error' ? 'border-rose-500/50 bg-rose-500/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                 >
                                     <span className={`material-icons-round text-2xl ${supportData.type === 'system_error' ? 'text-rose-500' : 'text-slate-600'}`}>report_problem</span>
@@ -58,7 +64,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setSupportData({ ...supportData, type: 'feature_uplink' })}
+                                    onClick={() => setSupportData(prev => ({ ...prev, type: 'feature_uplink' }))}
                                     className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${supportData.type === 'feature_uplink' ? 'border-primary/50 bg-primary/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
                                 >
                                     <span className={`material-icons-round text-2xl ${supportData.type === 'feature_uplink' ? 'text-primary' : 'text-slate-600'}`}>rocket_launch</span>
@@ -72,7 +78,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                                     type="text"
                                     required
                                     value={supportData.subject}
-                                    onChange={(e) => setSupportData({ ...supportData, subject: e.target.value })}
+                                    onChange={(e) => setSupportData(prev => ({ ...prev, subject: e.target.value }))}
                                     className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="Transmission summary..."
                                 />
@@ -84,7 +90,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                                     required
                                     rows={4}
                                     value={supportData.description}
-                                    onChange={(e) => setSupportData({ ...supportData, description: e.target.value })}
+                                    onChange={(e) => setSupportData(prev => ({ ...prev, description: e.target.value }))}
                                     className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold resize-none"
                                     placeholder="Provide technical specifics..."
                                 />

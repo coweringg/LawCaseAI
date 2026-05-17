@@ -152,8 +152,12 @@ function AISetupContent() {
                 <div className="flex justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2026 LawCaseAI Systems Inc. • Professional Intelligence</p>
                     <div className="flex gap-8">
-                        {['Security', 'Privacy', 'Network'].map(item => (
-                            <a key={item} href="#" className="text-[10px] font-black text-slate-500 hover:text-primary transition-colors uppercase tracking-[0.2em]">{item}</a>
+                        {[
+                            { label: 'Security', href: '/settings?tab=security' },
+                            { label: 'Privacy', href: '/privacy' },
+                            { label: 'Network', href: '/dashboard' },
+                        ].map(item => (
+                            <a key={item.label} href={item.href} className="text-[10px] font-black text-slate-500 hover:text-primary transition-colors uppercase tracking-[0.2em]">{item.label}</a>
                         ))}
                     </div>
                 </div>

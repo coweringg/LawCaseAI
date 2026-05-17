@@ -60,7 +60,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                 <input
                                     type="text"
                                     value={profileData.name}
-                                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                    onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
                                     className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="John Doe"
                                     required
@@ -74,7 +74,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                 <input
                                     type="email"
                                     value={profileData.email}
-                                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                    onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
                                     className="relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                     placeholder="john@example.com"
                                     required
@@ -96,7 +96,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ user, updateProf
                                     type="text"
                                     value={profileData.lawFirm}
                                     disabled={!!user?.organizationId}
-                                    onChange={(e) => setProfileData({ ...profileData, lawFirm: e.target.value })}
+                                    onChange={(e) => setProfileData(prev => ({ ...prev, lawFirm: e.target.value }))}
                                     className={`relative w-full px-5 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all font-bold ${
                                         (!!user?.organizationId) 
                                         ? 'text-slate-500 cursor-not-allowed opacity-60' 

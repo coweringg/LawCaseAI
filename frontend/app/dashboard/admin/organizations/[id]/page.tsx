@@ -19,7 +19,7 @@ import {
   Zap
 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface OrgMember {
@@ -67,7 +67,7 @@ export default function OrganizationDetailPage() {
   const [org, setOrg] = useState<OrganizationDetail | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const fetchDetails = async () => {
+  const fetchDetails = useCallback(async () => {
     if (!id) return
     try {
       const res = await api.get(`/admin/organizations/${id}`)
@@ -80,7 +80,7 @@ export default function OrganizationDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => {
     if (!isAuthLoading && (!user || user.role !== 'admin')) {
@@ -91,7 +91,7 @@ export default function OrganizationDetailPage() {
     if (id && user?.role === 'admin') {
       fetchDetails()
     }
-  }, [id, user, isAuthLoading, router])
+  }, [id, user, isAuthLoading, router, fetchDetails])
 
   const [confirmConfig, setConfirmConfig] = useState({
     isOpen: false,
@@ -124,7 +124,7 @@ export default function OrganizationDetailPage() {
       const active = !org.isActive
       const res = await api.patch(`/admin/organizations/${org._id}/status`, { isActive: active })
       if (res.data.success) {
-        setOrg({ ...org, isActive: active })
+        setOrg(prev => prev ? ({ ...prev, isActive: active }) : prev)
         toast.success(`Node ${active ? 'ENABLED' : 'TERMINATED'}`)
       }
     } catch (error) {
@@ -141,7 +141,7 @@ export default function OrganizationDetailPage() {
     try {
       const res = await api.post(`/admin/organizations/${org._id}/extend`, { months: 1 })
       if (res.data.success) {
-        setOrg({ ...org, currentPeriodEnd: res.data.data.currentPeriodEnd })
+        setOrg(prev => prev ? ({ ...prev, currentPeriodEnd: res.data.data.currentPeriodEnd }) : prev)
         toast.success('Lease successfully extended.')
       }
     } catch (error) {
@@ -407,11 +407,6 @@ export default function OrganizationDetailPage() {
         onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
       />
 
-      <style jsx global>{`
-        .tracking-tightest {
-          letter-spacing: -0.06em;
-        }
-      `}</style>
     </DashboardLayout>
   )
 }

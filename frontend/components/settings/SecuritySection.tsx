@@ -66,14 +66,14 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                             <input
                                 type={showPasswords.current ? 'text' : 'password'}
                                 value={passwordData.currentPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                                 className="relative w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-0 focus:border-primary/50 transition-all text-white font-bold"
                                 placeholder="••••••••"
                                 required
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
+                                onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
                                 className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                             >
                                 {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -91,14 +91,14 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                                 <input
                                     type={showPasswords.new ? 'text' : 'password'}
                                     value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                                     className="w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
                                     placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                                    onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
                                     className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"
                                 >
                                     {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -114,14 +114,14 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({ changePassword
                                 <input
                                     type={showPasswords.confirm ? 'text' : 'password'}
                                     value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                                     className="w-full pl-14 pr-14 py-3 bg-black/40 border border-white/10 rounded-2xl focus:border-primary/50 text-white font-bold"
                                     placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                                    onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
                                     className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"
                                 >
                                     {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}

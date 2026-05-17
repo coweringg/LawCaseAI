@@ -4,7 +4,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 import api from '@/lib/api'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 interface AiProvider {
@@ -53,7 +53,7 @@ const AiHealthMonitor = () => {
   const [lastRefreshed, setLastRefreshed] = useState(new Date())
   const [logPage, setLogPage] = useState(1)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const response = await api.get(`/admin/ai-health?logPage=${logPage}&logLimit=10`)
       if (response.data.success) {
@@ -65,7 +65,7 @@ const AiHealthMonitor = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [logPage])
 
   const resolveError = async (id: string) => {
     try {
@@ -81,7 +81,7 @@ const AiHealthMonitor = () => {
     fetchData()
     const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)
-  }, [logPage])
+  }, [fetchData])
 
   if (loading && !data) {
     return (

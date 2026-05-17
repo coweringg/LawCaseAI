@@ -129,12 +129,12 @@ export default function OnboardingClient() {
                             </Link>
                             
                             <div className="mt-12 flex flex-wrap justify-center items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">
-                                <a className="hover:text-primary flex items-center gap-2 transition-colors group" href="#">
+                                <a className="hover:text-primary flex items-center gap-2 transition-colors group" href="/settings?tab=support">
                                     <Calendar size={14} className="group-hover:scale-110 transition-transform" />
                                     Schedule concierge Onboarding
                                 </a>
                                 <div className="w-1.5 h-1.5 bg-slate-800 rounded-full"></div>
-                                <a className="hover:text-primary flex items-center gap-2 transition-colors group" href="#">
+                                <a className="hover:text-primary flex items-center gap-2 transition-colors group" href="/settings?tab=security">
                                     <HelpCircle size={14} className="group-hover:scale-110 transition-transform" />
                                     Security & Access Center
                                 </a>

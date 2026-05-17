@@ -124,9 +124,9 @@ export default function DocumentsClient() {
 
     const toggleSelect = (docId: string) => {
         if (selectedDocs.includes(docId)) {
-            setSelectedDocs(selectedDocs.filter(i => i !== docId));
+            setSelectedDocs(prev => prev.filter(i => i !== docId));
         } else {
-            setSelectedDocs([...selectedDocs, docId]);
+            setSelectedDocs(prev => [...prev, docId]);
         }
     };
 
@@ -160,7 +160,7 @@ export default function DocumentsClient() {
             const res = await api.patch(`/files/${file._id}/star`);
             if (res.data.success) {
                 setFiles(prev => prev.map(f => f._id === file._id ? { ...f, isStarred: !f.isStarred } : f));
-                if (selectedFile?._id === file._id) setSelectedFile({ ...selectedFile, isStarred: !selectedFile.isStarred });
+                if (selectedFile?._id === file._id) setSelectedFile((prev: any) => prev ? ({ ...prev, isStarred: !prev.isStarred }) : prev);
             }
         } catch (error) {
             toast.error('Failed to update star status');
@@ -693,9 +693,7 @@ export default function DocumentsClient() {
                             className="w-full bg-slate-900 border border-white/10 rounded-[1.5rem] px-6 py-4 text-[12px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/10 focus:border-primary/40 outline-none text-white transition-all shadow-2xl"
                             value={newFileName}
                             onChange={(e) => setNewFileName(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') executeRename() }}
-                            autoFocus
-                        />
+                            onKeyDown={(e) => { if (e.key === 'Enter') executeRename() }}                        />
                     </div>
                 </ConfirmModal>
 

@@ -12,15 +12,21 @@ export default function FeaturesClient() {
     useEffect(() => {
         setMounted(true);
         const hash = window.location.hash.replace('#', '');
+        let scrollTimeout: ReturnType<typeof setTimeout> | undefined;
+
         if (hash === 'insights' || hash === 'research' || hash === 'chronology') {
             setActiveTab(hash);
-            setTimeout(() => {
+            scrollTimeout = setTimeout(() => {
                 const element = document.getElementById('feature-demos');
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
                 }
             }, 100);
         }
+
+        return () => {
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+        };
     }, []);
 
     if (!mounted) {

@@ -599,7 +599,7 @@ export function AdminModals(props: AdminModalsProps) {
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Member Identity</label>
                 <Input
                   value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Full Legal Name"
                   required
                   className="bg-black/40 border-white/10 text-white py-4 rounded-2xl focus:border-primary/50"
@@ -610,7 +610,7 @@ export function AdminModals(props: AdminModalsProps) {
                 <Input
                   type="email"
                   value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  onChange={(e) => setEditData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="user@lawfirm.com"
                   required
                   className="bg-black/40 border-white/10 text-white py-4 rounded-2xl focus:border-primary/50"
@@ -622,7 +622,7 @@ export function AdminModals(props: AdminModalsProps) {
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Institutional Affiliation</label>
               <Input
                 value={editData.lawFirm}
-                onChange={(e) => setEditData({ ...editData, lawFirm: e.target.value })}
+                onChange={(e) => setEditData(prev => ({ ...prev, lawFirm: e.target.value }))}
                 placeholder="Law Firm / Department Name"
                 className="bg-black/40 border-white/10 text-white py-4 rounded-2xl focus:border-primary/50"
               />
@@ -633,7 +633,7 @@ export function AdminModals(props: AdminModalsProps) {
               <Input
                 type="password"
                 value={editData.password}
-                onChange={(e) => setEditData({ ...editData, password: e.target.value })}
+                onChange={(e) => setEditData(prev => ({ ...prev, password: e.target.value }))}
                 placeholder="Leave blank for no change"
                 className="bg-black/40 border-white/10 text-white py-4 rounded-2xl focus:border-primary/50"
               />
@@ -646,7 +646,7 @@ export function AdminModals(props: AdminModalsProps) {
                   <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                   <Input
                     value={editData.firmCode}
-                    onChange={(e) => setEditData({ ...editData, firmCode: e.target.value.toUpperCase() })}
+                    onChange={(e) => setEditData(prev => ({ ...prev, firmCode: e.target.value.toUpperCase() }))}
                     placeholder="ENTERPRISE CODE"
                     className="bg-primary/5 border-primary/20 text-primary py-4 pl-12 rounded-2xl focus:border-primary font-mono font-bold tracking-widest"
                   />

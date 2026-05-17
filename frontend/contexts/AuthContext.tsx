@@ -69,6 +69,8 @@ const publicRoutes = [
   "/refund",
 ];
 const restrictedRoutes = ["/pricing", "/about", "/features", "/login"];
+const SAVED_ACCOUNTS_STORAGE_KEY = "lawcase_saved_accounts:v1";
+const LEGACY_SAVED_ACCOUNTS_STORAGE_KEY = "lawcase_saved_accounts";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -101,10 +103,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = async () => {
       await fetchProfile();
 
-      const stored = localStorage.getItem("lawcase_saved_accounts");
+      const stored =
+        localStorage.getItem(SAVED_ACCOUNTS_STORAGE_KEY) ||
+        localStorage.getItem(LEGACY_SAVED_ACCOUNTS_STORAGE_KEY);
       if (stored) {
         try {
-          setSavedAccounts(JSON.parse(stored));
+          const accounts = JSON.parse(stored);
+          setSavedAccounts(accounts);
+          if (!localStorage.getItem(SAVED_ACCOUNTS_STORAGE_KEY)) {
+            localStorage.setItem(SAVED_ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+          }
         } catch (e) {
           console.error("Failed to parse saved accounts");
         }
@@ -208,7 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const saveAccountToLocal = (name: string, email: string) => {
     try {
-      const stored = localStorage.getItem("lawcase_saved_accounts");
+      const stored =
+        localStorage.getItem(SAVED_ACCOUNTS_STORAGE_KEY) ||
+        localStorage.getItem(LEGACY_SAVED_ACCOUNTS_STORAGE_KEY);
       let accounts: SavedAccount[] = stored ? JSON.parse(stored) : [];
 
       accounts = accounts.filter((acc: SavedAccount) => acc.email !== email);
@@ -221,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (accounts.length > 3) accounts = accounts.slice(0, 3);
 
-      localStorage.setItem("lawcase_saved_accounts", JSON.stringify(accounts));
+      localStorage.setItem(SAVED_ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
       setSavedAccounts(accounts);
     } catch (e) {
       console.error("Failed to save account", e);
@@ -272,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const updatedAccounts = [...savedAccounts];
       updatedAccounts.splice(index, 1);
       
-      localStorage.setItem("lawcase_saved_accounts", JSON.stringify(updatedAccounts));
+      localStorage.setItem(SAVED_ACCOUNTS_STORAGE_KEY, JSON.stringify(updatedAccounts));
       setSavedAccounts(updatedAccounts);
     } catch (e) {
       console.error("Failed to remove saved account", e);

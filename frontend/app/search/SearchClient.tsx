@@ -77,9 +77,7 @@ export default function SearchClient() {
                             placeholder="Interrogate your knowledge base using neural natural language..."
                             type="text"
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            autoFocus
-                        />
+                            onChange={(e) => setQuery(e.target.value)}                        />
                         <div className="absolute inset-y-1.5 right-1.5 flex items-center">
                             <button 
                                 onClick={() => performSearch(query)}

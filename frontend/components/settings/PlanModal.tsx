@@ -3,6 +3,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Building, Layers, Loader2 } from 'lucide-react';
 import React from 'react';
 
+interface PaymentData {
+    cardNumber: string;
+    expiry: string;
+    cvc: string;
+    firmName: string;
+}
+
 interface PlanModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -11,13 +18,13 @@ interface PlanModalProps {
     category: 'personal' | 'enterprise';
     setCategory: (category: 'personal' | 'enterprise') => void;
     interval: 'monthly' | 'annual';
-    setInterval: (interval: 'monthly' | 'annual') => void;
+    setBillingInterval: (interval: 'monthly' | 'annual') => void;
     selectedPlanId: string | null;
     setSelectedPlanId: (id: string | null) => void;
     planSeats: number;
     setPlanSeats: (seats: number) => void;
-    paymentData: any;
-    setPaymentData: (data: any) => void;
+    paymentData: PaymentData;
+    setPaymentData: React.Dispatch<React.SetStateAction<PaymentData>>;
     isProcessing: boolean;
     onConfirm: (planId?: string) => void;
     billingInfo: any;
@@ -32,7 +39,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
     category,
     setCategory,
     interval,
-    setInterval,
+    setBillingInterval,
     selectedPlanId,
     setSelectedPlanId,
     planSeats,
@@ -67,10 +74,10 @@ export const PlanModal: React.FC<PlanModalProps> = ({
     React.useEffect(() => {
         if (category === 'personal' && currentUserPlan && currentUserPlan !== 'none') {
             if (interval !== currentUserInterval) {
-                setInterval(currentUserInterval as 'monthly' | 'annual');
+                setBillingInterval(currentUserInterval as 'monthly' | 'annual');
             }
         }
-    }, [category, currentUserPlan, currentUserInterval, interval, setInterval]);
+    }, [category, currentUserPlan, currentUserInterval, interval, setBillingInterval]);
     return (
         <AnimatePresence>
             {isOpen && (
@@ -145,7 +152,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                 <button
                                                     onClick={() => {
                                                         if (category === 'personal' && currentUserPlan && currentUserPlan !== 'none') return;
-                                                        setInterval(interval === 'monthly' ? 'annual' : 'monthly');
+                                                        setBillingInterval(interval === 'monthly' ? 'annual' : 'monthly');
                                                     }}
                                                     disabled={category === 'personal' && !!(currentUserPlan && currentUserPlan !== 'none')}
                                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${interval === 'annual' ? 'bg-primary' : 'bg-slate-800'} ${category === 'personal' && currentUserPlan && currentUserPlan !== 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -289,7 +296,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                                                                     type="text"
                                                                     placeholder="e.g. DARWIN CASE AI SOLUTIONS"
                                                                     value={paymentData.firmName}
-                                                                    onChange={(e) => setPaymentData({ ...paymentData, firmName: e.target.value })}
+                                                                    onChange={(e) => setPaymentData(prev => ({ ...prev, firmName: e.target.value }))}
                                                                     className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-bold text-sm focus:border-primary/50 outline-none placeholder:text-white/20"
                                                                 />
                                                             </div>

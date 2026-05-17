@@ -47,7 +47,7 @@ export default function PrivacyClient() {
               Privacy <span className="text-primary italic">Protocol</span>
             </h1>
             <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
-              Our commitment to the absolute confidentiality and technical security of your firm's legal intelligence and client data.
+              Our commitment to the absolute confidentiality and technical security of your firm&apos;s legal intelligence and client data.
             </p>
             <div className="mt-8 flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500">
               <span>Last Updated: March 10, 2026</span>
@@ -61,12 +61,12 @@ export default function PrivacyClient() {
               { icon: Database, title: 'Data Collection', desc: 'What points we analyze' },
               { icon: Cpu, title: 'AI Systems', desc: 'Secure data processing' },
               { icon: Lock, title: 'Encryption', desc: 'Secure industry protocols' }
-            ].map((item, i) => (
+            ].map((item) => (
               <motion.div
-                key={i}
+                key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * i }}
+                transition={{ delay: 0.1 * ['Data Collection', 'AI Systems', 'Encryption'].indexOf(item.title) }}
                 className="premium-glass p-6 rounded-3xl border border-white/5 hover:border-primary/30 transition-all group"
               >
                 <item.icon className="text-primary mb-4 group-hover:scale-110 transition-transform" size={24} />
@@ -84,7 +84,7 @@ export default function PrivacyClient() {
                   <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Information Architecture</h2>
                 </div>
                 <p className="text-slate-400 leading-relaxed font-medium">
-                  LawCaseAI ("the Service", "we", "our") operates on a principle of "Least-Privilege Discovery." We collect information necessary to deploy and maintain your professional account and data processing infrastructure. This includes:
+                  LawCaseAI (&quot;the Service&quot;, &quot;we&quot;, &quot;our&quot;) operates on a principle of &quot;Least-Privilege Discovery.&quot; We collect information necessary to deploy and maintain your professional account and data processing infrastructure. This includes:
                 </p>
                 <ul className="space-y-4">
                   <li className="flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">

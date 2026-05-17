@@ -3,7 +3,7 @@
 import api from "@/lib/api";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
@@ -36,11 +36,11 @@ function SettingsContent() {
   const pathname = usePathname();
 
   const activeTab = searchParams?.get('tab') || 'profile';
-  const setActiveTab = (id: string) => {
+  const setActiveTab = useCallback((id: string) => {
     const params = new URLSearchParams(searchParams?.toString());
     params.set('tab', id);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  }, [pathname, router, searchParams]);
   const [mounted, setMounted] = useState(false);
   const [paddle, setPaddle] = useState<Paddle>();
 
@@ -118,11 +118,17 @@ function SettingsContent() {
       setActiveTab("profile");
       router.replace("/settings?tab=profile");
     }
-  }, [mounted, user, activeTab, router]);
+  }, [mounted, user, activeTab, router, setActiveTab]);
 
   const hasProcessedSuccess = useRef(false);
   
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let isCancelled = false;
+    const wait = (ms: number) => new Promise<void>((resolve) => {
+      timeoutId = setTimeout(resolve, ms);
+    });
+
     if (mounted && searchParams?.get('openPlan') === "true") {
       const planId = searchParams?.get('planId');
       const tab = searchParams?.get('tab');
@@ -173,15 +179,17 @@ function SettingsContent() {
           let attempts = 0;
           const maxAttempts = 15;
           
-          while (attempts < maxAttempts) {
+          while (!isCancelled && attempts < maxAttempts) {
             updatedUser = await fetchProfile();
             
             if (isOrgTab && updatedUser?.isOrgAdmin) break;
             if (!isOrgTab && updatedUser?.plan !== 'none') break;
             
             attempts++;
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await wait(2000);
           }
+
+          if (isCancelled) return;
 
           await refetchOrg();
           await refetchBilling();
@@ -199,7 +207,12 @@ function SettingsContent() {
         }
       })();
     }
-  }, [mounted, searchParams, user, router, pathname]);
+
+    return () => {
+      isCancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [mounted, searchParams, user, router, pathname, fetchProfile, refetchOrg, refetchBilling, setActiveTab]);
 
   const handleSupportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -410,7 +423,7 @@ function SettingsContent() {
         setActiveTab('account');
         setSubTab('security');
       }
-    }, [activeTab]);
+    }, [activeTab, setActiveTab]);
 
     if (!mounted) return (
         <div className="min-h-screen bg-background-dark flex items-center justify-center">
@@ -585,7 +598,7 @@ function SettingsContent() {
         category={planCategory}
         setCategory={setPlanCategory}
         interval={billingInterval}
-        setInterval={setBillingInterval}
+        setBillingInterval={setBillingInterval}
         selectedPlanId={selectedPlanId}
         setSelectedPlanId={setSelectedPlanId}
         planSeats={planSeats}

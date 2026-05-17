@@ -14,6 +14,33 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.tracking-tightest {
+  letter-spacing: -0.05em;
+}
+
+.tracking-tighter {
+  letter-spacing: -0.02em;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 10px currentColor;
+}
+
+.shadow-3xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
 @layer base {
   body {
     font-family: "Inter", system-ui, sans-serif;

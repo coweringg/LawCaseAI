@@ -380,7 +380,7 @@ const QuotaControl: React.FC = () => {
                             <input 
                                 type="number"
                                 value={editData.maxCases}
-                                onChange={(e) => setEditData({...editData, maxCases: parseInt(e.target.value)})}
+                                onChange={(e) => setEditData(prev => ({ ...prev, maxCases: parseInt(e.target.value) }))}
                                 className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                         </div>
@@ -392,7 +392,7 @@ const QuotaControl: React.FC = () => {
                             <input 
                                 type="number"
                                 value={editData.maxFilesPerCase}
-                                onChange={(e) => setEditData({...editData, maxFilesPerCase: parseInt(e.target.value)})}
+                                onChange={(e) => setEditData(prev => ({ ...prev, maxFilesPerCase: parseInt(e.target.value) }))}
                                 className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                         </div>
@@ -406,7 +406,7 @@ const QuotaControl: React.FC = () => {
                             <input 
                                 type="number"
                                 value={editData.maxTokens}
-                                onChange={(e) => setEditData({...editData, maxTokens: parseInt(e.target.value)})}
+                                onChange={(e) => setEditData(prev => ({ ...prev, maxTokens: parseInt(e.target.value) }))}
                                 className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs uppercase tracking-widest">
@@ -423,7 +423,7 @@ const QuotaControl: React.FC = () => {
                             <input 
                                 type="number"
                                 value={editData.maxTotalStorage}
-                                onChange={(e) => setEditData({...editData, maxTotalStorage: parseInt(e.target.value)})}
+                                onChange={(e) => setEditData(prev => ({ ...prev, maxTotalStorage: parseInt(e.target.value) }))}
                                 className="w-full bg-black/60 border border-white/10 rounded-2xl p-5 text-white font-black text-xl outline-none focus:border-primary/50 shadow-inner"
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs uppercase tracking-widest">

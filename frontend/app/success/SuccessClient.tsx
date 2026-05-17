@@ -179,8 +179,12 @@ function SuccessContent() {
       <footer className="w-full py-12 px-8 text-center relative z-10">
         <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 LawCaseAI Systems • Secure Legal Computing</p>
         <div className="flex justify-center gap-6 mt-4 opacity-40 hover:opacity-100 transition-opacity">
-          {['Privacy', 'Service', 'Compliance'].map(item => (
-            <a key={item} href="#" className="text-[9px] font-black uppercase tracking-widest hover:text-primary transition-colors">{item} Protocol</a>
+          {[
+            { label: 'Privacy', href: '/privacy' },
+            { label: 'Service', href: '/terms' },
+            { label: 'Compliance', href: '/privacy' },
+          ].map(item => (
+            <a key={item.label} href={item.href} className="text-[9px] font-black uppercase tracking-widest hover:text-primary transition-colors">{item.label} Protocol</a>
           ))}
         </div>
       </footer>

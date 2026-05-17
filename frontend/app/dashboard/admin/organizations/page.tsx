@@ -14,7 +14,7 @@ import {
   Terminal
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface OrgAdmin {
@@ -46,7 +46,7 @@ export default function OrganizationsDashboard() {
 
   const [totalCount, setTotalCount] = useState(0)
 
-  const fetchOrganizations = async () => {
+  const fetchOrganizations = useCallback(async () => {
     try {
       const res = await api.get(`/admin/organizations?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}`)
       if (res.data.success) {
@@ -60,7 +60,7 @@ export default function OrganizationsDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filterStatus, page, searchTerm])
 
   useEffect(() => {
     if (!isAuthLoading && (!user || user.role !== 'admin')) {
@@ -71,7 +71,7 @@ export default function OrganizationsDashboard() {
     if (user?.role === 'admin') {
       fetchOrganizations()
     }
-  }, [user, isAuthLoading, router, page, searchTerm, filterStatus])
+  }, [user, isAuthLoading, router, fetchOrganizations])
 
   const getStatus = (org: Organization) => {
     const now = new Date()
@@ -305,14 +305,6 @@ export default function OrganizationsDashboard() {
         </motion.div>
       </div>
 
-      <style jsx global>{`
-        .shadow-glow {
-          box-shadow: 0 0 10px currentColor;
-        }
-        .tracking-tightest {
-          letter-spacing: -0.05em;
-        }
-      `}</style>
     </DashboardLayout>
   )
 }

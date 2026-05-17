@@ -119,9 +119,7 @@ export function CaseModals({
                                     type="text"
                                     value={newFileName}
                                     onChange={(e) => setNewFileName(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === 'Enter') onRenameFile() }}
-                                    autoFocus
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-[12px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-slate-700"
+                                    onKeyDown={(e) => { if (e.key === 'Enter') onRenameFile() }}                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-[12px] font-bold uppercase tracking-wider text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-slate-700"
                                     placeholder="Enter new alias..."
                                 />
                             </div>
@@ -185,9 +183,7 @@ export function CaseModals({
                                     value={commitFileName}
                                     onChange={(e) => setCommitFileName(e.target.value)}
                                     onKeyDown={(e) => { if (e.key === 'Enter') onCommitFile() }}
-                                    placeholder="Use default identifier..."
-                                    autoFocus
-                                    disabled={isSavingSummary}
+                                    placeholder="Use default identifier..."                                    disabled={isSavingSummary}
                                     className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-[12px] font-bold text-white placeholder:text-slate-700 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50"
                                 />
                             </div>

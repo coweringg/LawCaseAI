@@ -577,9 +577,7 @@ export default function CalendarClient() {
                                         <Search size={28} />
                                     </div>
                                     <div className="flex-1">
-                                        <input
-                                            autoFocus
-                                            type="text"
+                                        <input                                            type="text"
                                             placeholder="INITIALIZE DISCOVERY PROTOCOL..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}

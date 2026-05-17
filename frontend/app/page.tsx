@@ -52,10 +52,7 @@ export default function HomePage() {
 
   return (
     <PublicLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       <AuthRedirect />
       <main className="flex-grow bg-background-dark min-h-screen relative overflow-hidden font-sans text-slate-100 selection:bg-primary/30">
         

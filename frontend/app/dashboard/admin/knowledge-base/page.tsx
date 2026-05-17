@@ -663,7 +663,7 @@ export default function KnowledgeBase() {
                         </label>
                         <Input
                             value={uploadData.name}
-                            onChange={(e) => setUploadData({ ...uploadData, name: e.target.value })}
+                            onChange={(e) => setUploadData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="Master Document Title"
                             required
                             className="bg-black/40 border-white/10 text-white p-6 rounded-2xl focus:border-primary/50 transition-all font-medium"
@@ -679,7 +679,7 @@ export default function KnowledgeBase() {
                             <div className="relative z-50">
                                 <Select
                                     value={uploadData.category}
-                                    onChange={(val) => setUploadData({ ...uploadData, category: val as any })}
+                                    onChange={(val) => setUploadData(prev => ({ ...prev, category: val as any }))}
                                     options={[
                                         { value: 'jurisprudence', label: 'Jurisprudence' },
                                         { value: 'contracts', label: 'Contracts' },
@@ -698,7 +698,7 @@ export default function KnowledgeBase() {
                             <div className="relative z-40">
                                 <Select
                                     value={uploadData.assignedTo}
-                                    onChange={(val) => setUploadData({ ...uploadData, assignedTo: val })}
+                                    onChange={(val) => setUploadData(prev => ({ ...prev, assignedTo: val }))}
                                     options={[
                                         { value: 'all', label: 'Global Access' },
                                         ...(organizations?.map(org => ({ value: org._id, label: org.name })) || [])
@@ -718,7 +718,7 @@ export default function KnowledgeBase() {
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={(e) => {
                                 e.preventDefault()
-                                if (e.dataTransfer.files[0]) setUploadData({ ...uploadData, file: e.dataTransfer.files[0] })
+                                if (e.dataTransfer.files[0]) setUploadData(prev => ({ ...prev, file: e.dataTransfer.files[0] }))
                             }}
                         >
                             <div className="space-y-3 text-center">
@@ -731,7 +731,10 @@ export default function KnowledgeBase() {
                                         <input 
                                             type="file" 
                                             className="sr-only" 
-                                            onChange={(e) => e.target.files && setUploadData({ ...uploadData, file: e.target.files[0] })}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) setUploadData(prev => ({ ...prev, file }));
+                                            }}
                                         />
                                     </label>
                                     <p className="pl-2">or carry into vault</p>
@@ -755,7 +758,7 @@ export default function KnowledgeBase() {
 
             <Modal
                 isOpen={confirmModal.open}
-                onClose={() => setConfirmModal({ ...confirmModal, open: false })}
+                onClose={() => setConfirmModal(prev => ({ ...prev, open: false }))}
                 title={confirmModal.title}
                 variant="glass"
                 size="sm"
@@ -774,7 +777,7 @@ export default function KnowledgeBase() {
                     <div className="flex gap-4 pt-4">
                         <Button
                             variant="secondary"
-                            onClick={() => setConfirmModal({ ...confirmModal, open: false })}
+                            onClick={() => setConfirmModal(prev => ({ ...prev, open: false }))}
                             className="flex-1 py-4 bg-white/5 border border-white/10 text-slate-400 font-bold rounded-2xl hover:bg-white/10"
                         >
                             Abort
@@ -783,7 +786,7 @@ export default function KnowledgeBase() {
                             variant="none"
                             onClick={async () => {
                                 await confirmModal.action()
-                                setConfirmModal({ ...confirmModal, open: false })
+                                setConfirmModal(prev => ({ ...prev, open: false }))
                             }}
                             className={cn(
                                 "flex-1 py-4 font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all border border-white/10",

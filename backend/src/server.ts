@@ -6,7 +6,7 @@ import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
-import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3'
+import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3'
 import mongoSanitize from 'express-mongo-sanitize'
 import { connectDatabase } from './config/database'
 import config from './config'
@@ -189,7 +189,7 @@ const checkCloudflareR2Connection = async (): Promise<{ connected: boolean; mess
           secretAccessKey: config.r2.secretAccessKey,
         },
       })
-      await s3Client.send(new ListBucketsCommand({}))
+      await s3Client.send(new HeadBucketCommand({ Bucket: config.r2.bucketName }))
       return { connected: true, message: 'Cloudflare R2 connected' }
     } else {
       return { connected: false, message: 'Cloudflare R2 not configured' }

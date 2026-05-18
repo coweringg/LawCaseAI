@@ -20,6 +20,7 @@ const nextConfig = {
       "'self'",
       "'unsafe-inline'",
       "https://cdn.paddle.com",
+      "https://public.profitwell.com",
       !isProd && "'unsafe-eval'"
     ].filter(Boolean).join(' ');
 
@@ -30,6 +31,7 @@ const nextConfig = {
       "https://sandbox-api.paddle.com",
       "https://sandbox-cdn.paddle.com",
       "https://cdn.paddle.com",
+      "https://public.profitwell.com",
       !isProd && "http://localhost:5000",
       !isProd && "http://127.0.0.1:5000"
     ].filter(Boolean).join(' ');

@@ -1,4 +1,3 @@
-import OpenAI from 'openai'
 import config from '../config'
 import { AiLog, User } from '../models'
 import { IChatResponse } from '../types'
@@ -11,7 +10,9 @@ type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN'
 
 export class AIService {
   private static instance: AIService
-  private openai: OpenAI
+  private apiKey: string
+  private baseURL: string
+  private defaultHeaders: Record<string, string>
   private modelName: string
   
   private circuitState: CircuitState = 'CLOSED'
@@ -21,14 +22,14 @@ export class AIService {
   private readonly COOLDOWN_PERIOD = 30000
 
   private constructor() {
-    this.openai = new OpenAI({
-      apiKey: config.ai.apiKey,
-      baseURL: config.ai.baseURL,
-      defaultHeaders: {
-        "HTTP-Referer": "https://lawcaseai-gamma.vercel.app",
-        "X-Title": "LawCaseAI",
-      }
-    })
+    this.apiKey = config.ai.apiKey
+    this.baseURL = config.ai.baseURL || 'https://openrouter.ai/api/v1'
+    this.defaultHeaders = {
+      "HTTP-Referer": "https://lawcaseai-gamma.vercel.app",
+      "X-Title": "LawCaseAI",
+      "Authorization": `Bearer ${config.ai.apiKey}`,
+      "Content-Type": "application/json"
+    }
     this.modelName = config.ai.model
   }
 
@@ -135,17 +136,28 @@ export class AIService {
         { role: 'user', content: prompt }
       ]
       
-      const response = await this.callWithRetry(() => this.openai.chat.completions.create({
-        model: this.modelName,
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 1000,
-      }))
+      const response = await this.callWithRetry(async () => {
+        const res = await fetch(`${this.baseURL}/chat/completions`, {
+          method: 'POST',
+          headers: this.defaultHeaders,
+          body: JSON.stringify({
+            model: this.modelName,
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 1000,
+          })
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`OpenRouter API error: ${res.status} - ${errText}`);
+        }
+        return res.json() as any;
+      })
 
       const endTime = Date.now()
       const responseTime = endTime - startTime
       
-      const aiResponse = response.choices[0]?.message?.content || 'I apologize, but I could not generate a response at this time.'
+      const aiResponse = response.choices?.[0]?.message?.content || 'I apologize, but I could not generate a response at this time.'
       
       const totalTokens = response.usage?.total_tokens || countTokens(prompt + aiResponse + systemPrompt);
 
@@ -222,20 +234,31 @@ export class AIService {
         }
       }
 
-      const response = await this.callWithRetry(() => this.openai.chat.completions.create({
-        model: this.modelName,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.1,
-        max_tokens: 1500,
-        response_format: { type: 'json_object' }
-      }))
+      const response = await this.callWithRetry(async () => {
+        const res = await fetch(`${this.baseURL}/chat/completions`, {
+          method: 'POST',
+          headers: this.defaultHeaders,
+          body: JSON.stringify({
+            model: this.modelName,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.1,
+            max_tokens: 1500,
+            response_format: { type: 'json_object' }
+          })
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`OpenRouter API error: ${res.status} - ${errText}`);
+        }
+        return res.json() as any;
+      })
 
       const endTime = Date.now()
       const responseTime = endTime - startTime
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const totalTokens = response.usage?.total_tokens || countTokens(documentContent + content);
       
       let analysis
@@ -316,20 +339,31 @@ export class AIService {
         }
       }
 
-      const response = await this.callWithRetry(() => this.openai.chat.completions.create({
-        model: this.modelName,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-        response_format: { type: 'json_object' }
-      }))
+      const response = await this.callWithRetry(async () => {
+        const res = await fetch(`${this.baseURL}/chat/completions`, {
+          method: 'POST',
+          headers: this.defaultHeaders,
+          body: JSON.stringify({
+            model: this.modelName,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000,
+            response_format: { type: 'json_object' }
+          })
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`OpenRouter API error: ${res.status} - ${errText}`);
+        }
+        return res.json() as any;
+      })
 
       const endTime = Date.now()
       const responseTime = endTime - startTime
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const totalTokens = response.usage?.total_tokens || countTokens(globalContext + content);
       
       let analysis

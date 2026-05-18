@@ -100,7 +100,7 @@ export const register = catchAsync(async (req: Request, res: Response): Promise<
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -114,7 +114,7 @@ export const register = catchAsync(async (req: Request, res: Response): Promise<
     res.cookie('saved_tokens', JSON.stringify(savedTokens), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
@@ -188,7 +188,7 @@ export const login = catchAsync(async (req: Request, res: Response): Promise<voi
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -202,7 +202,7 @@ export const login = catchAsync(async (req: Request, res: Response): Promise<voi
     res.cookie('saved_tokens', JSON.stringify(savedTokens), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
@@ -281,7 +281,7 @@ export const loginWithSavedToken = catchAsync(async (req: Request, res: Response
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -289,7 +289,7 @@ export const loginWithSavedToken = catchAsync(async (req: Request, res: Response
     res.cookie('saved_tokens', JSON.stringify(savedTokens), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 365 * 24 * 60 * 60 * 1000
     })
 
@@ -335,7 +335,11 @@ export const logout = catchAsync(async (req: Request, res: Response): Promise<vo
       await User.findByIdAndUpdate(user._id, { $unset: { lastActivity: 1 } })
     }
 
-    res.clearCookie('auth_token')
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    })
 
     res.status(200).json({
       success: true,

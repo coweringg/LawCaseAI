@@ -4,6 +4,7 @@
   "description": "Backend API for LawCaseAI LegalTech SaaS platform",
   "main": "dist/server.js",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "start": "node dist/server.js",
     "dev": "nodemon -r tsconfig-paths/register src/server.ts",
     "dev:simple": "nodemon src/server-simple.ts",

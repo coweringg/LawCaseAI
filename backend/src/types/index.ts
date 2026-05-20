@@ -185,6 +185,7 @@ export interface IUser extends Document {
   maxTotalStorage: number
   maxFilesPerCase: number
   customLimits?: ICustomLimits
+  pinnedCases?: Types.ObjectId[]
   comparePassword(candidatePassword: string): Promise<boolean>
   generateAuthToken(): string
   isAtPlanLimit: boolean
@@ -213,6 +214,7 @@ export interface ICase extends Document {
   totalStorageUsed: number
   closedByUser?: boolean
   summary?: string
+  deletedAt?: Date | null
 }
 
 export interface ICaseFile extends Document {
@@ -228,6 +230,7 @@ export interface ICaseFile extends Document {
   isStarred?: boolean
   extractedText?: string
   isTemporary?: boolean
+  deletedAt?: Date | null
   uploadedAt: Date
 }
 

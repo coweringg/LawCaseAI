@@ -44,13 +44,13 @@ const trackAIUsage = (userId: string | undefined, caseId: string | undefined, to
 };
 
 export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { message, caseId, temporaryFileId, threadId } = req.body
+    const { message, caseId, temporaryFileId, threadId, regenerate } = req.body
  
     if (!message || !caseId) {
         throw new AppError('Both a message and a valid Case ID are required to consult the AI.', 400)
     }
 
-    const currentCase = await Case.findOne({ _id: caseId, userId: req.user?._id })
+    const currentCase = await Case.findOne({ _id: caseId, userId: req.user?._id, deletedAt: null })
     if (!currentCase) {
         throw new AppError('This case could not be found, or you do not have permission to access it.', 404)
     }
@@ -74,15 +74,24 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
         activeThreadId = defaultThread._id;
     }
 
+    if (regenerate && activeThreadId) {
+        await ChatMessage.findOneAndDelete({
+            caseId,
+            userId: req.user?._id,
+            threadId: activeThreadId,
+            sender: 'ai'
+        }).sort({ timestamp: -1 })
+    }
+
     let filesContext = 'No files uploaded yet.'
     const filesToInclude = []
 
     let tempFile = null
     if (temporaryFileId) {
-        tempFile = await CaseFile.findOne({ _id: temporaryFileId, userId: req.user?._id })
+        tempFile = await CaseFile.findOne({ _id: temporaryFileId, userId: req.user?._id, deletedAt: null })
         if (tempFile) filesToInclude.push(tempFile)
     } else {
-        const recentFiles = await CaseFile.find({ caseId, isTemporary: false })
+        const recentFiles = await CaseFile.find({ caseId, isTemporary: false, deletedAt: null })
             .sort({ createdAt: -1 })
             .select('name extractedText type')
             .limit(3)
@@ -148,7 +157,7 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
     const summaryKeywords = /resum|summar|analyz|analiz|explay|detall|expand|key takeaway|puntos clave/i;
     const isSummaryRequest = summaryKeywords.test(message) || summaryKeywords.test(aiRes.response);
     
-    const hasAnyFiles = await CaseFile.countDocuments({ caseId }) > 0;
+    const hasAnyFiles = await CaseFile.countDocuments({ caseId, deletedAt: null }) > 0;
     const shouldSuggestSaving = hasAnyFiles && isSummaryRequest && aiRes.response.length > 300;
     
     let relatedType = tempFile?.type || (filesToInclude.length > 0 ? filesToInclude[0].type : 'text/markdown');
@@ -159,31 +168,33 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
 
     const userTimestamp = new Date()
     const aiTimestamp = new Date(userTimestamp.getTime() + 500)
-    ChatMessage.create([
-        {
+    const messagesToCreate: any[] = []
+    if (!regenerate) {
+        messagesToCreate.push({
             content: message,
             sender: 'user',
             caseId: currentCase._id,
             userId: req.user?._id,
             threadId: activeThreadId,
             timestamp: userTimestamp
-        },
-        {
-            content: aiRes.response,
-            sender: 'ai',
-            caseId: currentCase._id,
-            userId: req.user?._id,
-            threadId: activeThreadId,
-            timestamp: aiTimestamp,
-            metadata: {
-                model: aiRes.model,
-                tokens: aiRes.tokens,
-                responseTime: aiRes.responseTime,
-                suggestsSaving: shouldSuggestSaving,
-                relatedFileType: relatedType
-            }
+        })
+    }
+    messagesToCreate.push({
+        content: aiRes.response,
+        sender: 'ai',
+        caseId: currentCase._id,
+        userId: req.user?._id,
+        threadId: activeThreadId,
+        timestamp: aiTimestamp,
+        metadata: {
+            model: aiRes.model,
+            tokens: aiRes.tokens,
+            responseTime: aiRes.responseTime,
+            suggestsSaving: shouldSuggestSaving,
+            relatedFileType: relatedType
         }
-    ]).catch(() => {});
+    })
+    ChatMessage.create(messagesToCreate).catch(() => {});
 
     const tokensProcessed = aiRes.tokens || countTokens(message);
     trackAIUsage(req.user?._id?.toString(), currentCase._id.toString(), tokensProcessed, 0.1);
@@ -213,12 +224,12 @@ export const chatWithAI = catchAsync(async (req: IAuthRequest, res: Response): P
 export const analyzeCaseFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { fileId } = req.params
 
-    const file = await CaseFile.findOne({ _id: fileId, userId: req.user?._id })
+    const file = await CaseFile.findOne({ _id: fileId, userId: req.user?._id, deletedAt: null })
     if (!file) {
         throw new AppError('The requested file could not be found, or you do not have permission to analyze it.', 404)
     }
 
-    const currentCase = await Case.findById(file.caseId);
+    const currentCase = await Case.findOne({ _id: file.caseId, deletedAt: null });
     if (currentCase) {
          const limits = (config.planLimits as any)[req.user!.plan] || config.planLimits.basic;
          if ((currentCase.totalTokensConsumed || 0) >= limits.maxTokens) {
@@ -280,7 +291,7 @@ export const analyzeCaseFile = catchAsync(async (req: IAuthRequest, res: Respons
 export const getCaseSummary = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { caseId } = req.params
 
-    const currentCase = await Case.findOne({ _id: caseId, userId: req.user?._id })
+    const currentCase = await Case.findOne({ _id: caseId, userId: req.user?._id, deletedAt: null })
     if (!currentCase) {
         throw new AppError('The requested case summary is unavailable.', 404)
     }
@@ -290,7 +301,7 @@ export const getCaseSummary = catchAsync(async (req: IAuthRequest, res: Response
         throw new AppError('AI processing limit reached for this case.', 403)
     }
 
-    const files = await CaseFile.find({ caseId }).select('name extractedText').limit(5)
+    const files = await CaseFile.find({ caseId, deletedAt: null }).select('name extractedText').limit(5)
     const hasFiles = files.length > 0
     const filesSummary = hasFiles 
         ? files.map(f => `- ${f.name}: ${f.extractedText ? f.extractedText.substring(0, 300) + '...' : 'No text content available'}`).join('\n')
@@ -339,7 +350,7 @@ export const getCaseSummary = catchAsync(async (req: IAuthRequest, res: Response
 export const globalAudit = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const userId = req.user?._id
 
-    const cases = await Case.find({ userId, status: 'active' })
+    const cases = await Case.find({ userId, status: 'active', deletedAt: null })
     if (cases.length === 0) {
         res.status(200).json({
             success: true,
@@ -348,7 +359,7 @@ export const globalAudit = catchAsync(async (req: IAuthRequest, res: Response): 
         return
     }
 
-    const files = await CaseFile.find({ userId, isTemporary: false })
+    const files = await CaseFile.find({ userId, isTemporary: false, deletedAt: null, caseId: { $in: cases.map(c => c._id) } })
         .select('name extractedText caseId')
         .limit(15)
         .sort({ createdAt: -1 })

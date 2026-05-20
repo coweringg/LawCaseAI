@@ -5,7 +5,7 @@ import ConfirmModal from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { motion } from 'framer-motion';
-import { ArrowRight, Briefcase, Folder, Loader2, Plus, Scale, Shield } from 'lucide-react';
+import { ArrowRight, Briefcase, Folder, Loader2, Plus, Scale, Shield, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ const getAreaColor = (area: string) => {
 
 export default function CasesClient() {
     const router = useRouter();
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { user, isAuthenticated, isLoading: isAuthLoading, fetchProfile } = useAuth();
     const [cases, setCases] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed' | 'pending'>('all');
@@ -63,35 +63,24 @@ export default function CasesClient() {
         }
     }, [isAuthenticated, isAuthLoading]);
 
+    const pinnedCaseIds = new Set((user?.pinnedCases || []).map((caseId) => caseId.toString()));
+
     const filteredCases = cases.filter(c => {
         if (statusFilter === 'all') return true;
         const s = (c.status || 'active').toLowerCase();
         if (statusFilter === 'pending') return s === 'pending' || s === 'discovery';
         return s === statusFilter;
     }).sort((a, b) => {
+        const pinnedA = pinnedCaseIds.has(a._id);
+        const pinnedB = pinnedCaseIds.has(b._id);
+        if (pinnedA && !pinnedB) return -1;
+        if (!pinnedA && pinnedB) return 1;
         const statusA = (a.status || 'active').toLowerCase();
         const statusB = (b.status || 'active').toLowerCase();
         if (statusA === 'active' && statusB !== 'active') return -1;
         if (statusA !== 'active' && statusB === 'active') return 1;
         return 0;
     });
-
-    const handleReactivateCase = async (e: React.MouseEvent, caseId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            const response = await api.put(`/cases/${caseId}/reactivate`);
-            if (response.data.success) {
-                setCases(cases.map(c => c._id === caseId ? { ...c, status: 'active' } : c));
-                toast.success('Case reactivated successfully');
-            } else {
-                toast.error(response.data.message || 'Failed to reactivate case');
-            }
-        } catch (error: any) {
-            console.error('Error reactivating case:', error);
-            toast.error(error.response?.data?.message || 'Failed to reactivate case. Please check your plan limits.');
-        }
-    };
 
     const handleActivatePendingCase = async (e: React.MouseEvent, caseId: string) => {
         e.preventDefault();
@@ -134,6 +123,17 @@ export default function CasesClient() {
         } finally {
             setIsDeleteModalOpen(false);
             setCaseToDelete(null);
+        }
+    };
+
+    const handleTogglePin = async (e: React.MouseEvent, caseId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            await api.post(`/cases/${caseId}/pin`);
+            await fetchProfile();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update pin');
         }
     };
 
@@ -227,6 +227,7 @@ export default function CasesClient() {
                             const isPending = c.status === 'pending';
                             const isDiscovery = c.status === 'discovery';
                             const isWaitState = isPending || isDiscovery;
+                            const isPinned = pinnedCaseIds.has(c._id);
 
                             return (
                                 <Link href={`/dashboard/cases/${c._id}`} key={c._id} className="group">
@@ -255,16 +256,28 @@ export default function CasesClient() {
                                             `}>
                                                 {getAreaIcon(c.practiceArea)}
                                             </div>
-                                            <span className={`text-[8px] font-black px-4 py-1.5 rounded-full border tracking-[0.15em] uppercase shadow-lg backdrop-blur-md transition-all duration-150 ${c.status === 'active' 
-                                                ? 'bg-primary/10 text-primary border-primary/30 group-hover:bg-primary group-hover:text-background-dark group-hover:border-white/20' 
-                                                : isClosed
-                                                ? 'bg-slate-500/10 text-slate-400 border-white/10' 
-                                                : isPending
-                                                ? 'bg-amber-500/10 text-amber-500 border-amber-500/30 group-hover:bg-amber-500 group-hover:text-background-dark group-hover:border-white/20'
-                                                : 'bg-primary/10 text-primary border-primary/30 group-hover:bg-primary group-hover:text-background-dark group-hover:border-white/20'
-                                                }`}>
-                                                {c.status || 'ACTIVE'}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={(e) => handleTogglePin(e, c._id)}
+                                                    className={`p-2 rounded-xl transition-all border ${isPinned
+                                                        ? 'text-amber-400 bg-amber-400/10 border-amber-400/20 hover:bg-amber-400/20'
+                                                        : 'text-slate-600 border-white/5 hover:text-amber-400 hover:bg-white/5'
+                                                    }`}
+                                                    aria-label={isPinned ? 'Unpin case' : 'Pin case'}
+                                                >
+                                                    <Star size={16} fill={isPinned ? 'currentColor' : 'none'} />
+                                                </button>
+                                                <span className={`text-[8px] font-black px-4 py-1.5 rounded-full border tracking-[0.15em] uppercase shadow-lg backdrop-blur-md transition-all duration-150 ${c.status === 'active'
+                                                    ? 'bg-primary/10 text-primary border-primary/30 group-hover:bg-primary group-hover:text-background-dark group-hover:border-white/20'
+                                                    : isClosed
+                                                    ? 'bg-slate-500/10 text-slate-400 border-white/10'
+                                                    : isPending
+                                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/30 group-hover:bg-amber-500 group-hover:text-background-dark group-hover:border-white/20'
+                                                    : 'bg-primary/10 text-primary border-primary/30 group-hover:bg-primary group-hover:text-background-dark group-hover:border-white/20'
+                                                    }`}>
+                                                    {c.status || 'ACTIVE'}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div className="relative z-10 flex-1 flex flex-col">
@@ -292,20 +305,10 @@ export default function CasesClient() {
                                             </div>
                                             {c.status === 'closed' && (
                                                 <div className="flex flex-wrap items-center gap-2.5 mt-auto pt-2">
-                                                    {!c.closedByUser && (
-                                                        <button 
-                                                            onClick={(e) => handleReactivateCase(e, c._id)}
-                                                            className="text-[9px] font-black uppercase tracking-widest bg-primary/20 hover:bg-primary/40 text-primary px-3.5 py-2 rounded-xl transition-all duration-150 border border-primary/30"
-                                                        >
-                                                            Reactivate Case
-                                                        </button>
-                                                    )}
-                                                    {c.closedByUser && (
-                                                        <span className="flex items-center text-[9px] font-black uppercase tracking-widest text-slate-500 py-2 pr-3">
-                                                            <span className="w-1.5 h-1.5 bg-slate-500 rounded-full mr-2"></span>
-                                                            Permanently Sealed
-                                                        </span>
-                                                    )}
+                                                    <span className="flex items-center text-[9px] font-black uppercase tracking-widest text-slate-500 py-2 pr-3">
+                                                        <span className="w-1.5 h-1.5 bg-slate-500 rounded-full mr-2"></span>
+                                                        Archived Case
+                                                    </span>
                                                     <button 
                                                         onClick={(e) => confirmDeleteCase(e, c._id)}
                                                         className="text-[9px] font-black uppercase tracking-widest bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 px-3.5 py-2 rounded-xl transition-all duration-150 border border-rose-500/30"
@@ -376,7 +379,7 @@ export default function CasesClient() {
                 }}
                 onConfirm={handleDeleteCase}
                 title="Permanently Delete Case?"
-                message="Are you sure you want to permanently obliterate this case? This action cannot be reversed and will eradicate all related documents, communication logs, and extracted intelligence from the Neural Core."
+                message="This closed case and all of its documents, chat history, events, and stored data will be permanently deleted. This action cannot be undone."
                 confirmLabel="Delete Permanently"
                 cancelLabel="Cancel"
                 isDestructive={true}

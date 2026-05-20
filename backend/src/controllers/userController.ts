@@ -44,7 +44,8 @@ export const getProfile = catchAsync(async (req: IAuthRequest, res: Response): P
         expiredPremium: user.expiredPremium,
         expiredTrial: user.expiredTrial,
         willCancelAtPeriodEnd: user.willCancelAtPeriodEnd || false,
-        canceledAt: (user as any).canceledAt
+        canceledAt: (user as any).canceledAt,
+        pinnedCases: user.pinnedCases || []
       }
     } as IApiResponse)
 })
@@ -123,7 +124,8 @@ export const updateProfile = catchAsync(async (req: IAuthRequest, res: Response)
         totalStorageUsed: updatedUser.totalStorageUsed,
         maxTokens: (config.planLimits as any)[updatedUser.plan]?.maxTokens || 0,
         maxTotalStorage: (config.planLimits as any)[updatedUser.plan]?.maxTotalStorage || 0,
-        willCancelAtPeriodEnd: updatedUser.willCancelAtPeriodEnd || false
+        willCancelAtPeriodEnd: updatedUser.willCancelAtPeriodEnd || false,
+        pinnedCases: updatedUser.pinnedCases || []
       }
     } as IApiResponse)
 })

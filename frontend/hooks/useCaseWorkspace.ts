@@ -53,7 +53,9 @@ export function useCaseWorkspace() {
             const response = await api.get(`/cases/${id}`);
             return response.data.data;
         },
-        enabled: !!id && isAuthenticated
+        enabled: !!id && isAuthenticated,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: true
     });
 
     const { data: files = [], isLoading: isFilesLoading } = useQuery({
@@ -62,7 +64,9 @@ export function useCaseWorkspace() {
             const response = await api.get(`/files/case/${id}`);
             return response.data.data || [];
         },
-        enabled: !!id && isAuthenticated
+        enabled: !!id && isAuthenticated,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: true
     });
 
     const { data: threads = [] } = useQuery({
@@ -158,20 +162,26 @@ export function useCaseWorkspace() {
     }, [chatMessages, isLoading]);
 
     const sendMessageMutation = useMutation({
-        mutationFn: async ({ content, tempFileId, threadId }: { content: string, tempFileId: string | null, threadId: string | null }) => {
+        mutationFn: async ({ content, tempFileId, threadId, regenerate }: { content: string, tempFileId: string | null, threadId: string | null, regenerate?: boolean }) => {
             return api.post('/ai/chat', {
                 message: content,
                 caseId: id,
                 temporaryFileId: tempFileId,
-                threadId
+                threadId,
+                regenerate
             });
         },
-        onMutate: async ({ content, threadId }) => {
+        onMutate: async ({ content, threadId, regenerate }) => {
             const qk = ['caseChat', id, threadId];
             await queryClient.cancelQueries({ queryKey: qk });
             const previousChat = queryClient.getQueryData(qk);
-            const userMessage = { role: 'user', content, timestamp: new Date(), isPending: true };
-            queryClient.setQueryData(qk, (old: any) => [...(old || []), userMessage]);
+            queryClient.setQueryData(qk, (old: any) => {
+                const existing = old || [];
+                const withoutLastAi = regenerate && existing[existing.length - 1]?.role === 'ai' ? existing.slice(0, -1) : existing;
+                if (regenerate) return withoutLastAi;
+                const userMessage = { role: 'user', content, timestamp: new Date(), isPending: true };
+                return [...withoutLastAi, userMessage];
+            });
             setUserInput('');
             return { previousChat, threadId };
         },
@@ -397,6 +407,22 @@ export function useCaseWorkspace() {
         sendMessageMutation.mutate({ content, tempFileId, threadId: activeThreadId });
     };
 
+    const handleRegenerateLastMessage = () => {
+        if (isCaseLocked || sendMessageMutation.isPending || !id) return;
+        const lastUserMessage = [...chatMessages].reverse().find((message: any) => message.role === 'user');
+        if (!lastUserMessage?.content) {
+            toast.error('No previous prompt found to regenerate.');
+            return;
+        }
+
+        sendMessageMutation.mutate({
+            content: lastUserMessage.content,
+            tempFileId: null,
+            threadId: activeThreadId,
+            regenerate: true
+        });
+    };
+
     const handleAttachFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (isTrialCase && files.length >= 10) {
             toast.error('Trial limit reached.');
@@ -483,6 +509,7 @@ export function useCaseWorkspace() {
         handleDeleteFile: () => deleteFileMutation.mutate(fileToDelete?._id),
         handleRenameFile: () => renameFileMutation.mutate({ fileId: fileToRename?._id, name: newFileName }),
         handleSendMessage,
+        handleRegenerateLastMessage,
         handleGenerateSummary: () => summaryMutation.mutate(),
         handleCloseCase: () => closeCaseMutation.mutate(),
         id

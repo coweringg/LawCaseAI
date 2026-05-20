@@ -2,8 +2,17 @@
 
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Clock, Edit2, FileText, Hash, Loader2, MessageSquare, Plus, Trash2, X, Zap } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, Clock, Copy, Edit2, FileText, Gavel, GitCompare, Hash, Loader2, MessageSquare, PenTool, Plus, RefreshCw, Trash2, X, Zap } from 'lucide-react';
 import React, { useState } from 'react';
+
+const PROMPT_TEMPLATES = [
+    { label: 'Summarize this case', icon: FileText },
+    { label: 'Find legal risks', icon: AlertTriangle },
+    { label: 'Extract key dates', icon: Clock },
+    { label: 'Identify relevant precedents', icon: Gavel },
+    { label: 'Compare uploaded documents', icon: GitCompare },
+    { label: 'Draft response strategy', icon: PenTool },
+];
 
 interface CaseChatProps {
     chatMessages: any[];
@@ -31,6 +40,7 @@ interface CaseChatProps {
     onCreateThread?: (title: string) => void;
     onRenameThread?: (thread: any) => void;
     onDeleteThread?: (threadId: string) => void;
+    onRegenerateLastMessage?: () => void;
 }
 
 export function CaseChat({
@@ -58,12 +68,14 @@ export function CaseChat({
     onSwitchThread,
     onCreateThread,
     onRenameThread,
-    onDeleteThread
+    onDeleteThread,
+    onRegenerateLastMessage
 }: CaseChatProps) {
     const [isThreadPanelOpen, setIsThreadPanelOpen] = useState(false);
     const [isCreatingThread, setIsCreatingThread] = useState(false);
     const [newThreadTitle, setNewThreadTitle] = useState('');
     const [threadMenuId, setThreadMenuId] = useState<string | null>(null);
+    const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
     const activeThread = threads.find(t => t._id === activeThreadId);
 
@@ -265,15 +277,11 @@ export function CaseChat({
                                 </p>
                             )}
                             <div className="flex flex-wrap justify-center gap-4">
-                                {[
-                                    { label: 'Synthesize Case Overview', icon: FileText, delay: 0 },
-                                    { label: 'Audit Timeline Discrepancies', icon: Clock, delay: 0.1 },
-                                    { label: 'Generate Discovery Report', icon: Zap, delay: 0.2 }
-                                ].map((action, idx) => (
+                                {PROMPT_TEMPLATES.map((action, idx) => (
                                     <motion.button
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: action.delay }}
+                                        transition={{ delay: idx * 0.08 }}
                                         key={idx}
                                         onClick={() => onInputChange(action.label)}
                                         className="px-6 py-3.5 bg-white/[0.03] border border-white/10 rounded-2xl text-[9px] font-black text-slate-400 hover:text-white hover:border-primary/40 hover:bg-white/[0.06] transition-all flex items-center gap-3 uppercase tracking-widest shadow-xl"
@@ -299,9 +307,9 @@ export function CaseChat({
                                             <Zap className="text-primary relative z-10" size={20} />
                                         </div>
                                     )}
-                                    <div className={`max-w-[80%] rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-200 ${msg.role === 'user'
-                                        ? 'bg-[#0B0E14] text-slate-200 rounded-tr-sm border border-primary/30 shadow-[0_0_30px_rgba(0,230,118,0.08)]'
-                                        : 'premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
+                                    <div className={`rounded-[2rem] px-8 py-6 shadow-2xl text-[14px] leading-relaxed relative group transition-all duration-200 ${msg.role === 'user'
+                                        ? 'max-w-[75%] bg-gradient-to-br from-primary/[0.12] to-primary/[0.04] text-white rounded-tr-sm border border-primary/20'
+                                        : 'max-w-[80%] premium-glass border border-white/10 text-slate-200 rounded-tl-sm'
                                         }`}>
                                         {msg.content.includes('[Attached Unit:') ? (
                                             <div className="flex flex-col gap-3">
@@ -332,14 +340,39 @@ export function CaseChat({
                                                 {msg.content}
                                             </p>
                                         )}
-                                        <div className={`mt-4 pt-4 border-t ${msg.role === 'user' ? 'border-primary/20' : 'border-white/5'} flex items-center justify-between`}>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/60' : 'text-slate-500'}`}>
+                                        <div className={`mt-4 pt-3 border-t ${msg.role === 'user' ? 'border-primary/10' : 'border-white/5'} flex items-center justify-between`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/50' : 'text-slate-500'}`}>
                                                 {msg.role === 'user' ? (msg.isPending ? 'Transmitting...' : 'Authorized Operator') : 'AI Assistant'}
                                             </span>
-                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/40' : 'text-slate-600'}`}>
-                                                {format(new Date(msg.timestamp), 'HH:mm:ss')}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        await navigator.clipboard.writeText(msg.content);
+                                                        setCopiedIdx(i);
+                                                        setTimeout(() => setCopiedIdx(null), 2000);
+                                                    }}
+                                                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-600 hover:text-primary transition-all"
+                                                    title="Copy to clipboard"
+                                                >
+                                                    {copiedIdx === i ? <Check size={12} className="text-primary" /> : <Copy size={12} />}
+                                                </button>
+                                                <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'text-primary/40' : 'text-slate-600'}`}>
+                                                    {format(new Date(msg.timestamp), 'HH:mm:ss')}
+                                                </span>
+                                            </div>
                                         </div>
+                                        {msg.role === 'ai' && i === chatMessages.length - 1 && !isSending && !isCaseLocked && onRegenerateLastMessage && (
+                                            <div className="mt-3 pt-3 border-t border-white/5">
+                                                <button
+                                                    onClick={onRegenerateLastMessage}
+                                                    className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-all px-3 py-1.5 rounded-xl hover:bg-white/5"
+                                                >
+                                                    <RefreshCw size={12} />
+                                                    Regenerate Response
+                                                </button>
+                                            </div>
+                                        )}
                                         {msg.suggestsSaving && (
                                             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
                                                 <button
@@ -378,6 +411,20 @@ export function CaseChat({
             </div>
 
             <div className="p-6 border-t border-white/10 bg-white/[0.01] backdrop-blur-3xl z-20">
+                {!isCaseLocked && chatMessages.length > 0 && (
+                    <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-hide pb-1">
+                        {PROMPT_TEMPLATES.map((tpl, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => onInputChange(tpl.label)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-[9px] font-bold text-slate-500 hover:text-white hover:border-primary/40 hover:bg-white/[0.06] transition-all whitespace-nowrap flex-none"
+                            >
+                                <tpl.icon size={12} className="text-primary" />
+                                {tpl.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
                 <div className="relative premium-glass border border-white/10 rounded-[2rem] shadow-2xl focus-within:border-primary/50 transition-all duration-200 group/input flex flex-col">
                     <AnimatePresence>
                         {attachingFile && (

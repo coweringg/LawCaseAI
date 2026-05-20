@@ -17,13 +17,13 @@ export const getEvents = catchAsync(async (req: IAuthRequest, res: Response): Pr
     if (caseId) {
         query.caseId = caseId
     } else {
-        const closedCases = await Case.find({ userId, status: 'closed' }).select('_id').lean()
-        const closedCaseIds = closedCases.map(c => c._id)
-        if (closedCaseIds.length > 0) {
+        const hiddenCases = await Case.find({ userId, $or: [{ status: 'closed' }, { deletedAt: { $ne: null } }] }).select('_id').lean()
+        const hiddenCaseIds = hiddenCases.map(c => c._id)
+        if (hiddenCaseIds.length > 0) {
             query.$or = [
                 { caseId: { $exists: false } },
                 { caseId: null },
-                { caseId: { $nin: closedCaseIds } }
+                { caseId: { $nin: hiddenCaseIds } }
             ]
         }
     }

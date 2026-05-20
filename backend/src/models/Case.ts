@@ -71,6 +71,10 @@ const caseSchema = new Schema<ICase>({
   summary: {
     type: String,
     trim: true
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true,
@@ -79,12 +83,13 @@ const caseSchema = new Schema<ICase>({
 })
 
 caseSchema.index({ userId: 1 })
-caseSchema.index({ userId: 1, status: 1 })
+caseSchema.index({ userId: 1, status: 1, deletedAt: 1 })
 caseSchema.index({ userId: 1, createdAt: -1 })
+caseSchema.index({ userId: 1, deletedAt: 1, createdAt: -1 })
 caseSchema.index({ name: 'text', client: 'text', description: 'text' })
 
 caseSchema.statics.findByUser = function (userId: string, options: { status?: CaseStatus; limit?: number; skip?: number } = {}) {
-  const query: { userId: string; status?: CaseStatus } = { userId }
+  const query: { userId: string; status?: CaseStatus; deletedAt: null } = { userId, deletedAt: null }
 
   if (options.status) {
     query.status = options.status
@@ -97,7 +102,7 @@ caseSchema.statics.findByUser = function (userId: string, options: { status?: Ca
 }
 
 caseSchema.statics.countByUser = function (userId: string, status?: CaseStatus) {
-  const query: { userId: string; status?: CaseStatus } = { userId }
+  const query: { userId: string; status?: CaseStatus; deletedAt: null } = { userId, deletedAt: null }
   if (status) {
     query.status = status
   }

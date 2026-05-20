@@ -28,15 +28,15 @@ export const getDashboardStats = catchAsync(async (req: IAuthRequest, res: Respo
 
     const [caseStats, documentCountResult, recentCases, closedCases] = await Promise.all([
         Case.aggregate([
-            { $match: { userId } },
+            { $match: { userId, deletedAt: null } },
             { $group: { _id: '$status', count: { $sum: 1 } } }
         ]),
         Case.aggregate([
-            { $match: { userId } },
+            { $match: { userId, deletedAt: null } },
             { $group: { _id: null, totalDocuments: { $sum: '$fileCount' } } }
         ]),
-        Case.find({ userId }).sort({ updatedAt: -1 }).limit(3).lean(),
-        Case.find({ userId, status: 'closed' }).select('_id').lean()
+        Case.find({ userId, deletedAt: null }).sort({ updatedAt: -1 }).limit(3).lean(),
+        Case.find({ userId, deletedAt: null, status: 'closed' }).select('_id').lean()
     ])
 
     const closedCaseIds = closedCases.map((c: any) => c._id)
@@ -106,12 +106,15 @@ export const searchGlobal = catchAsync(async (req: IAuthRequest, res: Response):
     }
 
     const safeQuery = escapeRegex(q.trim())
+    const activeCases = await Case.find({ userId, deletedAt: null }).select('_id').lean()
+    const activeCaseIds = activeCases.map(c => c._id)
     const [cases, files] = await Promise.all([
         Case.find({
             userId,
+            deletedAt: null,
             $or: [{ name: { $regex: safeQuery, $options: 'i' } }, { client: { $regex: safeQuery, $options: 'i' } }, { description: { $regex: safeQuery, $options: 'i' } }]
         }).limit(5).select('name client status updatedAt').lean(),
-        CaseFile.find({ userId, originalName: { $regex: safeQuery, $options: 'i' } }).limit(5).select('name originalName type size caseId uploadedAt').lean()
+        CaseFile.find({ userId, caseId: { $in: activeCaseIds }, deletedAt: null, originalName: { $regex: safeQuery, $options: 'i' } }).limit(5).select('name originalName type size caseId uploadedAt').lean()
     ])
 
     res.status(200).json({

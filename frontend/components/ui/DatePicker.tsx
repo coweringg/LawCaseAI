@@ -125,8 +125,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeho
                     w-full flex items-center gap-3 px-3 py-2.5 
                     bg-white/[0.03] border border-white/[0.08] rounded-lg 
                     transition-all text-left
-                    ${isOpen 
-                        ? 'border-primary/40 shadow-[0_0_15px_rgba(0,230,118,0.08)]' 
+                    ${isOpen
+                        ? 'border-primary/40 shadow-[0_0_15px_rgba(0,230,118,0.08)]'
                         : 'hover:border-white/20'
                     }
                 `}
@@ -136,9 +136,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeho
                     {value ? format(new Date(value + 'T12:00:00'), 'MMM d, yyyy') : placeholder}
                 </span>
                 {value && (
-                    <X 
-                        size={12} 
-                        className="ml-auto text-slate-600 hover:text-white transition-colors shrink-0" 
+                    <X
+                        size={12}
+                        className="ml-auto text-slate-600 hover:text-white transition-colors shrink-0"
                         onClick={handleClear}
                     />
                 )}
@@ -206,8 +206,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeho
                                             onClick={(e) => handleSelectDay(day, e)}
                                             className={`
                                                 relative aspect-square flex items-center justify-center text-[11px] font-bold rounded-lg transition-all
-                                                ${isSelected 
-                                                    ? 'bg-primary text-black shadow-[0_0_12px_rgba(0,230,118,0.4)] scale-105 font-black' 
+                                                ${isSelected
+                                                    ? 'bg-primary text-black shadow-[0_0_12px_rgba(0,230,118,0.4)] scale-105 font-black'
                                                     : isOutsideMonth
                                                         ? 'text-slate-800'
                                                         : isDisabled

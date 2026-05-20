@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createCase, deleteCase, getCaseById, getCases, getCaseStats, reactivateCase, updateCase } from '../controllers/caseController'
+import { createCase, deleteCase, getCaseById, getCases, getCaseStats, togglePinCase, updateCase } from '../controllers/caseController'
 import { authenticate } from '../middleware/auth'
 import { checkAndResetQuotas } from '../middleware/quotaResetMiddleware'
 import { validateZod } from '../middleware/validateZod'
@@ -29,9 +29,9 @@ router.put('/:id',
   updateCase
 )
 
-router.put('/:id/reactivate',
+router.post('/:id/pin',
   validateZod({ params: caseParamsSchema }),
-  reactivateCase
+  togglePinCase
 )
 
 router.delete('/:id',

@@ -7,7 +7,7 @@ import { IApiResponse, IAuthRequest } from '../types'
 import AppError from '../utils/appError'
 import { logAction } from '../utils/auditLogger'
 import catchAsync from '../utils/catchAsync'
-import { deleteFromStorage, generateFileKey, getPresignedDownloadUrl, saveFileToStorage } from '../utils/fileUpload'
+import { generateFileKey, getPresignedDownloadUrl, saveFileToStorage } from '../utils/fileUpload'
 import { cleanExtractedText, extractTextFromPDF, extractTextFromPlainText } from '../utils/pdfUtils'
 
 export const uploadFile = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
@@ -20,7 +20,7 @@ export const uploadFile = catchAsync(async (req: IAuthRequest, res: Response): P
         throw new AppError('Unable to upload file. Please ensure you have selected a valid file and case.', 400)
     }
 
-    const lawyerCase = await Case.findOne({ _id: caseId, userId })
+    const lawyerCase = await Case.findOne({ _id: caseId, userId, deletedAt: null })
     if (!lawyerCase) {
         throw new AppError('The specified case could not be found for file association.', 404)
     }
@@ -103,9 +103,15 @@ export const getCaseFiles = catchAsync(async (req: IAuthRequest, res: Response):
         throw new AppError('Unauthorized', 401)
     }
 
+    const lawyerCase = await Case.findOne({ _id: caseId, userId, deletedAt: null })
+    if (!lawyerCase) {
+        throw new AppError('Case not found', 404)
+    }
+
     const files = await CaseFile.find({ 
         caseId, 
         userId, 
+        deletedAt: null,
         $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] 
     }).sort({ createdAt: -1 })
 
@@ -131,13 +137,13 @@ export const deleteFile = catchAsync(async (req: IAuthRequest, res: Response): P
         throw new AppError('Unauthorized', 401)
     }
 
-    const file = await CaseFile.findOne({ _id: fileId, userId })
+    const file = await CaseFile.findOne({ _id: fileId, userId, deletedAt: null })
     if (!file) {
         throw new AppError('File not found', 404)
     }
 
-    await deleteFromStorage(file.key)
-    await CaseFile.deleteOne({ _id: fileId })
+    file.deletedAt = new Date()
+    await file.save()
 
     if (!file.isTemporary) {
         await Case.updateOne({ _id: file.caseId }, { $inc: { fileCount: -1, totalStorageUsed: -file.size } })
@@ -152,12 +158,12 @@ export const deleteFile = catchAsync(async (req: IAuthRequest, res: Response): P
         targetType: 'case',
         category: 'platform',
         action: 'FILE_DELETED',
-        description: `User deleted file "${file.name}"`
+        description: `User moved file "${file.name}" to trash`
     })
 
     res.status(200).json({
         success: true,
-        message: 'File deleted successfully'
+        message: 'File moved to trash successfully'
     } as IApiResponse)
 })
 
@@ -169,18 +175,14 @@ export const deleteMultipleFiles = catchAsync(async (req: IAuthRequest, res: Res
         throw new AppError('Invalid or empty file collection', 400)
     }
 
-    const files = await CaseFile.find({ _id: { $in: fileIds }, userId })
+    const files = await CaseFile.find({ _id: { $in: fileIds }, userId, deletedAt: null })
     if (files.length === 0) {
         throw new AppError('No valid units found for purging', 404)
     }
 
     const caseIds = [...new Set(files.map(f => f.caseId.toString()))]
 
-    for (const file of files) {
-        await deleteFromStorage(file.key)
-    }
-
-    await CaseFile.deleteMany({ _id: { $in: fileIds }, userId })
+    await CaseFile.updateMany({ _id: { $in: fileIds }, userId, deletedAt: null }, { $set: { deletedAt: new Date() } })
 
     for (const cId of caseIds) {
         const caseFiles = files.filter(f => f.caseId.toString() === cId && !f.isTemporary)
@@ -200,12 +202,12 @@ export const deleteMultipleFiles = catchAsync(async (req: IAuthRequest, res: Res
         targetType: 'case',
         category: 'platform',
         action: 'BULK_FILE_DELETED',
-        description: `User performed bulk purge of ${files.length} units`
+        description: `User moved ${files.length} units to trash`
     })
 
     res.status(200).json({
         success: true,
-        message: `${files.length} units successfully purged from repository`
+        message: `${files.length} units moved to trash`
     } as IApiResponse)
 })
 
@@ -218,7 +220,7 @@ export const renameFile = catchAsync(async (req: IAuthRequest, res: Response): P
         throw new AppError('File ID and new name are required', 400)
     }
 
-    const file = await CaseFile.findOne({ _id: fileId, userId })
+    const file = await CaseFile.findOne({ _id: fileId, userId, deletedAt: null })
     if (!file) {
         throw new AppError('File not found', 404)
     }
@@ -256,7 +258,7 @@ export const toggleStarFile = catchAsync(async (req: IAuthRequest, res: Response
         throw new AppError('Unauthorized', 401)
     }
 
-    const file = await CaseFile.findOne({ _id: fileId, userId })
+    const file = await CaseFile.findOne({ _id: fileId, userId, deletedAt: null })
     if (!file) {
         throw new AppError('File not found', 404)
     }
@@ -282,7 +284,7 @@ export const commitFile = catchAsync(async (req: IAuthRequest, res: Response): P
         throw new AppError('File ID is required to commit.', 400)
     }
 
-    const file = await CaseFile.findOne({ _id: fileId, userId })
+    const file = await CaseFile.findOne({ _id: fileId, userId, deletedAt: null })
     if (!file) {
         throw new AppError('File not found', 404)
     }
@@ -291,7 +293,7 @@ export const commitFile = catchAsync(async (req: IAuthRequest, res: Response): P
         throw new AppError('File is already saved to documents.', 400)
     }
 
-    const lawyerCase = await Case.findOne({ _id: file.caseId, userId })
+    const lawyerCase = await Case.findOne({ _id: file.caseId, userId, deletedAt: null })
     if (!lawyerCase) {
          throw new AppError('Associated case not found.', 404)
     }
@@ -356,7 +358,7 @@ export const createFileFromText = catchAsync(async (req: IAuthRequest, res: Resp
         throw new AppError('Case ID, name, and content are required.', 400)
     }
 
-    const lawyerCase = await Case.findOne({ _id: caseId, userId })
+    const lawyerCase = await Case.findOne({ _id: caseId, userId, deletedAt: null })
     if (!lawyerCase) {
         throw new AppError('Case not found.', 404)
     }

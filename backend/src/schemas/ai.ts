@@ -8,7 +8,8 @@ export const chatSchema = z.object({
     .max(5000, 'Message cannot exceed 5000 characters'),
   caseId: mongoIdSchema.nullable().optional(),
   temporaryFileId: mongoIdSchema.nullable().optional(),
-  threadId: mongoIdSchema.nullable().optional()
+  threadId: mongoIdSchema.nullable().optional(),
+  regenerate: z.boolean().optional()
 })
 
 export const analyzeParamsSchema = z.object({

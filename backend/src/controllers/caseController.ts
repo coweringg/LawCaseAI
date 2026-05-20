@@ -123,7 +123,7 @@ export const getCases = catchAsync(async (req: IAuthRequest, res: Response): Pro
       const diffInHours = (new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60)
       if (diffInHours >= 24) {
         await Case.updateMany(
-          { userId, isTrialCase: true, status: CaseStatus.ACTIVE },
+          { userId, isTrialCase: true, status: CaseStatus.ACTIVE, deletedAt: null },
           { $set: { status: CaseStatus.CLOSED } }
         )
       }
@@ -131,6 +131,7 @@ export const getCases = catchAsync(async (req: IAuthRequest, res: Response): Pro
 
     const filter: Record<string, unknown> = { 
       userId,
+      deletedAt: null,
       status: { $ne: CaseStatus.DELETED }
     }
     if (status && Object.values(CaseStatus).includes(status as CaseStatus)) {
@@ -162,7 +163,7 @@ export const getCaseStats = catchAsync(async (req: IAuthRequest, res: Response):
     }
 
     const stats = await Case.aggregate([
-      { $match: { userId, status: { $ne: CaseStatus.DELETED } } },
+      { $match: { userId, deletedAt: null, status: { $ne: CaseStatus.DELETED } } },
       {
         $group: {
           _id: '$status',
@@ -199,7 +200,7 @@ export const getCaseById = catchAsync(async (req: IAuthRequest, res: Response): 
       throw new AppError('Unauthorized', 401)
     }
 
-    const caseData = await Case.findOne({ _id: id, userId })
+    const caseData = await Case.findOne({ _id: id, userId, deletedAt: null })
 
     if (caseData && caseData.isTrialCase && caseData.status === CaseStatus.ACTIVE) {
       const user = await User.findById(userId)
@@ -233,7 +234,7 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
       throw new AppError('Unauthorized', 401)
     }
 
-    const currentCase = await Case.findOne({ _id: id, userId })
+    const currentCase = await Case.findOne({ _id: id, userId, deletedAt: null })
     if (!currentCase) {
       throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
@@ -274,6 +275,9 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
           link: '/cases'
         })
       } else if (status === CaseStatus.ACTIVE) {
+        if (currentCase.status === CaseStatus.CLOSED) {
+          throw new AppError('Closed cases cannot be reactivated. Create a new case to continue working.', 403)
+        }
         allowedUpdates.closedAt = null
         allowedUpdates.closedByUser = false
       }
@@ -284,7 +288,7 @@ export const updateCase = catchAsync(async (req: IAuthRequest, res: Response): P
     }
 
     const updatedCase = await Case.findOneAndUpdate(
-      { _id: id, userId },
+      { _id: id, userId, deletedAt: null },
       { $set: allowedUpdates },
       { new: true, runValidators: true }
     )
@@ -349,53 +353,50 @@ export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): P
       throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
     }
 
-    const caseToDelete = await Case.findOne({ _id: id, userId })
+    const caseToDelete = await Case.findOne({ _id: id, userId, deletedAt: null })
     if (!caseToDelete) {
       throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
     }
 
     if (caseToDelete.status !== CaseStatus.CLOSED) {
-      throw new AppError('Protocol violation: Only permanently sealed workspaces can be purged from the system.', 400)
+      throw new AppError('Only closed cases can be permanently deleted.', 400)
     }
 
     const files = await CaseFile.find({ caseId: id, userId })
-    let totalFreedStorage = 0
+    const totalFreedStorage = files.reduce((sum, file) => sum + (!file.isTemporary && file.size && !file.deletedAt ? file.size : 0), 0)
     for (const file of files) {
       if (file.key) {
         try {
           await deleteFromStorage(file.key)
-        } catch (storageError) {
+        } catch {
         }
       }
-      if (!file.isTemporary && file.size) {
-        totalFreedStorage += file.size
-      }
     }
-
-    await CaseFile.deleteMany({ caseId: id, userId })
-    await ChatMessage.deleteMany({ caseId: id, userId })
-    await ChatThread.deleteMany({ caseId: id, userId })
-    await Event.deleteMany({ caseId: id, userId })
 
     if (totalFreedStorage > 0) {
       await User.updateOne({ _id: userId }, { $inc: { totalStorageUsed: -totalFreedStorage } })
     }
 
-    const deletedCase = await Case.findOneAndDelete({ _id: id, userId })
+    await Promise.all([
+      CaseFile.deleteMany({ caseId: id, userId }),
+      ChatMessage.deleteMany({ caseId: id, userId }),
+      ChatThread.deleteMany({ caseId: id, userId }),
+      Event.deleteMany({ caseId: id, userId }),
+      User.updateOne({ _id: userId }, { $pull: { pinnedCases: id } }),
+      Case.deleteOne({ _id: id, userId })
+    ])
 
-    if (deletedCase) {
-      await logAction({
-        adminId: user._id,
-        adminName: user.name,
-        targetId: deletedCase._id,
-        targetName: deletedCase.name,
-        targetType: 'case',
-        category: 'platform',
-        action: 'CASE_DELETED',
-        before: { email: user.email, name: deletedCase.name },
-        description: `User ${user.email} permanently deleted closed case: ${deletedCase.name} and all its associated data.`
-      })
-    }
+    await logAction({
+      adminId: user._id,
+      adminName: user.name,
+      targetId: caseToDelete._id,
+      targetName: caseToDelete.name,
+      targetType: 'case',
+      category: 'platform',
+      action: 'CASE_DELETED',
+      before: { email: user.email, name: caseToDelete.name },
+      description: `User ${user.email} permanently deleted closed case "${caseToDelete.name}" and its associated data.`
+    })
 
     res.status(200).json({
       success: true,
@@ -403,7 +404,7 @@ export const deleteCase = catchAsync(async (req: IAuthRequest, res: Response): P
     } as IApiResponse)
 })
 
-export const reactivateCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
+export const togglePinCase = catchAsync(async (req: IAuthRequest, res: Response): Promise<void> => {
     const { id } = req.params
     const userId = req.user?._id
 
@@ -411,76 +412,31 @@ export const reactivateCase = catchAsync(async (req: IAuthRequest, res: Response
       throw new AppError('Unauthorized', 401)
     }
 
-    const currentCase = await Case.findOne({ _id: id, userId })
-    if (!currentCase) {
-      throw new AppError('Resource unavailable: The requested case matrix could not be located.', 404)
-    }
-
-    if (currentCase.status !== CaseStatus.CLOSED) {
-      throw new AppError('Protocol violation: Only closed workspaces are eligible for reactivation sequence.', 400)
-    }
-
-    if (currentCase.closedByUser) {
-      throw new AppError('Access restricted: This workspace was permanently sealed by an operator and cannot be restored. Initialize a new case to proceed.', 403)
+    const caseDoc = await Case.findOne({ _id: id, userId, deletedAt: null })
+    if (!caseDoc) {
+      throw new AppError('Case not found', 404)
     }
 
     const user = await User.findById(userId)
     if (!user) {
-      throw new AppError('Identity not found: The specified operator profile does not exist.', 404)
+      throw new AppError('User not found', 404)
     }
 
-    if (user.plan === UserPlan.NONE) {
-      throw new AppError('Operation denied: An active subscription matrix is required to reactivate suspended workspaces.', 403)
+    const pinnedCases = user.pinnedCases || []
+    const isPinned = pinnedCases.some(pid => pid.toString() === id)
+
+    if (isPinned) {
+      await User.updateOne({ _id: userId }, { $pull: { pinnedCases: id } })
+    } else {
+      if (pinnedCases.length >= 10) {
+        throw new AppError('Maximum of 10 pinned cases allowed', 400)
+      }
+      await User.updateOne({ _id: userId }, { $addToSet: { pinnedCases: id } })
     }
-
-    const maxAllowedCases = user.maxCases || user.planLimit
-    if (user.currentCases >= maxAllowedCases) {
-      throw new AppError(`Capacity error: Maximum workspace allocation for the ${user.plan} tier (${maxAllowedCases} cases) reached. Infrastructure upgrade required.`, 403)
-    }
-
-    currentCase.status = CaseStatus.ACTIVE
-    currentCase.closedAt = undefined
-    
-    const periodStart = user.currentPeriodStart ? new Date(user.currentPeriodStart) : new Date()
-
-    await User.updateOne({ _id: userId }, { $inc: { currentCases: 1 } })
-    currentCase.lastActivationPeriodStart = periodStart
-
-    if (currentCase.isTrialCase) {
-      currentCase.isTrialCase = false
-    }
-
-    await currentCase.save()
-
-    await Event.updateMany(
-      { caseId: id, userId, status: 'closed' },
-      { $set: { status: 'active' } }
-    )
-
-    await createNotification({
-      userId,
-      title: 'Case Reactivated',
-      message: `Case "${currentCase.name}" is now active again. Archived events have been restored.`,
-      type: NotificationType.CASE_UPDATE,
-      priority: NotificationPriority.MEDIUM,
-      link: `/cases/${id}`
-    })
-
-    await logAction({
-      adminId: user._id,
-      adminName: user.name,
-      targetId: currentCase._id,
-      targetName: currentCase.name,
-      targetType: 'case',
-      category: 'platform',
-      action: 'STATUS_CHANGE',
-      after: { status: CaseStatus.ACTIVE, email: user.email },
-      description: `User ${user.email} reactivated case: "${currentCase.name}"`
-    })
 
     res.status(200).json({
       success: true,
-      message: 'Case reactivated successfully',
-      data: currentCase
+      message: isPinned ? 'Case unpinned' : 'Case pinned',
+      data: { isPinned: !isPinned }
     } as IApiResponse)
 })

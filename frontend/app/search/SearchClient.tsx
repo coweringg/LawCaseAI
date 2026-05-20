@@ -14,7 +14,7 @@ export default function SearchClient() {
     const { user } = useAuth();
     const searchParams = useSearchParams();
     const initialQuery = searchParams?.get('q') || '';
-    
+
     const [query, setQuery] = useState(initialQuery);
     const [results, setResults] = useState<{ cases: any[], files: any[] }>({ cases: [], files: [] });
     const [isLoading, setIsLoading] = useState(false);
@@ -49,9 +49,9 @@ export default function SearchClient() {
     const totalResults = results.cases.length + results.files.length;
 
     if (!mounted) return (
-      <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary h-12 w-12" />
-      </div>
+        <div className="min-h-screen bg-[#05060a] flex items-center justify-center">
+            <Loader2 className="animate-spin text-primary h-12 w-12" />
+        </div>
     );
 
     return (
@@ -60,7 +60,6 @@ export default function SearchClient() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-            {/* Header */}
             <header className="sticky top-0 z-50 bg-[#080a10]/80 backdrop-blur-2xl border-b border-white/5">
                 <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center gap-6 lg:gap-10">
                     <Link href="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 hover:opacity-80 transition-opacity">
@@ -77,9 +76,10 @@ export default function SearchClient() {
                             placeholder="Interrogate your knowledge base using neural natural language..."
                             type="text"
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}                        />
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
                         <div className="absolute inset-y-1.5 right-1.5 flex items-center">
-                            <button 
+                            <button
                                 onClick={() => performSearch(query)}
                                 className="bg-primary text-background-dark h-full px-6 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,230,118,0.3)]"
                             >
@@ -100,11 +100,9 @@ export default function SearchClient() {
                 </div>
             </header>
 
-            {/* Main Content */}
             <div className="flex-1 overflow-y-auto scrollbar-hide relative z-10">
                 <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 lg:py-12">
-                    
-                    {/* Breadcrumb + Title */}
+
                     <div className="mb-10">
                         <nav className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
                             <Link href="/dashboard" className="hover:text-white transition-colors">Operational Command</Link>
@@ -132,7 +130,6 @@ export default function SearchClient() {
                         )}
                     </div>
 
-                    {/* Empty State */}
                     {!query && (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] border border-white/5 flex items-center justify-center mb-10 relative">
@@ -146,7 +143,6 @@ export default function SearchClient() {
                         </div>
                     )}
 
-                    {/* Results Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                         {isLoading ? (
                             <>
@@ -174,7 +170,7 @@ export default function SearchClient() {
                                         <AnimatePresence>
                                             {results.cases.map((c, i) => (
                                                 <Link key={i} href={`/dashboard/cases/${c.id}`}>
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ opacity: 0, y: 15 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: i * 0.05 }}
@@ -210,7 +206,7 @@ export default function SearchClient() {
                                         <AnimatePresence>
                                             {results.files.map((f, i) => (
                                                 <Link key={i} href={`/dashboard/cases/${f.caseId}`}>
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ opacity: 0, y: 15 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: i * 0.05 }}
@@ -236,7 +232,6 @@ export default function SearchClient() {
                         )}
                     </div>
 
-                    {/* No Results */}
                     {query && !isLoading && totalResults === 0 && (
                         <div className="py-20 text-center">
                             <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center mx-auto mb-6">

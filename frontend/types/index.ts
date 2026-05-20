@@ -3,8 +3,8 @@ export interface User {
   email: string
   name: string
   lawFirm?: string
-  role: 'lawyer' | 'admin'
-  plan: 'none' | 'basic' | 'professional' | 'elite' | 'enterprise'
+  role: 'lawyer' | 'admin' | 'org_admin'
+  plan: 'none' | 'basic' | 'professional' | 'elite' | 'enterprise' | 'trial'
   planLimit: number
   currentCases: number
   createdAt: string
@@ -24,6 +24,7 @@ export interface User {
   expiredTrial?: boolean
   willCancelAtPeriodEnd?: boolean
   paddleSubscriptionId?: string
+  pinnedCases?: string[]
 }
 
 export interface DashboardStats {

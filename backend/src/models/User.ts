@@ -173,7 +173,11 @@ const userSchema = new Schema<IUser>({
     maxTokens: Number,
     maxTotalStorage: Number,
     maxFilesPerCase: Number
-  }
+  },
+  pinnedCases: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Case'
+  }]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

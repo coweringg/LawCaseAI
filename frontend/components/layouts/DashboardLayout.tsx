@@ -7,7 +7,7 @@ import api from '@/lib/api';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname as useAppPathname, useRouter as useAppRouter } from 'next/navigation';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -59,9 +59,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isExpirationModalOpen, setIsExpirationModalOpen] = useState(false);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
     useEffect(() => {
@@ -495,6 +508,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     <div className="relative group hidden md:block">
                                         <span className="absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 material-icons-round text-slate-500 text-lg lg:text-xl group-focus-within:text-primary transition-all duration-500">search</span>
                                         <input
+                                            ref={searchInputRef}
                                             className="pl-12 lg:pl-16 pr-20 lg:pr-32 py-2.5 lg:py-3 w-[180px] lg:w-[350px] xl:w-[450px] bg-white/[0.03] border border-white/10 rounded-[2rem] text-[10px] lg:text-[11px] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white/[0.06] placeholder-slate-600 transition-all duration-500 outline-none text-white font-black tracking-[0.2em] shadow-inner shadow-black/20"
                                             placeholder="Audit Core Intelligence..."
                                             type="text"
@@ -509,6 +523,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                 }
                                             }}
                                         />
+                                        <span className="hidden lg:flex absolute right-28 top-1/2 -translate-y-1/2 items-center gap-1 text-[9px] font-bold text-slate-600 bg-white/5 px-2 py-1 rounded-lg border border-white/5 pointer-events-none">
+                                            Ctrl K
+                                        </span>
                                         
                                         <button 
                                             onClick={() => {

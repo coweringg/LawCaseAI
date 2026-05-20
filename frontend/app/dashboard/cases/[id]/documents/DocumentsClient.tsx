@@ -23,6 +23,7 @@ import {
   Image,
   List as ListIcon,
   Loader2,
+  RotateCcw,
   Search,
   Shield,
   Star,
@@ -34,6 +35,7 @@ import {
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 
 export default function DocumentsClient() {
@@ -59,6 +61,9 @@ export default function DocumentsClient() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<any>(null);
     const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+    const [deletedModalOpen, setDeletedModalOpen] = useState(false);
+    const [deletedFiles, setDeletedFiles] = useState<any[]>([]);
+    const [isLoadingDeleted, setIsLoadingDeleted] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -108,6 +113,7 @@ export default function DocumentsClient() {
             if (data.success) {
                 toast.success('File uploaded successfully');
                 fetchFiles();
+                queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -132,6 +138,61 @@ export default function DocumentsClient() {
 
     const handleFileClick = (file: any) => {
         setSelectedFile(file);
+    };
+
+    const fetchDeletedFiles = useCallback(async () => {
+        if (!id || !isAuthenticated) return;
+        setIsLoadingDeleted(true);
+        try {
+            const response = await api.get(`/trash/case/${id}`);
+            if (response.data.success) {
+                setDeletedFiles(response.data.data.files || []);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to load deleted files');
+        } finally {
+            setIsLoadingDeleted(false);
+        }
+    }, [id, isAuthenticated]);
+
+    const openDeletedModal = async () => {
+        setDeletedModalOpen(true);
+        await fetchDeletedFiles();
+    };
+
+    const restoreDeletedFile = async (fileId: string) => {
+        setIsProcessing(true);
+        try {
+            const response = await api.post(`/trash/restore/file/${fileId}`);
+            if (response.data.success) {
+                toast.success('File restored');
+                await Promise.all([fetchFiles(), fetchDeletedFiles()]);
+                queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
+                queryClient.invalidateQueries({ queryKey: ['case', id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+                queryClient.invalidateQueries({ queryKey: ['billing'] });
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Restore failed');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const permanentlyDeleteFile = async (fileId: string) => {
+        if (!window.confirm('Permanently delete this file? This cannot be undone.')) return;
+        setIsProcessing(true);
+        try {
+            const response = await api.delete(`/trash/permanent/file/${fileId}`);
+            if (response.data.success) {
+                toast.success('File permanently deleted');
+                await fetchDeletedFiles();
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Permanent delete failed');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const getFileUrl = (url: string) => {
@@ -194,6 +255,7 @@ export default function DocumentsClient() {
                 setFiles(prev => prev.filter(f => f._id !== fileToDelete._id));
                 if (selectedFile?._id === fileToDelete._id) setSelectedFile(null);
                 setDeleteModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -216,6 +278,7 @@ export default function DocumentsClient() {
                 setSelectedDocs([]);
                 if (selectedFile && selectedDocs.includes(selectedFile._id)) setSelectedFile(null);
                 setBulkDeleteModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['caseFiles', id] });
                 queryClient.invalidateQueries({ queryKey: ['case', id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
                 queryClient.invalidateQueries({ queryKey: ['billing'] });
@@ -287,6 +350,100 @@ export default function DocumentsClient() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
+
+    const getDaysUntilPurge = (deletedAt?: string) => {
+        if (!deletedAt) return 30;
+        const purgeAt = new Date(deletedAt);
+        purgeAt.setDate(purgeAt.getDate() + 30);
+        const msRemaining = purgeAt.getTime() - Date.now();
+        return Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
+    };
+
+    const deletedFilesModal = mounted && deletedModalOpen ? createPortal(
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200]"
+                onClick={() => setDeletedModalOpen(false)}
+            />
+            <div className="fixed inset-0 z-[201] flex items-center justify-center pointer-events-none">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                className="w-[min(760px,calc(100vw-2rem))] max-h-[80vh] premium-glass border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden pointer-events-auto"
+            >
+                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                    <div>
+                        <h3 className="text-xl font-black text-white tracking-tightest">Deleted Files</h3>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">
+                            Only files deleted from this case are shown here
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setDeletedModalOpen(false)}
+                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all"
+                    >
+                        <span className="material-icons-round text-lg">close</span>
+                    </button>
+                </div>
+
+                <div className="p-6 overflow-y-auto max-h-[60vh] space-y-3">
+                    {isLoadingDeleted ? (
+                        <div className="py-16 flex justify-center">
+                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        </div>
+                    ) : deletedFiles.length === 0 ? (
+                        <div className="py-16 text-center border border-dashed border-white/10 rounded-2xl">
+                            <Trash2 className="w-10 h-10 text-slate-600 mx-auto mb-4" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">No deleted files for this case</p>
+                        </div>
+                    ) : (
+                        deletedFiles.map((file) => (
+                            <div key={file._id} className="border border-white/10 rounded-2xl p-4 bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center flex-none">
+                                        <FileText size={18} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-black text-white truncate">{file.name}</p>
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mt-1">
+                                            {formatSize(file.size || 0)} - {getDaysUntilPurge(file.deletedAt)} days left
+                                        </p>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-600 mt-1">
+                                            Deleted {file.deletedAt ? format(new Date(file.deletedAt), 'MMM d, yyyy HH:mm') : 'recently'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-none">
+                                    <button
+                                        onClick={() => restoreDeletedFile(file._id)}
+                                        disabled={isProcessing}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-background-dark text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                    >
+                                        <RotateCcw size={13} />
+                                        Restore
+                                    </button>
+                                    <button
+                                        onClick={() => permanentlyDeleteFile(file._id)}
+                                        disabled={isProcessing}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                    >
+                                        <Trash2 size={13} />
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </motion.div>
+            </div>
+        </AnimatePresence>,
+        document.body
+    ) : null;
 
     if (!mounted || isAuthLoading) {
         return (
@@ -474,6 +631,16 @@ export default function DocumentsClient() {
                                             <ListIcon size={16} />
                                         </button>
                                     </div>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={openDeletedModal}
+                                        className="h-12 px-5 bg-white/[0.03] border border-white/10 text-slate-400 hover:text-white hover:border-primary/40 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl"
+                                    >
+                                        <Trash2 size={16} className="text-primary" />
+                                        Deleted
+                                    </motion.button>
 
                                     <input
                                         type="file"
@@ -702,8 +869,8 @@ export default function DocumentsClient() {
                     onClose={() => setDeleteModalOpen(false)}
                     onConfirm={executeDelete}
                     title="Purge Analysis Unit"
-                    message="This protocol will permanently erase the intelligence unit from the repository. This action is irreversible."
-                    confirmLabel={isProcessing ? "Purging..." : "Confirm Destruction"}
+                    message="This protocol will move the intelligence unit to this case's deleted files. You can restore it from Command Center for 30 days."
+                    confirmLabel={isProcessing ? "Moving..." : "Move to Deleted"}
                     isDestructive
                 />
 
@@ -712,10 +879,13 @@ export default function DocumentsClient() {
                     onClose={() => setBulkDeleteModalOpen(false)}
                     onConfirm={executeBulkDelete}
                     title="Bulk Purge Protocol"
-                    message={`Authorization requested to permanently erase ${selectedDocs.length} intelligence units. This signal destruction cannot be recovered.`}
-                    confirmLabel={isProcessing ? "Executing..." : "Confirm Mass Purge"}
+                    message={`Authorization requested to move ${selectedDocs.length} intelligence units to this case's deleted files. They can be restored for 30 days.`}
+                    confirmLabel={isProcessing ? "Executing..." : "Move to Deleted"}
                     isDestructive
                 />
+
+                {deletedFilesModal}
+
             </div>
         </DashboardLayout>
     );

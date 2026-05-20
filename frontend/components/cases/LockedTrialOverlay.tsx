@@ -41,11 +41,11 @@ export const LockedTrialOverlay: React.FC<LockedTrialOverlayProps> = ({ isTrialE
 
         <div className="space-y-4">
           <h2 className="text-4xl font-black text-white font-display tracking-tightest">
-            {isClosed ? 'Permanently Sealed.' : isPending ? 'Pending Activation.' : isDiscovery ? 'Discovery Phase.' : isTrialExpired ? 'Trial Expired.' : 'Case Suspended.'}
+            {isClosed ? 'Archived Case.' : isPending ? 'Pending Activation.' : isDiscovery ? 'Discovery Phase.' : isTrialExpired ? 'Trial Expired.' : 'Case Suspended.'}
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed">
             {isClosed
-              ? <>This case was <span className="text-rose-400 font-bold italic">permanently sealed</span>. It cannot be reopened or reactivated. All data is preserved for reference purposes only.</>
+              ? <>This case is <span className="text-rose-400 font-bold italic">archived</span> and read-only. Create a new case to continue working.</>
               : isPending
                 ? <>This case is currently <span className="text-amber-500 font-bold italic">pending</span> and awaiting activation. Return to the dashboard to mark it as active and unlock full workspace features.</>
               : isDiscovery
@@ -72,7 +72,7 @@ export const LockedTrialOverlay: React.FC<LockedTrialOverlayProps> = ({ isTrialE
                     : <RotateCcw size={20} className="text-emerald-500" />
                 }
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  {isClosed ? 'No Reactivation' : isTrialExpired ? 'Instant Upgrade' : 'Reactivatable'}
+                  {isClosed ? 'Read Only' : isTrialExpired ? 'Instant Upgrade' : 'Reactivatable'}
                 </span>
             </div>
         </div>

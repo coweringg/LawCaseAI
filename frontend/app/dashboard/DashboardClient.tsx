@@ -7,7 +7,7 @@ import api from '@/lib/api';
 import { DashboardStats } from '@/types';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, Briefcase, Clock, Gavel, Loader2, Sparkles } from 'lucide-react';
+import { AlertCircle, Briefcase, Clock, Gavel, Loader2, Sparkles, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
@@ -49,6 +49,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const { user, isAuthenticated, fetchProfile } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+  const [pinnedCases, setPinnedCases] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
@@ -78,6 +79,27 @@ function DashboardContent() {
   useEffect(() => {
     if (isAuthenticated) fetchDashboardData();
   }, [isAuthenticated, fetchDashboardData]);
+
+  useEffect(() => {
+    const fetchPinnedCases = async () => {
+      if (!user?.pinnedCases?.length) {
+        setPinnedCases([]);
+        return;
+      }
+
+      try {
+        const response = await api.get('/cases?limit=100');
+        if (response.data.success) {
+          const pinnedIds = new Set(user.pinnedCases.map((caseId) => caseId.toString()));
+          setPinnedCases(response.data.data.filter((caseItem: any) => pinnedIds.has(caseItem._id)));
+        }
+      } catch {
+        setPinnedCases([]);
+      }
+    };
+
+    if (isAuthenticated) fetchPinnedCases();
+  }, [isAuthenticated, user?.pinnedCases]);
 
   useEffect(() => {
     if (searchParams?.get('status') === 'success' && isAuthenticated && !profileRefreshed.current) {
@@ -281,6 +303,34 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
+            {pinnedCases.length > 0 && (
+              <motion.div variants={itemVariants} className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Star size={16} className="text-amber-400" fill="currentColor" />
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Pinned Cases</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pinnedCases.map((caseItem) => (
+                    <button
+                      key={caseItem._id}
+                      onClick={() => router.push(`/dashboard/cases/${caseItem._id}`)}
+                      className="premium-glass text-left rounded-2xl border border-white/10 p-5 hover:border-primary/40 hover:bg-white/[0.04] transition-all group"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-5">
+                        <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center border border-amber-400/20">
+                          <Star size={16} fill="currentColor" />
+                        </div>
+                        <span className="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary">
+                          {caseItem.status}
+                        </span>
+                      </div>
+                      <p className="text-sm font-black text-white group-hover:text-primary transition-colors truncate">{caseItem.name}</p>
+                      <p className="text-[9px] text-slate-500 uppercase tracking-widest font-black mt-2 truncate">{caseItem.practiceArea || 'General Legal'}</p>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
             <div className="premium-glass rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden transition-all duration-200 hover:border-primary/20 backdrop-blur-3xl">
               <div className="p-4 lg:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                 <div className="flex items-center gap-3">

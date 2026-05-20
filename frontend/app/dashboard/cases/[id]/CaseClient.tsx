@@ -40,8 +40,7 @@ export default function CaseClient() {
         handleOpenFile, handleDownloadFile,
         handleAttachFile, handleDragOver, handleDragLeave, handleDrop,
         handleSaveSummary, executeCommitFile, handleDeleteFile, handleRenameFile,
-        handleSendMessage, handleGenerateSummary, handleCloseCase,
-        // Thread system
+        handleSendMessage, handleRegenerateLastMessage, handleGenerateSummary, handleCloseCase,
         threads, activeThreadId,
         handleSwitchThread, handleCreateThread, handleRenameThread, handleDeleteThread,
         renameThreadModalOpen, setRenameThreadModalOpen,
@@ -62,32 +61,32 @@ export default function CaseClient() {
 
     return (
         <DashboardLayout>
-            <motion.div 
+            <motion.div
                 initial={false}
                 animate="visible"
                 className="flex flex-col h-[calc(100vh-5rem)] -m-6 overflow-hidden relative"
             >
                 <div className="absolute inset-0 micro-grid opacity-30 pointer-events-none"></div>
                 {isTrialExpired && <LockedTrialOverlay status={caseData?.status} />}
-                
-                <CaseHeader 
-                    caseData={caseData} 
-                    isTrialExpired={isTrialExpired} 
-                    onCloseCase={() => setIsConfirmModalOpen(true)} 
+
+                <CaseHeader
+                    caseData={caseData}
+                    isTrialExpired={isTrialExpired}
+                    onCloseCase={() => setIsConfirmModalOpen(true)}
                 />
 
                 {isTrialCase && !isTrialExpired && (
-                    <TrialStatusBanner 
-                        hoursRemaining={24} 
-                        docsCount={files.length} 
-                        maxDocs={10} 
+                    <TrialStatusBanner
+                        hoursRemaining={24}
+                        docsCount={files.length}
+                        maxDocs={10}
                     />
                 )}
 
                 <div className="flex-1 flex overflow-hidden relative z-10">
                     {isCaseLocked && <LockedTrialOverlay isTrialExpired={isTrialExpired} closedByUser={caseData?.closedByUser} status={caseData?.status} />}
-                    
-                    <CaseSidebar 
+
+                    <CaseSidebar
                         id={id as string}
                         files={files}
                         isDraggingSidebar={isDraggingSidebar}
@@ -107,7 +106,7 @@ export default function CaseClient() {
                         }}
                     />
 
-                    <CaseChat 
+                    <CaseChat
                         chatMessages={chatMessages}
                         userInput={userInput}
                         isSending={isSending}
@@ -137,9 +136,10 @@ export default function CaseClient() {
                             setRenameThreadModalOpen(true);
                         }}
                         onDeleteThread={handleDeleteThread}
+                        onRegenerateLastMessage={handleRegenerateLastMessage}
                     />
 
-                    <CaseRightSidebar 
+                    <CaseRightSidebar
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
                         caseData={caseData}
@@ -153,7 +153,7 @@ export default function CaseClient() {
                     />
                 </div>
 
-                <CaseModals 
+                <CaseModals
                     isConfirmModalOpen={isConfirmModalOpen}
                     setIsConfirmModalOpen={setIsConfirmModalOpen}
                     onConfirmCloseCase={handleCloseCase}
@@ -183,16 +183,15 @@ export default function CaseClient() {
                     }}
                 />
 
-                {/* Rename Thread Modal */}
                 <AnimatePresence>
                     {renameThreadModalOpen && (
                         <>
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]" 
-                                onClick={() => setRenameThreadModalOpen(false)} 
+                                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+                                onClick={() => setRenameThreadModalOpen(false)}
                             />
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -206,15 +205,16 @@ export default function CaseClient() {
                                     onChange={(e) => setNewThreadTitle(e.target.value)}
                                     onKeyDown={(e) => { if (e.key === 'Enter') handleRenameThread(); }}
                                     className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 text-[13px] font-bold text-white outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder-slate-600"
-                                    placeholder="Thread title..."                                />
+                                    placeholder="Thread title..."
+                                />
                                 <div className="flex justify-end gap-3 mt-6">
-                                    <button 
+                                    <button
                                         onClick={() => setRenameThreadModalOpen(false)}
                                         className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors rounded-xl"
                                     >
                                         Cancel
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={handleRenameThread}
                                         className="px-6 py-2.5 bg-primary text-background-dark text-[10px] font-black uppercase tracking-widest rounded-2xl hover:shadow-[0_0_20px_rgba(0,230,118,0.4)] transition-all"
                                     >
@@ -226,8 +226,8 @@ export default function CaseClient() {
                     )}
                 </AnimatePresence>
 
-                <input 
-                    type="file" 
+                <input
+                    type="file"
                     ref={fileInputRef}
                     className="hidden"
                     onChange={handleAttachFile}
@@ -237,49 +237,49 @@ export default function CaseClient() {
                     {activeFileMenu && (
                         <>
                             <div className="fixed inset-0 z-[100]" onClick={() => setActiveFileMenu(null)}></div>
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.95, x: -10 }}
                                 animate={{ opacity: 1, scale: 1, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, x: -10 }}
                                 className="fixed z-[101] w-48 bg-[#0B1121] border border-white/10 rounded-2xl shadow-2xl p-2 premium-glass"
                                 style={{ top: activeFileMenu.y, left: activeFileMenu.x }}
                             >
-                                <button 
+                                <button
                                     onClick={() => {
                                         const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         setFileToRename(file);
                                         setNewFileName(file?.name || '');
                                         setRenameModalOpen(true);
                                         setActiveFileMenu(null);
-                                    }} 
+                                    }}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                                 >
-                                   <Edit2 size={14} className="text-primary" />
-                                   Update Identity
+                                    <Edit2 size={14} className="text-primary" />
+                                    Update Identity
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => {
                                         const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         if (file) handleDownloadFile(file.url, file.name);
                                         setActiveFileMenu(null);
-                                    }} 
+                                    }}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all mt-1"
-                                 >
+                                >
                                     <Zap size={14} className="text-primary" />
                                     Download Unit
-                                 </button>
-                                 <button 
+                                </button>
+                                <button
                                     onClick={() => {
                                         const file = files.find((f: any) => f._id === activeFileMenu.id);
                                         setFileToDelete(file);
                                         setDeleteModalOpen(true);
                                         setActiveFileMenu(null);
-                                    }} 
+                                    }}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all mt-1"
-                                 >
+                                >
                                     <Trash2 size={14} />
                                     Purge Signal
-                                 </button>
+                                </button>
                             </motion.div>
                         </>
                     )}

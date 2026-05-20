@@ -53,6 +53,10 @@ const caseFileSchema = new Schema<ICaseFile>({
     type: Boolean,
     default: false
   },
+  deletedAt: {
+    type: Date,
+    default: null
+  },
   uploadedAt: {
     type: Date,
     default: Date.now
@@ -63,9 +67,9 @@ const caseFileSchema = new Schema<ICaseFile>({
   toObject: { virtuals: true }
 })
 
-caseFileSchema.index({ caseId: 1, userId: 1 })
-caseFileSchema.index({ caseId: 1, isTemporary: 1 })
-caseFileSchema.index({ userId: 1 })
+caseFileSchema.index({ caseId: 1, userId: 1, deletedAt: 1 })
+caseFileSchema.index({ caseId: 1, isTemporary: 1, deletedAt: 1 })
+caseFileSchema.index({ userId: 1, deletedAt: 1 })
 caseFileSchema.index({ uploadedAt: -1 })
 
 caseFileSchema.pre('deleteOne', { document: true, query: false }, async function(this: ICaseFile & Document, next: (err?: Error) => void) {
@@ -79,15 +83,15 @@ caseFileSchema.pre('deleteOne', { document: true, query: false }, async function
 })
 
 caseFileSchema.statics.findByCase = function(caseId: string) {
-  return this.find({ caseId, $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] }).sort({ uploadedAt: -1 })
+  return this.find({ caseId, deletedAt: null, $or: [{ isTemporary: false }, { isTemporary: { $exists: false } }] }).sort({ uploadedAt: -1 })
 }
 
 caseFileSchema.statics.findByUser = function(userId: string) {
-  return this.find({ userId }).sort({ uploadedAt: -1 })
+  return this.find({ userId, deletedAt: null }).sort({ uploadedAt: -1 })
 }
 
 caseFileSchema.statics.countByCase = function(caseId: string) {
-  return this.countDocuments({ caseId })
+  return this.countDocuments({ caseId, deletedAt: null })
 }
 
 caseFileSchema.virtual('sizeFormatted').get(function(this: ICaseFile & Document) {

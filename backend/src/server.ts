@@ -29,6 +29,7 @@ import notificationRoutes from './routes/notification'
 import paymentRoutes from './routes/payment'
 import supportRoutes from './routes/support.routes'
 import systemRoutes from './routes/system'
+import trashRoutes from './routes/trash'
 import userRoutes from './routes/user'
 import webhookRoutes from './routes/webhook'
 
@@ -131,6 +132,7 @@ app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/system', systemRoutes)
+app.use('/api/trash', trashRoutes)
 app.use('/api/support', supportRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/knowledge-base', knowledgeBaseRoutes)

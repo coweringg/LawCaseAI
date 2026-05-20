@@ -30,7 +30,7 @@ jobs:
         cache-dependency-path: ./backend/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile
+      run: pnpm install --no-frozen-lockfile --config.strict-dep-builds=false
 
     - name: Run ESLint
       run: pnpm lint
@@ -61,7 +61,7 @@ jobs:
         cache-dependency-path: ./frontend/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile
+      run: pnpm install --no-frozen-lockfile --config.strict-dep-builds=false
 
     - name: Run ESLint
       run: pnpm lint

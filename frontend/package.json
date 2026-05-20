@@ -44,5 +44,12 @@
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.6.0",
     "organize-imports-cli": "^1.0.2"
+  },
+  "pnpm": {
+    "approvedBuilds": [
+      "core-js",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

@@ -22,6 +22,9 @@ jobs:
       with:
         version: 11
 
+    - name: Configure pnpm
+      run: pnpm config set strict-dep-builds false
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -30,7 +33,7 @@ jobs:
         cache-dependency-path: ./backend/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile --config.strict-dep-builds=false
+      run: pnpm install --no-frozen-lockfile
 
     - name: Run ESLint
       run: pnpm lint
@@ -53,6 +56,9 @@ jobs:
       with:
         version: 11
 
+    - name: Configure pnpm
+      run: pnpm config set strict-dep-builds false
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -61,7 +67,7 @@ jobs:
         cache-dependency-path: ./frontend/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile --config.strict-dep-builds=false
+      run: pnpm install --no-frozen-lockfile
 
     - name: Run ESLint
       run: pnpm lint
